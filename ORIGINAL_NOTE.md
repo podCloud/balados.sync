@@ -1,3 +1,5 @@
+Ce projet a été généré par Claude et copié collé dans des fichiers à partir de cette note et d'une discussion pour affiner les résultats :
+
 - En Elixir ?
 	- DB a part ala balados
 		- Event sourcing

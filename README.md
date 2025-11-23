@@ -2,6 +2,10 @@
 
 Système CQRS/Event Sourcing pour la synchronisation d'écoutes de podcasts, d'abonnements et de playlists.
 
+## Origine
+
+Le système a été codé par Claude.AI en suivant les instructions d'une note présente dans [ORIGINAL_NOTE.md](/ORIGINAL_NOTE.md)
+
 ## Architecture
 
 ```
