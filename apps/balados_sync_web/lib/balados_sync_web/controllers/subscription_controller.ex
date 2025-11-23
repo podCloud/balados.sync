@@ -1,7 +1,7 @@
 defmodule BaladosSyncWeb.SubscriptionController do
   use BaladosSyncWeb, :controller
 
-  alias BaladosSyncCore.App
+  alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.{Subscribe, Unsubscribe}
   alias BaladosSyncProjections.Repo
   alias BaladosSyncProjections.Schemas.Subscription
@@ -14,14 +14,13 @@ defmodule BaladosSyncWeb.SubscriptionController do
 
     command = %Subscribe{
       user_id: user_id,
-      device_id: device_id,
-      device_name: device_name,
       rss_source_feed: feed,
       rss_source_id: source_id,
-      subscribed_at: DateTime.utc_now()
+      subscribed_at: DateTime.utc_now(),
+      event_infos: %{device_id: device_id, device_name: device_name}
     }
 
-    case App.dispatch(command) do
+    case Dispatcher.dispatch(command) do
       :ok ->
         json(conn, %{status: "success"})
 
@@ -42,14 +41,13 @@ defmodule BaladosSyncWeb.SubscriptionController do
 
     command = %Unsubscribe{
       user_id: user_id,
-      device_id: device_id,
-      device_name: device_name,
       rss_source_feed: feed,
       rss_source_id: subscription && subscription.rss_source_id,
-      unsubscribed_at: DateTime.utc_now()
+      unsubscribed_at: DateTime.utc_now(),
+      event_infos: %{device_id: device_id, device_name: device_name}
     }
 
-    case App.dispatch(command) do
+    case Dispatcher.dispatch(command) do
       :ok ->
         json(conn, %{status: "success"})
 

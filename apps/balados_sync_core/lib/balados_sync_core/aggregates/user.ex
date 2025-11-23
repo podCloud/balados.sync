@@ -21,7 +21,7 @@ defmodule BaladosSyncCore.Aggregates.User do
     ChangePrivacy,
     RemoveEvents,
     SyncUserData,
-    CreateCheckpoint
+    Snapshot
   }
 
   alias BaladosSyncCore.Events.{
@@ -40,12 +40,11 @@ defmodule BaladosSyncCore.Aggregates.User do
   def execute(%__MODULE__{user_id: nil}, %Subscribe{} = cmd) do
     %UserSubscribed{
       user_id: cmd.user_id,
-      device_id: cmd.device_id,
-      device_name: cmd.device_name,
       rss_source_feed: cmd.rss_source_feed,
       rss_source_id: cmd.rss_source_id,
       subscribed_at: cmd.subscribed_at || DateTime.utc_now(),
-      timestamp: DateTime.utc_now()
+      timestamp: DateTime.utc_now(),
+      event_infos: cmd.event_infos || %{}
     }
   end
 
@@ -57,7 +56,7 @@ defmodule BaladosSyncCore.Aggregates.User do
       rss_source_id: cmd.rss_source_id,
       subscribed_at: cmd.subscribed_at || DateTime.utc_now(),
       timestamp: DateTime.utc_now(),
-      event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+      event_infos: cmd.event_infos || %{}
     }
   end
 
@@ -69,7 +68,7 @@ defmodule BaladosSyncCore.Aggregates.User do
       rss_source_id: cmd.rss_source_id,
       unsubscribed_at: cmd.unsubscribed_at || DateTime.utc_now(),
       timestamp: DateTime.utc_now(),
-      event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+      event_infos: cmd.event_infos || %{}
     }
   end
 
@@ -82,7 +81,7 @@ defmodule BaladosSyncCore.Aggregates.User do
       position: cmd.position,
       played: cmd.played,
       timestamp: DateTime.utc_now(),
-      event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+      event_infos: cmd.event_infos || %{}
     }
   end
 
@@ -94,7 +93,7 @@ defmodule BaladosSyncCore.Aggregates.User do
       rss_source_item: cmd.rss_source_item,
       position: cmd.position,
       timestamp: DateTime.utc_now(),
-      event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+      event_infos: cmd.event_infos || %{}
     }
   end
 
@@ -105,7 +104,7 @@ defmodule BaladosSyncCore.Aggregates.User do
       rss_source_feed: cmd.rss_source_feed,
       rss_source_item: cmd.rss_source_item,
       timestamp: DateTime.utc_now(),
-      event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+      event_infos: cmd.event_infos || %{}
     }
   end
 
@@ -116,7 +115,7 @@ defmodule BaladosSyncCore.Aggregates.User do
       rss_source_feed: cmd.rss_source_feed,
       rss_source_item: cmd.rss_source_item,
       timestamp: DateTime.utc_now(),
-      event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+      event_infos: cmd.event_infos || %{}
     }
   end
 
@@ -128,7 +127,7 @@ defmodule BaladosSyncCore.Aggregates.User do
       rss_source_item: cmd.rss_source_item,
       privacy: cmd.privacy,
       timestamp: DateTime.utc_now(),
-      event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+      event_infos: cmd.event_infos || %{}
     }
   end
 
@@ -139,7 +138,7 @@ defmodule BaladosSyncCore.Aggregates.User do
       rss_source_feed: cmd.rss_source_feed,
       rss_source_item: cmd.rss_source_item,
       timestamp: DateTime.utc_now(),
-      event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+      event_infos: cmd.event_infos || %{}
     }
   end
 
@@ -158,8 +157,8 @@ defmodule BaladosSyncCore.Aggregates.User do
     events
   end
 
-  # CreateCheckpoint
-  def execute(%__MODULE__{} = user, %CreateCheckpoint{} = cmd) do
+  # Snapshot
+  def execute(%__MODULE__{} = user, %Snapshot{} = cmd) do
     %UserCheckpoint{
       user_id: user.user_id,
       subscriptions: filter_subscriptions(user.subscriptions),
@@ -257,7 +256,7 @@ defmodule BaladosSyncCore.Aggregates.User do
               rss_source_id: synced_sub.rss_source_id,
               subscribed_at: synced_sub.subscribed_at,
               timestamp: DateTime.utc_now(),
-              event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+              event_infos: cmd.event_infos || %{}
             }
           ]
 
@@ -276,7 +275,7 @@ defmodule BaladosSyncCore.Aggregates.User do
                         rss_source_id: synced_sub.rss_source_id,
                         subscribed_at: synced_sub.subscribed_at,
                         timestamp: DateTime.utc_now(),
-                        event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+                        event_infos: cmd.event_infos || %{}
                       }
                     ]
                   else
@@ -295,7 +294,7 @@ defmodule BaladosSyncCore.Aggregates.User do
                         rss_source_id: synced_sub.rss_source_id,
                         subscribed_at: synced_sub.subscribed_at,
                         timestamp: DateTime.utc_now(),
-                        event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+                        event_infos: cmd.event_infos || %{}
                       }
                     ]
                   else
@@ -316,7 +315,7 @@ defmodule BaladosSyncCore.Aggregates.User do
                         rss_source_id: synced_sub.rss_source_id,
                         unsubscribed_at: synced_sub.unsubscribed_at,
                         timestamp: DateTime.utc_now(),
-                        event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+                        event_infos: cmd.event_infos || %{}
                       }
                     ]
                   else
@@ -335,7 +334,7 @@ defmodule BaladosSyncCore.Aggregates.User do
                         rss_source_id: synced_sub.rss_source_id,
                         unsubscribed_at: synced_sub.unsubscribed_at,
                         timestamp: DateTime.utc_now(),
-                        event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+                        event_infos: cmd.event_infos || %{}
                       }
                     ]
                   else
@@ -362,7 +361,7 @@ defmodule BaladosSyncCore.Aggregates.User do
               position: synced_status.position,
               played: synced_status.played,
               timestamp: DateTime.utc_now(),
-              event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+              event_infos: cmd.event_infos || %{}
             }
           ]
 
@@ -377,7 +376,7 @@ defmodule BaladosSyncCore.Aggregates.User do
                 position: synced_status.position,
                 played: synced_status.played,
                 timestamp: DateTime.utc_now(),
-                event_infos: %{device_id: cmd.device_id, device_name: cmd.device_name}
+                event_infos: cmd.event_infos || %{}
               }
             ]
           else

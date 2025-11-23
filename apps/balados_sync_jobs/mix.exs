@@ -36,7 +36,9 @@ defmodule BaladosSyncJobs.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:quantum, "~> 3.5"}
+      {:quantum, "~> 3.5"},
+      {:balados_sync_core, in_umbrella: true},
+      {:balados_sync_projections, in_umbrella: true}
     ]
   end
 

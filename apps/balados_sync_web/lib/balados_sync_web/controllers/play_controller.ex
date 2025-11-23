@@ -1,7 +1,7 @@
 defmodule BaladosSyncWeb.PlayController do
   use BaladosSyncWeb, :controller
 
-  alias BaladosSyncCore.App
+  alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.{RecordPlay, UpdatePosition}
   alias BaladosSyncProjections.Repo
   alias BaladosSyncProjections.Schemas.PlayStatus
@@ -19,15 +19,14 @@ defmodule BaladosSyncWeb.PlayController do
 
     command = %RecordPlay{
       user_id: user_id,
-      device_id: device_id,
-      device_name: device_name,
       rss_source_feed: feed,
       rss_source_item: item,
       position: position,
-      played: played
+      played: played,
+      event_infos: %{device_id: device_id, device_name: device_name}
     }
 
-    case App.dispatch(command) do
+    case Dispatcher.dispatch(command) do
       :ok ->
         json(conn, %{status: "success"})
 
@@ -48,14 +47,13 @@ defmodule BaladosSyncWeb.PlayController do
 
     command = %UpdatePosition{
       user_id: user_id,
-      device_id: device_id,
-      device_name: device_name,
       rss_source_feed: play_status && play_status.rss_source_feed,
       rss_source_item: item,
-      position: position
+      position: position,
+      event_infos: %{device_id: device_id, device_name: device_name}
     }
 
-    case App.dispatch(command) do
+    case Dispatcher.dispatch(command) do
       :ok ->
         json(conn, %{status: "success"})
 

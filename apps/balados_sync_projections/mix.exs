@@ -37,6 +37,7 @@ defmodule BaladosSyncProjections.MixProject do
   defp deps do
     [
       {:commanded, "~> 1.4"},
+      {:commanded_ecto_projections, "~> 1.4"},
       {:eventstore, "~> 1.4"},
       {:dns_cluster, "~> 0.1.1"},
       {:phoenix_pubsub, "~> 2.1"},
@@ -44,7 +45,8 @@ defmodule BaladosSyncProjections.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:jason, "~> 1.2"},
       {:swoosh, "~> 1.5"},
-      {:finch, "~> 0.13"}
+      {:finch, "~> 0.13"},
+      {:balados_sync_core, in_umbrella: true}
     ]
   end
 

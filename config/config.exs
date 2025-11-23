@@ -67,6 +67,18 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :balados_sync_core, event_stores: [BaladosSyncCore.EventStore]
+
+config :balados_sync_core, BaladosSyncCore.EventStore,
+  serializer: Commanded.Serialization.JsonSerializer,
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "balados_sync_dev",
+  schema: "events",
+  pool_size: 10,
+  pool_overflow: 10
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

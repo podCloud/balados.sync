@@ -9,7 +9,6 @@ defmodule BaladosSyncCore.Application do
   def start(_type, _args) do
     children = [
       BaladosSyncCore.Dispatcher,
-      BaladosSyncCore.Repo,
       {DNSCluster, query: Application.get_env(:balados_sync, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: BaladosSyncCore.PubSub},
       # Start the Finch HTTP client for sending emails

@@ -1,7 +1,7 @@
 defmodule BaladosSyncWeb.EpisodeController do
   use BaladosSyncWeb, :controller
 
-  alias BaladosSyncCore.App
+  alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.{SaveEpisode, ShareEpisode}
 
   def save(conn, %{"item" => item}) do
@@ -14,13 +14,12 @@ defmodule BaladosSyncWeb.EpisodeController do
 
     command = %SaveEpisode{
       user_id: user_id,
-      device_id: device_id,
-      device_name: device_name,
       rss_source_feed: feed,
-      rss_source_item: item
+      rss_source_item: item,
+      event_infos: %{device_id: device_id, device_name: device_name}
     }
 
-    case App.dispatch(command) do
+    case Dispatcher.dispatch(command) do
       :ok ->
         json(conn, %{status: "success"})
 
@@ -40,13 +39,12 @@ defmodule BaladosSyncWeb.EpisodeController do
 
     command = %ShareEpisode{
       user_id: user_id,
-      device_id: device_id,
-      device_name: device_name,
       rss_source_feed: feed,
-      rss_source_item: item
+      rss_source_item: item,
+      event_infos: %{device_id: device_id, device_name: device_name}
     }
 
-    case App.dispatch(command) do
+    case Dispatcher.dispatch(command) do
       :ok ->
         json(conn, %{status: "success"})
 

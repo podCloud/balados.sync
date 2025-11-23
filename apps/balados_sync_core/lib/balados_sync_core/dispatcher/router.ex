@@ -13,7 +13,7 @@ defmodule BaladosSyncCore.Dispatcher.Router do
     ChangePrivacy,
     RemoveEvents,
     SyncUserData,
-    CreateCheckpoint
+    Snapshot
   }
 
   # Toutes les commandes sont routées vers l'aggregate User
@@ -31,7 +31,7 @@ defmodule BaladosSyncCore.Dispatcher.Router do
       ChangePrivacy,
       RemoveEvents,
       SyncUserData,
-      CreateCheckpoint
+      Snapshot
     ],
     to: User
   )

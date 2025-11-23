@@ -38,6 +38,7 @@ defmodule BaladosSyncCore.MixProject do
     [
       {:commanded, "~> 1.4"},
       {:eventstore, "~> 1.4"},
+      {:commanded_eventstore_adapter, "~> 1.4"},
       {:dns_cluster, "~> 0.1.1"},
       {:phoenix_pubsub, "~> 2.1"},
       {:swoosh, "~> 1.5"},

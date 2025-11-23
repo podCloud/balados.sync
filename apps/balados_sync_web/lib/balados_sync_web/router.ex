@@ -43,6 +43,22 @@ defmodule BaladosSyncWeb.Router do
     plug BaladosSyncWeb.Plugs.JWTAuth
   end
 
+  pipeline :public_api do
+    plug :accepts, ["json"]
+  end
+
+  pipeline :rss_api do
+    plug :accepts, ["xml", "json"]
+  end
+
+  pipeline :rss_xml do
+    plug :accepts, ["xml"]
+  end
+
+  pipeline :play_gateway do
+    plug :accepts, ["*"]
+  end
+
   scope "/api/v1", BaladosSyncWeb do
     pipe_through :api
 
@@ -71,7 +87,7 @@ defmodule BaladosSyncWeb.Router do
   end
 
   scope "/api/v1/public", BaladosSyncWeb do
-    pipe_through [:accepts, ["json"]]
+    pipe_through :public_api
 
     get "/trending/podcasts", PublicController, :trending_podcasts
     get "/trending/episodes", PublicController, :trending_episodes
@@ -82,7 +98,7 @@ defmodule BaladosSyncWeb.Router do
 
   # RSS Proxy avec cache
   scope "/api/v1/rss", BaladosSyncWeb do
-    pipe_through [:accepts, ["xml", "json"]]
+    pipe_through :rss_api
 
     get "/proxy/:encoded_feed_id", RssProxyController, :proxy
     get "/proxy/:encoded_feed_id/:encoded_episode_id", RssProxyController, :proxy_episode
@@ -90,7 +106,7 @@ defmodule BaladosSyncWeb.Router do
 
   # RSS agrégé par user (abonnements et playlists)
   scope "/api/v1/rss/user", BaladosSyncWeb do
-    pipe_through [:accepts, ["xml"]]
+    pipe_through :rss_xml
 
     get "/:user_token/subscriptions", RssAggregateController, :subscriptions
     get "/:user_token/playlist/:playlist_id", RssAggregateController, :playlist
@@ -98,7 +114,7 @@ defmodule BaladosSyncWeb.Router do
 
   # Play gateway (subdomain play.balados.sync)
   scope "/", BaladosSyncWeb, host: "play." do
-    pipe_through [:accepts, ["*"]]
+    pipe_through :play_gateway
 
     get "/:user_token/:feed_id/:item_id", PlayGatewayController, :play
   end

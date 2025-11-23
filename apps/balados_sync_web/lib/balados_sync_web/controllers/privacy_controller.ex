@@ -1,7 +1,7 @@
 defmodule BaladosSyncWeb.PrivacyController do
   use BaladosSyncWeb, :controller
 
-  alias BaladosSyncCore.App
+  alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.ChangePrivacy
   alias BaladosSyncProjections.Repo
   alias BaladosSyncProjections.Schemas.UserPrivacy
@@ -35,7 +35,7 @@ defmodule BaladosSyncWeb.PrivacyController do
       }
     }
 
-    case App.dispatch(command) do
+    case Dispatcher.dispatch(command) do
       :ok ->
         json(conn, %{status: "success"})
 

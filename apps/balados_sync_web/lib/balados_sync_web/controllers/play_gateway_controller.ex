@@ -2,7 +2,7 @@ defmodule BaladosSyncWeb.PlayGatewayController do
   use BaladosSyncWeb, :controller
   require Logger
 
-  alias BaladosSyncCore.App
+  alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.RecordPlay
   alias BaladosSyncProjections.Repo
   alias BaladosSyncProjections.Schemas.UserToken
@@ -73,17 +73,16 @@ defmodule BaladosSyncWeb.PlayGatewayController do
   defp record_play_command(user_id, feed_url, item_id) do
     command = %RecordPlay{
       user_id: user_id,
-      device_id: nil,
-      device_name: "RSS Player",
       rss_source_feed: Base.encode64(feed_url),
       rss_source_item: Base.encode64(item_id),
       position: 0,
-      played: false
+      played: false,
+      event_infos: %{device_id: nil, device_name: "RSS Player"}
     }
 
     # Dispatch async pour ne pas bloquer la redirection
     Task.start(fn ->
-      case App.dispatch(command) do
+      case Dispatcher.dispatch(command) do
         :ok ->
           :ok
 

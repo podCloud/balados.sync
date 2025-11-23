@@ -56,6 +56,7 @@ defmodule BaladosSyncWeb.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.20"},
       {:balados_sync_core, in_umbrella: true},
+      {:balados_sync_projections, in_umbrella: true},
       {:jason, "~> 1.2"},
       {:bandit, "~> 1.2"},
       {:joken, "~> 2.6"},

@@ -1,6 +1,6 @@
 defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
   use Commanded.Projections.Ecto,
-    application: BaladosSyncCore.App,
+    application: BaladosSyncCore.Dispatcher,
     repo: BaladosSyncProjections.Repo,
     name: "PublicEventsProjector"
 

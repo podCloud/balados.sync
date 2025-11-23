@@ -24,22 +24,11 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreatePodcastPopularity do
     create index(:podcast_popularity, [:score], prefix: "site")
     create index(:podcast_popularity, [:plays], prefix: "site")
     create index(:podcast_popularity, [:likes], prefix: "site")
-    
-    # Index pour trending (comparaison avec previous)
-    create index(:podcast_popularity, ["score - score_previous"], 
-      prefix: "site",
-      name: :podcast_popularity_trending_score_idx
-    )
-    
-    create index(:podcast_popularity, ["plays - plays_previous"], 
-      prefix: "site",
-      name: :podcast_popularity_trending_plays_idx
-    )
-    
-    create index(:podcast_popularity, ["likes - likes_previous"], 
-      prefix: "site",
-      name: :podcast_popularity_trending_likes_idx
-    )
+
+    # Indexes for trending calculations (order by desc for trending)
+    create index(:podcast_popularity, [:score, :score_previous], prefix: "site")
+    create index(:podcast_popularity, [:plays, :plays_previous], prefix: "site")
+    create index(:podcast_popularity, [:likes, :likes_previous], prefix: "site")
   end
 end
 

@@ -1,7 +1,7 @@
 defmodule BaladosSyncWeb.SyncController do
   use BaladosSyncWeb, :controller
 
-  alias BaladosSyncCore.App
+  alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.SyncUserData
 
   def sync(conn, params) do
@@ -12,14 +12,13 @@ defmodule BaladosSyncWeb.SyncController do
     # params contient: subscriptions, play_statuses, playlists
     command = %SyncUserData{
       user_id: user_id,
-      device_id: device_id,
-      device_name: device_name,
       subscriptions: parse_subscriptions(params["subscriptions"] || []),
       play_statuses: parse_play_statuses(params["play_statuses"] || []),
-      playlists: parse_playlists(params["playlists"] || [])
+      playlists: parse_playlists(params["playlists"] || []),
+      event_infos: %{device_id: device_id, device_name: device_name}
     }
 
-    case App.dispatch(command, consistency: :strong) do
+    case Dispatcher.dispatch(command, consistency: :strong) do
       :ok ->
         # Récupérer l'état synchronisé depuis les projections
         synced_data = get_user_data(user_id)
