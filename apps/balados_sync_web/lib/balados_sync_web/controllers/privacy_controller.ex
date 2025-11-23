@@ -26,11 +26,13 @@ defmodule BaladosSyncWeb.PrivacyController do
 
     command = %ChangePrivacy{
       user_id: user_id,
-      device_id: device_id,
-      device_name: device_name,
       rss_source_feed: feed,
       rss_source_item: item,
-      privacy: privacy_atom
+      privacy: privacy_atom,
+      event_infos: %{
+        device_id: device_id,
+        device_name: device_name
+      }
     }
 
     case App.dispatch(command) do

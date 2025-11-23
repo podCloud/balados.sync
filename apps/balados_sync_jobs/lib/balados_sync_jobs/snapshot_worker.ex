@@ -2,8 +2,8 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   require Logger
   import Ecto.Query
 
-  alias BaladosSyncCore.App
-  alias BaladosSyncCore.Commands.CreateCheckpoint
+  alias BaladosSyncCore.Dispatcher
+  alias BaladosSyncCore.Commands.Snapshot
   alias BaladosSyncCore.EventStore
   alias BaladosSyncProjections.Repo
 
@@ -36,7 +36,8 @@ defmodule BaladosSyncJobs.SnapshotWorker do
 
   defp get_old_events(cutoff_date) do
     # Query EventStore pour récupérer les vieux events
-    # Ceci est une simplification - EventStore a sa propre API
+    # TODO: Ceci est une simplification - EventStore a sa propre API
+    #
     query = """
     SELECT 
       data->>'user_id' as user_id,
@@ -53,6 +54,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     """
 
     # Execute raw query - à adapter selon votre EventStore
+    # TODO: Adapter selon EventStore
     {:ok, result} = Ecto.Adapters.SQL.query(Repo, query, [cutoff_date])
 
     Enum.map(result.rows, fn [user_id, event_type, feed, item] ->
@@ -63,12 +65,12 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   defp create_user_checkpoint(user_id, cleanup_old_events) do
     Logger.info("Creating checkpoint for user #{user_id}")
 
-    command = %CreateCheckpoint{
+    command = %Snapshot{
       user_id: user_id,
       cleanup_old_events: cleanup_old_events
     }
 
-    case App.dispatch(command, consistency: :strong) do
+    case BaladosSyncCore.Dispatcher.dispatch(command, consistency: :strong) do
       :ok ->
         Logger.info("Checkpoint created for user #{user_id}")
 
@@ -86,7 +88,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     thirty_one_days_ago = DateTime.add(DateTime.utc_now(), -@thirty_one_days_ago_seconds, :second)
 
     # Supprimer les events de plus de 31 jours pour cet user
-    # Note: EventStore peut avoir sa propre API de suppression
+    # TODO: EventStore peut avoir sa propre API de suppression
     query = """
     DELETE FROM events.events
     WHERE data->>'user_id' = $1
@@ -182,7 +184,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     Logger.debug("Feed #{feed} popularity: #{total_score}")
   end
 
-  defp calculate_item_popularity(%{feed: feed, item: item}) do
+  defp calculate_item_popularity(%{feed: _feed, item: item}) do
     query =
       from(pe in "site.public_events",
         where: pe.rss_source_item == ^item,
