@@ -45,12 +45,14 @@ defmodule BaladosSyncProjections.Schemas.ApiToken do
 
   defp validate_public_key(changeset) do
     validate_change(changeset, :public_key, fn :public_key, public_key ->
-      case :public_key.pem_decode(public_key) do
-        [] -> [public_key: "must be a valid PEM-encoded RSA public key"]
-        _ -> []
+      try do
+        case :public_key.pem_decode(public_key) do
+          [] -> [public_key: "must be a valid PEM-encoded RSA public key"]
+          _ -> []
+        end
+      rescue
+        _ -> [public_key: "must be a valid PEM-encoded RSA public key"]
       end
-    rescue
-      _ -> [public_key: "must be a valid PEM-encoded RSA public key"]
     end)
   end
 end
