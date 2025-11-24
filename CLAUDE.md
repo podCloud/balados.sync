@@ -210,18 +210,119 @@ Repo.get_by(Subscription, user_id: "user_123")
 - `PHX_HOST`: Production hostname
 - `PORT`: HTTP port (default 4000)
 
-### JWT Authentication
-JWTs must contain:
+### App Authorization System
+
+The app authorization system uses OAuth-style JWT authentication with RS256 signing.
+
+#### Token Tables
+- **app_tokens**: Third-party app authorizations (JWT-based)
+- **play_tokens**: Simple bearer tokens for play gateway
+
+#### Authorization Flow
+
+1. **App creates authorization JWT** containing:
+   - `iss`: App ID (mandatory, unique identifier)
+   - `app`: Object with name, url, image, public_key
+   - `scopes`: Array of requested permissions (e.g., ["user.subscriptions.read"])
+
+2. **User authorizes** via `/authorize?token=...`
+   - System validates JWT using embedded public key
+   - Shows app details and requested scopes
+   - User approves or denies
+
+3. **App makes API requests** using JWTs signed with private key:
+   - `iss`: App ID (identifies the app)
+   - `sub`: User ID
+   - Must be signed with private key matching stored public key
+
+#### Scope System
+
+Hierarchical permissions with wildcard support:
+
+**Base Scopes**:
+- `*`: Full access
+- `*.read`: Read access to all data
+- `*.write`: Write access to all data
+
+**User Scopes**:
+- `user`: Full user profile access
+- `user.read`: Read user profile
+- `user.write`: Update user profile
+- `user.subscriptions`: Full subscription access
+- `user.subscriptions.read`: List subscriptions
+- `user.subscriptions.write`: Add/remove subscriptions
+- `user.plays`: Full play status access
+- `user.plays.read`: Read positions
+- `user.plays.write`: Update positions
+- `user.playlists`: Full playlist access
+- `user.playlists.read`: List playlists
+- `user.playlists.write`: Manage playlists
+- `user.privacy`: Full privacy access
+- `user.privacy.read`: View privacy settings
+- `user.privacy.write`: Update privacy settings
+- `user.sync`: Full sync access
+
+**Wildcard Patterns**:
+- `*.read`: Matches any read scope
+- `user.*`: Matches all user scopes
+- `user.*.read`: Matches all user read scopes
+
+#### Example Authorization JWT
+
 ```json
 {
-  "sub": "user_id",
-  "jti": "unique_token_id",
-  "device_id": "device_123",
-  "device_name": "Device Name",
+  "iss": "com.example.podcast-player",
+  "app": {
+    "name": "My Podcast App",
+    "url": "https://example.com",
+    "image": "https://example.com/icon.png",
+    "public_key": "-----BEGIN PUBLIC KEY-----\n..."
+  },
+  "scopes": ["user.subscriptions.read", "user.plays.write"],
   "iat": 1234567890,
   "exp": 1234567890
 }
 ```
+
+#### Example API Request JWT
+
+```json
+{
+  "iss": "com.example.podcast-player",
+  "sub": "user_123",
+  "iat": 1234567890,
+  "exp": 1234567890
+}
+```
+
+#### Scope Validation in Controllers
+
+Controllers use the `JWTAuth` plug with scope requirements:
+
+```elixir
+# Require specific scope
+plug JWTAuth, [scopes: ["user.subscriptions.read"]] when action in [:index]
+
+# Require multiple scopes (all must be granted)
+plug JWTAuth, [scopes: ["user.read", "user.subscriptions.read"]]
+
+# Require any of several scopes
+plug JWTAuth, [scopes_any: ["user.sync", "user"]]
+```
+
+#### Image Visibility
+
+App images are only displayed if ≥10% of users have authorized the app.
+- If <1%: Shows "~30 users" (rounded to nearest 10)
+- If ≥1%: Shows "15% of users" (rounded up)
+
+#### Key Files
+
+- `apps/balados_sync_web/lib/balados_sync_web/app_auth.ex`: Authorization logic
+- `apps/balados_sync_web/lib/balados_sync_web/scopes.ex`: Scope definitions and matching
+- `apps/balados_sync_web/lib/balados_sync_web/plugs/jwt_auth.ex`: JWT validation plug
+- `apps/balados_sync_projections/lib/balados_sync_projections/schemas/app_token.ex`: App authorization schema
+- `apps/balados_sync_projections/lib/balados_sync_projections/schemas/play_token.ex`: Simple token schema
 
 ### Subdomain Configuration
 For local testing with `play.balados.sync` subdomain:
