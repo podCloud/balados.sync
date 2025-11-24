@@ -1,0 +1,106 @@
+<div class="mx-auto max-w-4xl py-12 px-4">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+      Authorized Applications
+    </h1>
+    <p class="text-gray-600">
+      Manage third-party apps that have access to your Balados data. You can revoke access at any time.
+    </p>
+  </div>
+
+  <%= if Enum.empty?(@apps) do %>
+    <div class="bg-white shadow-md rounded-lg p-8 text-center">
+      <div class="mx-auto h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+        <span class="text-4xl text-gray-400">🔐</span>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-900 mb-2">
+        No Authorized Apps
+      </h2>
+      <p class="text-gray-600">
+        You haven't authorized any third-party applications yet. When you do, they'll appear here.
+      </p>
+    </div>
+  <% else %>
+    <div class="space-y-4">
+      <%= for app <- @apps do %>
+        <div class="bg-white shadow-md rounded-lg p-6">
+          <div class="flex items-start gap-4">
+            <!-- App Icon -->
+            <div class="flex-shrink-0">
+              <%= if app.show_image and app.app_image do %>
+                <img
+                  src={app.app_image}
+                  alt={app.app_name}
+                  class="h-16 w-16 rounded-lg object-cover"
+                />
+              <% else %>
+                <div class="h-16 w-16 rounded-lg bg-gray-200 flex items-center justify-center">
+                  <span class="text-2xl text-gray-500">📱</span>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- App Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between mb-2">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">
+                    <%= app.app_name %>
+                  </h3>
+                  <%= if app.app_url do %>
+                    <a
+                      href={app.app_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      <%= app.app_url %>
+                    </a>
+                  <% end %>
+                </div>
+                <button
+                  phx-click="revoke_app"
+                  phx-value-app-id={app.app_id}
+                  class="flex-shrink-0 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  data-confirm="Are you sure you want to revoke access for this app?"
+                >
+                  Revoke Access
+                </button>
+              </div>
+
+              <p class="text-xs text-gray-500 mb-3">
+                Used by <%= app.user_display %> • App ID: <%= app.app_id %>
+              </p>
+
+              <!-- Scopes -->
+              <%= if not Enum.empty?(app.scopes_with_labels) do %>
+                <div class="mb-3">
+                  <h4 class="text-sm font-medium text-gray-700 mb-2">Granted Permissions:</h4>
+                  <div class="flex flex-wrap gap-2">
+                    <%= for %{scope: scope, label: label} <- app.scopes_with_labels do %>
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800" title={scope}>
+                        <%= label %>
+                      </span>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+
+              <!-- Timestamps -->
+              <div class="text-xs text-gray-500">
+                <span>
+                  Authorized <%= format_datetime(app.inserted_at) %>
+                </span>
+                <%= if app.last_used_at do %>
+                  <span class="ml-3">
+                    Last used <%= format_datetime(app.last_used_at) %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

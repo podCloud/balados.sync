@@ -1,7 +1,7 @@
 <div class="mx-auto max-w-2xl py-12 px-4">
   <div class="bg-white shadow-md rounded-lg p-8">
     <div class="text-center mb-6">
-      <%= if @app_image do %>
+      <%= if @show_image and @app_image do %>
         <img
           src={@app_image}
           alt={@app_name}
@@ -29,6 +29,10 @@
           </a>
         </p>
       <% end %>
+
+      <p class="text-xs text-gray-500 mt-2">
+        Used by <%= @user_display %>
+      </p>
     </div>
 
     <div class="border-t border-gray-200 pt-6 mb-6">
@@ -36,29 +40,36 @@
         This app is requesting permission to:
       </h2>
 
-      <ul class="space-y-2">
-        <%= for scope <- @scopes do %>
-          <li class="flex items-start">
-            <svg
-              class="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
+      <%= if Enum.empty?(@scopes) do %>
+        <p class="text-gray-600 text-sm italic">
+          This app is not requesting any specific permissions. It will have full access to your data.
+        </p>
+      <% else %>
+        <ul class="space-y-2">
+          <%= for %{scope: scope, label: label} <- @scopes do %>
+            <li class="flex items-start">
+              <svg
+                class="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-              </path>
-            </svg>
-            <span class="text-gray-700">
-              <%= scope_description(scope) %>
-            </span>
-          </li>
-        <% end %>
-      </ul>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                >
+                </path>
+              </svg>
+              <div class="flex-1">
+                <span class="text-gray-700 font-medium"><%= label %></span>
+                <span class="text-gray-500 text-xs block"><%= scope %></span>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
     </div>
 
     <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">

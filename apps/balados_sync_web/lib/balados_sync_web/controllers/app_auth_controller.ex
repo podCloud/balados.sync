@@ -28,6 +28,7 @@ defmodule BaladosSyncWeb.AppAuthController do
   use BaladosSyncWeb, :controller
 
   alias BaladosSyncWeb.AppAuth
+  alias BaladosSyncWeb.Scopes
 
   @doc """
   Shows the authorization page for a third-party app.
@@ -51,12 +52,30 @@ defmodule BaladosSyncWeb.AppAuthController do
       {:ok, decoded_data} ->
         if conn.assigns[:current_user] do
           Logger.debug("Showing app authorization page for user #{conn.assigns.current_user.id}")
+
+          # Get app usage stats for image visibility logic
+          app_id = decoded_data["iss"]
+          public_key = decoded_data["app"]["public_key"]
+          {user_count, percentage, total_users} = AppAuth.get_app_usage_stats(app_id, public_key)
+
+          # Determine image visibility and user count display
+          {show_image, user_display} = calculate_image_visibility(user_count, percentage, total_users)
+
+          # Get human-readable scope labels
+          scopes_with_labels =
+            (decoded_data["scopes"] || [])
+            |> Enum.map(fn scope ->
+              %{scope: scope, label: Scopes.scope_description(scope)}
+            end)
+
           # User is authenticated, render authorization page
           render(conn, :authorize,
             app_name: decoded_data["app"]["name"],
             app_url: decoded_data["app"]["url"],
             app_image: decoded_data["app"]["image"],
-            scopes: decoded_data["scopes"] || [],
+            show_image: show_image,
+            user_display: user_display,
+            scopes: scopes_with_labels,
             token: token
           )
         else
@@ -175,12 +194,12 @@ defmodule BaladosSyncWeb.AppAuthController do
       {
         "apps": [
           {
-            "id": 1,
+            "id": "uuid",
+            "app_id": "com.example.podcast-player",
             "app_name": "Podcast Player Pro",
             "app_url": "https://podcastplayer.com",
             "app_image": "https://podcastplayer.com/icon.png",
-            "token_jti": "unique-token-id",
-            "scopes": ["read:subscriptions", "write:plays"],
+            "scopes": ["user.subscriptions.read", "user.plays.write"],
             "last_used_at": "2024-01-15T10:30:00Z",
             "inserted_at": "2024-01-01T08:00:00Z",
             "updated_at": "2024-01-15T10:30:00Z"
@@ -198,10 +217,10 @@ defmodule BaladosSyncWeb.AppAuthController do
       Enum.map(apps, fn app ->
         %{
           id: app.id,
+          app_id: app.app_id,
           app_name: app.app_name,
           app_url: app.app_url,
           app_image: app.app_image,
-          token_jti: app.token_jti,
           scopes: app.scopes,
           last_used_at: app.last_used_at,
           inserted_at: app.inserted_at,
@@ -220,7 +239,7 @@ defmodule BaladosSyncWeb.AppAuthController do
 
   ## Parameters
 
-  - `jti` - The unique token identifier (JTI) of the app to revoke
+  - `app_id` - The unique app identifier (from JWT iss field)
 
   ## Authentication
 
@@ -228,7 +247,7 @@ defmodule BaladosSyncWeb.AppAuthController do
 
   ## Example Request
 
-      DELETE /api/v1/apps/unique-token-id
+      DELETE /api/v1/apps/com.example.podcast-player
       Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 
   ## Example Response (Success)
@@ -244,17 +263,56 @@ defmodule BaladosSyncWeb.AppAuthController do
         "error": "App not found or already revoked"
       }
   """
-  def delete(conn, %{"jti" => jti}) do
+  def delete(conn, %{"app_id" => app_id}) do
     user_id = conn.assigns.current_user_id
 
-    case AppAuth.revoke_app(user_id, jti) do
-      {:ok, _api_token} ->
+    case AppAuth.revoke_app(user_id, app_id) do
+      {:ok, _app_token} ->
         json(conn, %{status: "success", message: "App authorization revoked"})
 
       {:error, :not_found} ->
         conn
         |> put_status(:not_found)
         |> json(%{error: "App not found or already revoked"})
+    end
+  end
+
+  @doc """
+  Shows the HTML page for managing authorized apps.
+
+  This page displays all apps the user has authorized, with options to revoke access.
+  Images are shown only if 10% of users have authorized the app.
+  """
+  def manage_apps(conn, _params) do
+    user = conn.assigns[:current_user]
+
+    if user do
+      apps = AppAuth.get_authorized_apps(user.id)
+
+      # Enrich apps with usage stats for image visibility
+      apps_with_stats =
+        Enum.map(apps, fn app ->
+          {user_count, percentage, total_users} =
+            AppAuth.get_app_usage_stats(app.app_id, app.public_key)
+
+          {show_image, user_display} =
+            calculate_image_visibility(user_count, percentage, total_users)
+
+          Map.merge(app, %{
+            show_image: show_image,
+            user_display: user_display,
+            scopes_with_labels:
+              Enum.map(app.scopes, fn scope ->
+                %{scope: scope, label: Scopes.scope_description(scope)}
+              end)
+          })
+        end)
+
+      render(conn, :manage_apps, apps: apps_with_stats)
+    else
+      conn
+      |> put_flash(:error, "Please log in to manage your authorized apps.")
+      |> redirect(to: ~p"/users/log_in")
     end
   end
 
@@ -269,5 +327,26 @@ defmodule BaladosSyncWeb.AppAuthController do
       "#{field}: #{Enum.join(errors, ", ")}"
     end)
     |> Enum.join("; ")
+  end
+
+  # Helper function to calculate image visibility and user count display
+  # Returns {show_image :: boolean, user_display :: String.t}
+  defp calculate_image_visibility(user_count, percentage, _total_users) do
+    show_image = percentage >= 10.0
+
+    user_display =
+      cond do
+        # If percentage before rounding is < 1%, show user count rounded to nearest 10
+        percentage < 1.0 ->
+          rounded_count = div(user_count + 5, 10) * 10
+          "~#{rounded_count} users"
+
+        # Otherwise show percentage rounded up
+        true ->
+          rounded_percentage = ceil(percentage)
+          "#{rounded_percentage}% of users"
+      end
+
+    {show_image, user_display}
   end
 end
