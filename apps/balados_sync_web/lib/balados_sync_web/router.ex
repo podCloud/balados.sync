@@ -11,6 +11,14 @@ defmodule BaladosSyncWeb.Router do
     plug BaladosSyncWeb.Plugs.UserAuth, :fetch_current_user
   end
 
+  pipeline :redirect_if_user_is_authenticated do
+    plug BaladosSyncWeb.Plugs.UserAuth, :redirect_if_user_is_authenticated
+  end
+
+  pipeline :require_authenticated_user do
+    plug BaladosSyncWeb.Plugs.UserAuth, :require_authenticated_user
+  end
+
   scope "/", BaladosSyncWeb do
     pipe_through :browser
 
@@ -19,7 +27,7 @@ defmodule BaladosSyncWeb.Router do
 
   # Routes for user authentication (public access)
   scope "/users", BaladosSyncWeb do
-    pipe_through [:browser, BaladosSyncWeb.Plugs.UserAuth, :redirect_if_user_is_authenticated]
+    pipe_through [:browser, :redirect_if_user_is_authenticated]
 
     get "/register", UserRegistrationController, :new
     post "/register", UserRegistrationController, :create
@@ -29,7 +37,7 @@ defmodule BaladosSyncWeb.Router do
 
   # Routes for authenticated users only
   scope "/", BaladosSyncWeb do
-    pipe_through [:browser, BaladosSyncWeb.Plugs.UserAuth, :require_authenticated_user]
+    pipe_through [:browser, :require_authenticated_user]
 
     get "/dashboard", DashboardController, :index
     delete "/users/log_out", UserSessionController, :delete

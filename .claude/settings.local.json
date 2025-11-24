@@ -6,7 +6,9 @@
       "Bash(mix deps.get:*)",
       "Bash(mix deps:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(mix phx.server:*)",
+      "Bash(timeout 15 mix phx.server:*)"
     ],
     "deny": [],
     "ask": []

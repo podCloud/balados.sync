@@ -16,14 +16,12 @@
     </.error>
     <.input field={f[:email]} type="email" label="Email" required />
     <.input field={f[:password]} type="password" label="Password" required />
+    <.input field={f[:remember_me]} type="checkbox" label="Keep me logged in" />
 
     <:actions>
-      <.input field={f[:remember_me]} type="checkbox" label="Keep me logged in" />
       <.link href={~p"/"} class="text-sm font-semibold">
         Forgot your password?
       </.link>
-    </:actions>
-    <:actions>
       <.button phx-disable-with="Signing in..." class="w-full">
         Sign in <span aria-hidden="true">→</span>
       </.button>

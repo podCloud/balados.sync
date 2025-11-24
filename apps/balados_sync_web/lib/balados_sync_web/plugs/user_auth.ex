@@ -17,6 +17,14 @@ defmodule BaladosSyncWeb.Plugs.UserAuth do
   @remember_me_cookie "_balados_sync_web_user_remember_me"
   @remember_me_options [sign: true, max_age: @max_age, same_site: "Lax"]
 
+  @doc false
+  def init(opts), do: opts
+
+  @doc false
+  def call(conn, opts) do
+    apply(__MODULE__, opts, [conn, []])
+  end
+
   @doc """
   Logs the user in.
 
