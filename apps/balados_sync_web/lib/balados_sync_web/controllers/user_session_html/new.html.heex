@@ -1,12 +1,12 @@
 <div class="mx-auto max-w-sm">
   <.header class="text-center">
-    Sign in to account
+    Se connecter
     <:subtitle>
-      Don't have an account?
+      Pas encore de compte ?
       <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
-        Sign up
+        Inscrivez-vous
       </.link>
-      for an account now.
+      dès maintenant.
     </:subtitle>
   </.header>
 
@@ -14,16 +14,13 @@
     <.error :if={@error_message}>
       <%= @error_message %>
     </.error>
-    <.input field={f[:email]} type="email" label="Email" required />
-    <.input field={f[:password]} type="password" label="Password" required />
-    <.input field={f[:remember_me]} type="checkbox" label="Keep me logged in" />
+    <.input field={f[:username]} type="text" label="Nom d'utilisateur" required />
+    <.input field={f[:password]} type="password" label="Mot de passe" required />
+    <.input field={f[:remember_me]} type="checkbox" label="Rester connecté" />
 
     <:actions>
-      <.link href={~p"/"} class="text-sm font-semibold">
-        Forgot your password?
-      </.link>
-      <.button phx-disable-with="Signing in..." class="w-full">
-        Sign in <span aria-hidden="true">→</span>
+      <.button phx-disable-with="Connexion..." class="w-full">
+        Se connecter <span aria-hidden="true">→</span>
       </.button>
     </:actions>
   </.simple_form>

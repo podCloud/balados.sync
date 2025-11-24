@@ -76,7 +76,28 @@ defmodule BaladosSyncWeb.Accounts do
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
     user = Repo.get_by(User, email: email)
+    verify_user_password(user, password)
+  end
 
+  @doc """
+  Gets a user by username and password.
+
+  ## Examples
+
+      iex> get_user_by_username_and_password("username", "correct_password")
+      {:ok, %User{}}
+
+      iex> get_user_by_username_and_password("username", "wrong_password")
+      {:error, :invalid_credentials}
+
+  """
+  def get_user_by_username_and_password(username, password)
+      when is_binary(username) and is_binary(password) do
+    user = Repo.get_by(User, username: username)
+    verify_user_password(user, password)
+  end
+
+  defp verify_user_password(user, password) do
     cond do
       # User doesn't exist
       is_nil(user) ->
