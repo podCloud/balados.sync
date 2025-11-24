@@ -23,7 +23,17 @@ defmodule BaladosSyncProjections.Schemas.ApiToken do
   """
   def changeset(api_token, attrs) do
     api_token
-    |> cast(attrs, [:user_id, :app_name, :app_image, :app_url, :public_key, :token_jti, :scopes, :last_used_at, :revoked_at])
+    |> cast(attrs, [
+      :user_id,
+      :app_name,
+      :app_image,
+      :app_url,
+      :public_key,
+      :token_jti,
+      :scopes,
+      :last_used_at,
+      :revoked_at
+    ])
     |> validate_required([:user_id, :app_name, :public_key, :token_jti])
     |> unique_constraint(:token_jti)
     |> validate_length(:app_name, min: 1, max: 255)
@@ -41,7 +51,7 @@ defmodule BaladosSyncProjections.Schemas.ApiToken do
   Changeset for revoking a token.
   """
   def revoke_changeset(api_token) do
-    change(api_token, revoked_at: DateTime.utc_now())
+    change(api_token, revoked_at: DateTime.utc_now() |> DateTime.truncate(:second))
   end
 
   defp validate_public_key(changeset) do
