@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Authorization Token Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background-color: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .description {
+      color: #666;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    .required::after {
+      content: " *";
+      color: #e53e3e;
+    }
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    textarea {
+      font-family: "Courier New", monospace;
+      resize: vertical;
+    }
+    .textarea-small {
+      min-height: 80px;
+    }
+    .textarea-large {
+      min-height: 200px;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .btn-primary {
+      background-color: #3182ce;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #2c5282;
+    }
+    .btn-secondary {
+      background-color: #718096;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #4a5568;
+    }
+    .btn-success {
+      background-color: #38a169;
+      color: white;
+    }
+    .btn-success:hover {
+      background-color: #2f855a;
+    }
+    .output-section {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 2px solid #e2e8f0;
+    }
+    .output-label {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    .info-box {
+      background-color: #edf2f7;
+      border-left: 4px solid #3182ce;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+    .info-box p {
+      margin: 5px 0;
+      color: #2d3748;
+      line-height: 1.6;
+    }
+    .help-text {
+      font-size: 12px;
+      color: #718096;
+      margin-top: 5px;
+    }
+    .url-example {
+      background-color: #f7fafc;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+      word-break: break-all;
+      margin-top: 10px;
+    }
+    .alert {
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .alert-success {
+      background-color: #c6f6d5;
+      color: #22543d;
+      border: 1px solid #9ae6b4;
+    }
+    .alert-error {
+      background-color: #fed7d7;
+      color: #742a2a;
+      border: 1px solid #fc8181;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>App Authorization Token Generator</h1>
+    <p class="description">
+      This is a utility page for app developers to create authorization request tokens.
+      All operations happen in your browser - no data is sent to the server.
+    </p>
+
+    <div class="info-box">
+      <p><strong>How it works:</strong></p>
+      <p>1. Fill in your app details below</p>
+      <p>2. Generate an RS256 key pair (or paste your existing keys)</p>
+      <p>3. Generate a JWT token containing your app information</p>
+      <p>4. Use the token in an authorization URL to request user permission</p>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <form id="appForm">
+      <div class="form-group">
+        <label for="id">App ID</label>
+        <input type="text" id="id" name="id" placeholder="com.example.myapp">
+        <div class="help-text">Optional: Unique identifier for your app (reverse domain notation recommended)</div>
+      </div>
+
+      <div class="form-group">
+        <label for="name" class="required">App Name</label>
+        <input type="text" id="name" name="name" placeholder="My Awesome App" required>
+        <div class="help-text">The name users will see when authorizing your app</div>
+      </div>
+
+      <div class="form-group">
+        <label for="image">App Image URL</label>
+        <input type="text" id="image" name="image" placeholder="https://example.com/app-icon.png">
+        <div class="help-text">URL to your app's icon or logo (will be displayed during authorization)</div>
+      </div>
+
+      <div class="form-group">
+        <label for="url">App Homepage URL</label>
+        <input type="text" id="url" name="url" placeholder="https://example.com">
+        <div class="help-text">Your app's website or homepage</div>
+      </div>
+
+      <div class="form-group">
+        <label for="scopes">Scopes</label>
+        <input type="text" id="scopes" name="scopes" value="read,write">
+        <div class="help-text">Comma-separated list of permissions your app needs</div>
+      </div>
+
+      <div class="form-group">
+        <label for="public_key">Public Key (PEM format)</label>
+        <textarea id="public_key" name="public_key" class="textarea-large" placeholder="-----BEGIN PUBLIC KEY-----&#10;...&#10;-----END PUBLIC KEY-----"></textarea>
+        <div class="help-text">Your RSA public key in PEM format (share this with the authorization server)</div>
+      </div>
+
+      <div class="form-group">
+        <label for="private_key">Private Key (PEM format)</label>
+        <textarea id="private_key" name="private_key" class="textarea-large" placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"></textarea>
+        <div class="help-text">Your RSA private key in PEM format (keep this secret!)</div>
+      </div>
+
+      <div class="button-group">
+        <button type="button" id="generateKeysBtn" class="btn-secondary">Generate Key Pair</button>
+        <button type="button" id="generateTokenBtn" class="btn-primary">Generate Token</button>
+      </div>
+    </form>
+
+    <div id="outputSection" class="output-section" style="display: none;">
+      <div class="output-label">Generated JWT Token</div>
+      <textarea id="tokenOutput" class="textarea-small" readonly></textarea>
+
+      <div class="button-group">
+        <button type="button" id="copyBtn" class="btn-success">Copy to Clipboard</button>
+      </div>
+
+      <div class="output-label" style="margin-top: 20px;">Authorization URL Example</div>
+      <div class="url-example" id="authUrlExample"></div>
+      <div class="help-text" style="margin-top: 10px;">
+        Replace "yourdomain.com" with your actual authorization server domain
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Generate RS256 Key Pair
+    document.getElementById('generateKeysBtn').addEventListener('click', function() {
+      try {
+        // Generate RSA key pair (2048 bits)
+        const keyPair = KEYUTIL.generateKeypair("RSA", 2048);
+
+        // Export keys to PEM format
+        const publicKeyPem = KEYUTIL.getPEM(keyPair.pubKeyObj);
+        const privateKeyPem = KEYUTIL.getPEM(keyPair.prvKeyObj, "PKCS8PRV");
+
+        // Set the textarea values
+        document.getElementById('public_key').value = publicKeyPem;
+        document.getElementById('private_key').value = privateKeyPem;
+
+        showAlert('Key pair generated successfully!', 'success');
+      } catch (error) {
+        showAlert('Error generating keys: ' + error.message, 'error');
+      }
+    });
+
+    // Generate JWT Token
+    document.getElementById('generateTokenBtn').addEventListener('click', function() {
+      try {
+        // Get form values
+        const formData = {
+          id: document.getElementById('id').value.trim(),
+          name: document.getElementById('name').value.trim(),
+          image: document.getElementById('image').value.trim(),
+          url: document.getElementById('url').value.trim(),
+          scopes: document.getElementById('scopes').value.trim(),
+          public_key: document.getElementById('public_key').value.trim()
+        };
+
+        // Validate required fields
+        if (!formData.name) {
+          showAlert('App Name is required', 'error');
+          return;
+        }
+
+        const privateKey = document.getElementById('private_key').value.trim();
+        if (!privateKey) {
+          showAlert('Private Key is required to sign the token', 'error');
+          return;
+        }
+
+        // Parse scopes into array
+        const scopesArray = formData.scopes.split(',').map(s => s.trim()).filter(s => s);
+
+        // Create JWT payload
+        const payload = {
+          app: {
+            id: formData.id || undefined,
+            name: formData.name,
+            image: formData.image || undefined,
+            url: formData.url || undefined,
+            scopes: scopesArray,
+            public_key: formData.public_key
+          },
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour expiry
+        };
+
+        // Remove undefined fields
+        if (payload.app.id === undefined) delete payload.app.id;
+        if (payload.app.image === undefined) delete payload.app.image;
+        if (payload.app.url === undefined) delete payload.app.url;
+
+        // Create JWT header
+        const header = {
+          alg: "RS256",
+          typ: "JWT"
+        };
+
+        // Sign the JWT
+        const sHeader = JSON.stringify(header);
+        const sPayload = JSON.stringify(payload);
+        const token = KJUR.jws.JWS.sign("RS256", sHeader, sPayload, privateKey);
+
+        // Display the token
+        document.getElementById('tokenOutput').value = token;
+        document.getElementById('authUrlExample').textContent =
+          `https://yourdomain.com/authorize?token=${token}`;
+        document.getElementById('outputSection').style.display = 'block';
+
+        showAlert('Token generated successfully!', 'success');
+
+        // Scroll to output
+        document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } catch (error) {
+        showAlert('Error generating token: ' + error.message, 'error');
+      }
+    });
+
+    // Copy to Clipboard
+    document.getElementById('copyBtn').addEventListener('click', function() {
+      const tokenOutput = document.getElementById('tokenOutput');
+      tokenOutput.select();
+      document.execCommand('copy');
+
+      showAlert('Token copied to clipboard!', 'success');
+
+      // Change button text temporarily
+      const btn = this;
+      const originalText = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => {
+        btn.textContent = originalText;
+      }, 2000);
+    });
+
+    // Alert helper
+    function showAlert(message, type) {
+      const alertBox = document.getElementById('alert');
+      alertBox.textContent = message;
+      alertBox.className = 'alert alert-' + type;
+      alertBox.style.display = 'block';
+
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        alertBox.style.display = 'none';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
