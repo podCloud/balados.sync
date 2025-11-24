@@ -1,4 +1,28 @@
 defmodule BaladosSyncWeb.PlayController do
+  require Logger
+
+  @moduledoc """
+  Controller for managing episode play status and playback position.
+
+  This controller handles recording play events and updating playback positions for
+  podcast episodes. All operations use CQRS commands to ensure proper event sourcing.
+
+  ## Routes
+
+  - `POST /api/v1/plays` - Record a play event with position and played status
+  - `PATCH /api/v1/plays/:item` - Update playback position for an episode
+  - `GET /api/v1/plays` - List play statuses with filtering and pagination
+
+  ## Authentication
+
+  All endpoints require JWT authentication.
+
+  ## Data Encoding
+
+  Episode identifiers (`rss_source_item`) are base64-encoded strings in the format:
+  `"\#{guid},\#{enclosure_url}"` where guid and enclosure_url are from the RSS feed.
+  """
+
   use BaladosSyncWeb, :controller
 
   alias BaladosSyncCore.Dispatcher
@@ -7,6 +31,38 @@ defmodule BaladosSyncWeb.PlayController do
   alias BaladosSyncProjections.Schemas.PlayStatus
   import Ecto.Query
 
+  @doc """
+  Records a play event for an episode.
+
+  Dispatches a `RecordPlay` command that creates a `PlayRecorded` event. This updates
+  both the playback position and the played (completed) status.
+
+  ## Parameters
+
+  - `rss_source_feed` - Base64-encoded RSS feed URL
+  - `rss_source_item` - Base64-encoded episode identifier
+  - `position` - Current playback position in seconds (integer)
+  - `played` - Whether the episode has been completed (boolean)
+
+  ## Example Request
+
+      POST /api/v1/plays
+      Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+      Content-Type: application/json
+
+      {
+        "rss_source_feed": "aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0",
+        "rss_source_item": "Z3VpZC0xMjMsaHR0cHM6Ly9leGFtcGxlLmNvbS9lcGlzb2RlLm1wMw==",
+        "position": 1234,
+        "played": false
+      }
+
+  ## Example Response
+
+      {
+        "status": "success"
+      }
+  """
   def record(conn, %{
         "rss_source_feed" => feed,
         "rss_source_item" => item,
@@ -37,6 +93,33 @@ defmodule BaladosSyncWeb.PlayController do
     end
   end
 
+  @doc """
+  Updates only the playback position for an episode.
+
+  Dispatches an `UpdatePosition` command that creates a `PositionUpdated` event.
+  This is useful for periodic position saves without marking the episode as played.
+
+  ## Parameters
+
+  - `item` - Base64-encoded episode identifier (from URL path)
+  - `position` - Current playback position in seconds (integer)
+
+  ## Example Request
+
+      PATCH /api/v1/plays/Z3VpZC0xMjMsaHR0cHM6Ly9leGFtcGxlLmNvbS9lcGlzb2RlLm1wMw==
+      Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+      Content-Type: application/json
+
+      {
+        "position": 1567
+      }
+
+  ## Example Response
+
+      {
+        "status": "success"
+      }
+  """
   def update_position(conn, %{"item" => item, "position" => position}) do
     user_id = conn.assigns.current_user_id
     device_id = conn.assigns.device_id
@@ -64,6 +147,44 @@ defmodule BaladosSyncWeb.PlayController do
     end
   end
 
+  @doc """
+  Lists play statuses for the authenticated user.
+
+  Returns play statuses from the read model with optional filtering and pagination.
+
+  ## Query Parameters
+
+  - `played` - Filter by played status: "true" or "false" (optional)
+  - `feed` - Filter by base64-encoded feed URL (optional)
+  - `limit` - Number of results per page (default: 50, max: 100)
+  - `offset` - Number of results to skip (default: 0)
+
+  ## Example Request
+
+      GET /api/v1/plays?played=false&limit=20&offset=0
+      Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+
+  ## Example Response
+
+      {
+        "play_statuses": [
+          {
+            "id": 1,
+            "user_id": "user-123",
+            "rss_source_feed": "aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0",
+            "rss_source_item": "Z3VpZC0xMjMsaHR0cHM6Ly9leGFtcGxlLmNvbS9lcGlzb2RlLm1wMw==",
+            "position": 1234,
+            "played": false,
+            "updated_at": "2024-01-15T10:30:00Z"
+          }
+        ],
+        "pagination": {
+          "limit": 20,
+          "offset": 0,
+          "total": 45
+        }
+      }
+  """
   def index(conn, params) do
     user_id = conn.assigns.current_user_id
 
