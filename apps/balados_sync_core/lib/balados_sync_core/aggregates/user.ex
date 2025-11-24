@@ -1,4 +1,71 @@
 defmodule BaladosSyncCore.Aggregates.User do
+  @moduledoc """
+  User aggregate for the CQRS/Event Sourcing system.
+
+  This aggregate is the core of the Balados Sync domain model. It encapsulates all
+  business logic for managing user subscriptions, play statuses, playlists, and privacy
+  settings. The aggregate follows the CQRS/ES pattern with two key functions:
+
+  ## CQRS/ES Pattern
+
+  - `execute/2` - Validates commands and returns events (command → event)
+  - `apply/2` - Updates aggregate state based on events (event → state)
+
+  ## State Management
+
+  The aggregate state is rebuilt by replaying all events for a user from the event store.
+  State is never persisted directly - it's always derived from the event stream.
+
+  ### Aggregate State Structure
+
+  - `user_id` - Unique identifier for the user
+  - `privacy` - Privacy level: `:public`, `:anonymous`, or `:private`
+  - `subscriptions` - Map of `%{feed => %{subscribed_at, unsubscribed_at, rss_source_id}}`
+  - `play_statuses` - Map of `%{item => %{position, played, updated_at, rss_source_feed}}`
+  - `playlists` - Map of `%{playlist_id => %{name, items}}` (TODO)
+
+  ## Command Flow
+
+  1. Command arrives via Dispatcher (e.g., `Subscribe`)
+  2. Dispatcher loads aggregate by rebuilding state from events
+  3. `execute/2` validates command and returns event(s)
+  4. EventStore persists events immutably
+  5. `apply/2` updates aggregate state (for in-memory state)
+  6. Projectors listen to events and update read models
+
+  ## Event Sourcing Benefits
+
+  - Complete audit trail of all user actions
+  - Time travel: rebuild state at any point in history
+  - Event replay for bug fixes or new projections
+  - Natural support for sync conflicts (timestamp-based resolution)
+
+  ## Aggregate Lifecycle
+
+  The aggregate is stateless between command dispatches. Each command:
+  1. Loads current state by replaying events
+  2. Executes command logic
+  3. Returns events to be persisted
+  4. State updates happen via `apply/2` during replay
+
+  ## Examples
+
+      # Dispatch a command (through Dispatcher)
+      Dispatcher.dispatch(%Subscribe{
+        user_id: "user-123",
+        rss_source_feed: "base64-feed",
+        rss_source_id: "podcast-id"
+      })
+
+      # This internally:
+      # 1. Loads User aggregate for "user-123"
+      # 2. Calls execute(%User{}, %Subscribe{})
+      # 3. Returns %UserSubscribed{} event
+      # 4. Persists event to EventStore
+      # 5. Calls apply(%User{}, %UserSubscribed{})
+      # 6. Projectors update read models
+  """
+
   defstruct [
     :user_id,
     # :public | :anonymous | :private
