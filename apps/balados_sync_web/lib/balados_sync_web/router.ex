@@ -48,6 +48,9 @@ defmodule BaladosSyncWeb.Router do
 
     # App authorization confirmation (requires authentication)
     post "/authorize", AppAuthController, :create_authorization
+
+    # App management (HTML interface)
+    get "/apps", AppAuthController, :manage_apps
   end
 
   # Other scopes may use custom stacks.
@@ -119,7 +122,7 @@ defmodule BaladosSyncWeb.Router do
 
     # App management (JWT authenticated)
     get "/apps", AppAuthController, :index
-    delete "/apps/:jti", AppAuthController, :delete
+    delete "/apps/:app_id", AppAuthController, :delete
   end
 
   scope "/api/v1/public", BaladosSyncWeb do

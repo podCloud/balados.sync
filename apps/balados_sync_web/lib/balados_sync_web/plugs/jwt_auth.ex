@@ -1,27 +1,62 @@
 defmodule BaladosSyncWeb.Plugs.JWTAuth do
+  @moduledoc """
+  Plug for JWT-based authentication for third-party apps.
+
+  This plug verifies JWT tokens from authorized apps and optionally checks
+  that the app has the required scopes for the requested operation.
+
+  ## Usage
+
+      # In your controller
+      plug JWTAuth when action in [:index, :show, :update]
+
+      # With required scopes
+      plug JWTAuth, scopes: ["user.subscriptions.read"]
+
+      # With multiple required scopes (all must be granted)
+      plug JWTAuth, scopes: ["user.read", "user.subscriptions.read"]
+
+      # With alternative scopes (any one must be granted)
+      plug JWTAuth, scopes_any: ["user", "user.subscriptions.read"]
+
+  ## Assigns
+
+  After successful authentication, the following assigns are available:
+  - `:current_user_id` - The user ID from the JWT sub claim
+  - `:app_token` - The AppToken record from the database
+  - `:app_id` - The app ID from the JWT iss claim
+  - `:jwt_claims` - All JWT claims
+  """
+
   import Plug.Conn
   require Logger
 
-  alias BaladosSyncProjections.Repo
-  alias BaladosSyncProjections.Schemas.ApiToken
-  import Ecto.Query
+  alias BaladosSyncWeb.AppAuth
+  alias BaladosSyncWeb.Scopes
 
   def init(opts), do: opts
 
-  def call(conn, _opts) do
+  def call(conn, opts) do
     with ["Bearer " <> token] <- get_req_header(conn, "authorization"),
-         {:ok, claims} <- verify_token(token),
-         {:ok, api_token} <- validate_api_token(claims) do
-      # Mettre à jour last_used_at
-      update_last_used(api_token)
-
+         {:ok, %{claims: claims, app_token: app_token}} <- AppAuth.verify_app_request(token),
+         :ok <- check_scopes(app_token.scopes, opts) do
       conn
       |> assign(:current_user_id, claims["sub"])
-      |> assign(:api_token, api_token)
-      |> assign(:device_id, claims["device_id"])
-      |> assign(:device_name, claims["device_name"])
+      |> assign(:app_token, app_token)
+      |> assign(:app_id, claims["iss"])
+      |> assign(:jwt_claims, claims)
     else
-      _ ->
+      {:error, :insufficient_scopes} = error ->
+        Logger.debug("JWT auth failed: #{inspect(error)}")
+
+        conn
+        |> put_status(:forbidden)
+        |> Phoenix.Controller.json(%{error: "Insufficient permissions"})
+        |> halt()
+
+      error ->
+        Logger.debug("JWT auth failed: #{inspect(error)}")
+
         conn
         |> put_status(:unauthorized)
         |> Phoenix.Controller.json(%{error: "Unauthorized"})
@@ -29,59 +64,29 @@ defmodule BaladosSyncWeb.Plugs.JWTAuth do
     end
   end
 
-  defp verify_token(token) do
-    # Décoder le JWT pour récupérer le JTI et récupérer la public key depuis la DB
-    case Joken.peek_claims(token) do
-      {:ok, claims} ->
-        jti = claims["jti"]
+  # Check if the granted scopes satisfy the required scopes
+  defp check_scopes(_granted_scopes, []), do: :ok
 
-        # Récupérer la public key depuis la DB
-        case get_public_key(jti) do
-          {:ok, public_key} ->
-            signer = Joken.Signer.create("RS256", %{"pem" => public_key})
-            Joken.verify(token, signer)
-
-          {:error, reason} ->
-            {:error, reason}
+  defp check_scopes(granted_scopes, opts) do
+    cond do
+      # Check if all required scopes are granted
+      required_scopes = Keyword.get(opts, :scopes) ->
+        if Scopes.authorized_all?(granted_scopes, required_scopes) do
+          :ok
+        else
+          {:error, :insufficient_scopes}
         end
 
-      {:error, reason} ->
-        {:error, reason}
+      # Check if any of the alternative scopes are granted
+      scopes_any = Keyword.get(opts, :scopes_any) ->
+        if Scopes.authorized_any?(granted_scopes, scopes_any) do
+          :ok
+        else
+          {:error, :insufficient_scopes}
+        end
+
+      true ->
+        :ok
     end
-  end
-
-  defp get_public_key(jti) do
-    query =
-      from(t in ApiToken,
-        where: t.token_jti == ^jti and is_nil(t.revoked_at),
-        select: t.public_key
-      )
-
-    case Repo.one(query) do
-      nil -> {:error, :token_not_found}
-      public_key -> {:ok, public_key}
-    end
-  end
-
-  defp validate_api_token(claims) do
-    jti = claims["jti"]
-
-    query =
-      from(t in ApiToken,
-        where: t.token_jti == ^jti and is_nil(t.revoked_at)
-      )
-
-    case Repo.one(query) do
-      nil -> {:error, :invalid_token}
-      token -> {:ok, token}
-    end
-  end
-
-  defp update_last_used(api_token) do
-    # Async update pour ne pas bloquer la requête
-    Task.start(fn ->
-      from(t in ApiToken, where: t.id == ^api_token.id)
-      |> Repo.update_all(set: [last_used_at: DateTime.utc_now()])
-    end)
   end
 end
