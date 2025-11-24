@@ -116,12 +116,14 @@ defmodule BaladosSyncWeb.CoreComponents do
       role="alert"
       class={[
         "fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
-        @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
+        @kind == :success && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
+        @kind == :info && "bg-blue-50 text-blue-800 ring-blue-500 fill-emerald-900",
         @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
       {@rest}
     >
       <p :if={@title} class="flex items-center gap-1.5 text-sm font-semibold leading-6">
+        <.icon :if={@kind == :success} name="hero-checkmark-circle-mini" class="h-4 w-4" />
         <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-4 w-4" />
         <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4" />
         <%= @title %>
@@ -147,7 +149,8 @@ defmodule BaladosSyncWeb.CoreComponents do
   def flash_group(assigns) do
     ~H"""
     <div id={@id}>
-      <.flash kind={:info} title={gettext("Success!")} flash={@flash} />
+      <.flash kind={:success} title={gettext("Success")} flash={@flash} />
+      <.flash kind={:info} title={gettext("Info!")} flash={@flash} />
       <.flash kind={:error} title={gettext("Error!")} flash={@flash} />
       <.flash
         id="client-error"
