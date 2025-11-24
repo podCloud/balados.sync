@@ -8,12 +8,31 @@ defmodule BaladosSyncWeb.Router do
     plug :put_root_layout, html: {BaladosSyncWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug BaladosSyncWeb.Plugs.UserAuth, :fetch_current_user
   end
 
   scope "/", BaladosSyncWeb do
     pipe_through :browser
 
     get "/", PageController, :home
+  end
+
+  # Routes for user authentication (public access)
+  scope "/users", BaladosSyncWeb do
+    pipe_through [:browser, BaladosSyncWeb.Plugs.UserAuth, :redirect_if_user_is_authenticated]
+
+    get "/register", UserRegistrationController, :new
+    post "/register", UserRegistrationController, :create
+    get "/log_in", UserSessionController, :new
+    post "/log_in", UserSessionController, :create
+  end
+
+  # Routes for authenticated users only
+  scope "/", BaladosSyncWeb do
+    pipe_through [:browser, BaladosSyncWeb.Plugs.UserAuth, :require_authenticated_user]
+
+    get "/dashboard", DashboardController, :index
+    delete "/users/log_out", UserSessionController, :delete
   end
 
   # Other scopes may use custom stacks.

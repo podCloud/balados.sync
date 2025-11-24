@@ -4,23 +4,29 @@
       <a href="/">
         <img src={~p"/images/logo.svg"} width="36" />
       </a>
-      <p class="bg-brand/5 text-brand rounded-full px-2 font-medium leading-6">
-        v<%= Application.spec(:phoenix, :vsn) %>
+      <p class="text-brand font-semibold leading-6">
+        Balados Sync
       </p>
     </div>
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
-      <a href="https://twitter.com/elixirphoenix" class="hover:text-zinc-700">
-        @elixirphoenix
-      </a>
-      <a href="https://github.com/phoenixframework/phoenix" class="hover:text-zinc-700">
-        GitHub
-      </a>
-      <a
-        href="https://hexdocs.pm/phoenix/overview.html"
-        class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
-      >
-        Get Started <span aria-hidden="true">&rarr;</span>
-      </a>
+      <%= if @current_user do %>
+        <span class="text-zinc-600">
+          <%= @current_user.email %>
+        </span>
+        <.link navigate={~p"/dashboard"} class="hover:text-zinc-700">
+          Dashboard
+        </.link>
+        <.link href={~p"/users/log_out"} method="delete" class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80">
+          Log out
+        </.link>
+      <% else %>
+        <.link navigate={~p"/users/register"} class="hover:text-zinc-700">
+          Register
+        </.link>
+        <.link navigate={~p"/users/log_in"} class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80">
+          Log in <span aria-hidden="true">&rarr;</span>
+        </.link>
+      <% end %>
     </div>
   </div>
 </header>
