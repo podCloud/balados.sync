@@ -3,6 +3,11 @@ defmodule BaladosSyncWeb.EpisodeController do
 
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.{SaveEpisode, ShareEpisode}
+  alias BaladosSyncWeb.Plugs.JWTAuth
+
+  # Scope requirements for episode operations
+  # Save and share are write operations that affect play status
+  plug JWTAuth, [scopes: ["user.plays.write"]] when action in [:save, :share]
 
   def save(conn, %{"item" => item}) do
     user_id = conn.assigns.current_user_id

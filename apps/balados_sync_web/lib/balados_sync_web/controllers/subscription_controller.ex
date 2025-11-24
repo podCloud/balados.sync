@@ -30,7 +30,12 @@ defmodule BaladosSyncWeb.SubscriptionController do
   alias BaladosSyncCore.Commands.{Subscribe, Unsubscribe}
   alias BaladosSyncProjections.Repo
   alias BaladosSyncProjections.Schemas.Subscription
+  alias BaladosSyncWeb.Plugs.JWTAuth
   import Ecto.Query
+
+  # Scope requirements for subscription management
+  plug JWTAuth, [scopes: ["user.subscriptions.read"]] when action in [:index]
+  plug JWTAuth, [scopes: ["user.subscriptions.write"]] when action in [:create, :delete]
 
   @doc """
   Subscribes to a podcast feed.

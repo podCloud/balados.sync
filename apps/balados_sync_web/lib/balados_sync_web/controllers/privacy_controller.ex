@@ -5,7 +5,12 @@ defmodule BaladosSyncWeb.PrivacyController do
   alias BaladosSyncCore.Commands.ChangePrivacy
   alias BaladosSyncProjections.Repo
   alias BaladosSyncProjections.Schemas.UserPrivacy
+  alias BaladosSyncWeb.Plugs.JWTAuth
   import Ecto.Query
+
+  # Scope requirements for privacy settings
+  plug JWTAuth, [scopes: ["user.privacy.read"]] when action in [:show]
+  plug JWTAuth, [scopes: ["user.privacy.write"]] when action in [:update]
 
   def update(conn, %{"privacy" => privacy} = params) do
     user_id = conn.assigns.current_user_id

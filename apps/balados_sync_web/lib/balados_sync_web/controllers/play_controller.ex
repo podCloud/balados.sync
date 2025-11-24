@@ -29,7 +29,12 @@ defmodule BaladosSyncWeb.PlayController do
   alias BaladosSyncCore.Commands.{RecordPlay, UpdatePosition}
   alias BaladosSyncProjections.Repo
   alias BaladosSyncProjections.Schemas.PlayStatus
+  alias BaladosSyncWeb.Plugs.JWTAuth
   import Ecto.Query
+
+  # Scope requirements for play status management
+  plug JWTAuth, [scopes: ["user.plays.read"]] when action in [:index]
+  plug JWTAuth, [scopes: ["user.plays.write"]] when action in [:record, :update_position]
 
   @doc """
   Records a play event for an episode.

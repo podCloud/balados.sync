@@ -3,6 +3,10 @@ defmodule BaladosSyncWeb.SyncController do
 
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.SyncUserData
+  alias BaladosSyncWeb.Plugs.JWTAuth
+
+  # Scope requirements for sync - requires user.sync or full user access
+  plug JWTAuth, [scopes_any: ["user.sync", "user"]] when action in [:sync]
 
   def sync(conn, params) do
     user_id = conn.assigns.current_user_id
