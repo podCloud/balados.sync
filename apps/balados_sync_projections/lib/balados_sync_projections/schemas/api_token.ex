@@ -3,7 +3,8 @@ defmodule BaladosSyncProjections.Schemas.ApiToken do
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
-  schema "users.api_tokens" do
+  @schema_prefix "users"
+  schema "api_tokens" do
     field :user_id, :string
     field :app_name, :string
     field :app_image, :string

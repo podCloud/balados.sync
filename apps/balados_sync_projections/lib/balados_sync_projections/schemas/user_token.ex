@@ -3,7 +3,8 @@ defmodule BaladosSyncProjections.Schemas.UserToken do
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
-  schema "users.user_tokens" do
+  @schema_prefix "users"
+  schema "user_tokens" do
     field :user_id, :string
     field :token, :string
     # "My iPhone", "Desktop", etc.

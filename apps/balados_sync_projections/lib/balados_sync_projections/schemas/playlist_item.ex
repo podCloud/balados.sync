@@ -3,7 +3,8 @@ defmodule BaladosSyncProjections.Schemas.PlaylistItem do
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
-  schema "users.playlist_items" do
+  @schema_prefix "users"
+  schema "playlist_items" do
     field :playlist_id, :binary_id
     field :rss_source_feed, :string
     field :rss_source_item, :string

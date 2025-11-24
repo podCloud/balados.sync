@@ -3,7 +3,8 @@ defmodule BaladosSyncProjections.Schemas.PlayStatus do
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
-  schema "users.play_statuses" do
+  @schema_prefix "users"
+  schema "play_statuses" do
     field :user_id, :string
     field :rss_source_feed, :string
     field :rss_source_item, :string

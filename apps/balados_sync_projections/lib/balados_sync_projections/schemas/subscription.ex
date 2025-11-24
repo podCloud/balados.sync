@@ -3,7 +3,8 @@ defmodule BaladosSyncProjections.Schemas.Subscription do
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
-  schema "users.subscriptions" do
+  @schema_prefix "users"
+  schema "subscriptions" do
     field :user_id, :string
     field :rss_source_feed, :string
     field :rss_source_id, :string

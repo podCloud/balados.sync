@@ -3,7 +3,8 @@ defmodule BaladosSyncProjections.Schemas.UserPrivacy do
   import Ecto.Changeset
 
   @primary_key false
-  schema "users.user_privacy" do
+  @schema_prefix "users"
+  schema "user_privacy" do
     field :user_id, :string, primary_key: true
     field :rss_source_feed, :string, primary_key: true
     field :rss_source_item, :string, primary_key: true
