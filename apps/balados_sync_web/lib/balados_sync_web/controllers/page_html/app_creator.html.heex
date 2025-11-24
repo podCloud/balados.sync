@@ -62,6 +62,48 @@
       .textarea-large {
         min-height: 200px;
       }
+      .scopes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+        padding: 15px;
+        background-color: #f7fafc;
+        border-radius: 4px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .scope-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 8px;
+        background-color: white;
+        border-radius: 4px;
+        border: 1px solid #e2e8f0;
+      }
+      .scope-item:hover {
+        background-color: #edf2f7;
+      }
+      .scope-item input[type="checkbox"] {
+        margin-right: 8px;
+        margin-top: 2px;
+        flex-shrink: 0;
+      }
+      .scope-label {
+        display: flex;
+        flex-direction: column;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .scope-name {
+        font-weight: 600;
+        color: #2d3748;
+      }
+      .scope-description {
+        font-size: 11px;
+        color: #718096;
+        margin-top: 2px;
+      }
       .button-group {
         display: flex;
         gap: 10px;
@@ -96,6 +138,13 @@
       }
       .btn-success:hover {
         background-color: #2f855a;
+      }
+      .btn-link {
+        background: none;
+        color: #3182ce;
+        padding: 0;
+        text-decoration: underline;
+        font-size: 12px;
       }
       .output-section {
         margin-top: 30px;
@@ -168,14 +217,21 @@
       <div class="info-box">
         <p><strong>How it works:</strong></p>
         <p>1. Fill in your app details below</p>
-        <p>2. Generate an RS256 key pair (or paste your existing keys)</p>
-        <p>3. Generate a JWT token containing your app information</p>
-        <p>4. Use the token in an authorization URL to request user permission</p>
+        <p>2. Select the permissions (scopes) your app needs</p>
+        <p>3. Generate an RS256 key pair (or paste your existing keys)</p>
+        <p>4. Generate a JWT token containing your app information</p>
+        <p>5. Use the token in an authorization URL to request user permission</p>
       </div>
 
       <div id="alert" class="alert"></div>
 
       <form id="appForm">
+        <div class="form-group">
+          <label for="app_id" class="required">App ID</label>
+          <input type="text" id="app_id" name="app_id" placeholder="com.example.myapp" required />
+          <div class="help-text">Unique identifier for your app (reverse domain notation recommended)</div>
+        </div>
+
         <div class="form-group">
           <label for="name" class="required">App Name</label>
           <input type="text" id="name" name="name" placeholder="My Awesome App" required />
@@ -191,7 +247,7 @@
             placeholder="https://example.com/app-icon.png"
           />
           <div class="help-text">
-            URL to your app's icon or logo (will be displayed during authorization)
+            URL to your app's icon or logo (displayed if 10% of users have authorized your app)
           </div>
         </div>
 
@@ -202,18 +258,25 @@
         </div>
 
         <div class="form-group">
-          <label for="scopes">Scopes</label>
-          <input type="text" id="scopes" name="scopes" value="read,write" />
-          <div class="help-text">Comma-separated list of permissions your app needs</div>
+          <label>Requested Scopes</label>
+          <div class="help-text" style="margin-bottom: 10px;">
+            Select the permissions your app needs. Wildcards are supported (*, *.read, user.*, etc.)
+            <button type="button" id="selectAllScopes" class="btn-link" style="margin-left: 10px;">Select All</button>
+            <button type="button" id="selectNone" class="btn-link" style="margin-left: 5px;">Select None</button>
+          </div>
+          <div class="scopes-grid" id="scopesGrid">
+            <!-- Scopes will be populated by JavaScript -->
+          </div>
         </div>
 
         <div class="form-group">
-          <label for="public_key">Public Key (PEM format)</label>
+          <label for="public_key" class="required">Public Key (PEM format)</label>
           <textarea
             id="public_key"
             name="public_key"
             class="textarea-large"
             placeholder="-----BEGIN PUBLIC KEY-----&#10;...&#10;-----END PUBLIC KEY-----"
+            required
           ></textarea>
           <div class="help-text">
             Your RSA public key in PEM format (share this with the authorization server)
@@ -221,12 +284,13 @@
         </div>
 
         <div class="form-group">
-          <label for="private_key">Private Key (PEM format)</label>
+          <label for="private_key" class="required">Private Key (PEM format)</label>
           <textarea
             id="private_key"
             name="private_key"
             class="textarea-large"
             placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"
+            required
           ></textarea>
           <div class="help-text">Your RSA private key in PEM format (keep this secret!)</div>
         </div>
@@ -250,12 +314,88 @@
         <div class="output-label" style="margin-top: 20px;">Authorization URL Example</div>
         <div class="url-example" id="authUrlExample"></div>
         <div class="help-text" style="margin-top: 10px;">
-          Replace "yourdomain.com" with your actual authorization server domain
+          Send users to this URL to request authorization
         </div>
       </div>
     </div>
 
     <script>
+      // Available scopes with descriptions
+      const SCOPES = {
+        "*": "Full access to all data and operations",
+        "*.read": "Read access to all data",
+        "*.write": "Write access to all data",
+        "user": "Full access to user profile",
+        "user.read": "Read user profile information",
+        "user.write": "Update user profile information",
+        "user.subscriptions": "Full access to subscriptions",
+        "user.subscriptions.read": "List podcast subscriptions",
+        "user.subscriptions.write": "Add and remove podcast subscriptions",
+        "user.plays": "Full access to play status and positions",
+        "user.plays.read": "Read playback positions and play status",
+        "user.plays.write": "Update playback positions and mark episodes as played",
+        "user.playlists": "Full access to playlists",
+        "user.playlists.read": "List playlists and their contents",
+        "user.playlists.write": "Create, update, and delete playlists",
+        "user.privacy": "Full access to privacy settings",
+        "user.privacy.read": "View privacy settings",
+        "user.privacy.write": "Update privacy settings",
+        "user.sync": "Full synchronization access (all user data)"
+      };
+
+      // Populate scopes grid on page load
+      function initializeScopesGrid() {
+        const grid = document.getElementById('scopesGrid');
+
+        Object.entries(SCOPES).forEach(([scope, description]) => {
+          const item = document.createElement('div');
+          item.className = 'scope-item';
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.id = `scope_${scope.replace(/[.*]/g, '_')}`;
+          checkbox.value = scope;
+          checkbox.name = 'scopes[]';
+
+          const label = document.createElement('label');
+          label.className = 'scope-label';
+          label.htmlFor = checkbox.id;
+          label.style.cursor = 'pointer';
+
+          const name = document.createElement('span');
+          name.className = 'scope-name';
+          name.textContent = scope;
+
+          const desc = document.createElement('span');
+          desc.className = 'scope-description';
+          desc.textContent = description;
+
+          label.appendChild(name);
+          label.appendChild(desc);
+
+          item.appendChild(checkbox);
+          item.appendChild(label);
+          grid.appendChild(item);
+        });
+      }
+
+      // Initialize scopes on page load
+      initializeScopesGrid();
+
+      // Select all scopes
+      document.getElementById('selectAllScopes').addEventListener('click', function() {
+        document.querySelectorAll('#scopesGrid input[type="checkbox"]').forEach(cb => {
+          cb.checked = true;
+        });
+      });
+
+      // Select none
+      document.getElementById('selectNone').addEventListener('click', function() {
+        document.querySelectorAll('#scopesGrid input[type="checkbox"]').forEach(cb => {
+          cb.checked = false;
+        });
+      });
+
       // Generate RS256 Key Pair
       document.getElementById('generateKeysBtn').addEventListener('click', function() {
         try {
@@ -278,20 +418,29 @@
 
       // Generate JWT Token
       document.getElementById('generateTokenBtn').addEventListener('click', function() {
-      debugger;
         try {
           // Get form values
           const formData = {
+            app_id: document.getElementById('app_id').value.trim(),
             name: document.getElementById('name').value.trim(),
             image: document.getElementById('image').value.trim(),
             url: document.getElementById('url').value.trim(),
-            scopes: document.getElementById('scopes').value.trim(),
             public_key: document.getElementById('public_key').value.trim()
           };
 
           // Validate required fields
+          if (!formData.app_id) {
+            showAlert('App ID is required', 'error');
+            return;
+          }
+
           if (!formData.name) {
             showAlert('App Name is required', 'error');
+            return;
+          }
+
+          if (!formData.public_key) {
+            showAlert('Public Key is required', 'error');
             return;
           }
 
@@ -301,25 +450,31 @@
             return;
           }
 
-          // Parse scopes into array
-          const scopesArray = formData.scopes.split(',').map(s => s.trim()).filter(s => s);
+          // Get selected scopes
+          const selectedScopes = Array.from(
+            document.querySelectorAll('#scopesGrid input[type="checkbox"]:checked')
+          ).map(cb => cb.value);
+
+          if (selectedScopes.length === 0) {
+            showAlert('Please select at least one scope', 'error');
+            return;
+          }
 
           // Create JWT payload
           const payload = {
+            iss: formData.app_id,  // App ID goes in iss field
             app: {
               name: formData.name,
               image: formData.image || undefined,
               url: formData.url || undefined,
-              scopes: scopesArray,
               public_key: formData.public_key
             },
-            jti: window.btoa(`${formData.name},${formData.url},${scopesArray.join(',')}`),
+            scopes: selectedScopes,  // Scopes at top level
             iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour expiry
+            exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) // 24 hours expiry
           };
 
           // Remove undefined fields
-          if (payload.app.id === undefined) delete payload.app.id;
           if (payload.app.image === undefined) delete payload.app.image;
           if (payload.app.url === undefined) delete payload.app.url;
 
