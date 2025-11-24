@@ -23,6 +23,10 @@ defmodule BaladosSyncWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/app-creator", PageController, :app_creator
+
+    # App authorization (public, but may redirect to login if not authenticated)
+    get "/authorize", AppAuthController, :authorize
   end
 
   # Routes for user authentication (public access)
@@ -41,6 +45,9 @@ defmodule BaladosSyncWeb.Router do
 
     get "/dashboard", DashboardController, :index
     delete "/users/log_out", UserSessionController, :delete
+
+    # App authorization confirmation (requires authentication)
+    post "/authorize", AppAuthController, :create_authorization
   end
 
   # Other scopes may use custom stacks.
@@ -110,7 +117,9 @@ defmodule BaladosSyncWeb.Router do
     put "/privacy", PrivacyController, :update
     get "/privacy", PrivacyController, :show
 
-    # Public data (no auth required)
+    # App management (JWT authenticated)
+    get "/apps", AppAuthController, :index
+    delete "/apps/:jti", AppAuthController, :delete
   end
 
   scope "/api/v1/public", BaladosSyncWeb do
