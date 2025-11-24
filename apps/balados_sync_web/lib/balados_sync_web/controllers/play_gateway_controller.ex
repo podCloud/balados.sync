@@ -5,7 +5,7 @@ defmodule BaladosSyncWeb.PlayGatewayController do
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.RecordPlay
   alias BaladosSyncProjections.Repo
-  alias BaladosSyncProjections.Schemas.UserToken
+  alias BaladosSyncProjections.Schemas.PlayToken
   import Ecto.Query
 
   def play(conn, %{"user_token" => token, "feed_id" => feed_id, "item_id" => item_id}) do
@@ -43,7 +43,7 @@ defmodule BaladosSyncWeb.PlayGatewayController do
 
   defp verify_user_token(token) do
     query =
-      from(t in UserToken,
+      from(t in PlayToken,
         where: t.token == ^token and is_nil(t.revoked_at),
         select: t.user_id
       )
@@ -102,7 +102,7 @@ defmodule BaladosSyncWeb.PlayGatewayController do
 
   defp update_token_last_used(token) do
     Task.start(fn ->
-      from(t in UserToken, where: t.token == ^token)
+      from(t in PlayToken, where: t.token == ^token)
       |> Repo.update_all(set: [last_used_at: DateTime.utc_now()])
     end)
   end

@@ -4,7 +4,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
 
   alias BaladosSyncWeb.RssCache
   alias BaladosSyncProjections.Repo
-  alias BaladosSyncProjections.Schemas.{UserToken, Subscription, Playlist, PlaylistItem}
+  alias BaladosSyncProjections.Schemas.{PlayToken, Subscription, Playlist, PlaylistItem}
   import Ecto.Query
 
   def subscriptions(conn, %{"user_token" => token}) do
@@ -64,7 +64,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
 
   defp verify_user_token(token) do
     query =
-      from(t in UserToken,
+      from(t in PlayToken,
         where: t.token == ^token and is_nil(t.revoked_at),
         select: t.user_id
       )
@@ -314,7 +314,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
 
   defp update_token_last_used(token) do
     Task.start(fn ->
-      from(t in UserToken, where: t.token == ^token)
+      from(t in PlayToken, where: t.token == ^token)
       |> Repo.update_all(set: [last_used_at: DateTime.utc_now()])
     end)
   end

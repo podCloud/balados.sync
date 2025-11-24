@@ -14,7 +14,7 @@ defmodule BaladosSyncWeb.AppAuthController do
   2. App redirects user to `/authorize?token=...`
   3. User logs in (if not already authenticated)
   4. User sees authorization page with app details and requested scopes
-  5. User approves, creating an ApiToken record
+  5. User approves, creating an AppToken record
   6. App can now make API requests using JWTs signed with its private key
 
   ## Routes
@@ -108,7 +108,7 @@ defmodule BaladosSyncWeb.AppAuthController do
   Creates the authorization after user confirms.
 
   This endpoint is called when the user clicks "Authorize" on the authorization page.
-  It decodes the token again, validates it, and creates an ApiToken record.
+  It decodes the token again, validates it, and creates an AppToken record.
 
   ## Parameters
 

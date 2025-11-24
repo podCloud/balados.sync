@@ -12,7 +12,7 @@ defmodule BaladosSyncWeb.Plugs.UserAuth do
 
   # Make the remember me cookie valid for 60 days.
   # If you want bump or reduce this value, also change
-  # the token expiry itself in UserToken.
+  # the token expiry itself in PlayToken.
   @max_age 60 * 60 * 24 * 60
   @remember_me_cookie "_balados_sync_web_user_remember_me"
   @remember_me_options [sign: true, max_age: @max_age, same_site: "Lax"]
