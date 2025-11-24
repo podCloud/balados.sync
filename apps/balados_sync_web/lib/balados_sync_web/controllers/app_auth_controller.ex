@@ -1,26 +1,66 @@
 defmodule BaladosSyncWeb.AppAuthController do
+  require Logger
+
+  @moduledoc """
+  Controller for OAuth-style app authorization flow.
+
+  This controller handles the authorization flow for third-party applications
+  that want to access user data. Apps present a JWT containing their public key
+  and metadata, which users can approve or deny.
+
+  ## Authorization Flow
+
+  1. App creates a JWT with its public key and metadata
+  2. App redirects user to `/authorize?token=...`
+  3. User logs in (if not already authenticated)
+  4. User sees authorization page with app details and requested scopes
+  5. User approves, creating an ApiToken record
+  6. App can now make API requests using JWTs signed with its private key
+
+  ## Routes
+
+  - `GET /authorize?token=...` - Show authorization page
+  - `POST /authorize` - Create authorization after user approval
+  - `GET /api/v1/apps` - List authorized apps (JWT authenticated)
+  - `DELETE /api/v1/apps/:jti` - Revoke app authorization (JWT authenticated)
+  """
+
   use BaladosSyncWeb, :controller
 
   alias BaladosSyncWeb.AppAuth
 
   @doc """
-  GET /authorize?token=...
-  Decodes the token and renders an authorization page if user is authenticated.
-  If not authenticated, redirects to login page with return_to.
+  Shows the authorization page for a third-party app.
+
+  ## Parameters
+
+  - `token` - JWT containing app metadata and public key
+
+  ## Responses
+
+  - Renders authorization page if user is authenticated
+  - Redirects to login if user is not authenticated
+  - Redirects with error if token is invalid
+
+  ## Example Request
+
+      GET /authorize?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
   """
   def authorize(conn, %{"token" => token}) do
     case AppAuth.decode_app_token(token) do
       {:ok, decoded_data} ->
         if conn.assigns[:current_user] do
+          Logger.debug("Showing app authorization page for user #{conn.assigns.current_user.id}")
           # User is authenticated, render authorization page
           render(conn, :authorize,
-            app_name: decoded_data["name"],
-            app_url: decoded_data["url"],
-            app_image: decoded_data["image"],
+            app_name: decoded_data["app"]["name"],
+            app_url: decoded_data["app"]["url"],
+            app_image: decoded_data["app"]["image"],
             scopes: decoded_data["scopes"] || [],
             token: token
           )
         else
+          Logger.debug("Not authenticated user attempted app authorization")
           # Not authenticated, redirect to login
           conn
           |> put_session(:user_return_to, current_path(conn))
@@ -28,10 +68,12 @@ defmodule BaladosSyncWeb.AppAuthController do
           |> redirect(to: ~p"/users/log_in")
         end
 
-      {:error, _reason} ->
+      {:error, reason} ->
+        Logger.debug("Invalid app authorization token: #{reason}")
+
         conn
         |> put_status(:bad_request)
-        |> put_flash(:error, "Invalid authorization token.")
+        |> put_flash(:error, "Invalid authorization token : #{reason}")
         |> redirect(to: ~p"/")
     end
   end
@@ -44,10 +86,27 @@ defmodule BaladosSyncWeb.AppAuthController do
   end
 
   @doc """
-  POST /authorize
   Creates the authorization after user confirms.
-  Expects "token" in params.
-  Requires authenticated user.
+
+  This endpoint is called when the user clicks "Authorize" on the authorization page.
+  It decodes the token again, validates it, and creates an ApiToken record.
+
+  ## Parameters
+
+  - `token` - The same JWT from the authorization page
+
+  ## Responses
+
+  - Redirects to dashboard with success message on approval
+  - Redirects with error if token is invalid or authorization fails
+  - Returns 401 if user is not authenticated
+
+  ## Example Request
+
+      POST /authorize
+      Content-Type: application/x-www-form-urlencoded
+
+      token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
   """
   def create_authorization(conn, %{"token" => token}) do
     user = conn.assigns[:current_user]
@@ -62,19 +121,26 @@ defmodule BaladosSyncWeb.AppAuthController do
               |> redirect(to: ~p"/dashboard")
 
             {:error, changeset} ->
+              Logger.debug(
+                "Error authorizing app: #{IO.inspect(changeset)} #{format_errors(changeset)}"
+              )
+
               conn
               |> put_status(:unprocessable_entity)
               |> put_flash(:error, "Failed to authorize application: #{format_errors(changeset)}")
               |> redirect(to: ~p"/dashboard")
           end
 
-        {:error, _reason} ->
+        {:error, reason} ->
+          Logger.debug("Invalid app authorization token: #{reason}")
+
           conn
           |> put_status(:bad_request)
           |> put_flash(:error, "Invalid authorization token.")
           |> redirect(to: ~p"/dashboard")
       end
     else
+      Logger.debug("Unauthenticated user attempted to create app authorization")
       conn
       |> put_status(:unauthorized)
       |> put_flash(:error, "You must be logged in to authorize applications.")
@@ -90,8 +156,37 @@ defmodule BaladosSyncWeb.AppAuthController do
   end
 
   @doc """
-  GET /api/v1/apps
-  Lists all authorized apps for the current user (JWT authenticated).
+  Lists all authorized apps for the current user.
+
+  Returns a list of all non-revoked app authorizations for the authenticated user.
+  Requires JWT authentication via the API.
+
+  ## Authentication
+
+  Requires a valid JWT token in the Authorization header.
+
+  ## Example Request
+
+      GET /api/v1/apps
+      Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+
+  ## Example Response
+
+      {
+        "apps": [
+          {
+            "id": 1,
+            "app_name": "Podcast Player Pro",
+            "app_url": "https://podcastplayer.com",
+            "app_image": "https://podcastplayer.com/icon.png",
+            "token_jti": "unique-token-id",
+            "scopes": ["read:subscriptions", "write:plays"],
+            "last_used_at": "2024-01-15T10:30:00Z",
+            "inserted_at": "2024-01-01T08:00:00Z",
+            "updated_at": "2024-01-15T10:30:00Z"
+          }
+        ]
+      }
   """
   def index(conn, _params) do
     user_id = conn.assigns.current_user_id
@@ -118,8 +213,36 @@ defmodule BaladosSyncWeb.AppAuthController do
   end
 
   @doc """
-  DELETE /api/v1/apps/:jti
-  Revokes an app authorization by token_jti (JWT authenticated).
+  Revokes an app authorization.
+
+  Removes access for a specific app by marking its authorization as revoked.
+  The app will no longer be able to make authenticated requests on behalf of the user.
+
+  ## Parameters
+
+  - `jti` - The unique token identifier (JTI) of the app to revoke
+
+  ## Authentication
+
+  Requires a valid JWT token in the Authorization header.
+
+  ## Example Request
+
+      DELETE /api/v1/apps/unique-token-id
+      Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+
+  ## Example Response (Success)
+
+      {
+        "status": "success",
+        "message": "App authorization revoked"
+      }
+
+  ## Example Response (Not Found)
+
+      {
+        "error": "App not found or already revoked"
+      }
   """
   def delete(conn, %{"jti" => jti}) do
     user_id = conn.assigns.current_user_id

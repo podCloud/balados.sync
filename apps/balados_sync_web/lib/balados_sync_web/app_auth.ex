@@ -15,10 +15,11 @@ defmodule BaladosSyncWeb.AppAuth do
   Decodes a JWT and verifies it using the public_key inside the JWT claims.
 
   Expected claims in the token:
-  - "public_key": PEM-encoded RSA public key
-  - "name": Application name
-  - "url": Application URL (optional)
-  - "image": Application image URL (optional)
+  - "app": app details
+    - "public_key": PEM-encoded RSA public key
+    - "name": Application name
+    - "url": Application URL (optional)
+    - "image": Application image URL (optional)
   - "jti": Unique token identifier
   - "scopes": Array of requested scopes (optional)
 
@@ -47,10 +48,10 @@ defmodule BaladosSyncWeb.AppAuth do
   def authorize_app(user_id, decoded_token_data) do
     attrs = %{
       user_id: user_id,
-      app_name: decoded_token_data["name"],
-      app_url: decoded_token_data["url"],
-      app_image: decoded_token_data["image"],
-      public_key: decoded_token_data["public_key"],
+      app_name: decoded_token_data["app"]["name"],
+      app_url: decoded_token_data["app"]["url"],
+      app_image: decoded_token_data["app"]["image"],
+      public_key: decoded_token_data["app"]["public_key"],
       token_jti: decoded_token_data["jti"],
       scopes: decoded_token_data["scopes"] || []
     }
@@ -58,6 +59,7 @@ defmodule BaladosSyncWeb.AppAuth do
     # Check if this token is already authorized
     case get_token_by_jti(decoded_token_data["jti"]) do
       nil ->
+        Logger.debug("Authorizing new app #{attrs.app_name} for user #{user_id}")
         # New authorization
         %ApiToken{}
         |> ApiToken.changeset(attrs)
@@ -136,7 +138,7 @@ defmodule BaladosSyncWeb.AppAuth do
   # Private functions
 
   defp extract_public_key(claims) do
-    case claims["public_key"] do
+    case claims["app"]["public_key"] do
       nil -> {:error, :missing_public_key}
       public_key -> {:ok, public_key}
     end
