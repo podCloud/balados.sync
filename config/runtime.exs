@@ -16,11 +16,21 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
-  config :balados_sync_core, BaladosSyncProjections.Repo,
+  config :balados_sync_projections, BaladosSyncProjections.Repo,
     # ssl: true,
     url: database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6
+
+  # Configure EventStore for production
+  event_store_url =
+    System.get_env("EVENT_STORE_URL") || database_url
+
+  config :balados_sync_core, BaladosSyncCore.EventStore,
+    serializer: Commanded.Serialization.JsonSerializer,
+    url: event_store_url,
+    schema: "events",
+    pool_size: String.to_integer(System.get_env("EVENT_STORE_POOL_SIZE") || "10")
 
   import Config
 
@@ -43,17 +53,8 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
       port: String.to_integer(System.get_env("PORT") || "4000")
     ],
-    secret_key_base: secret_key_base
-
-  # ## Using releases
-  #
-  # If you are doing OTP releases, you need to instruct Phoenix
-  # to start each relevant endpoint:
-  #
-  #     config :balados_sync_web, BaladosSyncWeb.Endpoint, server: true
-  #
-  # Then you can assemble a release by calling `mix release`.
-  # See `mix help release` for more information.
+    secret_key_base: secret_key_base,
+    server: true
 
   # ## SSL Support
   #

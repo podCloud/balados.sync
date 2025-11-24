@@ -4,7 +4,8 @@
       "Bash(test:*)",
       "Bash(mix compile:*)",
       "Bash(mix deps.get:*)",
-      "Bash(mix deps:*)"
+      "Bash(mix deps:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

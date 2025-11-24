@@ -13,6 +13,16 @@ config :balados_sync_projections, BaladosSyncProjections.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 
+# Configure EventStore for testing
+config :balados_sync_core, BaladosSyncCore.EventStore,
+  serializer: Commanded.Serialization.JsonSerializer,
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "balados_sync_test#{System.get_env("MIX_TEST_PARTITION")}",
+  schema: "events",
+  pool_size: System.schedulers_online() * 2
+
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :balados_sync_web, BaladosSyncWeb.Endpoint,

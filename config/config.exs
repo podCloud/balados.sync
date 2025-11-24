@@ -79,6 +79,17 @@ config :balados_sync_core, BaladosSyncCore.EventStore,
   pool_size: 10,
   pool_overflow: 10
 
+# Configure Quantum scheduler for background jobs
+config :balados_sync_jobs, BaladosSyncJobs.Scheduler,
+  jobs: [
+    # Run snapshot worker every 5 minutes
+    snapshot_worker: [
+      schedule: "*/5 * * * *",
+      task: {BaladosSyncJobs.SnapshotWorker, :perform, []},
+      timezone: "UTC"
+    ]
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
