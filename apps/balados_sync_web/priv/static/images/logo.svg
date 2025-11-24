@@ -1,0 +1,33 @@
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Left sound wave -->
+  <rect x="2" y="14" width="2" height="8" rx="1" fill="#6366F1"/>
+  <rect x="5" y="10" width="2" height="16" rx="1" fill="#6366F1"/>
+  <rect x="8" y="6" width="2" height="24" rx="1" fill="#6366F1"/>
+
+  <!-- Sync symbol in center -->
+  <g transform="translate(18, 18)">
+    <!-- Circular arrows -->
+    <path d="M-6 -3 C-6 -6, -3 -9, 0 -9 C3 -9, 6 -6, 6 -3"
+          stroke="#4F46E5"
+          stroke-width="2"
+          stroke-linecap="round"
+          fill="none"/>
+    <path d="M6 3 C6 6, 3 9, 0 9 C-3 9, -6 6, -6 3"
+          stroke="#4F46E5"
+          stroke-width="2"
+          stroke-linecap="round"
+          fill="none"/>
+
+    <!-- Arrow heads -->
+    <path d="M6 -3 L8 -5 L8 -1 Z" fill="#4F46E5"/>
+    <path d="M-6 3 L-8 5 L-8 1 Z" fill="#4F46E5"/>
+
+    <!-- Center dot -->
+    <circle cx="0" cy="0" r="2" fill="#6366F1"/>
+  </g>
+
+  <!-- Right sound wave -->
+  <rect x="26" y="6" width="2" height="24" rx="1" fill="#6366F1"/>
+  <rect x="29" y="10" width="2" height="16" rx="1" fill="#6366F1"/>
+  <rect x="32" y="14" width="2" height="8" rx="1" fill="#6366F1"/>
+</svg>
