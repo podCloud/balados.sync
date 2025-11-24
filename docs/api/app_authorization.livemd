@@ -1,0 +1,495 @@
+# App Authorization (OAuth-style Flow)
+
+```elixir
+Mix.install([
+  {:req, "~> 0.4"},
+  {:jason, "~> 1.4"}
+])
+```
+
+## Introduction
+
+Balados Sync provides an OAuth-style authorization flow for third-party applications. This allows:
+
+* App developers to request access to user data
+* Users to authorize apps without sharing credentials
+* Token-based access with revocation support
+* Device-specific authorization tracking
+
+## The Authorization Flow
+
+```elixir
+IO.puts("""
+OAuth-style Authorization Flow:
+
+┌─────────────┐
+│ 1. App Dev  │ Creates authorization request
+│   /app-creator │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ 2. Token    │ Receives authorization token
+│   Generated │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ 3. User     │ Visits /authorize?token=...
+│   Authorizes│
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ 4. Token    │ Token becomes valid JWT
+│   Activated │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ 5. App      │ Makes API calls with JWT
+│   Uses API  │
+└─────────────┘
+""")
+```
+
+## Setup
+
+```elixir
+# API Configuration
+base_url = "http://localhost:4000"
+api_base = "#{base_url}/api/v1"
+
+IO.puts("✓ Configuration ready")
+IO.puts("App Creator: #{base_url}/app-creator")
+```
+
+## Step 1: Create Authorization Request
+
+Visit the app-creator page in your browser to generate an authorization token.
+
+```elixir
+app_creator_url = "#{base_url}/app-creator"
+
+IO.puts("🌐 Open this URL in your browser:")
+IO.puts(app_creator_url)
+IO.puts("\nYou'll see a form with:")
+IO.puts("  • User ID (who is authorizing)")
+IO.puts("  • Device ID (unique device identifier)")
+IO.puts("  • Device Name (human-readable name)")
+IO.puts("  • App Name (your application name)")
+IO.puts("  • App Description (what your app does)")
+IO.puts("\nFill out the form and submit.")
+```
+
+## Step 2: Receive Authorization Token
+
+After submitting the form, you'll receive an authorization token. Paste it here:
+
+```elixir
+# Paste the token you received from the app-creator form
+authorization_token = "paste_your_authorization_token_here"
+
+IO.puts("Authorization Token:")
+IO.puts(authorization_token)
+IO.puts("\n⚠️  This token is not yet activated!")
+IO.puts("The user must authorize it first.")
+```
+
+## Step 3: Generate Authorization URL
+
+Share this URL with the user who needs to authorize your app:
+
+```elixir
+authorize_url = "#{base_url}/authorize?token=#{authorization_token}"
+
+IO.puts("🔗 Authorization URL:")
+IO.puts(authorize_url)
+IO.puts("\nSend this URL to the user:")
+IO.puts("  • User opens URL in browser")
+IO.puts("  • Reviews app details")
+IO.puts("  • Clicks 'Authorize'")
+IO.puts("  • Token becomes activated")
+```
+
+## Step 4: User Authorization (Manual Step)
+
+```elixir
+IO.puts("""
+👤 User Authorization Steps:
+
+1. User opens: #{authorize_url}
+
+2. User sees authorization page:
+   ┌──────────────────────────────┐
+   │ Authorize Application        │
+   │                              │
+   │ App: [Your App Name]         │
+   │ Device: [Device Name]        │
+   │ Description: [...]           │
+   │                              │
+   │ [Authorize] [Deny]           │
+   └──────────────────────────────┘
+
+3. User clicks "Authorize"
+
+4. Token is activated ✓
+
+5. App can now use token for API calls
+""")
+
+IO.puts("\n⏳ Waiting for user to authorize...")
+IO.puts("Press Enter after user has authorized the app")
+_ = IO.gets("")
+IO.puts("✓ Proceeding...")
+```
+
+## Step 5: Use the Activated Token
+
+After user authorization, the token becomes a valid JWT:
+
+```elixir
+# The authorization token is now a valid JWT
+jwt_token = authorization_token
+
+# Create authenticated client
+client = Req.new(
+  base_url: api_base,
+  headers: [{"authorization", "Bearer #{jwt_token}"}]
+)
+
+# Test the token
+test_response = Req.get(client, "/subscriptions")
+
+case test_response do
+  {:ok, %{status: 200, body: subscriptions}} ->
+    IO.puts("✓ Token is valid and activated!")
+    IO.puts("  User has #{length(subscriptions)} subscriptions")
+
+  {:ok, %{status: 401}} ->
+    IO.puts("✗ Token not yet activated")
+    IO.puts("  User needs to visit the authorization URL")
+
+  {:error, reason} ->
+    IO.puts("✗ Request failed: #{inspect(reason)}")
+end
+```
+
+## List Authorized Apps
+
+Users can see all apps they've authorized:
+
+```elixir
+# GET /api/v1/apps
+apps_response = Req.get!(client, "/apps")
+
+IO.inspect(apps_response.status, label: "Status")
+IO.inspect(apps_response.body, label: "Authorized Apps")
+
+apps = apps_response.body
+
+IO.puts("\n📱 Authorized Applications (#{length(apps)}):")
+Enum.each(apps, fn app ->
+  IO.puts("\n  #{app["app_name"]}")
+  IO.puts("    Device: #{app["device_name"]} (#{app["device_id"]})")
+  IO.puts("    Description: #{app["app_description"]}")
+  IO.puts("    Token ID: #{app["jti"]}")
+  IO.puts("    Authorized: #{app["authorized_at"]}")
+end)
+```
+
+## Revoke App Authorization
+
+Users can revoke access for any authorized app:
+
+```elixir
+# Find an app to revoke
+apps = Req.get!(client, "/apps").body
+
+if length(apps) > 0 do
+  # Get the first app's token ID (jti)
+  app_to_revoke = List.first(apps)
+  jti = app_to_revoke["jti"]
+
+  IO.puts("Revoking authorization for: #{app_to_revoke["app_name"]}")
+
+  # DELETE /api/v1/apps/:jti
+  revoke_response = Req.delete!(client, "/apps/#{jti}")
+
+  IO.inspect(revoke_response.status, label: "Status")
+
+  case revoke_response.status do
+    204 -> IO.puts("✓ App authorization revoked")
+    200 -> IO.puts("✓ App authorization revoked")
+    404 -> IO.puts("✗ App not found")
+    _ -> IO.puts("✗ Failed to revoke authorization")
+  end
+else
+  IO.puts("ℹ No authorized apps to revoke")
+end
+```
+
+## Complete Example Flow
+
+Here's a complete example simulating the entire flow:
+
+```elixir
+defmodule AuthorizationDemo do
+  def demonstrate(base_url) do
+    IO.puts("🚀 Complete Authorization Flow Demo\n")
+
+    # Step 1: App Creator
+    IO.puts("Step 1: App Developer uses /app-creator")
+    IO.puts("  URL: #{base_url}/app-creator")
+    IO.puts("  Fills form with app details")
+    IO.puts("  ✓ Receives authorization token\n")
+
+    # Step 2: Generate auth URL
+    token = "example_auth_token_abc123"
+    auth_url = "#{base_url}/authorize?token=#{token}"
+
+    IO.puts("Step 2: Generate Authorization URL")
+    IO.puts("  URL: #{auth_url}")
+    IO.puts("  ✓ Share with user\n")
+
+    # Step 3: User authorizes
+    IO.puts("Step 3: User Authorizes")
+    IO.puts("  User opens: #{auth_url}")
+    IO.puts("  Reviews app details")
+    IO.puts("  Clicks 'Authorize'")
+    IO.puts("  ✓ Token activated\n")
+
+    # Step 4: App uses token
+    IO.puts("Step 4: App Makes API Calls")
+    IO.puts("  Uses token as JWT Bearer token")
+    IO.puts("  Makes requests to /api/v1/*")
+    IO.puts("  ✓ Access granted\n")
+
+    # Step 5: View/revoke
+    IO.puts("Step 5: Manage Authorization")
+    IO.puts("  GET /api/v1/apps - List authorized apps")
+    IO.puts("  DELETE /api/v1/apps/:jti - Revoke access")
+    IO.puts("  ✓ User maintains control\n")
+  end
+end
+
+AuthorizationDemo.demonstrate(base_url)
+```
+
+## Security Considerations
+
+```elixir
+IO.puts("""
+🔒 Security Best Practices:
+
+1. Token Storage
+   • Store tokens securely (encrypted storage)
+   • Never commit tokens to version control
+   • Use environment variables or secure vaults
+
+2. Token Transmission
+   • Always use HTTPS in production
+   • Never send tokens in URLs (query params)
+   • Use Authorization header
+
+3. Token Lifecycle
+   • Implement token refresh if needed
+   • Handle 401 errors gracefully
+   • Allow users to revoke access easily
+
+4. Scope and Permissions
+   • Request only necessary permissions
+   • Clearly explain what data you'll access
+   • Respect user privacy settings
+
+5. User Experience
+   • Show clear app descriptions
+   • Explain why authorization is needed
+   • Provide easy revocation mechanism
+""")
+```
+
+## Building an App Authorization UI
+
+For app developers building a client application:
+
+```elixir
+defmodule AppAuthUI do
+  @moduledoc """
+  Example code for implementing app authorization in your client
+  """
+
+  def request_authorization(app_name, app_description, user_id, device_id, device_name) do
+    """
+    1. Direct user to app-creator page with pre-filled data:
+       #{base_url}/app-creator?
+         user_id=#{user_id}&
+         device_id=#{device_id}&
+         device_name=#{URI.encode(device_name)}&
+         app_name=#{URI.encode(app_name)}&
+         app_description=#{URI.encode(app_description)}
+
+    2. User submits form and receives token
+
+    3. Show authorization URL to user:
+       #{base_url}/authorize?token=<received_token>
+
+    4. Poll or wait for user to authorize
+
+    5. Start using token for API calls
+    """
+  end
+
+  def check_authorization(client) do
+    case Req.get(client, "/apps") do
+      {:ok, %{status: 200}} -> {:ok, :authorized}
+      {:ok, %{status: 401}} -> {:error, :not_authorized}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  def handle_revocation(client) do
+    """
+    Handle 401 responses during API calls:
+
+    1. Detect 401 Unauthorized response
+    2. Clear stored token
+    3. Show user that authorization was revoked
+    4. Prompt to re-authorize if needed
+    """
+  end
+end
+
+IO.puts("Example app authorization code loaded")
+IO.puts("See AppAuthUI module for implementation examples")
+```
+
+## Testing Authorization Flow
+
+```elixir
+defmodule AuthFlowTester do
+  def test_unauthorized_access(base_url) do
+    # Try to access API without authorization
+    response = Req.get("#{base_url}/api/v1/subscriptions",
+      headers: [{"authorization", "Bearer invalid_token"}]
+    )
+
+    case response do
+      {:ok, %{status: 401}} ->
+        IO.puts("✓ Unauthorized access correctly rejected")
+        :ok
+
+      {:ok, %{status: status}} ->
+        IO.puts("✗ Unexpected status: #{status}")
+        :error
+
+      {:error, reason} ->
+        IO.puts("✗ Request failed: #{inspect(reason)}")
+        :error
+    end
+  end
+
+  def test_authorized_access(client) do
+    response = Req.get(client, "/subscriptions")
+
+    case response do
+      {:ok, %{status: 200}} ->
+        IO.puts("✓ Authorized access successful")
+        :ok
+
+      {:ok, %{status: 401}} ->
+        IO.puts("✗ Token not authorized")
+        :error
+
+      {:error, reason} ->
+        IO.puts("✗ Request failed: #{inspect(reason)}")
+        :error
+    end
+  end
+end
+
+IO.puts("Testing unauthorized access:")
+AuthFlowTester.test_unauthorized_access(base_url)
+
+IO.puts("\nTesting authorized access (requires valid token):")
+# Uncomment to test with valid token:
+# AuthFlowTester.test_authorized_access(client)
+```
+
+## Monitoring Authorized Apps
+
+```elixir
+defmodule AppMonitor do
+  def list_apps_summary(client) do
+    case Req.get(client, "/apps") do
+      {:ok, %{status: 200, body: apps}} ->
+        IO.puts("📱 Authorized Apps Summary:\n")
+
+        grouped = Enum.group_by(apps, fn app -> app["device_name"] end)
+
+        Enum.each(grouped, fn {device, device_apps} ->
+          IO.puts("  #{device}")
+          Enum.each(device_apps, fn app ->
+            IO.puts("    • #{app["app_name"]}")
+          end)
+          IO.puts("")
+        end)
+
+        IO.puts("Total: #{length(apps)} authorized apps")
+
+      {:ok, %{status: 401}} ->
+        IO.puts("✗ Not authorized")
+
+      {:error, reason} ->
+        IO.puts("✗ Error: #{inspect(reason)}")
+    end
+  end
+
+  def revoke_all_for_device(client, device_id) do
+    {:ok, %{body: apps}} = Req.get(client, "/apps")
+
+    device_apps = Enum.filter(apps, fn app ->
+      app["device_id"] == device_id
+    end)
+
+    IO.puts("Revoking #{length(device_apps)} apps for device: #{device_id}")
+
+    Enum.each(device_apps, fn app ->
+      Req.delete(client, "/apps/#{app["jti"]}")
+      IO.puts("  ✓ Revoked: #{app["app_name"]}")
+    end)
+  end
+end
+
+# Example usage (requires valid token):
+# AppMonitor.list_apps_summary(client)
+```
+
+## Next Steps
+
+* [Authentication Guide](authentication.livemd) - JWT token basics
+* [Subscriptions API](subscriptions.livemd) - Using authorized tokens
+* [Play Status API](play_status.livemd) - Track listening with app
+* [Getting Started](../guides/getting_started.livemd) - Complete tutorial
+
+## Common Issues
+
+### Token not activated
+* User hasn't visited /authorize URL yet
+* User clicked "Deny" instead of "Authorize"
+* Token was already used and expired
+
+### 401 Unauthorized after working
+* User revoked app authorization
+* Token expired
+* Need to re-authorize
+
+### Cannot revoke app
+* Wrong JTI (token ID)
+* Already revoked
+* Using wrong authentication token
+
+### App creator form fails
+* All fields are required
+* User ID must be valid
+* Device ID must be unique for user

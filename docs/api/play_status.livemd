@@ -1,0 +1,518 @@
+# Play Status API
+
+```elixir
+Mix.install([
+  {:req, "~> 0.4"},
+  {:jason, "~> 1.4"}
+])
+```
+
+## Introduction
+
+The Play Status API allows you to track listening progress for podcast episodes. This enables:
+
+* Recording when users start/pause/finish episodes
+* Tracking playback position
+* Syncing listening progress across devices
+* Marking episodes as played
+
+## Setup
+
+```elixir
+# API Configuration
+base_url = "http://localhost:4000"
+api_base = "#{base_url}/api/v1"
+
+# Your JWT token
+token = System.get_env("BALADOS_JWT") || "paste_your_jwt_token_here"
+
+# Create authenticated client
+client = Req.new(
+  base_url: api_base,
+  headers: [{"authorization", "Bearer #{token}"}]
+)
+
+IO.puts("✓ Client configured")
+```
+
+## Understanding Episode Encoding
+
+Episodes are identified by a base64-encoded string combining GUID and enclosure URL:
+
+```elixir
+defmodule EpisodeEncoder do
+  def encode_episode(guid, enclosure_url) do
+    Base.encode64("#{guid},#{enclosure_url}")
+  end
+
+  def decode_episode(encoded) do
+    decoded = Base.decode64!(encoded)
+    [guid, enclosure_url] = String.split(decoded, ",", parts: 2)
+    %{guid: guid, enclosure_url: enclosure_url}
+  end
+
+  def encode_feed_url(url) do
+    Base.encode64(url)
+  end
+end
+
+# Example episode
+guid = "episode-123-unique-id"
+enclosure_url = "https://cdn.example.com/episodes/episode-123.mp3"
+encoded_episode = EpisodeEncoder.encode_episode(guid, enclosure_url)
+
+IO.puts("Episode GUID: #{guid}")
+IO.puts("Enclosure URL: #{enclosure_url}")
+IO.puts("Encoded (rss_source_item): #{encoded_episode}")
+IO.puts("\nDecoded:")
+IO.inspect(EpisodeEncoder.decode_episode(encoded_episode))
+```
+
+## List All Play Statuses
+
+```elixir
+# GET /api/v1/play_statuses
+response = Req.get!(client, "/play_statuses")
+
+IO.inspect(response.status, label: "Status")
+IO.inspect(response.body, label: "Play Statuses")
+
+# Display nicely
+play_statuses = response.body
+
+IO.puts("\n🎧 Your Play History (#{length(play_statuses)} episodes):")
+play_statuses
+|> Enum.take(10)
+|> Enum.each(fn ps ->
+  episode_info = EpisodeEncoder.decode_episode(ps["rss_source_item"])
+
+  IO.puts("\n  Episode: #{episode_info.guid}")
+  IO.puts("    Position: #{ps["position"]}s / #{ps["duration"]}s")
+  IO.puts("    Status: #{ps["status"]}")
+  IO.puts("    Updated: #{ps["updated_at"]}")
+end)
+```
+
+## Record a Play (Start Listening)
+
+```elixir
+# Example episode details
+feed_url = "https://feeds.example.com/my-podcast.xml"
+episode_guid = "episode-456"
+episode_enclosure = "https://cdn.example.com/episodes/456.mp3"
+episode_duration = 3600  # 1 hour in seconds
+
+# Encode identifiers
+rss_source_feed = EpisodeEncoder.encode_feed_url(feed_url)
+rss_source_item = EpisodeEncoder.encode_episode(episode_guid, episode_enclosure)
+
+# POST /api/v1/play_statuses
+play_request = %{
+  rss_source_feed: rss_source_feed,
+  rss_source_item: rss_source_item,
+  rss_source_id: "my-podcast",
+  position: 0,
+  duration: episode_duration,
+  status: "playing"
+}
+
+play_response = Req.post!(client, "/play_statuses",
+  json: play_request
+)
+
+IO.inspect(play_response.status, label: "Status")
+IO.inspect(play_response.body, label: "Play Status Created")
+
+case play_response.status do
+  200 -> IO.puts("✓ Play status recorded!")
+  201 -> IO.puts("✓ Play status recorded!")
+  _ -> IO.puts("✗ Failed to record play")
+end
+```
+
+## Update Playback Position
+
+```elixir
+# Update progress as the user listens
+# Find the play status we just created
+play_statuses = Req.get!(client, "/play_statuses").body
+
+play_status = Enum.find(play_statuses, fn ps ->
+  ps["rss_source_item"] == rss_source_item
+end)
+
+case play_status do
+  nil ->
+    IO.puts("✗ Play status not found")
+
+  ps ->
+    # User has listened to 15 minutes (900 seconds)
+    update_request = %{
+      position: 900,
+      status: "playing"
+    }
+
+    # PATCH /api/v1/play_statuses/:rss_source_item
+    update_response = Req.patch!(client, "/play_statuses/#{rss_source_item}",
+      json: update_request
+    )
+
+    IO.inspect(update_response.status, label: "Status")
+    IO.inspect(update_response.body, label: "Updated Play Status")
+
+    IO.puts("\n✓ Updated position to 15:00 / #{div(episode_duration, 60)}:00")
+end
+```
+
+## Pause Playback
+
+```elixir
+# Update status to paused at current position
+pause_request = %{
+  position: 900,
+  status: "paused"
+}
+
+pause_response = Req.patch!(client, "/play_statuses/#{rss_source_item}",
+  json: pause_request
+)
+
+IO.inspect(pause_response.body, label: "Paused")
+IO.puts("✓ Playback paused at 15:00")
+```
+
+## Resume Playback
+
+```elixir
+# Resume from paused position
+resume_request = %{
+  position: 900,
+  status: "playing"
+}
+
+resume_response = Req.patch!(client, "/play_statuses/#{rss_source_item}",
+  json: resume_request
+)
+
+IO.inspect(resume_response.body, label: "Resumed")
+IO.puts("✓ Playback resumed from 15:00")
+```
+
+## Mark Episode as Completed
+
+```elixir
+# User finished the episode
+complete_request = %{
+  position: episode_duration,  # At the end
+  status: "completed"
+}
+
+complete_response = Req.patch!(client, "/play_statuses/#{rss_source_item}",
+  json: complete_request
+)
+
+IO.inspect(complete_response.body, label: "Completed")
+IO.puts("✓ Episode marked as completed")
+```
+
+## Track Multiple Episodes
+
+```elixir
+# Simulate listening to multiple episodes
+episodes_to_track = [
+  %{
+    guid: "ep-001",
+    enclosure: "https://cdn.example.com/ep-001.mp3",
+    podcast_id: "test-podcast",
+    feed: "https://feeds.example.com/test.xml",
+    duration: 1800,
+    position: 900,
+    status: "playing"
+  },
+  %{
+    guid: "ep-002",
+    enclosure: "https://cdn.example.com/ep-002.mp3",
+    podcast_id: "test-podcast",
+    feed: "https://feeds.example.com/test.xml",
+    duration: 2400,
+    position: 2400,
+    status: "completed"
+  },
+  %{
+    guid: "ep-003",
+    enclosure: "https://cdn.example.com/ep-003.mp3",
+    podcast_id: "another-podcast",
+    feed: "https://feeds.example.com/another.xml",
+    duration: 3000,
+    position: 500,
+    status: "paused"
+  }
+]
+
+IO.puts("Recording play statuses for #{length(episodes_to_track)} episodes:")
+
+results = Enum.map(episodes_to_track, fn ep ->
+  rss_source_feed = EpisodeEncoder.encode_feed_url(ep.feed)
+  rss_source_item = EpisodeEncoder.encode_episode(ep.guid, ep.enclosure)
+
+  request = %{
+    rss_source_feed: rss_source_feed,
+    rss_source_item: rss_source_item,
+    rss_source_id: ep.podcast_id,
+    position: ep.position,
+    duration: ep.duration,
+    status: ep.status
+  }
+
+  response = Req.post(client, "/play_statuses", json: request)
+
+  case response do
+    {:ok, %{status: status}} when status in [200, 201] ->
+      IO.puts("  ✓ #{ep.guid}: #{ep.status} (#{ep.position}/#{ep.duration}s)")
+      :ok
+    {:ok, %{status: status}} ->
+      IO.puts("  ✗ #{ep.guid}: Failed (#{status})")
+      :error
+    {:error, _} ->
+      IO.puts("  ✗ #{ep.guid}: Error")
+      :error
+  end
+end)
+
+successful = Enum.count(results, &(&1 == :ok))
+IO.puts("\n✓ Successfully recorded #{successful}/#{length(episodes_to_track)} episodes")
+```
+
+## Query Play Statuses by Podcast
+
+```elixir
+# Get all play statuses for a specific podcast
+target_podcast = "test-podcast"
+
+all_plays = Req.get!(client, "/play_statuses").body
+podcast_plays = Enum.filter(all_plays, fn ps ->
+  ps["rss_source_id"] == target_podcast
+end)
+
+IO.puts("🎧 Play history for #{target_podcast}: #{length(podcast_plays)} episodes\n")
+
+podcast_plays
+|> Enum.each(fn ps ->
+  episode = EpisodeEncoder.decode_episode(ps["rss_source_item"])
+  progress_pct = if ps["duration"] > 0 do
+    round(ps["position"] / ps["duration"] * 100)
+  else
+    0
+  end
+
+  IO.puts("  #{episode.guid}")
+  IO.puts("    Progress: #{progress_pct}% (#{ps["position"]}/#{ps["duration"]}s)")
+  IO.puts("    Status: #{ps["status"]}")
+  IO.puts("")
+end)
+```
+
+## Calculate Listening Statistics
+
+```elixir
+defmodule ListeningStats do
+  def calculate(play_statuses) do
+    %{
+      total_episodes: length(play_statuses),
+      completed: count_by_status(play_statuses, "completed"),
+      in_progress: count_by_status(play_statuses, "playing") +
+                   count_by_status(play_statuses, "paused"),
+      total_duration: sum_duration(play_statuses),
+      total_listened: sum_position(play_statuses),
+      avg_completion: avg_completion_rate(play_statuses)
+    }
+  end
+
+  defp count_by_status(statuses, status) do
+    Enum.count(statuses, fn ps -> ps["status"] == status end)
+  end
+
+  defp sum_duration(statuses) do
+    Enum.reduce(statuses, 0, fn ps, acc -> acc + ps["duration"] end)
+  end
+
+  defp sum_position(statuses) do
+    Enum.reduce(statuses, 0, fn ps, acc -> acc + ps["position"] end)
+  end
+
+  defp avg_completion_rate(statuses) do
+    if length(statuses) == 0 do
+      0
+    else
+      total_completion = Enum.reduce(statuses, 0, fn ps, acc ->
+        if ps["duration"] > 0 do
+          acc + (ps["position"] / ps["duration"])
+        else
+          acc
+        end
+      end)
+
+      round(total_completion / length(statuses) * 100)
+    end
+  end
+
+  def format_duration(seconds) do
+    hours = div(seconds, 3600)
+    minutes = div(rem(seconds, 3600), 60)
+    "#{hours}h #{minutes}m"
+  end
+end
+
+# Calculate your listening stats
+all_play_statuses = Req.get!(client, "/play_statuses").body
+stats = ListeningStats.calculate(all_play_statuses)
+
+IO.puts("\n📊 Your Listening Statistics:")
+IO.puts("  Total Episodes: #{stats.total_episodes}")
+IO.puts("  Completed: #{stats.completed}")
+IO.puts("  In Progress: #{stats.in_progress}")
+IO.puts("  Total Duration: #{ListeningStats.format_duration(stats.total_duration)}")
+IO.puts("  Time Listened: #{ListeningStats.format_duration(stats.total_listened)}")
+IO.puts("  Avg Completion: #{stats.avg_completion}%")
+```
+
+## Sync Play Status Across Devices
+
+When using multiple devices, the most recent update wins:
+
+```elixir
+# Simulate device sync scenario
+IO.puts("""
+Device Sync Scenario:
+  Device A: User is at 10:00, status = playing
+  Device B: User is at 8:00, status = paused
+
+When both sync:
+  - Server compares updated_at timestamps
+  - Most recent update wins
+  - Both devices receive the latest state
+""")
+
+# Check current state
+current_state = Enum.find(
+  Req.get!(client, "/play_statuses").body,
+  fn ps -> ps["rss_source_item"] == rss_source_item end
+)
+
+if current_state do
+  IO.puts("\nCurrent state:")
+  IO.puts("  Position: #{current_state["position"]}s")
+  IO.puts("  Status: #{current_state["status"]}")
+  IO.puts("  Last updated: #{current_state["updated_at"]}")
+end
+```
+
+## Using the Play Gateway
+
+The play gateway (`play.balados.sync`) tracks listens and redirects to enclosures:
+
+```elixir
+# Instead of directly accessing the enclosure URL, use the play gateway
+play_gateway_url = "http://play.balados.sync:4000"
+
+# Construct play URL
+play_url_params = URI.encode_query(%{
+  feed: rss_source_feed,
+  item: rss_source_item,
+  podcast: "my-podcast"
+})
+
+play_url = "#{play_gateway_url}/play?#{play_url_params}"
+
+IO.puts("Play Gateway URL:")
+IO.puts(play_url)
+IO.puts("\nWhen accessed:")
+IO.puts("  1. Records play event automatically")
+IO.puts("  2. Redirects to actual enclosure URL")
+IO.puts("  3. User's podcast app downloads episode")
+```
+
+## Best Practices
+
+```elixir
+IO.puts("""
+📚 Best Practices for Play Status:
+
+1. Update position regularly (every 30-60 seconds during playback)
+2. Set status to 'paused' when user pauses
+3. Set status to 'completed' when episode finishes
+4. Include accurate duration from RSS feed
+5. Handle offline scenarios with local queuing
+6. Sync on app launch/resume
+7. Batch updates when possible
+
+Status Values:
+  • playing - Currently playing
+  • paused - Paused but not finished
+  • completed - Finished listening
+""")
+```
+
+## Privacy Considerations
+
+Play events can be made public, anonymous, or private:
+
+```elixir
+IO.puts("""
+Privacy Levels:
+
+• public - Visible with user_id in popularity calculations
+• anonymous - Visible without user_id in popularity
+• private - Not visible in any public data
+
+By default, play events inherit your global privacy setting.
+See the Privacy API for more details.
+""")
+```
+
+## Cleanup Test Data
+
+```elixir
+# Note: There's no DELETE endpoint for play statuses
+# They can only be updated or hidden via privacy settings
+
+IO.puts("""
+Note: Play statuses cannot be deleted directly.
+
+To "remove" a play status:
+1. Set position to 0
+2. Change privacy to 'private'
+3. Or wait for checkpoint cleanup (events >31 days)
+
+This preserves event sourcing immutability.
+""")
+```
+
+## Next Steps
+
+* [Episodes API](episodes.livemd) - Query episode metadata
+* [Privacy Settings](privacy.livemd) - Control play visibility
+* [Sync API](sync.livemd) - Bulk synchronization
+* [Architecture Guide](../guides/architecture.livemd) - Event sourcing
+
+## Common Issues
+
+### Position not updating
+* Check that you're using PATCH with the correct rss_source_item
+* Verify the encoded episode identifier is correct
+* Ensure position <= duration
+
+### Play status not appearing
+* Remember eventual consistency
+* Wait a moment and retry GET /play_statuses
+* Check that all required fields are provided
+
+### Duplicate play records
+* Each POST creates a new event
+* Use PATCH to update existing status
+* Check current status before creating new one
+
+### Cannot delete play status
+* Play statuses are immutable events
+* Update to position=0 or change privacy instead
+* Events are cleaned up after 31 days via checkpoint system
