@@ -22,4 +22,65 @@ erl_crash.dump
 # Temporary files, for example, from tests.
 /tmp/
 
+# Ignore Phoenix LiveView uploads
+/priv/static/uploads/
+
+# Ignore generated assets
+/priv/static/assets/
+
+# Ignore development database files
+*.db
+*.db-shm
+*.db-wal
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Editor and IDE files
+## Vim
+*.swp
+*.swo
+*~
+.*.sw[a-z]
+
+## Emacs
+*~
+\#*\#
+.\#*
+
+## VSCode
+.vscode/
+*.code-workspace
+
+## IntelliJ / RubyMine / etc
+.idea/
+*.iml
+
+## Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+## TextMate
+*.tmproj
+*.tmproject
+tmtags
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Crash dumps
+*.dump
+core
+
 
