@@ -95,6 +95,11 @@ iex -S mix
 - ✅ Toujours passer par Commanded pour émettre des events
 - ✅ Events sont **immuables** (pour "supprimer", émettre nouvel event)
 
+**Exception : Deletion Events**
+- Les events de type "deletion" (suppression utilisateur) sont une exception à l'immuabilité
+- Une fois inscrit dans l'event log, un deletion event supprime tout l'historique concerné
+- Seul le deletion event lui-même reste, et disparaîtra après 45 jours
+
 ### Projections = Eventual Consistency
 
 - Les projections sont **éventuellement cohérentes** (async)
@@ -298,6 +303,7 @@ end
 
 - ❌ Ne JAMAIS modifier la DB `events` manuellement
 - ✅ Events sont immuables (pour "supprimer", émettre nouvel event)
+- ⚠️ **Exception** : Les deletion events suppriment l'historique concerné (disparaissent après 45j)
 - ✅ Pour reset projections : `mix ecto.reset` (safe)
 
 ### Aggregate

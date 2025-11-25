@@ -696,6 +696,11 @@ mix test apps/balados_sync_web/test/controllers/my_controller_test.exs
 - Pour "supprimer" : émettre un nouvel event (ex: `SomethingDeleted`)
 - Ne jamais changer le schéma d'un event déjà utilisé en production
 
+**Exception : Deletion Events**
+- Les events de type "deletion" (suppression utilisateur) sont une exception
+- Une fois inscrit dans l'event log, un deletion event supprime tout l'historique concerné
+- Seul le deletion event lui-même reste, et disparaîtra après 45 jours
+
 ### Projections Async
 
 - Les projections sont **éventuellement cohérentes**

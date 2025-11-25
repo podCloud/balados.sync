@@ -31,7 +31,8 @@ balados_sync/
 ### Event Sourcing
 - **Event Store** : Tous les événements sont stockés de façon immuable
 - **Checkpoints** : Snapshots créés tous les 5 minutes pour les events > 45 jours
-- **Cleanup** : Les events > 31 jours sont supprimés après checkpoint
+- **Cleanup** : Les events > 45 jours sont supprimés après checkpoint
+- ⚠️ **Exception** : Les deletion events suppriment l'historique concerné (disparaissent après 45j)
 
 ### Privacy granulaire
 - **Public** : Données visibles avec user_id
@@ -453,7 +454,7 @@ Le `SnapshotWorker` s'exécute **toutes les 5 minutes** :
 
 1. **Checkpoint** : Crée des snapshots pour les users avec events > 45 jours
 2. **Recalcul** : Met à jour la popularité avec le système de points
-3. **Cleanup** : Supprime les events > 31 jours (après checkpoint)
+3. **Cleanup** : Supprime les events > 45 jours (après checkpoint)
 
 Configuration dans `config/config.exs` :
 ```elixir
