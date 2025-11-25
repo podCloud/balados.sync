@@ -183,4 +183,36 @@ defmodule BaladosSyncWeb.Accounts do
     |> User.unlock_changeset()
     |> Repo.update()
   end
+
+  ## Admin functions
+
+  @doc """
+  Checks if any users exist in the system.
+  """
+  def any_users_exist? do
+    Repo.exists?(User)
+  end
+
+  @doc """
+  Counts total number of users.
+  """
+  def count_users do
+    Repo.aggregate(User, :count, :id)
+  end
+
+  @doc """
+  Registers the first admin user during initial setup.
+  """
+  def register_admin_user(attrs) do
+    %User{}
+    |> User.registration_changeset(attrs)
+    |> Ecto.Changeset.put_change(:is_admin, true)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Checks if a user is an admin.
+  """
+  def admin?(%User{is_admin: true}), do: true
+  def admin?(_), do: false
 end

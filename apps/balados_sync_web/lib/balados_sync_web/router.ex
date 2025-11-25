@@ -19,6 +19,14 @@ defmodule BaladosSyncWeb.Router do
     plug BaladosSyncWeb.Plugs.UserAuth, :require_authenticated_user
   end
 
+  # Setup route (accessible même sans users)
+  scope "/", BaladosSyncWeb do
+    pipe_through :browser
+
+    get "/setup", SetupController, :show
+    post "/setup", SetupController, :create
+  end
+
   scope "/", BaladosSyncWeb do
     pipe_through :browser
 
@@ -51,6 +59,15 @@ defmodule BaladosSyncWeb.Router do
 
     # App management (HTML interface)
     get "/apps", AppAuthController, :manage_apps
+  end
+
+  # Admin routes (requires authenticated user with admin role)
+  scope "/admin", BaladosSyncWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    get "/", AdminController, :index
+    get "/rss-utility", AdminController, :rss_utility
+    post "/rss-utility/generate", AdminController, :generate_rss_link
   end
 
   # Other scopes may use custom stacks.

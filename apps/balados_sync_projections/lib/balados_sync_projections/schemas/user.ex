@@ -12,6 +12,7 @@ defmodule BaladosSyncProjections.Schemas.User do
     field :confirmed_at, :utc_datetime
     field :locked_at, :utc_datetime
     field :failed_login_attempts, :integer, default: 0
+    field :is_admin, :boolean, default: false
 
     timestamps(type: :utc_datetime)
   end
@@ -175,6 +176,13 @@ defmodule BaladosSyncProjections.Schemas.User do
   """
   def reset_failed_attempts_changeset(user) do
     change(user, failed_login_attempts: 0)
+  end
+
+  @doc """
+  Makes a user an admin.
+  """
+  def make_admin_changeset(user) do
+    change(user, is_admin: true)
   end
 
   @doc """

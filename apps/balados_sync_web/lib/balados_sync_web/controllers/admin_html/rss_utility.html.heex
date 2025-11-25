@@ -1,0 +1,197 @@
+<div class="px-4 py-10 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-4xl">
+    <.header>
+      RSS Cache Link Generator
+      <:subtitle>Generate cached RSS proxy links for podcast feeds</:subtitle>
+      <:actions>
+        <.link navigate={~p"/admin"} class="text-sm font-semibold text-blue-600 hover:text-blue-700">
+          <span aria-hidden="true">&larr;</span> Back to Dashboard
+        </.link>
+      </:actions>
+    </.header>
+
+    <div class="mt-10">
+      <!-- Info Box -->
+      <div class="mb-6 bg-blue-50 border border-blue-200 rounded-md p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <.icon name="hero-information-circle" class="h-5 w-5 text-blue-400" />
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-blue-800">
+              This utility generates cached RSS proxy links. The cache has a <strong>5-minute TTL</strong> and automatically validates feeds.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <form id="rss-form" phx-submit="generate">
+          <div class="space-y-4">
+            <div>
+              <label for="feed_url" class="block text-sm font-medium text-zinc-700">
+                RSS Feed URL
+              </label>
+              <div class="mt-1">
+                <input
+                  type="url"
+                  name="feed_url"
+                  id="feed_url"
+                  class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-zinc-300 rounded-md"
+                  placeholder="https://example.com/feed.xml"
+                  required
+                />
+              </div>
+              <p class="mt-2 text-sm text-zinc-500">
+                Enter the RSS feed URL you want to generate cache links for
+              </p>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Generate Links
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results -->
+      <div id="results" class="mt-6 hidden">
+        <div class="bg-white shadow rounded-lg p-6">
+          <h3 class="text-lg font-medium text-zinc-900 mb-4">Generated Links</h3>
+
+          <!-- Proxy Link -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-zinc-700 mb-2">
+              Proxy Link (Full Feed, 5 min cache)
+            </label>
+            <div class="flex">
+              <input
+                type="text"
+                id="proxy-url"
+                readonly
+                class="flex-1 shadow-sm bg-zinc-50 focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-zinc-300 rounded-l-md font-mono text-sm"
+              />
+              <button
+                onclick="copyToClipboard('proxy-url')"
+                class="inline-flex items-center px-4 py-2 border border-l-0 border-zinc-300 text-sm font-medium rounded-r-md text-zinc-700 bg-zinc-50 hover:bg-zinc-100"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+
+          <!-- Encoded Feed -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-zinc-700 mb-2">
+              Encoded Feed ID (for episode links)
+            </label>
+            <div class="flex">
+              <input
+                type="text"
+                id="encoded-feed"
+                readonly
+                class="flex-1 shadow-sm bg-zinc-50 focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-zinc-300 rounded-l-md font-mono text-sm"
+              />
+              <button
+                onclick="copyToClipboard('encoded-feed')"
+                class="inline-flex items-center px-4 py-2 border border-l-0 border-zinc-300 text-sm font-medium rounded-r-md text-zinc-700 bg-zinc-50 hover:bg-zinc-100"
+              >
+                Copy
+              </button>
+            </div>
+            <p class="mt-2 text-sm text-zinc-500">
+              Use this with episode IDs: <code class="text-xs bg-zinc-100 px-1 py-0.5 rounded">/api/v1/rss/proxy/{encoded_feed}/{encoded_episode}</code>
+            </p>
+          </div>
+
+          <!-- Cache Stats -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-zinc-700 mb-2">
+              Cache Status
+            </label>
+            <div class="bg-zinc-50 border border-zinc-200 rounded-md p-4">
+              <dl class="space-y-2">
+                <div class="flex justify-between">
+                  <dt class="text-sm text-zinc-500">Cached:</dt>
+                  <dd class="text-sm font-medium" id="cache-status">-</dd>
+                </div>
+                <div class="flex justify-between">
+                  <dt class="text-sm text-zinc-500">TTL:</dt>
+                  <dd class="text-sm font-medium" id="cache-ttl">-</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+
+          <!-- Example Episode Link -->
+          <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+            <p class="text-sm text-blue-800">
+              <strong>Episode link format:</strong><br/>
+              <code class="text-xs bg-white px-1 py-0.5 rounded mt-1 inline-block">
+                /api/v1/rss/proxy/{encoded_feed}/{base64(guid + "," + enclosure_url)}
+              </code>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Handle form submission
+  document.getElementById('rss-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const feedUrl = document.getElementById('feed_url').value;
+
+    try {
+      const response = await fetch('/admin/rss-utility/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ feed_url: feedUrl })
+      });
+
+      const data = await response.json();
+
+      // Show results
+      document.getElementById('results').classList.remove('hidden');
+
+      // Fill in the results
+      document.getElementById('proxy-url').value = data.proxy_url;
+      document.getElementById('encoded-feed').value = data.encoded_feed;
+      document.getElementById('cache-status').textContent = data.cache.cached ? '✓ Yes' : '✗ No';
+      document.getElementById('cache-status').classList.toggle('text-green-600', data.cache.cached);
+      document.getElementById('cache-status').classList.toggle('text-zinc-500', !data.cache.cached);
+      document.getElementById('cache-ttl').textContent = data.cache.ttl || 'N/A';
+    } catch (error) {
+      alert('Error generating links: ' + error.message);
+    }
+  });
+
+  // Copy to clipboard function
+  function copyToClipboard(inputId) {
+    const input = document.getElementById(inputId);
+    input.select();
+    input.setSelectionRange(0, 99999); // For mobile devices
+
+    navigator.clipboard.writeText(input.value).then(() => {
+      // Show feedback
+      const button = input.nextElementSibling;
+      const originalText = button.textContent;
+      button.textContent = 'Copied!';
+      setTimeout(() => {
+        button.textContent = originalText;
+      }, 2000);
+    });
+  }
+</script>

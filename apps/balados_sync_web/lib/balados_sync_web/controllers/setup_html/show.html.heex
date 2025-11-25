@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" class="[scrollbar-gutter:stable]">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <title>Initial Setup - Balados Sync</title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+  </head>
+  <body class="bg-zinc-50 antialiased">
+    <div class="flex min-h-screen items-center justify-center px-4 py-12">
+      <div class="w-full max-w-md">
+        <!-- Header avec logo -->
+        <div class="text-center mb-8">
+          <h1 class="text-4xl font-bold text-zinc-900 mb-2">
+            Balados Sync
+          </h1>
+          <p class="text-lg text-zinc-600">
+            Initial Setup
+          </p>
+        </div>
+
+        <!-- Card de setup -->
+        <div class="bg-white shadow-lg rounded-lg p-8">
+          <div class="mb-6">
+            <h2 class="text-xl font-semibold text-zinc-900 mb-2">
+              Welcome!
+            </h2>
+            <p class="text-sm text-zinc-600">
+              Let's create the first administrator account for this Balados Sync instance.
+            </p>
+          </div>
+
+          <!-- Info box -->
+          <div class="mb-6 bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <.icon name="hero-information-circle" class="h-5 w-5 text-blue-400" />
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-blue-800">
+                  This account will have <strong>administrator privileges</strong> and full access to all system features.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulaire -->
+          <.simple_form :let={f} for={@changeset} action={~p"/setup"}>
+            <.error :if={@changeset.action}>
+              Setup failed. Please check the errors below.
+            </.error>
+
+            <.input
+              field={f[:username]}
+              type="text"
+              label="Username"
+              placeholder="admin"
+              required
+              autocomplete="username"
+            />
+
+            <.input
+              field={f[:email]}
+              type="email"
+              label="Email"
+              placeholder="admin@example.com"
+              autocomplete="email"
+            />
+
+            <.input
+              field={f[:password]}
+              type="password"
+              label="Password"
+              required
+              autocomplete="new-password"
+            />
+
+            <div class="text-xs text-zinc-500 mt-2">
+              Password must be at least 12 characters and include uppercase, lowercase, digit, and special character.
+            </div>
+
+            <:actions>
+              <.button class="w-full" phx-disable-with="Creating admin account...">
+                Complete Setup
+              </.button>
+            </:actions>
+          </.simple_form>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-6 text-center text-sm text-zinc-500">
+          <p>
+            Self-hosted podcast synchronization platform
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
