@@ -10,7 +10,8 @@
       "Bash(mix phx.server:*)",
       "Bash(timeout 15 mix phx.server:*)",
       "Bash(mix run:*)",
-      "Bash(mix ecto.gen.migration:*)"
+      "Bash(mix ecto.gen.migration:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

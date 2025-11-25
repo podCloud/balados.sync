@@ -10,7 +10,7 @@ Ce fichier fournit des instructions à Claude Code (claude.ai/code) pour travail
 
 Créer une **plateforme ouverte** pour synchroniser les écoutes de podcasts entre applications et appareils, avec découverte communautaire et support self-hosted.
 
-**👉 Pour en savoir plus** : [GOALS.md](GOALS.md)
+**👉 Pour en savoir plus** : [docs/GOALS.md](docs/GOALS.md)
 
 ### Architecture
 
@@ -61,18 +61,18 @@ iex -S mix
 
 | Document | Description |
 |----------|-------------|
-| [**GOALS.md**](GOALS.md) | Objectifs du projet, vision, roadmap |
-| [**ARCHITECTURE.md**](docs/technical/ARCHITECTURE.md) | Architecture complète, structure des apps, flux CQRS/ES |
-| [**DEVELOPMENT.md**](docs/technical/DEVELOPMENT.md) | Commandes de dev, tests, debugging, workflow |
-| [**AUTH_SYSTEM.md**](docs/technical/AUTH_SYSTEM.md) | Système d'autorisation JWT, scopes, OAuth-style flow |
-| [**CQRS_PATTERNS.md**](docs/technical/CQRS_PATTERNS.md) | Patterns CQRS/ES, exemples, best practices |
+| [**docs/GOALS.md**](docs/GOALS.md) | Objectifs du projet, vision, roadmap |
+| [**docs/technical/ARCHITECTURE.md**](docs/technical/ARCHITECTURE.md) | Architecture complète, structure des apps, flux CQRS/ES |
+| [**docs/technical/DEVELOPMENT.md**](docs/technical/DEVELOPMENT.md) | Commandes de dev, tests, debugging, workflow |
+| [**docs/technical/AUTH_SYSTEM.md**](docs/technical/AUTH_SYSTEM.md) | Système d'autorisation JWT, scopes, OAuth-style flow |
+| [**docs/technical/CQRS_PATTERNS.md**](docs/technical/CQRS_PATTERNS.md) | Patterns CQRS/ES, exemples, best practices |
+| [**docs/technical/TESTING_GUIDE.md**](docs/technical/TESTING_GUIDE.md) | Guide de tests du système d'autorisation |
 
 ### Documentation API
 
 | Document | Description |
 |----------|-------------|
 | [**docs/api/authentication.livemd**](docs/api/authentication.livemd) | Guide d'authentification API (JWT, scopes) |
-| [**TESTING_GUIDE.md**](TESTING_GUIDE.md) | Guide de tests du système d'autorisation |
 
 ---
 
@@ -372,7 +372,7 @@ Accès :
 - Améliorer la robustesse CQRS/ES
 - Tests approfondis
 
-**👉 Roadmap complète** : [GOALS.md](GOALS.md)
+**👉 Roadmap complète** : [docs/GOALS.md](docs/GOALS.md)
 
 ---
 
@@ -389,8 +389,7 @@ Accès :
 
 | Fichier | Usage |
 |---------|-------|
-| `ORIGINAL_NOTE.md` | Instructions initiales de création du projet |
-| `CHANGES.md` | Historique des changements majeurs |
+| `docs/guides/ORIGINAL_NOTE.md` | Instructions initiales de création du projet |
 | `.formatter.exs` | Configuration du formatter |
 
 ---
@@ -405,7 +404,7 @@ Le projet vise à devenir open source et communautaire. Guidelines de contributi
 - Plateforme de découverte communautaire
 - Fédération entre instances
 
-**👉 Vision détaillée** : [GOALS.md](GOALS.md)
+**👉 Vision détaillée** : [docs/GOALS.md](docs/GOALS.md)
 
 ---
 
@@ -424,14 +423,17 @@ Le projet vise à devenir open source et communautaire. Guidelines de contributi
 ```
 /
 ├── CLAUDE.md                           # Ce fichier (index)
-├── GOALS.md                            # Objectifs et vision
-├── TESTING_GUIDE.md                    # Guide de tests
+├── README.md                           # Documentation principale
 ├── docs/
+│   ├── GOALS.md                        # Objectifs et vision
+│   ├── guides/
+│   │   └── ORIGINAL_NOTE.md            # Notes initiales du projet
 │   ├── technical/
 │   │   ├── ARCHITECTURE.md             # Architecture détaillée
 │   │   ├── DEVELOPMENT.md              # Guide de développement
 │   │   ├── AUTH_SYSTEM.md              # Système d'autorisation
-│   │   └── CQRS_PATTERNS.md            # Patterns CQRS/ES
+│   │   ├── CQRS_PATTERNS.md            # Patterns CQRS/ES
+│   │   └── TESTING_GUIDE.md            # Guide de tests
 │   └── api/
 │       └── authentication.livemd       # Documentation API auth
 ```
