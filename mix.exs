@@ -166,7 +166,7 @@ defmodule BaladosSync.Umbrella.MixProject do
         BaladosSyncProjections.Repo,
         BaladosSyncProjections.Application
       ],
-      "Jobs": [
+      Jobs: [
         BaladosSyncJobs.SnapshotWorker,
         BaladosSyncJobs.Scheduler
       ]

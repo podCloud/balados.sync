@@ -4,12 +4,14 @@
       Admin Dashboard
       <:subtitle>System overview and management</:subtitle>
       <:actions>
-        <.link navigate={~p"/admin/rss-utility"} class="text-sm font-semibold text-blue-600 hover:text-blue-700">
+        <.link
+          navigate={~p"/admin/rss-utility"}
+          class="text-sm font-semibold text-blue-600 hover:text-blue-700"
+        >
           RSS Utility <span aria-hidden="true">&rarr;</span>
         </.link>
       </:actions>
     </.header>
-
     <!-- Stats Cards -->
     <div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       <!-- Total Users -->
@@ -23,7 +25,6 @@
           </dd>
         </div>
       </div>
-
       <!-- Distinct Feeds -->
       <div class="bg-white overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
@@ -35,7 +36,6 @@
           </dd>
         </div>
       </div>
-
       <!-- Event Rate (Recent) -->
       <div class="bg-white overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
@@ -43,7 +43,8 @@
             Events Rate (5 min)
           </dt>
           <dd class="mt-1 text-3xl font-extrabold text-zinc-900">
-            <%= @stats.event_rates.recent.events_per_minute %> <span class="text-lg font-normal text-zinc-500">/min</span>
+            <%= @stats.event_rates.recent.events_per_minute %>
+            <span class="text-lg font-normal text-zinc-500">/min</span>
           </dd>
           <dd class="mt-1 text-sm text-zinc-500">
             <%= @stats.event_rates.recent.recent_events %> events in last 5 minutes
@@ -51,7 +52,6 @@
         </div>
       </div>
     </div>
-
     <!-- Event Rates Details -->
     <div class="mt-6">
       <div class="bg-white shadow rounded-lg">
@@ -65,42 +65,59 @@
               <dl class="space-y-2">
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Total Events:</dt>
-                  <dd class="text-sm font-medium text-zinc-900"><%= @stats.event_rates.global.total_events %></dd>
+                  <dd class="text-sm font-medium text-zinc-900">
+                    <%= @stats.event_rates.global.total_events %>
+                  </dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Per Second:</dt>
-                  <dd class="text-sm font-medium text-zinc-900"><%= @stats.event_rates.global.events_per_second %></dd>
+                  <dd class="text-sm font-medium text-zinc-900">
+                    <%= @stats.event_rates.global.events_per_second %>
+                  </dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Per Minute:</dt>
-                  <dd class="text-sm font-medium text-zinc-900"><%= @stats.event_rates.global.events_per_minute %></dd>
+                  <dd class="text-sm font-medium text-zinc-900">
+                    <%= @stats.event_rates.global.events_per_minute %>
+                  </dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Per Hour:</dt>
-                  <dd class="text-sm font-medium text-zinc-900"><%= @stats.event_rates.global.events_per_hour %></dd>
+                  <dd class="text-sm font-medium text-zinc-900">
+                    <%= @stats.event_rates.global.events_per_hour %>
+                  </dd>
                 </div>
               </dl>
             </div>
-
             <!-- Recent Rates -->
             <div>
-              <h4 class="text-sm font-semibold text-zinc-700 mb-3">Recent (<%= @stats.event_rates.recent.period %>)</h4>
+              <h4 class="text-sm font-semibold text-zinc-700 mb-3">
+                Recent (<%= @stats.event_rates.recent.period %>)
+              </h4>
               <dl class="space-y-2">
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Recent Events:</dt>
-                  <dd class="text-sm font-medium text-zinc-900"><%= @stats.event_rates.recent.recent_events %></dd>
+                  <dd class="text-sm font-medium text-zinc-900">
+                    <%= @stats.event_rates.recent.recent_events %>
+                  </dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Per Second:</dt>
-                  <dd class="text-sm font-medium text-zinc-900"><%= @stats.event_rates.recent.events_per_second %></dd>
+                  <dd class="text-sm font-medium text-zinc-900">
+                    <%= @stats.event_rates.recent.events_per_second %>
+                  </dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Per Minute:</dt>
-                  <dd class="text-sm font-medium text-zinc-900"><%= @stats.event_rates.recent.events_per_minute %></dd>
+                  <dd class="text-sm font-medium text-zinc-900">
+                    <%= @stats.event_rates.recent.events_per_minute %>
+                  </dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Per Hour:</dt>
-                  <dd class="text-sm font-medium text-zinc-900"><%= @stats.event_rates.recent.events_per_hour %></dd>
+                  <dd class="text-sm font-medium text-zinc-900">
+                    <%= @stats.event_rates.recent.events_per_hour %>
+                  </dd>
                 </div>
               </dl>
             </div>
@@ -108,7 +125,6 @@
         </div>
       </div>
     </div>
-
     <!-- Top Podcasts -->
     <div class="mt-10">
       <h2 class="text-lg font-semibold text-zinc-900 mb-4">Top 10 Podcasts (by Popularity)</h2>
@@ -116,16 +132,28 @@
         <table class="min-w-full divide-y divide-zinc-200">
           <thead class="bg-zinc-50">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
+              >
                 Feed URL
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
+              >
                 Score
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
+              >
                 Plays
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
+              >
                 Likes
               </th>
             </tr>
@@ -141,10 +169,9 @@
               <%= for podcast <- @stats.top_podcasts do %>
                 <tr>
                   <td class="px-6 py-4 text-sm text-zinc-900 font-mono truncate max-w-md">
-                    <%= try do %>
-                      <%= Base.decode64!(podcast.feed) %>
-                    <% rescue %>
-                      <%= podcast.feed %>
+                    <%= case Base.decode64(podcast.feed) do %>
+                      <% {:ok, decoded} -> decoded %>
+                      <% :error -> podcast.feed %>
                     <% end %>
                   </td>
                   <td class="px-6 py-4 text-sm font-semibold text-zinc-900">
@@ -163,7 +190,6 @@
         </table>
       </div>
     </div>
-
     <!-- Top Episodes -->
     <div class="mt-10">
       <h2 class="text-lg font-semibold text-zinc-900 mb-4">Top 10 Episodes (by Popularity)</h2>
@@ -171,16 +197,28 @@
         <table class="min-w-full divide-y divide-zinc-200">
           <thead class="bg-zinc-50">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
+              >
                 Episode GUID
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
+              >
                 Score
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
+              >
                 Plays
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
+              >
                 Likes
               </th>
             </tr>

@@ -9,8 +9,6 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
   alias BaladosSyncCore.Events.{
     UserSubscribed,
     PlayRecorded,
-    EpisodeSaved,
-    EpisodeShared,
     PrivacyChanged,
     EventsRemoved
   }
@@ -113,7 +111,7 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
           )
         )
 
-      {:private, feed, item} when not is_nil(item) ->
+      {:private, _feed, item} when not is_nil(item) ->
         # Privacy item private : supprimer events de l'item
         Ecto.Multi.delete_all(
           multi,
@@ -142,7 +140,7 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
           set: [privacy: "anonymous"]
         )
 
-      {:anonymous, feed, item} when not is_nil(item) ->
+      {:anonymous, _feed, item} when not is_nil(item) ->
         Ecto.Multi.update_all(
           multi,
           :anonymize_item,

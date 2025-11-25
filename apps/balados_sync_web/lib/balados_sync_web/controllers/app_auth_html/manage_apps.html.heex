@@ -39,7 +39,6 @@
                 </div>
               <% end %>
             </div>
-
             <!-- App Info -->
             <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between mb-2">
@@ -71,21 +70,22 @@
               <p class="text-xs text-gray-500 mb-3">
                 Used by <%= app.user_display %> • App ID: <%= app.app_id %>
               </p>
-
               <!-- Scopes -->
               <%= if not Enum.empty?(app.scopes_with_labels) do %>
                 <div class="mb-3">
                   <h4 class="text-sm font-medium text-gray-700 mb-2">Granted Permissions:</h4>
                   <div class="flex flex-wrap gap-2">
                     <%= for %{scope: scope, label: label} <- app.scopes_with_labels do %>
-                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800" title={scope}>
+                      <span
+                        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                        title={scope}
+                      >
                         <%= label %>
                       </span>
                     <% end %>
                   </div>
                 </div>
               <% end %>
-
               <!-- Timestamps -->
               <div class="text-xs text-gray-500">
                 <span>

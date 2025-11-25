@@ -6,7 +6,15 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
 
   import Ecto.Query
 
-  alias BaladosSyncCore.Events.{UserSubscribed, UserUnsubscribed, PlayRecorded, EpisodeSaved, EpisodeShared, PopularityRecalculated}
+  alias BaladosSyncCore.Events.{
+    UserSubscribed,
+    UserUnsubscribed,
+    PlayRecorded,
+    EpisodeSaved,
+    EpisodeShared,
+    PopularityRecalculated
+  }
+
   alias BaladosSyncProjections.Schemas.{PodcastPopularity, EpisodePopularity, UserPrivacy}
 
   # Scores par type d'action
@@ -16,34 +24,45 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
   @score_share 2
 
   defp is_user_public?(user_id, feed, item) do
-    query = from(p in UserPrivacy,
-      where: p.user_id == ^user_id,
-      where: (is_nil(^item) or p.rss_source_item == ^item or is_nil(p.rss_source_item)),
-      where: (is_nil(^feed) or p.rss_source_feed == ^feed or is_nil(p.rss_source_feed)),
-      order_by: [
-        desc: fragment("CASE WHEN ? IS NOT NULL THEN 3 WHEN ? IS NOT NULL THEN 2 ELSE 1 END", 
-          p.rss_source_item, p.rss_source_feed)
-      ],
-      limit: 1,
-      select: p.privacy
-    )
-    
+    query =
+      from(p in UserPrivacy,
+        where: p.user_id == ^user_id,
+        where: is_nil(^item) or p.rss_source_item == ^item or is_nil(p.rss_source_item),
+        where: is_nil(^feed) or p.rss_source_feed == ^feed or is_nil(p.rss_source_feed),
+        order_by: [
+          desc:
+            fragment(
+              "CASE WHEN ? IS NOT NULL THEN 3 WHEN ? IS NOT NULL THEN 2 ELSE 1 END",
+              p.rss_source_item,
+              p.rss_source_feed
+            )
+        ],
+        limit: 1,
+        select: p.privacy
+      )
+
     privacy = BaladosSyncProjections.Repo.one(query) || "public"
     privacy == "public"
   end
 
   project(%UserSubscribed{} = event, _metadata, fn multi ->
     is_public = is_user_public?(event.user_id, event.rss_source_feed, nil)
-    
+
     Ecto.Multi.run(multi, :podcast_popularity, fn repo, _changes ->
-      popularity = repo.get(PodcastPopularity, event.rss_source_feed) ||
-        %PodcastPopularity{rss_source_feed: event.rss_source_feed}
-      
-      updated = %{popularity |
-        score: popularity.score + @score_subscribe,
-        plays_people: if(is_public, do: add_recent_user(popularity.plays_people, event.user_id), else: popularity.plays_people)
+      popularity =
+        repo.get(PodcastPopularity, event.rss_source_feed) ||
+          %PodcastPopularity{rss_source_feed: event.rss_source_feed}
+
+      updated = %{
+        popularity
+        | score: popularity.score + @score_subscribe,
+          plays_people:
+            if(is_public,
+              do: add_recent_user(popularity.plays_people, event.user_id),
+              else: popularity.plays_people
+            )
       }
-      
+
       repo.insert_or_update(
         PodcastPopularity.changeset(updated, %{}),
         on_conflict: :replace_all,
@@ -60,19 +79,25 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
 
   project(%PlayRecorded{} = event, _metadata, fn multi ->
     is_public = is_user_public?(event.user_id, event.rss_source_feed, event.rss_source_item)
-    
+
     # Incrémenter podcast popularity
     multi =
       Ecto.Multi.run(multi, :podcast_popularity, fn repo, _changes ->
-        popularity = repo.get(PodcastPopularity, event.rss_source_feed) ||
-          %PodcastPopularity{rss_source_feed: event.rss_source_feed}
-        
-        updated = %{popularity |
-          score: popularity.score + @score_play,
-          plays: popularity.plays + 1,
-          plays_people: if(is_public, do: add_recent_user(popularity.plays_people, event.user_id), else: popularity.plays_people)
+        popularity =
+          repo.get(PodcastPopularity, event.rss_source_feed) ||
+            %PodcastPopularity{rss_source_feed: event.rss_source_feed}
+
+        updated = %{
+          popularity
+          | score: popularity.score + @score_play,
+            plays: popularity.plays + 1,
+            plays_people:
+              if(is_public,
+                do: add_recent_user(popularity.plays_people, event.user_id),
+                else: popularity.plays_people
+              )
         }
-        
+
         repo.insert_or_update(
           PodcastPopularity.changeset(updated, %{}),
           on_conflict: :replace_all,
@@ -82,18 +107,24 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
 
     # Incrémenter episode popularity
     Ecto.Multi.run(multi, :episode_popularity, fn repo, _changes ->
-      popularity = repo.get(EpisodePopularity, event.rss_source_item) ||
-        %EpisodePopularity{
-          rss_source_item: event.rss_source_item,
-          rss_source_feed: event.rss_source_feed
-        }
-      
-      updated = %{popularity |
-        score: popularity.score + @score_play,
-        plays: popularity.plays + 1,
-        plays_people: if(is_public, do: add_recent_user(popularity.plays_people, event.user_id), else: popularity.plays_people)
+      popularity =
+        repo.get(EpisodePopularity, event.rss_source_item) ||
+          %EpisodePopularity{
+            rss_source_item: event.rss_source_item,
+            rss_source_feed: event.rss_source_feed
+          }
+
+      updated = %{
+        popularity
+        | score: popularity.score + @score_play,
+          plays: popularity.plays + 1,
+          plays_people:
+            if(is_public,
+              do: add_recent_user(popularity.plays_people, event.user_id),
+              else: popularity.plays_people
+            )
       }
-      
+
       repo.insert_or_update(
         EpisodePopularity.changeset(updated, %{}),
         on_conflict: :replace_all,
@@ -104,35 +135,43 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
 
   project(%EpisodeSaved{} = event, _metadata, fn multi ->
     is_public = is_user_public?(event.user_id, event.rss_source_feed, event.rss_source_item)
-    
+
     # Incrémenter podcast score
-    multi = Ecto.Multi.run(multi, :podcast_score, fn repo, _changes ->
-      popularity = repo.get(PodcastPopularity, event.rss_source_feed) ||
-        %PodcastPopularity{rss_source_feed: event.rss_source_feed}
-      
-      updated = %{popularity | score: popularity.score + @score_save}
-      
-      repo.insert_or_update(
-        PodcastPopularity.changeset(updated, %{}),
-        on_conflict: :replace_all,
-        conflict_target: :rss_source_feed
-      )
-    end)
-    
+    multi =
+      Ecto.Multi.run(multi, :podcast_score, fn repo, _changes ->
+        popularity =
+          repo.get(PodcastPopularity, event.rss_source_feed) ||
+            %PodcastPopularity{rss_source_feed: event.rss_source_feed}
+
+        updated = %{popularity | score: popularity.score + @score_save}
+
+        repo.insert_or_update(
+          PodcastPopularity.changeset(updated, %{}),
+          on_conflict: :replace_all,
+          conflict_target: :rss_source_feed
+        )
+      end)
+
     # Incrémenter episode likes
     Ecto.Multi.run(multi, :episode_saved, fn repo, _changes ->
-      popularity = repo.get(EpisodePopularity, event.rss_source_item) ||
-        %EpisodePopularity{
-          rss_source_item: event.rss_source_item,
-          rss_source_feed: event.rss_source_feed
-        }
-      
-      updated = %{popularity |
-        score: popularity.score + @score_save,
-        likes: popularity.likes + 1,
-        likes_people: if(is_public, do: add_recent_user(popularity.likes_people, event.user_id), else: popularity.likes_people)
+      popularity =
+        repo.get(EpisodePopularity, event.rss_source_item) ||
+          %EpisodePopularity{
+            rss_source_item: event.rss_source_item,
+            rss_source_feed: event.rss_source_feed
+          }
+
+      updated = %{
+        popularity
+        | score: popularity.score + @score_save,
+          likes: popularity.likes + 1,
+          likes_people:
+            if(is_public,
+              do: add_recent_user(popularity.likes_people, event.user_id),
+              else: popularity.likes_people
+            )
       }
-      
+
       repo.insert_or_update(
         EpisodePopularity.changeset(updated, %{}),
         on_conflict: :replace_all,
@@ -143,29 +182,32 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
 
   project(%EpisodeShared{} = event, _metadata, fn multi ->
     # Incrémenter podcast score
-    multi = Ecto.Multi.run(multi, :podcast_score, fn repo, _changes ->
-      popularity = repo.get(PodcastPopularity, event.rss_source_feed) ||
-        %PodcastPopularity{rss_source_feed: event.rss_source_feed}
-      
-      updated = %{popularity | score: popularity.score + @score_share}
-      
-      repo.insert_or_update(
-        PodcastPopularity.changeset(updated, %{}),
-        on_conflict: :replace_all,
-        conflict_target: :rss_source_feed
-      )
-    end)
-    
+    multi =
+      Ecto.Multi.run(multi, :podcast_score, fn repo, _changes ->
+        popularity =
+          repo.get(PodcastPopularity, event.rss_source_feed) ||
+            %PodcastPopularity{rss_source_feed: event.rss_source_feed}
+
+        updated = %{popularity | score: popularity.score + @score_share}
+
+        repo.insert_or_update(
+          PodcastPopularity.changeset(updated, %{}),
+          on_conflict: :replace_all,
+          conflict_target: :rss_source_feed
+        )
+      end)
+
     # Incrémenter episode score
     Ecto.Multi.run(multi, :episode_shared, fn repo, _changes ->
-      popularity = repo.get(EpisodePopularity, event.rss_source_item) ||
-        %EpisodePopularity{
-          rss_source_item: event.rss_source_item,
-          rss_source_feed: event.rss_source_feed
-        }
-      
+      popularity =
+        repo.get(EpisodePopularity, event.rss_source_item) ||
+          %EpisodePopularity{
+            rss_source_item: event.rss_source_item,
+            rss_source_feed: event.rss_source_feed
+          }
+
       updated = %{popularity | score: popularity.score + @score_share}
-      
+
       repo.insert_or_update(
         EpisodePopularity.changeset(updated, %{}),
         on_conflict: :replace_all,

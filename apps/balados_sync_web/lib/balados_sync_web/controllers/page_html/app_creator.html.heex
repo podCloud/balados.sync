@@ -229,7 +229,9 @@
         <div class="form-group">
           <label for="app_id" class="required">App ID</label>
           <input type="text" id="app_id" name="app_id" placeholder="com.example.myapp" required />
-          <div class="help-text">Unique identifier for your app (reverse domain notation recommended)</div>
+          <div class="help-text">
+            Unique identifier for your app (reverse domain notation recommended)
+          </div>
         </div>
 
         <div class="form-group">
@@ -261,8 +263,12 @@
           <label>Requested Scopes</label>
           <div class="help-text" style="margin-bottom: 10px;">
             Select the permissions your app needs. Wildcards are supported (*, *.read, user.*, etc.)
-            <button type="button" id="selectAllScopes" class="btn-link" style="margin-left: 10px;">Select All</button>
-            <button type="button" id="selectNone" class="btn-link" style="margin-left: 5px;">Select None</button>
+            <button type="button" id="selectAllScopes" class="btn-link" style="margin-left: 10px;">
+              Select All
+            </button>
+            <button type="button" id="selectNone" class="btn-link" style="margin-left: 5px;">
+              Select None
+            </button>
           </div>
           <div class="scopes-grid" id="scopesGrid">
             <!-- Scopes will be populated by JavaScript -->

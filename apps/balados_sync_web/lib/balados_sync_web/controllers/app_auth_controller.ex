@@ -59,7 +59,8 @@ defmodule BaladosSyncWeb.AppAuthController do
           {user_count, percentage, total_users} = AppAuth.get_app_usage_stats(app_id, public_key)
 
           # Determine image visibility and user count display
-          {show_image, user_display} = calculate_image_visibility(user_count, percentage, total_users)
+          {show_image, user_display} =
+            calculate_image_visibility(user_count, percentage, total_users)
 
           # Get human-readable scope labels
           scopes_with_labels =
@@ -160,6 +161,7 @@ defmodule BaladosSyncWeb.AppAuthController do
       end
     else
       Logger.debug("Unauthenticated user attempted to create app authorization")
+
       conn
       |> put_status(:unauthorized)
       |> put_flash(:error, "You must be logged in to authorize applications.")

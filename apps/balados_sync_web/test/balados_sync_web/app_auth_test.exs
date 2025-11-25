@@ -18,6 +18,7 @@ defmodule BaladosSyncWeb.AppAuthTest do
 
     # Extract public key and encode to PEM
     public_key = {:RSAPublicKey, elem(private_key, 2), elem(private_key, 3)}
+
     public_pem =
       :public_key.pem_encode([
         :public_key.pem_entry_encode(:RSAPublicKey, public_key)

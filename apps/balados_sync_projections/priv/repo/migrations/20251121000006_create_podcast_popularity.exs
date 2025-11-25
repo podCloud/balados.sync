@@ -1,4 +1,3 @@
-
 defmodule BaladosSyncProjections.Repo.Migrations.CreatePodcastPopularity do
   use Ecto.Migration
 
@@ -31,4 +30,3 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreatePodcastPopularity do
     create index(:podcast_popularity, [:likes, :likes_previous], prefix: "site")
   end
 end
-

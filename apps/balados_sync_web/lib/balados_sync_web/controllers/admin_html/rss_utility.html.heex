@@ -4,7 +4,10 @@
       RSS Cache Link Generator
       <:subtitle>Generate cached RSS proxy links for podcast feeds</:subtitle>
       <:actions>
-        <.link navigate={~p"/admin"} class="text-sm font-semibold text-blue-600 hover:text-blue-700">
+        <.link
+          navigate={~p"/admin"}
+          class="text-sm font-semibold text-blue-600 hover:text-blue-700"
+        >
           <span aria-hidden="true">&larr;</span> Back to Dashboard
         </.link>
       </:actions>
@@ -19,12 +22,13 @@
           </div>
           <div class="ml-3">
             <p class="text-sm text-blue-800">
-              This utility generates cached RSS proxy links. The cache has a <strong>5-minute TTL</strong> and automatically validates feeds.
+              This utility generates cached RSS proxy links. The cache has a
+              <strong>5-minute TTL</strong>
+              and automatically validates feeds.
             </p>
           </div>
         </div>
       </div>
-
       <!-- Form -->
       <div class="bg-white shadow rounded-lg p-6">
         <form id="rss-form" phx-submit="generate">
@@ -59,12 +63,10 @@
           </div>
         </form>
       </div>
-
       <!-- Results -->
       <div id="results" class="mt-6 hidden">
         <div class="bg-white shadow rounded-lg p-6">
           <h3 class="text-lg font-medium text-zinc-900 mb-4">Generated Links</h3>
-
           <!-- Proxy Link -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-zinc-700 mb-2">
@@ -85,7 +87,6 @@
               </button>
             </div>
           </div>
-
           <!-- Encoded Feed -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-zinc-700 mb-2">
@@ -106,10 +107,12 @@
               </button>
             </div>
             <p class="mt-2 text-sm text-zinc-500">
-              Use this with episode IDs: <code class="text-xs bg-zinc-100 px-1 py-0.5 rounded">/api/v1/rss/proxy/{encoded_feed}/{encoded_episode}</code>
+              Use this with episode IDs:
+              <code class="text-xs bg-zinc-100 px-1 py-0.5 rounded">
+                /api/v1/rss/proxy/{encoded_feed}/{encoded_episode}
+              </code>
             </p>
           </div>
-
           <!-- Cache Stats -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-zinc-700 mb-2">
@@ -128,11 +131,11 @@
               </dl>
             </div>
           </div>
-
           <!-- Example Episode Link -->
           <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
             <p class="text-sm text-blue-800">
-              <strong>Episode link format:</strong><br/>
+              <strong>Episode link format:</strong>
+              <br />
               <code class="text-xs bg-white px-1 py-0.5 rounded mt-1 inline-block">
                 /api/v1/rss/proxy/{encoded_feed}/{base64(guid + "," + enclosure_url)}
               </code>

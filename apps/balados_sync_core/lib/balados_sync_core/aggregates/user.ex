@@ -225,7 +225,7 @@ defmodule BaladosSyncCore.Aggregates.User do
   end
 
   # Snapshot
-  def execute(%__MODULE__{} = user, %Snapshot{} = cmd) do
+  def execute(%__MODULE__{} = user, %Snapshot{} = _cmd) do
     %UserCheckpoint{
       user_id: user.user_id,
       subscriptions: filter_subscriptions(user.subscriptions),
