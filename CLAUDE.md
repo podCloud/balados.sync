@@ -314,7 +314,7 @@ end
 
 ### Checkpoints
 
-- ❌ Ne pas appeler `CreateCheckpoint` manuellement
+- ❌ Ne pas appeler `Snapshot` manuellement
 - ✅ Laisser `SnapshotWorker` gérer les checkpoints (toutes les 5 min)
 
 ---

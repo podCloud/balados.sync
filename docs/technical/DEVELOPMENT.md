@@ -704,7 +704,7 @@ mix test apps/balados_sync_web/test/controllers/my_controller_test.exs
 
 ### Checkpoints
 
-- Ne pas appeler `CreateCheckpoint` manuellement
+- Ne pas appeler `Snapshot` manuellement
 - Laisse le `SnapshotWorker` gérer les checkpoints
 - Si problème : rebuilder les projections
 

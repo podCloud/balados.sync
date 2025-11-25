@@ -224,10 +224,10 @@ Exécuté toutes les **5 minutes** :
 #### Étapes
 
 1. **Trouver les events anciens** (>45 jours)
-2. **Créer UserCheckpoint** avec l'état complet de l'aggregate
+2. **Créer Checkpoint** avec l'état complet de l'aggregate
 3. **Upsert checkpoint** dans les projections
 4. **Recalculer popularité** depuis site.public_events
-5. **Supprimer events** >31 jours (après checkpoint créé)
+5. **Supprimer events** >45 jours (après checkpoint créé)
 
 #### Scores de Popularité
 
@@ -345,15 +345,15 @@ Signature **RS256** (asymétrique) :
 ### Fonctionnement
 
 1. Event Store contient **tous les events** (initialement)
-2. Après 45 jours, **UserCheckpoint** créé avec état complet
+2. Après 45 jours, **Checkpoint** créé avec état complet
 3. Checkpoint **upsert** dans projections (source de vérité)
-4. Events >31 jours **supprimés**
+4. Events >45 jours **supprimés**
 5. Rebuild aggregate : charge checkpoint + events récents uniquement
 
-### Structure UserCheckpoint
+### Structure Checkpoint
 
 ```elixir
-%UserCheckpoint{
+%Checkpoint{
   user_id: "user_123",
   subscriptions: [...],       # État complet
   play_statuses: [...],

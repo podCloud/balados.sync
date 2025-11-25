@@ -489,10 +489,10 @@ Rebuild aggregate =
 ⏱️ RAPIDE
 ```
 
-### UserCheckpoint Event
+### Checkpoint Event
 
 ```elixir
-defmodule BaladosSyncCore.Events.UserCheckpoint do
+defmodule BaladosSyncCore.Events.Checkpoint do
   @derive Jason.Encoder
   defstruct [
     :user_id,
@@ -519,8 +519,8 @@ defmodule BaladosSyncJobs.SnapshotWorker do
       # 2. Rebuild aggregate complet
       aggregate_state = rebuild_aggregate(user_id)
 
-      # 3. Créer UserCheckpoint event
-      checkpoint_event = %UserCheckpoint{
+      # 3. Créer Checkpoint event
+      checkpoint_event = %Checkpoint{
         user_id: user_id,
         subscriptions: aggregate_state.subscriptions,
         play_statuses: aggregate_state.play_statuses,
@@ -530,10 +530,10 @@ defmodule BaladosSyncJobs.SnapshotWorker do
       }
 
       # 4. Dispatch checkpoint
-      Dispatcher.dispatch(%CreateCheckpoint{checkpoint: checkpoint_event})
+      Dispatcher.dispatch(%Snapshot{checkpoint: checkpoint_event})
 
-      # 5. Supprimer anciens events (>31 jours)
-      cleanup_old_events(user_id, 31)
+      # 5. Supprimer anciens events (>45 jours)
+      cleanup_old_events(user_id, 45)
     end
   end
 end
@@ -544,7 +544,7 @@ end
 Le checkpoint est **upsert** dans les projections :
 
 ```elixir
-project %UserCheckpoint{} = event, _metadata, fn multi ->
+project %Checkpoint{} = event, _metadata, fn multi ->
   # Upsert toutes les subscriptions
   Enum.reduce(event.subscriptions, multi, fn {feed, sub}, multi ->
     Ecto.Multi.insert(
