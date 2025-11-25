@@ -4,7 +4,18 @@ Système CQRS/Event Sourcing pour la synchronisation d'écoutes de podcasts, d'a
 
 ## Origine
 
-Le système a été codé par Claude.AI en suivant les instructions d'une note présente dans [ORIGINAL_NOTE.md](/ORIGINAL_NOTE.md)
+Le système a été codé par Claude.AI en suivant les instructions d'une note présente dans [docs/guides/ORIGINAL_NOTE.md](docs/guides/ORIGINAL_NOTE.md)
+
+## Documentation
+
+- [**CLAUDE.md**](CLAUDE.md) - Guide pour Claude Code (architecture, patterns, workflows)
+- [**docs/GOALS.md**](docs/GOALS.md) - Objectifs du projet, vision, roadmap
+- [**docs/technical/ARCHITECTURE.md**](docs/technical/ARCHITECTURE.md) - Architecture complète du système
+- [**docs/technical/DEVELOPMENT.md**](docs/technical/DEVELOPMENT.md) - Guide de développement
+- [**docs/technical/AUTH_SYSTEM.md**](docs/technical/AUTH_SYSTEM.md) - Système d'autorisation JWT
+- [**docs/technical/CQRS_PATTERNS.md**](docs/technical/CQRS_PATTERNS.md) - Patterns CQRS/Event Sourcing
+- [**docs/technical/TESTING_GUIDE.md**](docs/technical/TESTING_GUIDE.md) - Guide de tests
+- [**docs/api/**](docs/api/) - Documentation API (authentication, endpoints)
 
 ## Architecture
 
