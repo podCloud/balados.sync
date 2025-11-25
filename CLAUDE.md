@@ -63,6 +63,7 @@ iex -S mix
 |----------|-------------|
 | [**docs/GOALS.md**](docs/GOALS.md) | Objectifs du projet, vision, roadmap |
 | [**docs/technical/ARCHITECTURE.md**](docs/technical/ARCHITECTURE.md) | Architecture complète, structure des apps, flux CQRS/ES |
+| [**docs/technical/DATABASE_SCHEMA.md**](docs/technical/DATABASE_SCHEMA.md) | Schémas PostgreSQL, projections vs permanent, commandes reset |
 | [**docs/technical/DEVELOPMENT.md**](docs/technical/DEVELOPMENT.md) | Commandes de dev, tests, debugging, workflow |
 | [**docs/technical/AUTH_SYSTEM.md**](docs/technical/AUTH_SYSTEM.md) | Système d'autorisation JWT, scopes, OAuth-style flow |
 | [**docs/technical/CQRS_PATTERNS.md**](docs/technical/CQRS_PATTERNS.md) | Patterns CQRS/ES, exemples, best practices |
@@ -104,7 +105,7 @@ iex -S mix
 
 - Les projections sont **éventuellement cohérentes** (async)
 - Délai normal : quelques millisecondes
-- Pour reset : `mix ecto.reset` (safe, replay automatique)
+- Pour reset : `mix reset_projections` (safe, replay automatique)
 
 ---
 
@@ -159,11 +160,14 @@ mix test apps/balados_sync_core/test/some_test.exs:42
 
 ## 🗄️ Base de Données
 
-### Trois Schémas PostgreSQL
+### Quatre Schémas PostgreSQL
 
-1. **`users`** : Données privées (users, app_tokens, play_tokens)
-2. **`site`** : Données publiques (subscriptions, play_statuses, playlists, popularity)
-3. **`events`** : EventStore (géré par Commanded, **ne pas modifier manuellement**)
+1. **`system`** : Données permanentes (users, app_tokens, play_tokens) - **JAMAIS event-sourced**
+2. **`users`** : Projections privées (subscriptions, play_statuses, playlists, user_privacy)
+3. **`public`** : Projections publiques (podcast_popularity, episode_popularity, public_events)
+4. **`events`** : EventStore (géré par Commanded, **ne pas modifier manuellement**)
+
+**👉 Détails complets** : [docs/technical/DATABASE_SCHEMA.md](docs/technical/DATABASE_SCHEMA.md)
 
 ### Migrations
 
@@ -177,10 +181,25 @@ mix ecto.migrate
 
 # Rollback
 mix ecto.rollback
-
-# Reset complet (projections uniquement, pas events)
-mix ecto.reset
 ```
+
+### Reset Commands
+
+```bash
+# ✅ SAFE: Reset projections uniquement (préserve users/tokens)
+mix reset_projections
+
+# ⚠️  DANGER: Reset users/tokens (demande confirmation)
+mix reset_system
+
+# ☢️  EXTREME DANGER: Reset TOUT y compris events (demande confirmation)
+mix ecto.reset
+
+# Force sans confirmation (à éviter !)
+mix ecto.reset!
+```
+
+**IMPORTANT:** `mix ecto.reset` détruit **TOUTES** les données incluant les events. Utiliser `mix reset_projections` pour un reset safe des projections uniquement.
 
 ---
 
@@ -304,7 +323,6 @@ end
 - ❌ Ne JAMAIS modifier la DB `events` manuellement
 - ✅ Events sont immuables (pour "supprimer", émettre nouvel event)
 - ⚠️ **Exception** : Les deletion events suppriment l'historique concerné (disparaissent après 45j)
-- ✅ Pour reset projections : `mix ecto.reset` (safe)
 
 ### Aggregate
 
@@ -316,7 +334,15 @@ end
 
 - ❌ Ne pas assumer synchronisation immédiate (eventual consistency)
 - ✅ Utiliser `on_conflict` pour idempotence
-- ✅ Projections peuvent être rebuild avec `mix ecto.reset`
+- ✅ Projections peuvent être rebuild avec `mix reset_projections` (SAFE)
+- ❌ **ATTENTION:** `mix ecto.reset` détruit TOUT, y compris les events!
+
+### System Data (users, tokens)
+
+- ⚠️  Les données system (users, app_tokens, play_tokens) ne sont **PAS** des projections
+- ⚠️  Elles ne peuvent **PAS** être reconstruites depuis les events
+- ⚠️  `mix reset_projections` préserve les données system
+- ☢️  `mix ecto.reset` détruit les données system ET les events (irréversible!)
 
 ### Checkpoints
 

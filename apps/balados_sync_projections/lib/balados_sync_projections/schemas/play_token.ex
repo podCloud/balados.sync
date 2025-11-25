@@ -11,7 +11,7 @@ defmodule BaladosSyncProjections.Schemas.PlayToken do
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
-  @schema_prefix "users"
+  @schema_prefix "system"
   schema "play_tokens" do
     field :user_id, :string
     field :token, :string

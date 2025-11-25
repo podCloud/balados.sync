@@ -58,7 +58,10 @@ defmodule BaladosSyncProjections.MixProject do
     [
       setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      # Require confirmation for ecto.reset (DANGER: deletes everything)
+      "ecto.reset": ["ecto.reset_confirm"],
+      # Force reset without confirmation (use with extreme caution!)
+      "ecto.reset!": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end

@@ -3,7 +3,7 @@ defmodule BaladosSyncProjections.Schemas.EpisodePopularity do
   import Ecto.Changeset
 
   @primary_key false
-  @schema_prefix "site"
+  @schema_prefix "public"
   schema "episode_popularity" do
     field :rss_source_feed, :string
     field :rss_source_item, :string, primary_key: true

@@ -3,7 +3,7 @@ defmodule BaladosSyncProjections.Schemas.User do
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
-  @schema_prefix "users"
+  @schema_prefix "system"
   schema "users" do
     field :email, :string
     field :username, :string

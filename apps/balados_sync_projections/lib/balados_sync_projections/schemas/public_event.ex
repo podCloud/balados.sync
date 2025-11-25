@@ -3,7 +3,7 @@ defmodule BaladosSyncProjections.Schemas.PublicEvent do
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
-  @schema_prefix "site"
+  @schema_prefix "public"
   schema "public_events" do
     # null si anonymous
     field :user_id, :string
