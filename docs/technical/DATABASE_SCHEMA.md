@@ -104,13 +104,72 @@ Balados Sync uses **4 PostgreSQL schemas** to organize data:
 
 ---
 
-## Reset Commands Reference
+## Setup Commands
 
-### `mix reset_projections` ✅ SAFE
+### `mix db.create` ✅ Initial Setup
 
 **What it does:**
-- Truncates `users` schema tables (projections only)
-- Truncates `public` schema tables (projections only)
+- Creates the `system` schema and tables
+- Creates the `events` schema for EventStore
+- Runs all initial structure migrations
+
+**Use after:**
+```bash
+mix deps.get
+```
+
+**Example:**
+```bash
+mix db.create
+```
+
+---
+
+### `mix system_db.create`
+
+**What it does:**
+- Creates only the `system` schema
+- Used internally by `mix db.create`
+
+**When to use:**
+- Only if you need to recreate the system schema
+
+---
+
+### `mix db.init` ✅ Initialize System
+
+**What it does:**
+- Runs migrations for the `system` schema
+- Equivalent to `mix ecto.migrate --prefix system`
+
+**Use after:**
+- `mix db.create`
+- `mix event_store.init -a balados_sync_core`
+
+**Example:**
+```bash
+mix db.init
+```
+
+---
+
+### `mix system_db.migrate`
+
+**What it does:**
+- Migrates only the `system` schema
+- Used internally by `mix db.init`
+
+**When to use:**
+- When you create a new migration in the `system` schema
+
+---
+
+## Reset Commands Reference
+
+### `mix ecto.reset --prefix public` ✅ SAFE
+
+**What it does:**
+- Drops and recreates only `public` schema
 - Resets projector subscription positions
 - Triggers automatic rebuild from EventStore
 
@@ -125,20 +184,19 @@ Balados Sync uses **4 PostgreSQL schemas** to organize data:
 
 **Example:**
 ```bash
-mix reset_projections
+mix ecto.reset --prefix public
 ```
 
 ---
 
-### `mix reset_system` ⚠️ DANGER
+### `mix ecto.reset --prefix system` ⚠️ DANGER
 
 **What it does:**
-- Truncates `system.users` (all accounts deleted!)
-- Truncates `system.app_tokens` (all auth deleted!)
-- Truncates `system.play_tokens` (all tokens deleted!)
+- Drops and recreates only `system` schema
+- Deletes all users, API tokens, play tokens
 
 **What it preserves:**
-- ✅ All projections (users, public schemas)
+- ✅ All projections (public schema)
 - ✅ All events (EventStore)
 
 **When to use:**
@@ -148,10 +206,10 @@ mix reset_projections
 
 **Example:**
 ```bash
-$ mix reset_system
+$ mix ecto.reset --prefix system
 
 ⚠️  DANGER: You are about to delete all system data!
-Type 'DELETE SYSTEM DATA' to confirm:
+Type 'DELETE' to confirm:
 ```
 
 ---
@@ -160,18 +218,16 @@ Type 'DELETE SYSTEM DATA' to confirm:
 
 **What it does:**
 - Drops entire database
-- Recreates database
+- Recreates all schemas
 - Runs all migrations
-- Runs seeds
 
 **What it deletes:**
 - ❌ Everything in `system`
-- ❌ Everything in `users`
 - ❌ Everything in `public`
 - ❌ Everything in `events` (CANNOT BE RECOVERED!)
 
 **When to use:**
-- Initial setup
+- Initial setup only
 - Major schema migrations
 - **EXTREME CAUTION in development**
 - **NEVER in production!**
@@ -181,7 +237,7 @@ Type 'DELETE SYSTEM DATA' to confirm:
 $ mix ecto.reset
 
 ⚠️  EXTREME DANGER: You are about to delete ALL DATA!
-Type 'DELETE ALL DATA' to confirm:
+Type 'DELETE ALL' to confirm:
 ```
 
 **Force without confirmation:**
@@ -193,16 +249,34 @@ mix ecto.reset!  # Use with extreme caution!
 
 ## Decision Tree: Which Command to Use?
 
+### Initial Setup
+
+```bash
+# 1. Install dependencies
+mix deps.get
+
+# 2. Create database and schemas
+mix db.create
+
+# 3. Initialize event store (one-time)
+mix event_store.init -a balados_sync_core
+
+# 4. Migrate system schema
+mix db.init
+```
+
+### During Development
+
 ```
 Need to reset data?
 │
 ├─ Only projections corrupted/outdated?
-│  └─ ✅ Use: mix reset_projections
+│  └─ ✅ Use: mix ecto.reset --prefix public
 │
 ├─ Need to clear test users/tokens?
-│  └─ ⚠️  Use: mix reset_system
+│  └─ ⚠️  Use: mix ecto.reset --prefix system
 │
-├─ Major schema migration or starting fresh?
+├─ Major schema migration or starting completely fresh?
 │  └─ ☢️  Use: mix ecto.reset (or ecto.reset!)
 │
 └─ Just testing a feature?
@@ -219,29 +293,33 @@ Need to reset data?
 # 1. Make changes to projector code
 vim apps/balados_sync_projections/lib/projectors/subscriptions_projector.ex
 
-# 2. Reset projections to rebuild
-mix reset_projections
+# 2. Reset projections only to rebuild
+mix ecto.reset --prefix public
 
 # 3. Verify rebuild worked
 iex -S mix
 iex> Repo.all(Subscription)
 ```
 
-### Development: Fresh Start with New User
+### Development: Fresh Start with New Users
 
 ```bash
-# Reset system data (keeps events if any)
-mix reset_system
+# 1. Reset system schema (keeps events and projections)
+mix ecto.reset --prefix system
 
-# Create new admin user via web interface
+# 2. Create new admin user
 open http://localhost:4000/setup
 ```
 
 ### Development: Complete Fresh Start
 
 ```bash
-# Nuclear option - deletes everything
+# ☢️ Nuclear option - deletes everything
 mix ecto.reset
+
+# Re-initialize
+mix event_store.init -a balados_sync_core
+mix db.init
 
 # Server will auto-restart
 # Visit http://localhost:4000/setup for initial admin

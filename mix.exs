@@ -47,7 +47,11 @@ defmodule BaladosSync.Umbrella.MixProject do
   defp aliases do
     [
       # run `mix setup` in all child apps
-      setup: ["cmd mix setup"]
+      setup: ["cmd mix setup"],
+      # Database setup - full initialization
+      "db.create": ["system_db.create", "event_store.create -a balados_sync_core"],
+      "db.init": ["system_db.migrate"],
+      "db.migrate": ["system_db.migrate"]
     ]
   end
 

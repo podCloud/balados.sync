@@ -10,6 +10,7 @@ config :balados_sync_projections, BaladosSyncProjections.Repo,
   password: "postgres",
   hostname: "localhost",
   database: "balados_sync_test#{System.get_env("MIX_TEST_PARTITION")}",
+  prefix: "system",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 

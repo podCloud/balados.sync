@@ -13,7 +13,8 @@
       "Bash(mix ecto.gen.migration:*)",
       "Bash(tree:*)",
       "Bash(timeout 15 mix compile:*)",
-      "Bash(mix format:*)"
+      "Bash(mix format:*)",
+      "WebFetch(domain:hexdocs.pm)"
     ],
     "deny": [],
     "ask": []

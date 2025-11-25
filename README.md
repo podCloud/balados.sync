@@ -81,23 +81,42 @@ cd balados_sync
 # Installer les dépendances
 mix deps.get
 
-# Créer les bases de données
-mix ecto.create
-mix event_store.create -a balados_sync_core
+# Créer les bases de données (system schema + event store)
+mix db.create
 
 # Initialiser l'event store
 mix event_store.init -a balados_sync_core
 
-# Lancer les migrations
-cd apps/balados_sync_projections
-mix ecto.migrate
-cd ../..
+# Migrer le schéma system
+mix db.init
 
 # Lancer le projet
 mix phx.server
 ```
 
 Le serveur démarre sur `http://localhost:4000`
+
+### Commandes de base de données
+
+Après l'installation initiale:
+
+```bash
+# Créer BDD + schémas (fait en setup)
+# Crée les schémas: system (données permanentes) + events (event store)
+mix db.create
+
+# Initialiser l'event store (une seule fois)
+mix event_store.init -a balados_sync_core
+
+# Migrer les schémas system
+mix db.migrate
+```
+
+**Note:** Le projet utilise 4 schémas PostgreSQL distincts :
+- **`system`** (permanent) : Users et tokens
+- **`events`** (permanent) : Event store (source de vérité)
+- **`public`** (transitoire) : Projections publiques (reconstruites depuis events)
+- Voir [Architecture de la Base de Données](#architecture-de-la-base-de-données) pour plus de détails
 
 ## Configuration
 
@@ -441,23 +460,55 @@ Tous les flux RSS personnalisés (`/user/:token/subscriptions` et `/playlist/:id
 }
 ```
 
-## Schémas PostgreSQL
+## Architecture de la Base de Données
 
-### Schema `events`
-Géré par EventStore - contient tous les events.
+La base de données PostgreSQL utilise **4 schémas distincts** pour bien séparer les responsabilités :
 
-### Schema `users`
-- `subscriptions` : Abonnements aux podcasts
-- `play_statuses` : Positions de lecture par épisode
-- `playlists` : Playlists personnalisées
-- `playlist_items` : Items dans les playlists
-- `user_privacy` : Settings de privacy granulaires
-- `api_tokens` : JWT autorisés
+### Schema `system` ⭐ (Données permanentes)
+**Gestion**: `mix system_db.migrate`
 
-### Schema `site`
-- `public_events` : Events publics/anonymes filtrés
-- `podcast_popularity` : Stats de popularité par podcast
-- `episode_popularity` : Stats de popularité par épisode
+Contient les données permanentes qui ne peuvent **PAS** être reconstruites :
+- `users` : Utilisateurs enregistrés
+- `api_tokens` : Tokens JWT valides (App Auth)
+- `user_tokens` : Tokens de partage RSS
+
+**Important**: Ce schéma est régénéré lors de `mix ecto.reset`, donc **ne pas effacer la BDD sans sauvegarder ces données**.
+
+### Schema `events` (Event Store)
+**Gestion**: `mix event_store.init -a balados_sync_core` (une seule fois)
+
+Contient **tous les événements immuables** du système, gérés par EventStore/Commanded:
+- Chaque action (Subscribe, Play, etc.) crée un event
+- Les events sont immuables (pour "supprimer", émettre nouvel event)
+- Exception: Les deletion events suppriment l'historique concerné
+
+**Important**: ❌ **NE JAMAIS** modifier manuellement ce schéma. Utiliser seulement Commanded.
+
+### Projections (Read Models)
+Les projections sont **reconstruites** depuis les events. Ce sont des données **transitoires**:
+
+- **Schéma `public`** : Données publiques
+  - `public_events` : Events publics/anonymes filtrés
+  - `podcast_popularity` : Stats de popularité par podcast
+  - `episode_popularity` : Stats de popularité par épisode
+
+Ces projections peuvent être réinitialisées sans crainte :
+```bash
+# Réinitialise les projections SEULEMENT (préserve system + events)
+mix ecto.reset --prefix public
+```
+
+### Résumé et Commandes
+
+| Schéma | Type | Contenu | Commande |
+|--------|------|---------|----------|
+| `system` | Permanent | Users, tokens | `mix system_db.migrate` |
+| `events` | Permanent | Event log immuable | `mix event_store.init -a balados_sync_core` |
+| `public` | Transitoire | Projections publiques | Auto-replay depuis events |
+
+**Danger**:
+- ❌ `mix ecto.reset` sans `--prefix` = **réinitialise TOUT** (events + system)
+- ✅ `mix ecto.reset --prefix public` = Réinitialise projections seulement
 
 ## Worker de maintenance
 

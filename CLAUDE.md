@@ -32,13 +32,14 @@ Application **Elixir umbrella** avec 4 apps :
 # Dépendances
 mix deps.get
 
-# Bases de données
-mix ecto.create
-mix event_store.create -a balados_sync_core
+# Créer BDD et schémas (system + event store)
+mix db.create
+
+# Initialiser l'event store
 mix event_store.init -a balados_sync_core
 
-# Migrations
-cd apps/balados_sync_projections && mix ecto.migrate && cd ../..
+# Migrer le schéma system
+mix db.init
 ```
 
 ### Lancement
@@ -52,6 +53,63 @@ iex -S mix
 ```
 
 **👉 Guide complet** : [docs/technical/DEVELOPMENT.md](docs/technical/DEVELOPMENT.md)
+
+### Commandes de Base de Données
+
+Pour simplifier la gestion de la BDD, nous avons créé des commandes Mix dédiées :
+
+```bash
+# 1️⃣ Créer les BDD (system + event store)
+mix db.create
+
+# 2️⃣ Initialiser l'event store (une fois seulement)
+mix event_store.init -a balados_sync_core
+
+# 3️⃣ Migrer les schémas
+mix db.migrate
+# ou l'alias raccourci
+mix db.init
+```
+
+#### Architecture des schémas
+
+| Schéma | Type | Contenu | Commande |
+|--------|------|---------|----------|
+| `system` | Permanent | Users, API tokens | `mix system_db.create/migrate` |
+| `events` | Permanent | Event log immuable | `mix event_store.init` |
+| `public` | Transitoire | Projections publiques | Auto-reconstructed from events |
+
+#### Commandes détaillées
+
+```bash
+# Créer schéma system UNIQUEMENT
+mix system_db.create
+
+# Migrer schéma system UNIQUEMENT
+mix system_db.migrate
+
+# Créer schéma system + event store
+mix db.create
+
+# Migrer schéma system
+mix db.init
+# ou alias
+mix db.migrate
+
+# Réinitialiser les projections publiques (SAFE - préserve users et events)
+mix ecto.reset --prefix public
+
+# ⚠️  DANGER - Réinitialiser system schema uniquement
+mix ecto.reset --prefix system
+
+# ☢️ EXTRÊME DANGER - Réinitialiser TOUT (events + system + projections)
+mix ecto.reset
+```
+
+**⚠️ Important**:
+- ❌ Jamais modifier manuellement la BDD `events`
+- ✅ Utiliser seulement les commandes Mix pour les migrations
+- ⚠️ `mix ecto.reset` **sans prefix** détruit TOUT incluant les events
 
 ---
 
