@@ -709,8 +709,8 @@ mix test apps/balados_sync_web/test/controllers/my_controller_test.exs
 
 ### Checkpoints
 
-- Ne pas appeler `Snapshot` manuellement
-- Laisse le `SnapshotWorker` gérer les checkpoints
+- `SnapshotWorker` crée automatiquement des checkpoints toutes les 5 min
+- Peut être appelé manuellement quand nécessaire (ex: après une suppression)
 - Si problème : rebuilder les projections
 
 ---

@@ -320,8 +320,8 @@ end
 
 ### Checkpoints
 
-- ❌ Ne pas appeler `Snapshot` manuellement
-- ✅ Laisser `SnapshotWorker` gérer les checkpoints (toutes les 5 min)
+- `SnapshotWorker` crée automatiquement des checkpoints toutes les 5 min
+- Peut être appelé manuellement quand nécessaire (ex: après une suppression)
 
 ---
 
