@@ -50,7 +50,7 @@ defmodule BaladosSync.Umbrella.MixProject do
       setup: ["cmd mix setup"],
       # Database setup - full initialization
       "db.create": ["system_db.create", "event_store.create -a balados_sync_core"],
-      "db.init": ["system_db.migrate"],
+      "db.init": ["event_store.init -a balados_sync_core", "system_db.migrate"],
       "db.migrate": ["system_db.migrate"]
     ]
   end

@@ -106,12 +106,12 @@ Balados Sync uses **4 PostgreSQL schemas** to organize data:
 
 ## Setup Commands
 
-### `mix db.create` ✅ Initial Setup
+### `mix db.create` ✅ Initial Database Creation
 
 **What it does:**
+- Creates the PostgreSQL database
 - Creates the `system` schema and tables
 - Creates the `events` schema for EventStore
-- Runs all initial structure migrations
 
 **Use after:**
 ```bash
@@ -125,53 +125,73 @@ mix db.create
 
 ---
 
-### `mix system_db.create`
+### `mix db.init` ✅ Initialize Everything at Once
+
+**What it does (in order):**
+1. Initializes the event store: `mix event_store.init -a balados_sync_core`
+2. Runs migrations for the `system` schema: `mix system_db.migrate`
+
+**This is the recommended way to initialize!** It combines both initialization steps.
+
+**Use after:**
+- `mix db.create`
+
+**Example:**
+```bash
+mix db.create
+mix db.init  # Replaces the need for separate event_store.init and migrations
+```
+
+---
+
+### `mix db.migrate` - Migrate System Schema
+
+**What it does:**
+- Runs migrations for the `system` schema only
+- Equivalent to `mix ecto.migrate --prefix system`
+
+**When to use:**
+- After creating a new migration for the `system` schema
+- To apply pending migrations
+
+**Example:**
+```bash
+mix db.migrate
+```
+
+---
+
+### `mix system_db.create` (Advanced)
 
 **What it does:**
 - Creates only the `system` schema
 - Used internally by `mix db.create`
 
 **When to use:**
-- Only if you need to recreate the system schema
+- Rarely. Only if you need to recreate just the system schema.
 
 ---
 
-### `mix db.init` ✅ Initialize System
-
-**What it does:**
-- Runs migrations for the `system` schema
-- Equivalent to `mix ecto.migrate --prefix system`
-
-**Use after:**
-- `mix db.create`
-- `mix event_store.init -a balados_sync_core`
-
-**Example:**
-```bash
-mix db.init
-```
-
----
-
-### `mix system_db.migrate`
+### `mix system_db.migrate` (Advanced)
 
 **What it does:**
 - Migrates only the `system` schema
-- Used internally by `mix db.init`
+- Equivalent to `mix db.migrate`
 
 **When to use:**
-- When you create a new migration in the `system` schema
+- Rarely. Use `mix db.migrate` instead for consistency.
 
 ---
 
 ## Reset Commands Reference
 
-### `mix ecto.reset --prefix public` ✅ SAFE
+### `mix db.reset --projections` ✅ SAFE
 
 **What it does:**
-- Drops and recreates only `public` schema
+- Drops and recreates only the `public` schema
 - Resets projector subscription positions
 - Triggers automatic rebuild from EventStore
+- **Requires confirmation** by typing 'DELETE'
 
 **What it preserves:**
 - ✅ All `system` tables (users, tokens)
@@ -184,16 +204,28 @@ mix db.init
 
 **Example:**
 ```bash
-mix ecto.reset --prefix public
+$ mix db.reset --projections
+
+✅ SAFE: You are about to reset projections only.
+
+This will:
+- Wipe public schema (trending, popularity data)
+- Reset projector positions
+- Trigger automatic rebuild from events
+
+System data and events will be preserved.
+
+Type 'DELETE' to confirm:
 ```
 
 ---
 
-### `mix ecto.reset --prefix system` ⚠️ DANGER
+### `mix db.reset --system` ⚠️ DANGER
 
 **What it does:**
-- Drops and recreates only `system` schema
+- Drops and recreates only the `system` schema
 - Deletes all users, API tokens, play tokens
+- **Requires confirmation** by typing 'DELETE'
 
 **What it preserves:**
 - ✅ All projections (public schema)
@@ -206,44 +238,98 @@ mix ecto.reset --prefix public
 
 **Example:**
 ```bash
-$ mix ecto.reset --prefix system
+$ mix db.reset --system
 
 ⚠️  DANGER: You are about to delete all system data!
+This includes: users, API tokens, play tokens
+
+Events and projections will be preserved.
+
 Type 'DELETE' to confirm:
 ```
 
 ---
 
-### `mix ecto.reset` ☢️ EXTREME DANGER
+### `mix db.reset --events` ☢️ EXTREME DANGER
 
 **What it does:**
-- Drops entire database
-- Recreates all schemas
-- Runs all migrations
+- Drops and recreates only the `events` schema
+- Deletes ALL events from EventStore
+- **CANNOT BE RECOVERED**
+- **Requires confirmation** by typing 'DELETE ALL EVENTS'
 
-**What it deletes:**
-- ❌ Everything in `system`
-- ❌ Everything in `public`
-- ❌ Everything in `events` (CANNOT BE RECOVERED!)
+**What it preserves:**
+- ✅ All `system` tables (users, tokens)
+- ✅ All `public` projections (but they become stale)
 
 **When to use:**
-- Initial setup only
-- Major schema migrations
-- **EXTREME CAUTION in development**
+- **ALMOST NEVER** - Only if you have backups and understand the consequences
 - **NEVER in production!**
 
 **Example:**
 ```bash
-$ mix ecto.reset
+$ mix db.reset --events
 
-⚠️  EXTREME DANGER: You are about to delete ALL DATA!
-Type 'DELETE ALL' to confirm:
+☢️  EXTREME DANGER: You are about to delete all events!
+
+⚠️  EVENTS ARE YOUR SOURCE OF TRUTH AND CANNOT BE RECOVERED
+
+Type 'DELETE ALL EVENTS' to confirm:
 ```
 
-**Force without confirmation:**
+---
+
+### `mix db.reset --all` ☢️☢️ EXTREME DANGER
+
+**What it does:**
+- Drops entire database
+- Recreates all schemas (`system`, `events`, `public`)
+- Runs all migrations
+- **Requires confirmation** by typing 'DELETE ALL DATA'
+
+**What it deletes:**
+- ❌ Everything in `system` (users, tokens)
+- ❌ Everything in `public` (projections)
+- ❌ Everything in `events` (CANNOT BE RECOVERED!)
+
+**When to use:**
+- Initial setup (if `db.create` failed)
+- **EXTREME CAUTION in development**
+- **NEVER in production!**
+
+**After using this:**
+You must re-initialize:
 ```bash
-mix ecto.reset!  # Use with extreme caution!
+mix event_store.init -a balados_sync_core
+mix db.init
 ```
+
+**Example:**
+```bash
+$ mix db.reset --all
+
+☢️  EXTREME DANGER: You are about to delete EVERYTHING!
+
+Type 'DELETE ALL DATA' to confirm:
+```
+
+---
+
+### ⚠️ DO NOT USE: `mix ecto.reset`, `ecto.drop`, `ecto.migrate`, `ecto.create`
+
+These commands are **overridden** to prevent accidental misuse. If you try:
+
+```bash
+$ mix ecto.reset
+❌ ERROR: Do not use 'mix ecto.reset' directly!
+
+Use the safe wrapper instead: 'mix db.reset'
+```
+
+**Always use:**
+- `mix db.*` for database operations
+- `mix system_db.*` for system schema only
+- `mix db.reset --[option]` for resets with validation
 
 ---
 
@@ -258,30 +344,51 @@ mix deps.get
 # 2. Create database and schemas
 mix db.create
 
-# 3. Initialize event store (one-time)
-mix event_store.init -a balados_sync_core
-
-# 4. Migrate system schema
+# 3. Initialize event store + migrate system (ONE COMMAND!)
 mix db.init
+
+# Done! Now start your server
+mix phx.server
 ```
 
 ### During Development
 
 ```
-Need to reset data?
+Need to do something with the database?
 │
-├─ Only projections corrupted/outdated?
-│  └─ ✅ Use: mix ecto.reset --prefix public
+├─ Apply pending migrations (system schema)?
+│  └─ ✅ Use: mix db.migrate
 │
-├─ Need to clear test users/tokens?
-│  └─ ⚠️  Use: mix ecto.reset --prefix system
-│
-├─ Major schema migration or starting completely fresh?
-│  └─ ☢️  Use: mix ecto.reset (or ecto.reset!)
+├─ Reset data?
+│  │
+│  ├─ Only projections corrupted/outdated?
+│  │  └─ ✅ Use: mix db.reset --projections
+│  │
+│  ├─ Need fresh users/tokens for testing?
+│  │  └─ ⚠️  Use: mix db.reset --system
+│  │
+│  ├─ Troubleshoot event store (EXTREME!)?
+│  │  └─ ☢️  Use: mix db.reset --events
+│  │
+│  └─ Complete fresh start (EXTREME!)?
+│     └─ ☢️☢️ Use: mix db.reset --all
 │
 └─ Just testing a feature?
-   └─ ✅ Don't reset! Just create test data.
+   └─ ✅ Don't reset! Just create test data instead.
 ```
+
+### Safety Guarantees
+
+✅ All `db.*` commands:
+- Ask for confirmation before deleting anything
+- Tell you exactly what will be deleted
+- Preserve data when possible (projections are rebuilt, not lost)
+
+❌ Never use (blocked):
+- `mix ecto.reset` → Use `mix db.reset --[option]` instead
+- `mix ecto.drop` → Use `mix db.reset` instead
+- `mix ecto.create` → Use `mix db.create` instead
+- `mix ecto.migrate` → Use `mix db.migrate` instead
 
 ---
 
@@ -293,8 +400,11 @@ Need to reset data?
 # 1. Make changes to projector code
 vim apps/balados_sync_projections/lib/projectors/subscriptions_projector.ex
 
-# 2. Reset projections only to rebuild
-mix ecto.reset --prefix public
+# 2. Reset projections only to rebuild (SAFE)
+mix db.reset --projections
+
+# Confirm when prompted
+Type 'DELETE' to confirm: DELETE
 
 # 3. Verify rebuild worked
 iex -S mix
@@ -305,7 +415,10 @@ iex> Repo.all(Subscription)
 
 ```bash
 # 1. Reset system schema (keeps events and projections)
-mix ecto.reset --prefix system
+mix db.reset --system
+
+# Confirm when prompted
+Type 'DELETE' to confirm: DELETE
 
 # 2. Create new admin user
 open http://localhost:4000/setup
@@ -315,14 +428,30 @@ open http://localhost:4000/setup
 
 ```bash
 # ☢️ Nuclear option - deletes everything
-mix ecto.reset
+mix db.reset --all
+
+# Confirm when prompted
+Type 'DELETE ALL DATA' to confirm: DELETE ALL DATA
 
 # Re-initialize
-mix event_store.init -a balados_sync_core
 mix db.init
 
 # Server will auto-restart
 # Visit http://localhost:4000/setup for initial admin
+```
+
+### Development: Create a New Migration for System Schema
+
+```bash
+# 1. Generate migration file
+cd apps/balados_sync_projections
+mix ecto.gen.migration add_column_to_users --prefix system
+cd ../..
+
+# Edit the migration file
+
+# 2. Apply the migration
+mix db.migrate
 ```
 
 ---

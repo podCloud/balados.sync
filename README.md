@@ -84,10 +84,7 @@ mix deps.get
 # Créer les bases de données (system schema + event store)
 mix db.create
 
-# Initialiser l'event store
-mix event_store.init -a balados_sync_core
-
-# Migrer le schéma system
+# Initialiser l'event store + migrer schéma system
 mix db.init
 
 # Lancer le projet
@@ -98,18 +95,22 @@ Le serveur démarre sur `http://localhost:4000`
 
 ### Commandes de base de données
 
-Après l'installation initiale:
-
+**Installation initiale:**
 ```bash
-# Créer BDD + schémas (fait en setup)
-# Crée les schémas: system (données permanentes) + events (event store)
-mix db.create
+mix db.create     # Crée BDD et event store
+mix db.init       # Initialise event store + migre system
+```
 
-# Initialiser l'event store (une seule fois)
-mix event_store.init -a balados_sync_core
+**Pendant le développement:**
+```bash
+mix db.migrate        # Migrer le schéma system (après création migration)
+mix system_db.migrate # Idem (alias plus verbeux)
 
-# Migrer les schémas system
-mix db.migrate
+# Resets SÉCURISÉS (demandent confirmation):
+mix db.reset --projections   # Reset projections uniquement (SAFE) ✅
+mix db.reset --system        # Reset system (users, tokens) ⚠️
+mix db.reset --events        # Reset event store (EXTREME!) ☢️
+mix db.reset --all           # Reset TOUT (EXTREME!) ☢️
 ```
 
 **Note:** Le projet utilise 4 schémas PostgreSQL distincts :
@@ -117,6 +118,8 @@ mix db.migrate
 - **`events`** (permanent) : Event store (source de vérité)
 - **`public`** (transitoire) : Projections publiques (reconstruites depuis events)
 - Voir [Architecture de la Base de Données](#architecture-de-la-base-de-données) pour plus de détails
+
+⚠️ **Important:** Les commandes `mix ecto.reset`, `ecto.drop`, `ecto.migrate`, `ecto.create` sont **interdites**. Utilisez `mix db.*` à la place.
 
 ## Configuration
 

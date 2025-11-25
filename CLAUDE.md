@@ -56,60 +56,70 @@ iex -S mix
 
 ### Commandes de Base de Données
 
-Pour simplifier la gestion de la BDD, nous avons créé des commandes Mix dédiées :
+Pour simplifier la gestion de la BDD, nous avons créé des commandes Mix sécurisées :
 
+**Installation initiale:**
 ```bash
 # 1️⃣ Créer les BDD (system + event store)
 mix db.create
 
-# 2️⃣ Initialiser l'event store (une fois seulement)
-mix event_store.init -a balados_sync_core
-
-# 3️⃣ Migrer les schémas
-mix db.migrate
-# ou l'alias raccourci
+# 2️⃣ Initialiser event store + migrer system (combine les deux opérations)
 mix db.init
 ```
 
 #### Architecture des schémas
 
-| Schéma | Type | Contenu | Commande |
+| Schéma | Type | Contenu | Commande de création |
 |--------|------|---------|----------|
-| `system` | Permanent | Users, API tokens | `mix system_db.create/migrate` |
+| `system` | Permanent | Users, API tokens | `mix system_db.create` |
 | `events` | Permanent | Event log immuable | `mix event_store.init` |
 | `public` | Transitoire | Projections publiques | Auto-reconstructed from events |
 
-#### Commandes détaillées
+#### Commandes de migration
 
 ```bash
-# Créer schéma system UNIQUEMENT
+# Migrer le schéma system (après création migration)
+mix db.migrate
+# ou plus verbeux
+mix system_db.migrate
+```
+
+#### Commandes de reset (avec validation)
+
+```bash
+# ✅ SAFE - Réinitialiser les projections uniquement
+mix db.reset --projections
+
+# ⚠️  DANGER - Réinitialiser system schema (users, tokens)
+mix db.reset --system
+
+# ☢️ EXTRÊME DANGER - Réinitialiser event store
+mix db.reset --events
+
+# ☢️☢️ EXTRÊME DANGER - Réinitialiser TOUT
+mix db.reset --all
+```
+
+Chaque reset demande une confirmation explicite.
+
+#### Commandes avancées
+
+```bash
+# Créer UNIQUEMENT le schéma system (rarement nécessaire)
 mix system_db.create
 
-# Migrer schéma system UNIQUEMENT
+# Migrer UNIQUEMENT le schéma system
 mix system_db.migrate
 
-# Créer schéma system + event store
-mix db.create
-
-# Migrer schéma system
-mix db.init
-# ou alias
-mix db.migrate
-
-# Réinitialiser les projections publiques (SAFE - préserve users et events)
-mix ecto.reset --prefix public
-
-# ⚠️  DANGER - Réinitialiser system schema uniquement
-mix ecto.reset --prefix system
-
-# ☢️ EXTRÊME DANGER - Réinitialiser TOUT (events + system + projections)
-mix ecto.reset
+# Initialiser event store (fait en db.init, rarement seul)
+mix event_store.init -a balados_sync_core
 ```
 
 **⚠️ Important**:
+- ❌ **NE PAS UTILISER** `mix ecto.reset`, `ecto.drop`, `ecto.migrate`, `ecto.create` directement
+- ✅ Utiliser seulement `mix db.*` et `mix system_db.*`
 - ❌ Jamais modifier manuellement la BDD `events`
-- ✅ Utiliser seulement les commandes Mix pour les migrations
-- ⚠️ `mix ecto.reset` **sans prefix** détruit TOUT incluant les events
+- ⚠️ Les resets demandent confirmation pour éviter les accidents
 
 ---
 
