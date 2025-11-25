@@ -122,7 +122,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
 
   defp get_distinct_feeds do
     query =
-      from(pe in "site.public_events",
+      from(pe in "public.public_events",
         where: not is_nil(pe.rss_source_feed),
         distinct: true,
         select: pe.rss_source_feed
@@ -133,7 +133,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
 
   defp get_distinct_items do
     query =
-      from(pe in "site.public_events",
+      from(pe in "public.public_events",
         where: not is_nil(pe.rss_source_item),
         distinct: true,
         select: %{feed: pe.rss_source_feed, item: pe.rss_source_item}
@@ -145,7 +145,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   defp calculate_feed_popularity(feed) do
     # Scores: subscribe=10, play=5, save/like=3, share=2
     query =
-      from(pe in "site.public_events",
+      from(pe in "public.public_events",
         where: pe.rss_source_feed == ^feed,
         select: %{
           event_type: pe.event_type,
@@ -171,7 +171,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
       end)
 
     # Mettre à jour podcast_popularity
-    from(p in "site.podcast_popularity", where: p.rss_source_feed == ^feed)
+    from(p in "public.podcast_popularity", where: p.rss_source_feed == ^feed)
     |> Repo.update_all(
       set: [
         plays_previous: total_score,
@@ -184,7 +184,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
 
   defp calculate_item_popularity(%{feed: _feed, item: item}) do
     query =
-      from(pe in "site.public_events",
+      from(pe in "public.public_events",
         where: pe.rss_source_item == ^item,
         select: %{
           event_type: pe.event_type,
@@ -209,7 +209,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
       end)
 
     # Mettre à jour episode_popularity
-    from(e in "site.episode_popularity", where: e.rss_source_item == ^item)
+    from(e in "public.episode_popularity", where: e.rss_source_item == ^item)
     |> Repo.update_all(
       set: [
         plays_previous: total_score,

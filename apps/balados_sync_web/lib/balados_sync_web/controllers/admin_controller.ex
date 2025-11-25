@@ -120,7 +120,7 @@ defmodule BaladosSyncWeb.AdminController do
 
   defp get_top_podcasts(limit) do
     query =
-      from(p in "site.podcast_popularity",
+      from(p in "public.podcast_popularity",
         select: %{
           feed: p.rss_source_feed,
           score: p.score,
@@ -136,7 +136,7 @@ defmodule BaladosSyncWeb.AdminController do
 
   defp get_top_episodes(limit) do
     query =
-      from(e in "site.episode_popularity",
+      from(e in "public.episode_popularity",
         select: %{
           feed: e.rss_source_feed,
           item: e.rss_source_item,
