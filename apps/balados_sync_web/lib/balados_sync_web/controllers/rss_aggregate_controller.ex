@@ -101,7 +101,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
     end
   end
 
-  defp aggregate_subscription_feeds(user_id, user_token, subscriptions) do
+  defp aggregate_subscription_feeds(_user_id, user_token, subscriptions) do
     tasks =
       Enum.map(subscriptions, fn sub ->
         Task.async(fn ->
@@ -142,7 +142,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
     {:ok, feed_xml}
   end
 
-  defp aggregate_playlist_feed(user_id, user_token, playlist) do
+  defp aggregate_playlist_feed(_user_id, user_token, playlist) do
     items_by_feed = Enum.group_by(playlist.items, & &1.rss_source_feed)
 
     tasks =

@@ -60,7 +60,7 @@ defmodule BaladosSyncWeb.SyncController do
     end)
   end
 
-  defp parse_playlists(playlists) do
+  defp parse_playlists(_playlists) do
     # TODO: implémenter selon votre structure
     %{}
   end

@@ -50,9 +50,7 @@ defmodule BaladosSyncWeb.RssCache do
     Cachex.put(@cache_name, key, value, ttl: @cache_ttl)
   end
 
-  @doc """
-  Fetch HTTP d'un flux RSS
-  """
+  # Fetch HTTP d'un flux RSS
   defp fetch_from_url(url) do
     case HTTPoison.get(url, [], follow_redirect: true, timeout: 10_000, recv_timeout: 10_000) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->

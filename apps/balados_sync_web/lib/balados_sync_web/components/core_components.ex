@@ -17,7 +17,7 @@ defmodule BaladosSyncWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import BaladosSyncWeb.Gettext
+  use Gettext, backend: BaladosSyncWeb.Gettext
 
   @doc """
   Renders a modal.
@@ -149,7 +149,7 @@ defmodule BaladosSyncWeb.CoreComponents do
   def flash_group(assigns) do
     ~H"""
     <div id={@id}>
-      <.flash kind={:success} title={gettext("Success")} flash={@flash} />
+      <.flash kind={:info} title={gettext("Success")} flash={@flash} />
       <.flash kind={:info} title={gettext("Info!")} flash={@flash} />
       <.flash kind={:error} title={gettext("Error!")} flash={@flash} />
       <.flash

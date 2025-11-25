@@ -2,9 +2,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   require Logger
   import Ecto.Query
 
-  alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.Snapshot
-  alias BaladosSyncCore.EventStore
   alias BaladosSyncProjections.Repo
 
   @forty_five_days_ago_seconds 45 * 24 * 60 * 60

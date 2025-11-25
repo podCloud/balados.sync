@@ -169,10 +169,10 @@
               <%= for podcast <- @stats.top_podcasts do %>
                 <tr>
                   <td class="px-6 py-4 text-sm text-zinc-900 font-mono truncate max-w-md">
-                    <%= case Base.decode64(podcast.feed) do %>
-                      <% {:ok, decoded} -> decoded %>
-                      <% :error -> podcast.feed %>
-                    <% end %>
+                    <%= case Base.decode64(podcast.feed) do
+                      {:ok, decoded} -> decoded
+                      :error -> podcast.feed
+                    end %>
                   </td>
                   <td class="px-6 py-4 text-sm font-semibold text-zinc-900">
                     <%= podcast.score %>

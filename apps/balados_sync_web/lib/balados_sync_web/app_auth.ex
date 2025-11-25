@@ -43,7 +43,7 @@ defmodule BaladosSyncWeb.AppAuth do
   """
   def decode_app_token(token) do
     with {:ok, claims} <- Joken.peek_claims(token),
-         {:ok, app_id} <- extract_app_id(claims),
+         {:ok, _app_id} <- extract_app_id(claims),
          {:ok, public_key} <- extract_public_key(claims),
          {:ok, verified_claims} <- verify_with_public_key(token, public_key) do
       {:ok, verified_claims}

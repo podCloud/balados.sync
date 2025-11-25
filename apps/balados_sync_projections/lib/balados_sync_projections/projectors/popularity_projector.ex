@@ -71,7 +71,7 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
     end)
   end)
 
-  project(%UserUnsubscribed{} = event, _metadata, fn multi ->
+  project(%UserUnsubscribed{} = _event, _metadata, fn multi ->
     # On pourrait décrémenter le score, mais on choisit de ne pas le faire
     # pour garder une trace de l'engagement historique
     multi

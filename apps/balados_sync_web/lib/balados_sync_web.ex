@@ -85,7 +85,7 @@ defmodule BaladosSyncWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import BaladosSyncWeb.CoreComponents
-      import BaladosSyncWeb.Gettext
+      use Gettext, backend: BaladosSyncWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
