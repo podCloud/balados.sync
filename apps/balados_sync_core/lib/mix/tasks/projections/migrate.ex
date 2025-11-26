@@ -11,18 +11,18 @@ defmodule Mix.Tasks.Projections.Migrate do
       $ mix projections.migrate
   """
 
-  def run(args) do
+  def run(_args) do
     {:ok, _} = Application.ensure_all_started(:ecto_sql)
 
     Ecto.Migrator.run(
       BaladosSyncProjections.ProjectionsRepo,
-      migrations_path(BaladosSyncProjections.ProjectionsRepo),
+      migrations_path(),
       :up,
       all: true
     )
   end
 
-  defp migrations_path(repo) do
+  defp migrations_path do
     priv = :balados_sync_projections |> :code.priv_dir() |> to_string()
     Path.join(priv, "projections_repo/migrations")
   end

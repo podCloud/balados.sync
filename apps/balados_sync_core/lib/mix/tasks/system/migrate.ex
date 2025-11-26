@@ -15,20 +15,20 @@ defmodule Mix.Tasks.System.Migrate do
     # Initialize system schema first
     Mix.Tasks.SystemDb.InitSchema.run(args)
 
-    # Run migrations for SystemRepo
+    # Run migrations for SystemRepo using Ecto.Migrator
     {:ok, _} = Application.ensure_all_started(:ecto_sql)
-
-    module = String.to_atom("Elixir.Ecto.Cli")
 
     Ecto.Migrator.run(
       BaladosSyncProjections.SystemRepo,
-      migrations_path(BaladosSyncProjections.SystemRepo),
+      migrations_path(),
       :up,
       all: true
     )
+
+    Mix.shell().info("✓ System migrations completed")
   end
 
-  defp migrations_path(repo) do
+  defp migrations_path do
     priv = :balados_sync_projections |> :code.priv_dir() |> to_string()
     Path.join(priv, "system_repo/migrations")
   end
