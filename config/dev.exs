@@ -1,12 +1,20 @@
 import Config
 
 # Configure your database
-config :balados_sync_projections, BaladosSyncProjections.Repo,
+config :balados_sync_projections, BaladosSyncProjections.SystemRepo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
   database: "balados_sync_dev",
-  prefix: "system",
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+
+config :balados_sync_projections, BaladosSyncProjections.ProjectionsRepo,
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "balados_sync_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10

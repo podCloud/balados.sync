@@ -5,12 +5,19 @@ import Config
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
-config :balados_sync_projections, BaladosSyncProjections.Repo,
+config :balados_sync_projections, BaladosSyncProjections.SystemRepo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
   database: "balados_sync_test#{System.get_env("MIX_TEST_PARTITION")}",
-  prefix: "system",
+  pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: System.schedulers_online() * 2
+
+config :balados_sync_projections, BaladosSyncProjections.ProjectionsRepo,
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "balados_sync_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 

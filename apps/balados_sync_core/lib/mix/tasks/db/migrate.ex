@@ -4,21 +4,22 @@ defmodule Mix.Tasks.Db.Migrate do
   @shortdoc "Run all database migrations"
 
   @moduledoc """
-  Runs migrations for all schemas (system, users, public).
+  Runs migrations for all schemas in the correct order:
+  1. System schema (users, app_tokens, play_tokens)
+  2. Projection schemas (users, public subscriptions, events, etc.)
 
-  This ensures the system schema is initialized first, then runs all migrations.
-
-  ## Example
+  ## Examples
 
       $ mix db.migrate
   """
 
   def run(args) do
-    # First initialize the system schema
-    Mix.Tasks.SystemDb.InitSchema.run(args)
+    Mix.shell().info("Running system migrations...")
+    Mix.Tasks.System.Migrate.run(args)
 
-    # Then run all migrations (without prefix, so they apply to all schemas)
-    module = String.to_atom("Elixir.Mix.Tasks.Ecto.Migrate")
-    apply(module, :run, [args])
+    Mix.shell().info("Running projections migrations...")
+    Mix.Tasks.Projections.Migrate.run(args)
+
+    Mix.shell().info("✓ All migrations completed successfully")
   end
 end

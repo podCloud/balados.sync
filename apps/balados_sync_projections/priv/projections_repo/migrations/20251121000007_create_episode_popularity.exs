@@ -2,7 +2,7 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreateEpisodePopularity do
   use Ecto.Migration
 
   def change do
-    create table(:episode_popularity, primary_key: false, prefix: "site") do
+    create table(:episode_popularity, primary_key: false, prefix: "public") do
       add :rss_source_item, :text, primary_key: true
       add :rss_source_feed, :text
       add :episode_title, :text
@@ -21,18 +21,18 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreateEpisodePopularity do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:episode_popularity, [:rss_source_feed], prefix: "site")
-    create index(:episode_popularity, [:score], prefix: "site")
-    create index(:episode_popularity, [:plays], prefix: "site")
-    create index(:episode_popularity, [:likes], prefix: "site")
+    create index(:episode_popularity, [:rss_source_feed], prefix: "public")
+    create index(:episode_popularity, [:score], prefix: "public")
+    create index(:episode_popularity, [:plays], prefix: "public")
+    create index(:episode_popularity, [:likes], prefix: "public")
 
     # Indexes for trending calculations
-    create index(:episode_popularity, [:score, :score_previous], prefix: "site")
-    create index(:episode_popularity, [:plays, :plays_previous], prefix: "site")
-    create index(:episode_popularity, [:likes, :likes_previous], prefix: "site")
+    create index(:episode_popularity, [:score, :score_previous], prefix: "public")
+    create index(:episode_popularity, [:plays, :plays_previous], prefix: "public")
+    create index(:episode_popularity, [:likes, :likes_previous], prefix: "public")
 
     # Index composite pour top episodes d'un podcast
-    create index(:episode_popularity, [:rss_source_feed, :score], prefix: "site")
-    create index(:episode_popularity, [:rss_source_feed, :plays], prefix: "site")
+    create index(:episode_popularity, [:rss_source_feed, :score], prefix: "public")
+    create index(:episode_popularity, [:rss_source_feed, :plays], prefix: "public")
   end
 end

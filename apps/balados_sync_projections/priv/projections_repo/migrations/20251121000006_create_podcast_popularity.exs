@@ -2,7 +2,7 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreatePodcastPopularity do
   use Ecto.Migration
 
   def change do
-    create table(:podcast_popularity, primary_key: false, prefix: "site") do
+    create table(:podcast_popularity, primary_key: false, prefix: "public") do
       add :rss_source_feed, :text, primary_key: true
       add :feed_title, :text
       add :feed_author, :text
@@ -20,13 +20,13 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreatePodcastPopularity do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:podcast_popularity, [:score], prefix: "site")
-    create index(:podcast_popularity, [:plays], prefix: "site")
-    create index(:podcast_popularity, [:likes], prefix: "site")
+    create index(:podcast_popularity, [:score], prefix: "public")
+    create index(:podcast_popularity, [:plays], prefix: "public")
+    create index(:podcast_popularity, [:likes], prefix: "public")
 
     # Indexes for trending calculations (order by desc for trending)
-    create index(:podcast_popularity, [:score, :score_previous], prefix: "site")
-    create index(:podcast_popularity, [:plays, :plays_previous], prefix: "site")
-    create index(:podcast_popularity, [:likes, :likes_previous], prefix: "site")
+    create index(:podcast_popularity, [:score, :score_previous], prefix: "public")
+    create index(:podcast_popularity, [:plays, :plays_previous], prefix: "public")
+    create index(:podcast_popularity, [:likes, :likes_previous], prefix: "public")
   end
 end

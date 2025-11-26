@@ -48,8 +48,8 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreateFunctions do
 
     # Vue matérialisée pour les podcasts trending (optionnel)
     execute """
-    CREATE MATERIALIZED VIEW site.trending_podcasts AS
-    SELECT 
+    CREATE MATERIALIZED VIEW public.trending_podcasts AS
+    SELECT
       rss_source_feed,
       feed_title,
       feed_author,
@@ -62,20 +62,20 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreateFunctions do
       likes - likes_previous as likes_delta,
       plays_people,
       updated_at
-    FROM site.podcast_popularity
+    FROM public.podcast_popularity
     WHERE score - score_previous > 0
     ORDER BY (score - score_previous) DESC, score DESC
     LIMIT 100;
     """
 
     execute """
-    CREATE UNIQUE INDEX trending_podcasts_feed_idx 
-    ON site.trending_podcasts (rss_source_feed);
+    CREATE UNIQUE INDEX trending_podcasts_feed_idx
+    ON public.trending_podcasts (rss_source_feed);
     """
   end
 
   def down do
-    execute "DROP MATERIALIZED VIEW IF EXISTS site.trending_podcasts"
+    execute "DROP MATERIALIZED VIEW IF EXISTS public.trending_podcasts"
 
     execute "DROP FUNCTION IF EXISTS is_subscription_active(timestamp with time zone, timestamp with time zone)"
 
