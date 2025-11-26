@@ -56,32 +56,36 @@ iex -S mix
 
 ### Commandes de Base de Données
 
-Pour simplifier la gestion de la BDD, nous avons créé des commandes Mix sécurisées :
+Pour simplifier la gestion de la BDD, nous avons créé des commandes Mix sécurisées orchestrant deux repos Ecto distincts:
 
 **Installation initiale:**
 ```bash
-# 1️⃣ Créer les BDD (system + event store)
+# 1️⃣ Créer les BDD (schemas + event store)
 mix db.create
 
 # 2️⃣ Initialiser event store + migrer system (combine les deux opérations)
 mix db.init
 ```
 
-#### Architecture des schémas
+#### Architecture Multi-Repo
 
-| Schéma | Type | Contenu | Commande de création |
-|--------|------|---------|----------|
-| `system` | Permanent | Users, API tokens | `mix system_db.create` |
-| `events` | Permanent | Event log immuable | `mix event_store.init` |
-| `public` | Transitoire | Projections publiques | Auto-reconstructed from events |
+| Repo | Gère | Migrations | Type |
+|------|------|-----------|------|
+| **SystemRepo** | Schema `system` | `system_repo/migrations/` | Permanent (CRUD) |
+| **ProjectionsRepo** | Schema `public` | `projections_repo/migrations/` | Projections (event-sourcées) |
+| **EventStore** | Schema `events` | Commanded | Immuable |
 
 #### Commandes de migration
 
 ```bash
-# Migrer le schéma system (après création migration)
+# Migrer TOUS les repos (system + projections)
 mix db.migrate
-# ou plus verbeux
-mix system_db.migrate
+
+# Migrer SEULEMENT SystemRepo (schema system)
+mix system.migrate
+
+# Migrer SEULEMENT ProjectionsRepo (schema public)
+mix projections.migrate
 ```
 
 #### Commandes de reset (avec validation)
@@ -108,17 +112,14 @@ Chaque reset demande une confirmation explicite.
 # Créer UNIQUEMENT le schéma system (rarement nécessaire)
 mix system_db.create
 
-# Migrer UNIQUEMENT le schéma system
-mix system_db.migrate
-
 # Initialiser event store (fait en db.init, rarement seul)
 mix event_store.init -a balados_sync_core
 ```
 
 **⚠️ Important**:
 - ❌ **NE PAS UTILISER** `mix ecto.reset`, `ecto.drop`, `ecto.migrate`, `ecto.create` directement
-- ✅ Utiliser seulement `mix db.*` et `mix system_db.*`
-- ❌ Jamais modifier manuellement la BDD `events`
+- ✅ Utiliser seulement `mix db.*`, `mix system.migrate`, `mix projections.migrate`
+- ❌ Jamais modifier manuellement le schema `events` (géré par Commanded)
 - ⚠️ Les resets demandent confirmation pour éviter les accidents
 
 ---
@@ -228,46 +229,101 @@ mix test apps/balados_sync_core/test/some_test.exs:42
 
 ## 🗄️ Base de Données
 
-### Quatre Schémas PostgreSQL
+### Architecture Multi-Repo avec Ecto
 
-1. **`system`** : Données permanentes (users, app_tokens, play_tokens) - **JAMAIS event-sourced**
-2. **`users`** : Projections privées (subscriptions, play_statuses, playlists, user_privacy)
-3. **`public`** : Projections publiques (podcast_popularity, episode_popularity, public_events)
-4. **`events`** : EventStore (géré par Commanded, **ne pas modifier manuellement**)
+Le système utilise **deux Ecto Repositories** distincts pour séparer les responsabilités:
+
+#### **SystemRepo** (Données Permanentes)
+- **Gère le schema:** `system`
+- **Contient:** users, app_tokens, play_tokens
+- **Type:** Données permanentes (JAMAIS event-sourced)
+- **Migrations:** `apps/balados_sync_projections/priv/system_repo/migrations/`
+- **Commande:** `mix system.migrate`
+
+#### **ProjectionsRepo** (Projections)
+- **Gère le schema:** `public` (et optionnellement `users`)
+- **Contient:** public_events, podcast_popularity, episode_popularity
+- **Type:** Read models event-sourcées (reconstruites depuis events)
+- **Migrations:** `apps/balados_sync_projections/priv/projections_repo/migrations/`
+- **Commande:** `mix projections.migrate`
+
+#### **EventStore** (Commanded)
+- **Gère le schema:** `events`
+- **Type:** Source de vérité immuable
+- **Gestion:** Automatique via Commanded, ❌ **NE PAS modifier manuellement**
+
+### Configuration Flexible
+
+Ces deux repos peuvent être configurés de plusieurs façons:
+
+**Option 1: Même base PostgreSQL, schemas différents (Par défaut)**
+```elixir
+# config/dev.exs
+config :balados_sync_projections, BaladosSyncProjections.SystemRepo,
+  database: "balados_sync_dev",
+  hostname: "localhost"
+
+config :balados_sync_projections, BaladosSyncProjections.ProjectionsRepo,
+  database: "balados_sync_dev",  # ← Même BDD
+  hostname: "localhost"
+```
+
+**Option 2: Bases PostgreSQL séparées (Recommandé en production)**
+```elixir
+# config/prod.exs
+config :balados_sync_projections, BaladosSyncProjections.SystemRepo,
+  database: "balados_sync_system",   # ← BDD séparée
+  hostname: "db-system.example.com"
+
+config :balados_sync_projections, BaladosSyncProjections.ProjectionsRepo,
+  database: "balados_sync_projections",  # ← BDD séparée
+  hostname: "db-projections.example.com"
+```
+
+**Option 3: EventStore sur base séparée**
+```elixir
+# Configuré dans EVENT_STORE_URL
+config :eventstore, EventStore.Config,
+  database: "balados_sync_events",  # ← Optionnel: BDD séparée
+  hostname: "db-events.example.com"
+```
 
 **👉 Détails complets** : [docs/technical/DATABASE_SCHEMA.md](docs/technical/DATABASE_SCHEMA.md)
 
-### Migrations
+### Commandes de Migration
 
 ```bash
-# Créer migration
+# Migrer TOUS les repos (system + projections)
+mix db.migrate
+
+# Migrer SEULEMENT system schema
+mix system.migrate
+
+# Migrer SEULEMENT projections
+mix projections.migrate
+
+# Créer une migration pour system
 cd apps/balados_sync_projections
-mix ecto.gen.migration migration_name
-
-# Exécuter migrations
-mix ecto.migrate
-
-# Rollback
-mix ecto.rollback
+mix ecto.gen.migration add_column_to_users --prefix system
 ```
 
 ### Reset Commands
 
 ```bash
-# ✅ SAFE: Reset projections uniquement (préserve users/tokens)
-mix reset_projections
+# ✅ SAFE: Reset projections uniquement (préserve users/tokens/events)
+mix db.reset --projections
 
-# ⚠️  DANGER: Reset users/tokens (demande confirmation)
-mix reset_system
+# ⚠️  DANGER: Reset system schema (users, tokens) - demande confirmation
+mix db.reset --system
 
-# ☢️  EXTREME DANGER: Reset TOUT y compris events (demande confirmation)
-mix ecto.reset
+# ☢️  EXTREME DANGER: Reset event store - demande confirmation
+mix db.reset --events
 
-# Force sans confirmation (à éviter !)
-mix ecto.reset!
+# ☢️☢️ EXTREME DANGER: Reset TOUT - demande confirmation
+mix db.reset --all
 ```
 
-**IMPORTANT:** `mix ecto.reset` détruit **TOUTES** les données incluant les events. Utiliser `mix reset_projections` pour un reset safe des projections uniquement.
+**IMPORTANT:** `mix db.reset --all` détruit **TOUTES** les données incluant les events. Utiliser `mix db.reset --projections` pour un reset safe des projections uniquement.
 
 ---
 
@@ -540,5 +596,5 @@ Le projet vise à devenir open source et communautaire. Guidelines de contributi
 
 ---
 
-**Dernière mise à jour** : 2025-11-24
-**Statut du projet** : 🟡 En développement actif - Phase de stabilisation
+**Dernière mise à jour** : 2025-11-26
+**Statut du projet** : 🟡 En développement actif - Phase de stabilisation - Multi-Repo Architecture

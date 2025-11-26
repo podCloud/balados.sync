@@ -1,106 +1,191 @@
 # Database Schema Architecture
 
-This document describes the database schema architecture for Balados Sync, explaining the separation between permanent data and projections.
+This document describes the database schema architecture for Balados Sync, explaining the separation between permanent data and projections using two distinct Ecto Repositories.
 
 ## Overview
 
-Balados Sync uses **4 PostgreSQL schemas** to organize data:
+Balados Sync uses **2 Ecto Repositories** managing **4 PostgreSQL schemas**:
+
+### Multi-Repository Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      PostgreSQL Database                     │
-├─────────────────────────────────────────────────────────────┤
-│  system     │  Permanent data (non event-sourced)          │
-│  users      │  Projections from events (user-scoped)       │
-│  public     │  Projections from events (public data)       │
-│  events     │  EventStore (Commanded)                      │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                  Balados Sync Data Layer                         │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────────┐    ┌──────────────────────────────┐   │
+│  │   SystemRepo        │    │   ProjectionsRepo            │   │
+│  │  (Permanent)        │    │  (Event-Sourced)             │   │
+│  ├─────────────────────┤    ├──────────────────────────────┤   │
+│  │  Schema: system     │    │  Schema: public              │   │
+│  │  ├─ users           │    │  ├─ public_events           │   │
+│  │  ├─ app_tokens      │    │  ├─ podcast_popularity      │   │
+│  │  └─ play_tokens     │    │  └─ episode_popularity      │   │
+│  │                     │    │                              │   │
+│  │  Type: CRUD/Ecto    │    │  Type: Projectors/Commanded │   │
+│  │  Reset: Destructive │    │  Reset: Safe (rebuild)      │   │
+│  └─────────────────────┘    └──────────────────────────────┘   │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │  EventStore (Commanded)                                  │  │
+│  │  Schema: events                                          │  │
+│  │  ├─ streams, events, snapshots, projection_versions     │  │
+│  │  Type: Immutable source of truth                         │  │
+│  │  ⚠️  Never modify manually!                              │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-## Schema Breakdown
+### Configuration Options
 
-### 1. `system` - Permanent Infrastructure Data
+**Option 1: Single PostgreSQL Database with Different Schemas (Default Development)**
+```elixir
+Database: balados_sync_dev
+├─ schema: system    (managed by SystemRepo)
+├─ schema: public    (managed by ProjectionsRepo)
+└─ schema: events    (managed by EventStore/Commanded)
+```
 
-**Purpose:** Infrastructure data required for application operation.
+**Option 2: Separate PostgreSQL Databases (Recommended Production)**
+```elixir
+balados_sync_system       → SystemRepo (schema system)
+balados_sync_projections  → ProjectionsRepo (schema public)
+balados_sync_events       → EventStore (schema events)
+```
+
+Configuration in `config/prod.exs`:
+```elixir
+# SystemRepo on separate database
+config :balados_sync_projections, BaladosSyncProjections.SystemRepo,
+  database: "balados_sync_system",
+  hostname: "db-system.example.com",
+  pool_size: 10
+
+# ProjectionsRepo on separate database
+config :balados_sync_projections, BaladosSyncProjections.ProjectionsRepo,
+  database: "balados_sync_projections",
+  hostname: "db-projections.example.com",
+  pool_size: 10
+
+# EventStore on separate database (optional)
+config :eventstore, EventStore.Config,
+  database: "balados_sync_events",
+  hostname: "db-events.example.com"
+```
+
+## Repository Breakdown
+
+### SystemRepo - Managed by `mix system.migrate`
+
+**Purpose:** Permanent infrastructure data for authentication and authorization.
+
+**Schema:** `system`
 
 **Characteristics:**
-- ❌ NOT event-sourced
+- ❌ NOT event-sourced (permanent architectural decision)
 - ✅ Direct CRUD operations via Ecto
-- ⚠️  NEVER truncated by `mix reset_projections`
-- 🔒 This is a **permanent architectural decision** (will not evolve to CQRS/ES)
+- 🔒 NEVER truncated by `mix db.reset --projections`
+- 🔐 Uses standard security patterns (bcrypt, sessions)
 
 **Tables:**
 
-| Table | Description | Safe to Truncate? |
-|-------|-------------|-------------------|
-| `users` | User accounts (passwords, auth data) | ❌ NO |
-| `app_tokens` | Third-party app authorizations (JWT) | ❌ NO |
-| `play_tokens` | Play gateway bearer tokens | ❌ NO |
+| Table | Description | Event-Sourced? | Reconstruable? |
+|-------|-------------|----------------|----------------|
+| `users` | User accounts (passwords, auth data) | ❌ NO | ❌ NO |
+| `app_tokens` | Third-party app authorizations (JWT) | ❌ NO | ❌ NO |
+| `play_tokens` | Play gateway bearer tokens | ❌ NO | ❌ NO |
 
-**Why not event-sourced?**
-- Simplicity for authentication/authorization
-- Compliance with standard auth patterns (bcrypt, sessions)
-- Clear separation: system = infrastructure, others = domain
+**Why permanent and not event-sourced?**
+- Authentication is well-understood with traditional CRUD patterns
+- Compliance with standard security practices (bcrypt, OAuth)
+- Clear separation: `system` = infrastructure, projections = domain logic
 - Avoids unnecessary complexity for operational data
+- Faster authentication (no event replay needed)
+
+**Migration Management:**
+```bash
+# Generate migration
+cd apps/balados_sync_projections
+mix ecto.gen.migration add_column --prefix system
+
+# Apply migration
+mix system.migrate
+# or
+mix db.migrate  # applies both repos
+```
 
 ---
 
-### 2. `users` - User-Scoped Projections
+### ProjectionsRepo - Managed by `mix projections.migrate`
 
-**Purpose:** Denormalized read models for user-specific data.
+**Purpose:** Denormalized read models built from domain events.
+
+**Schema:** `public` (can also manage `users` schema if needed)
 
 **Characteristics:**
 - ✅ Event-sourced (built from EventStore)
-- ✅ Can be safely truncated and rebuilt
-- 🔄 Automatically reconstructed via projectors
+- ✅ Can be safely truncated and rebuilt via `mix db.reset --projections`
+- 🔄 Automatically reconstructed by projectors after reset
+- 📊 Optimized for fast queries and aggregations
 
 **Tables:**
 
-| Table | Description | Rebuilt from Event |
-|-------|-------------|-------------------|
-| `subscriptions` | User podcast subscriptions | `UserSubscribed`, `UserUnsubscribed` |
-| `play_statuses` | Episode listening progress | `PlayRecorded`, `PositionUpdated` |
-| `playlists` | User custom playlists | (Future: playlist events) |
-| `playlist_items` | Items in playlists | (Future: playlist events) |
-| `user_privacy` | User privacy settings | `PrivacyChanged` |
+| Table | Description | Rebuilt from Event(s) | Rebuilds in ~? |
+|-------|-------------|----------------------|-----------------|
+| `public_events` | Public activity feed | All events (filtered by privacy) | Seconds |
+| `podcast_popularity` | Podcast popularity scores | `PopularityRecalculated` | Seconds |
+| `episode_popularity` | Episode popularity scores | `PopularityRecalculated` | Seconds |
+| `subscriptions` | User subscriptions (public aggregation) | `UserSubscribed`, `UserUnsubscribed` | Seconds |
+
+**Migration Management:**
+```bash
+# Generate migration
+cd apps/balados_sync_projections
+mix ecto.gen.migration add_table
+
+# Apply migration
+mix projections.migrate
+# or
+mix db.migrate  # applies both repos
+```
 
 ---
 
-### 3. `public` - Public Projections
-
-**Purpose:** Public-facing data and aggregations.
-
-**Characteristics:**
-- ✅ Event-sourced (built from EventStore)
-- ✅ Can be safely truncated and rebuilt
-- 🌐 Publicly accessible (no authentication required)
-
-**Tables:**
-
-| Table | Description | Rebuilt from Event |
-|-------|-------------|-------------------|
-| `podcast_popularity` | Podcast popularity scores | `PopularityRecalculated`, play events |
-| `episode_popularity` | Episode popularity scores | `PopularityRecalculated`, play events |
-| `public_events` | Public activity feed | Various events (filtered by privacy) |
-
----
-
-### 4. `events` - EventStore
+### EventStore - Managed by Commanded
 
 **Purpose:** Immutable source of truth for all domain events.
 
+**Schema:** `events`
+
 **Characteristics:**
-- ✅ Managed by Commanded/EventStore
-- ❌ NEVER modify manually
+- ✅ Managed by Commanded/EventStore library
+- ❌ NEVER modify manually (not even read-only queries)
 - 🔒 Events are immutable (except deletion events)
 - 🗑️  Deletion events suppress history (disappear after 45 days)
+- 🎯 Single source of truth for all projections
 
 **Tables:**
-- `streams` - Event stream metadata
-- `events` - All domain events
-- `snapshots` - Aggregate snapshots for performance
+- `streams` - Event stream metadata and offsets
+- `events` - All domain events (append-only log)
+- `snapshots` - Aggregate snapshots for performance optimization
+- `projection_versions` - Projector subscription positions
 
-**⚠️ WARNING:** Never run SQL directly against this schema. Use Commanded APIs.
+**Initialization:**
+```bash
+# Initialize once per database
+mix event_store.init -a balados_sync_core
+
+# Verify initialization
+iex -S mix
+EventStore.read_all_streams_forward()
+```
+
+**⚠️ WARNING:**
+- Never run SQL directly against this schema
+- Use Commanded APIs for event operations
+- Never modify EventStore data manually
+- If you delete events, projections will become stale
 
 ---
 
@@ -109,9 +194,10 @@ Balados Sync uses **4 PostgreSQL schemas** to organize data:
 ### `mix db.create` ✅ Initial Database Creation
 
 **What it does:**
-- Creates the PostgreSQL database
-- Creates the `system` schema and tables
-- Creates the `events` schema for EventStore
+1. Creates the PostgreSQL database(s)
+2. Creates the `system` schema via SystemRepo
+3. Creates the `events` schema for EventStore
+4. Prepares ProjectionsRepo configuration
 
 **Use after:**
 ```bash
@@ -123,13 +209,18 @@ mix deps.get
 mix db.create
 ```
 
+**Configuration:**
+- Uses `DATABASE_URL` for SystemRepo and EventStore
+- Uses `EVENT_STORE_URL` if set, otherwise uses `DATABASE_URL`
+- Can be configured to use separate databases
+
 ---
 
 ### `mix db.init` ✅ Initialize Everything at Once
 
 **What it does (in order):**
 1. Initializes the event store: `mix event_store.init -a balados_sync_core`
-2. Runs migrations for the `system` schema: `mix system_db.migrate`
+2. Runs migrations for the `system` schema: `mix system.migrate`
 
 **This is the recommended way to initialize!** It combines both initialization steps.
 
@@ -142,21 +233,62 @@ mix db.create
 mix db.init  # Replaces the need for separate event_store.init and migrations
 ```
 
+**Note:** Does NOT migrate projections (they auto-rebuild from events)
+
 ---
 
-### `mix db.migrate` - Migrate System Schema
+### `mix db.migrate` - Migrate Both Repos
 
 **What it does:**
-- Runs migrations for the `system` schema only
-- Equivalent to `mix ecto.migrate --prefix system`
+1. Runs migrations for SystemRepo (`system` schema)
+2. Runs migrations for ProjectionsRepo (`public` schema)
 
 **When to use:**
-- After creating a new migration for the `system` schema
-- To apply pending migrations
+- After creating new migrations
+- To apply all pending migrations to both repos
 
 **Example:**
 ```bash
+# Create new migration for system
+cd apps/balados_sync_projections
+mix ecto.gen.migration add_column --prefix system
+
+# Apply migrations to both repos
 mix db.migrate
+```
+
+---
+
+### `mix system.migrate` - Migrate SystemRepo Only
+
+**What it does:**
+- Runs migrations for the `system` schema only
+- Orchestrated via Mix task
+
+**When to use:**
+- When you only need to migrate system tables
+- Debugging/testing individual repo migrations
+
+**Example:**
+```bash
+mix system.migrate
+```
+
+---
+
+### `mix projections.migrate` - Migrate ProjectionsRepo Only
+
+**What it does:**
+- Runs migrations for the `public` schema only
+- Orchestrated via Mix task
+
+**When to use:**
+- When you only need to migrate projections
+- Debugging/testing individual repo migrations
+
+**Example:**
+```bash
+mix projections.migrate
 ```
 
 ---
@@ -169,17 +301,25 @@ mix db.migrate
 
 **When to use:**
 - Rarely. Only if you need to recreate just the system schema.
+- For testing separate repo initialization
 
 ---
 
-### `mix system_db.migrate` (Advanced)
+### Migration File Generation
 
-**What it does:**
-- Migrates only the `system` schema
-- Equivalent to `mix db.migrate`
+**For System Schema:**
+```bash
+cd apps/balados_sync_projections
+mix ecto.gen.migration add_column_to_users --prefix system
+# Creates: priv/system_repo/migrations/[timestamp]_add_column_to_users.exs
+```
 
-**When to use:**
-- Rarely. Use `mix db.migrate` instead for consistency.
+**For Projections Schema:**
+```bash
+cd apps/balados_sync_projections
+mix ecto.gen.migration add_public_table
+# Creates: priv/projections_repo/migrations/[timestamp]_add_public_table.exs
+```
 
 ---
 
@@ -456,7 +596,60 @@ mix db.migrate
 
 ---
 
-## Architecture Decision: Why System ≠ CQRS/ES?
+## Architecture Decisions
+
+### Decision 1: Two Distinct Ecto Repositories
+
+**Decision:** Use separate Ecto Repositories for different concerns:
+- **SystemRepo** manages infrastructure data (`system` schema)
+- **ProjectionsRepo** manages read models (`public` schema)
+
+**Rationale:**
+
+1. **Clear Separation of Concerns:**
+   - SystemRepo = Infrastructure (authentication, authorization)
+   - ProjectionsRepo = Domain projections (derived read models)
+
+2. **Operational Independence:**
+   - Can be deployed on separate databases
+   - Each repo has its own migration tracking
+   - Allows independent scaling/backup strategies
+
+3. **Flexibility:**
+   - Development: Single PostgreSQL with 3 schemas
+   - Production: Separate databases for each repo + events
+   - Both configurations supported via Elixir config
+
+4. **Future-Proof:**
+   - Easy to move projections to separate database for read-heavy workloads
+   - Can implement caching layers, replicas for projections only
+   - System schema remains stable and simple
+
+**Benefits:**
+- Clear migration isolation (no schema_migrations conflicts)
+- Independent reset strategies (can reset projections without touching system)
+- Better for scaling (projections can be read-only replicas)
+- Easier to understand each repo's purpose
+
+**Trade-offs:**
+- Configuration complexity for separate databases
+- Must carefully manage foreign keys between repos (none should exist)
+- Each repo needs its own connection pool management
+
+**Implementation:**
+```
+apps/balados_sync_projections/
+├── lib/
+│   ├── system_repo.ex          # SystemRepo module
+│   └── projections_repo.ex     # ProjectionsRepo module
+└── priv/
+    ├── system_repo/migrations/     # System schema migrations
+    └── projections_repo/migrations/ # Projections schema migrations
+```
+
+---
+
+### Decision 2: System Schema ≠ CQRS/Event Sourcing
 
 **Decision:** The `system` schema will **NEVER** be migrated to CQRS/Event Sourcing.
 
@@ -466,7 +659,7 @@ mix db.migrate
 2. **Standards:** bcrypt, sessions, OAuth follow established patterns
 3. **Separation of Concerns:**
    - `system` = Infrastructure (how the app operates)
-   - `users`/`public` = Domain (what users do)
+   - projections = Domain (what users do)
 4. **Avoid Complexity:** Event-sourcing user accounts adds little value
 5. **Security:** Direct password hashing is simpler to audit
 
@@ -480,6 +673,45 @@ mix db.migrate
 - Simpler to reason about
 - Standard security practices
 - Clear architectural boundaries
+
+---
+
+### Decision 3: Single or Multiple Databases
+
+**Decision:** Support both patterns:
+- **Development:** Single PostgreSQL database with 3 schemas
+- **Production:** Separate databases for each repo + EventStore
+
+**Rationale:**
+
+1. **Development Experience:** Simple setup, no extra infrastructure
+2. **Production Scalability:** Separate databases allow independent scaling
+3. **Operational Flexibility:** Teams can choose their strategy
+
+**Configuration:**
+
+```elixir
+# Development: Single database
+config :balados_sync_projections, BaladosSyncProjections.SystemRepo,
+  database: "balados_sync_dev"
+
+config :balados_sync_projections, BaladosSyncProjections.ProjectionsRepo,
+  database: "balados_sync_dev"  # Same database
+
+# Production: Separate databases
+config :balados_sync_projections, BaladosSyncProjections.SystemRepo,
+  database: "balados_sync_system",
+  hostname: "db-system.example.com"
+
+config :balados_sync_projections, BaladosSyncProjections.ProjectionsRepo,
+  database: "balados_sync_projections",
+  hostname: "db-projections.example.com"
+```
+
+**Benefits:**
+- No architectural lock-in
+- Allows gradual scaling as system grows
+- Each org can choose their database strategy
 
 ---
 
@@ -598,5 +830,5 @@ A: Hope you have backups. There's no undo. This is why confirmation is required 
 
 ---
 
-**Last Updated:** 2025-11-25
-**Status:** 🟢 Canonical Reference
+**Last Updated:** 2025-11-26
+**Status:** 🟢 Canonical Reference - Multi-Repo Architecture Documented

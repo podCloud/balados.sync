@@ -465,53 +465,94 @@ Tous les flux RSS personnalisés (`/user/:token/subscriptions` et `/playlist/:id
 
 ## Architecture de la Base de Données
 
-La base de données PostgreSQL utilise **4 schémas distincts** pour bien séparer les responsabilités :
+La base de données PostgreSQL utilise **4 schémas distincts** gérés par **2 Ecto Repositories** :
 
-### Schema `system` ⭐ (Données permanentes)
-**Gestion**: `mix system_db.migrate`
+### Architecture Multi-Repo
 
-Contient les données permanentes qui ne peuvent **PAS** être reconstruites :
+#### SystemRepo (Données Permanentes)
+**Gestion**: `mix system.migrate`
+
+Contient les données permanentes via la gestion de Ecto (CRUD direct) :
 - `users` : Utilisateurs enregistrés
-- `api_tokens` : Tokens JWT valides (App Auth)
-- `user_tokens` : Tokens de partage RSS
+- `app_tokens` : Tokens JWT valides (App Auth)
+- `play_tokens` : Tokens de partage RSS
 
-**Important**: Ce schéma est régénéré lors de `mix ecto.reset`, donc **ne pas effacer la BDD sans sauvegarder ces données**.
+**Caractéristiques**:
+- ❌ NOT event-sourced (JAMAIS)
+- ✅ Direct CRUD operations via Ecto
+- ⚠️  Données permanentes (non reconstruisibles)
 
-### Schema `events` (Event Store)
-**Gestion**: `mix event_store.init -a balados_sync_core` (une seule fois)
+#### ProjectionsRepo (Projections Publiques)
+**Gestion**: `mix projections.migrate`
 
-Contient **tous les événements immuables** du système, gérés par EventStore/Commanded:
-- Chaque action (Subscribe, Play, etc.) crée un event
-- Les events sont immuables (pour "supprimer", émettre nouvel event)
-- Exception: Les deletion events suppriment l'historique concerné
-
-**Important**: ❌ **NE JAMAIS** modifier manuellement ce schéma. Utiliser seulement Commanded.
-
-### Projections (Read Models)
-Les projections sont **reconstruites** depuis les events. Ce sont des données **transitoires**:
-
+Contient les **projections reconstruites** depuis les events (read models) :
 - **Schéma `public`** : Données publiques
   - `public_events` : Events publics/anonymes filtrés
   - `podcast_popularity` : Stats de popularité par podcast
   - `episode_popularity` : Stats de popularité par épisode
+  - `subscriptions` : Abonnements utilisateurs
 
-Ces projections peuvent être réinitialisées sans crainte :
-```bash
-# Réinitialise les projections SEULEMENT (préserve system + events)
-mix ecto.reset --prefix public
+**Caractéristiques**:
+- ✅ Event-sourced (reconstruites depuis EventStore)
+- ✅ Peuvent être réinitialisées sans crainte (`mix db.reset --projections`)
+- 🔄 Automatiquement reconstruites via les projectors
+
+#### EventStore (Commanded)
+**Gestion**: `mix event_store.init -a balados_sync_core` (une seule fois)
+
+Contient **tous les événements immuables** du système :
+- Chaque action (Subscribe, Play, etc.) crée un event
+- Les events sont immuables (pour "supprimer", émettre nouvel event)
+- Exception: Les deletion events suppriment l'historique concerné
+
+**Important**: ❌ **NE JAMAIS** modifier manuellement. Géré uniquement par Commanded.
+
+### Configuration Flexible
+
+Ces deux repos **peuvent être dans la même BDD PostgreSQL avec schemas différents** (par défaut en dev) :
+```sql
+-- Une seule BDD avec 3 schemas
+CREATE SCHEMA system;    -- SystemRepo
+CREATE SCHEMA public;    -- ProjectionsRepo
+CREATE SCHEMA events;    -- EventStore
 ```
 
-### Résumé et Commandes
+Ou **séparés en différentes BDD** pour une meilleure isolation (recommandé en prod) :
+```
+balados_sync_system      → SystemRepo (schema system)
+balados_sync_projections → ProjectionsRepo (schema public)
+balados_sync_events      → EventStore (schema events)
+```
 
-| Schéma | Type | Contenu | Commande |
-|--------|------|---------|----------|
-| `system` | Permanent | Users, tokens | `mix system_db.migrate` |
-| `events` | Permanent | Event log immuable | `mix event_store.init -a balados_sync_core` |
-| `public` | Transitoire | Projections publiques | Auto-replay depuis events |
+### Commandes Référence
+
+| Commande | Cible | Contenu |
+|----------|-------|---------|
+| `mix db.create` | Tous | Crée BDD et schemas |
+| `mix db.init` | system + events | Initialise tout d'un coup |
+| `mix db.migrate` | system + projections | Migre les deux repos |
+| `mix system.migrate` | system | Migre SEULEMENT SystemRepo |
+| `mix projections.migrate` | public | Migre SEULEMENT ProjectionsRepo |
+
+### Reset Commands
+
+```bash
+# ✅ SAFE - Reset projections uniquement (preserve system + events)
+mix db.reset --projections
+
+# ⚠️  DANGER - Reset system schema (users, tokens)
+mix db.reset --system
+
+# ☢️ EXTREME - Reset event store
+mix db.reset --events
+
+# ☢️☢️ EXTREME - Reset TOUT
+mix db.reset --all
+```
 
 **Danger**:
-- ❌ `mix ecto.reset` sans `--prefix` = **réinitialise TOUT** (events + system)
-- ✅ `mix ecto.reset --prefix public` = Réinitialise projections seulement
+- ❌ `mix ecto.reset` = Réinitialise TOUT (events + system), **éviter**
+- ✅ `mix db.reset --projections` = Réinitialise projections seulement, **SAFE**
 
 ## Worker de maintenance
 
