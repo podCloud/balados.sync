@@ -46,6 +46,12 @@ defmodule BaladosSyncJobs.MixProject do
   #
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
-    []
+    [
+      # Safety: block all direct ecto.* commands
+      "ecto.drop": "ecto.disabled.drop",
+      "ecto.reset": "ecto.disabled.reset",
+      "ecto.migrate": "ecto.disabled.migrate",
+      "ecto.create": "ecto.disabled.create"
+    ]
   end
 end

@@ -56,13 +56,11 @@ defmodule BaladosSyncProjections.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      # Require confirmation for ecto.reset (DANGER: deletes everything)
-      "ecto.reset": ["ecto.reset_confirm"],
-      # Force reset without confirmation (use with extreme caution!)
-      "ecto.reset!": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+      # Safety: block all direct ecto.* commands
+      "ecto.drop": "ecto.disabled.drop",
+      "ecto.reset": "ecto.disabled.reset",
+      "ecto.migrate": "ecto.disabled.migrate",
+      "ecto.create": "ecto.disabled.create"
     ]
   end
 end

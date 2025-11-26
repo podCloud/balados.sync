@@ -49,9 +49,13 @@ defmodule BaladosSync.Umbrella.MixProject do
       # run `mix setup` in all child apps
       setup: ["cmd mix setup"],
       # Database setup - full initialization
-      "db.create": ["system_db.create", "event_store.create -a balados_sync_core"],
-      "db.init": ["event_store.init -a balados_sync_core", "system_db.migrate"],
-      "db.migrate": ["system_db.migrate"]
+      "db.create": ["system_db.create", "event_store.create"],
+      "db.init": ["system_db.create", "event_store.init", "system_db.init_schema", "db.migrate"],
+      # Safety: block all direct ecto.* commands, redirect to safe wrappers
+      "ecto.drop": "ecto.disabled.drop",
+      "ecto.reset": "ecto.disabled.reset",
+      "ecto.migrate": "ecto.disabled.migrate",
+      "ecto.create": "ecto.disabled.create"
     ]
   end
 

@@ -74,7 +74,11 @@ defmodule BaladosSyncWeb.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "assets.setup", "assets.build"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      # Safety: block all direct ecto.* commands
+      "ecto.drop": "ecto.disabled.drop",
+      "ecto.reset": "ecto.disabled.reset",
+      "ecto.migrate": "ecto.disabled.migrate",
+      "ecto.create": "ecto.disabled.create",
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind balados_sync_web", "esbuild balados_sync_web"],
       "assets.deploy": [
