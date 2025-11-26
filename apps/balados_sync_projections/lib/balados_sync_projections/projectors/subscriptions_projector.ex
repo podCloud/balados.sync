@@ -1,7 +1,7 @@
 defmodule BaladosSyncProjections.Projectors.SubscriptionsProjector do
   use Commanded.Projections.Ecto,
     application: BaladosSyncCore.Dispatcher,
-    repo: BaladosSyncProjections.Repo,
+    repo: BaladosSyncProjections.ProjectionsRepo,
     name: "SubscriptionsProjector"
 
   alias BaladosSyncCore.Events.{UserSubscribed, UserUnsubscribed, UserCheckpoint}

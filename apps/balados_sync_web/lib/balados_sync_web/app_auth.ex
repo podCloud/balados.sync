@@ -22,7 +22,7 @@ defmodule BaladosSyncWeb.AppAuth do
 
   require Logger
 
-  alias BaladosSyncProjections.Repo
+  alias BaladosSyncProjections.SystemRepo
   alias BaladosSyncProjections.Schemas.AppToken
   alias BaladosSyncWeb.Scopes
   import Ecto.Query
@@ -88,7 +88,7 @@ defmodule BaladosSyncWeb.AppAuth do
 
             %AppToken{}
             |> AppToken.changeset(attrs)
-            |> Repo.insert()
+            |> SystemRepo.insert()
 
           existing_token when is_nil(existing_token.revoked_at) ->
             Logger.debug(
@@ -98,7 +98,7 @@ defmodule BaladosSyncWeb.AppAuth do
             # Update existing authorization (e.g., new scopes requested)
             existing_token
             |> AppToken.changeset(attrs)
-            |> Repo.update()
+            |> SystemRepo.update()
 
           existing_token ->
             Logger.debug(
@@ -108,7 +108,7 @@ defmodule BaladosSyncWeb.AppAuth do
             # Token was revoked, reactivate it
             existing_token
             |> AppToken.changeset(Map.put(attrs, :revoked_at, nil))
-            |> Repo.update()
+            |> SystemRepo.update()
         end
 
       {:error, invalid_scopes} ->
@@ -126,7 +126,7 @@ defmodule BaladosSyncWeb.AppAuth do
         order_by: [desc: t.inserted_at]
       )
 
-    Repo.all(query)
+    SystemRepo.all(query)
   end
 
   @doc """
@@ -140,14 +140,14 @@ defmodule BaladosSyncWeb.AppAuth do
         where: t.user_id == ^user_id and t.app_id == ^app_id and is_nil(t.revoked_at)
       )
 
-    case Repo.one(query) do
+    case SystemRepo.one(query) do
       nil ->
         {:error, :not_found}
 
       token ->
         token
         |> AppToken.revoke_changeset()
-        |> Repo.update()
+        |> SystemRepo.update()
     end
   end
 
@@ -187,14 +187,14 @@ defmodule BaladosSyncWeb.AppAuth do
         where: t.app_id == ^app_id and t.public_key == ^public_key and is_nil(t.revoked_at),
         select: count(t.user_id, :distinct)
       )
-      |> Repo.one()
+      |> SystemRepo.one()
 
     # Count total users (distinct user_ids in app_tokens table)
     total_users =
       from(t in AppToken,
         select: count(t.user_id, :distinct)
       )
-      |> Repo.one()
+      |> SystemRepo.one()
 
     if total_users > 0 do
       percentage = app_user_count / total_users * 100.0
@@ -246,7 +246,7 @@ defmodule BaladosSyncWeb.AppAuth do
         where: t.user_id == ^user_id and t.app_id == ^app_id
       )
 
-    Repo.one(query)
+    SystemRepo.one(query)
   end
 
   defp get_active_token(user_id, app_id) do
@@ -255,7 +255,7 @@ defmodule BaladosSyncWeb.AppAuth do
         where: t.user_id == ^user_id and t.app_id == ^app_id and is_nil(t.revoked_at)
       )
 
-    case Repo.one(query) do
+    case SystemRepo.one(query) do
       nil -> {:error, :token_not_found}
       token -> {:ok, token}
     end
@@ -264,7 +264,7 @@ defmodule BaladosSyncWeb.AppAuth do
   defp update_last_used(app_token) do
     Task.start(fn ->
       from(t in AppToken, where: t.id == ^app_token.id)
-      |> Repo.update_all(set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)])
+      |> SystemRepo.update_all(set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)])
     end)
   end
 end

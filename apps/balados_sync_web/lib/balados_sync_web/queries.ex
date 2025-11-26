@@ -1,6 +1,6 @@
 defmodule BaladosSyncWeb.Queries do
   import Ecto.Query
-  alias BaladosSyncProjections.Repo
+  alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.{Subscription, PlayStatus, Playlist, PlaylistItem}
 
   def get_user_subscriptions(user_id) do
@@ -9,7 +9,7 @@ defmodule BaladosSyncWeb.Queries do
       where: is_nil(s.unsubscribed_at) or s.subscribed_at > s.unsubscribed_at,
       order_by: [desc: s.subscribed_at]
     )
-    |> Repo.all()
+    |> ProjectionsRepo.all()
     |> Enum.map(&format_subscription/1)
   end
 
@@ -18,7 +18,7 @@ defmodule BaladosSyncWeb.Queries do
       where: ps.user_id == ^user_id,
       order_by: [desc: ps.updated_at]
     )
-    |> Repo.all()
+    |> ProjectionsRepo.all()
     |> Enum.map(&format_play_status/1)
   end
 
@@ -29,7 +29,7 @@ defmodule BaladosSyncWeb.Queries do
         order_by: [desc: p.updated_at],
         preload: [items: ^active_playlist_items_query()]
       )
-      |> Repo.all()
+      |> ProjectionsRepo.all()
 
     Enum.map(playlists, &format_playlist/1)
   end

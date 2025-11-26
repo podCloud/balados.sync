@@ -3,7 +3,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   import Ecto.Query
 
   alias BaladosSyncCore.Commands.Snapshot
-  alias BaladosSyncProjections.Repo
+  alias BaladosSyncProjections.ProjectionsRepo
 
   @forty_five_days_ago_seconds 45 * 24 * 60 * 60
   @thirty_one_days_ago_seconds 31 * 24 * 60 * 60
@@ -128,7 +128,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
         select: pe.rss_source_feed
       )
 
-    Repo.all(query)
+    ProjectionsRepo.all(query)
   end
 
   defp get_distinct_items do
@@ -139,7 +139,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
         select: %{feed: pe.rss_source_feed, item: pe.rss_source_item}
       )
 
-    Repo.all(query)
+    ProjectionsRepo.all(query)
   end
 
   defp calculate_feed_popularity(feed) do
@@ -154,7 +154,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
         group_by: pe.event_type
       )
 
-    results = Repo.all(query)
+    results = ProjectionsRepo.all(query)
 
     total_score =
       Enum.reduce(results, 0, fn %{event_type: type, count: count}, acc ->
@@ -172,7 +172,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
 
     # Mettre à jour podcast_popularity
     from(p in "public.podcast_popularity", where: p.rss_source_feed == ^feed)
-    |> Repo.update_all(
+    |> ProjectionsRepo.update_all(
       set: [
         plays_previous: total_score,
         updated_at: DateTime.utc_now()
@@ -193,7 +193,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
         group_by: pe.event_type
       )
 
-    results = Repo.all(query)
+    results = ProjectionsRepo.all(query)
 
     total_score =
       Enum.reduce(results, 0, fn %{event_type: type, count: count}, acc ->
@@ -210,7 +210,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
 
     # Mettre à jour episode_popularity
     from(e in "public.episode_popularity", where: e.rss_source_item == ^item)
-    |> Repo.update_all(
+    |> ProjectionsRepo.update_all(
       set: [
         plays_previous: total_score,
         updated_at: DateTime.utc_now()

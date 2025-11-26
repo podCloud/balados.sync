@@ -3,7 +3,8 @@ defmodule BaladosSyncProjections.Application do
 
   def start(_type, _args) do
     children = [
-      BaladosSyncProjections.Repo,
+      BaladosSyncProjections.SystemRepo,
+      BaladosSyncProjections.ProjectionsRepo,
       # Les projectors qui écoutent les events
       BaladosSyncProjections.Projectors.SubscriptionsProjector,
       BaladosSyncProjections.Projectors.PlayStatusesProjector,

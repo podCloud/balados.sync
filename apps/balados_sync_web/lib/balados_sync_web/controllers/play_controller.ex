@@ -27,7 +27,7 @@ defmodule BaladosSyncWeb.PlayController do
 
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.{RecordPlay, UpdatePosition}
-  alias BaladosSyncProjections.Repo
+  alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.PlayStatus
   alias BaladosSyncWeb.Plugs.JWTAuth
   import Ecto.Query
@@ -131,7 +131,7 @@ defmodule BaladosSyncWeb.PlayController do
     device_name = conn.assigns.device_name
 
     # Récupérer le feed depuis les projections
-    play_status = Repo.get_by(PlayStatus, user_id: user_id, rss_source_item: item)
+    play_status = ProjectionsRepo.get_by(PlayStatus, user_id: user_id, rss_source_item: item)
 
     command = %UpdatePosition{
       user_id: user_id,
@@ -225,14 +225,14 @@ defmodule BaladosSyncWeb.PlayController do
       query
       |> limit(^limit)
       |> offset(^offset)
-      |> Repo.all()
+      |> ProjectionsRepo.all()
 
     json(conn, %{
       play_statuses: play_statuses,
       pagination: %{
         limit: limit,
         offset: offset,
-        total: Repo.aggregate(query, :count)
+        total: ProjectionsRepo.aggregate(query, :count)
       }
     })
   end

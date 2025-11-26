@@ -1,7 +1,7 @@
 defmodule BaladosSyncWeb.AdminController do
   use BaladosSyncWeb, :controller
   alias BaladosSyncWeb.Accounts
-  alias BaladosSyncProjections.Repo
+  alias BaladosSyncProjections.ProjectionsRepo
   import Ecto.Query
 
   plug :require_admin
@@ -62,7 +62,7 @@ defmodule BaladosSyncWeb.AdminController do
     WHERE data->>'rss_source_feed' IS NOT NULL
     """
 
-    case Repo.query(query) do
+    case ProjectionsRepo.query(query) do
       {:ok, %{rows: [[count]]}} -> count || 0
       _ -> 0
     end
@@ -84,8 +84,8 @@ defmodule BaladosSyncWeb.AdminController do
     WHERE created_at >= NOW() - INTERVAL '5 minutes'
     """
 
-    with {:ok, %{rows: [[total, first_event]]}} <- Repo.query(query_total),
-         {:ok, %{rows: [[recent]]}} <- Repo.query(query_recent) do
+    with {:ok, %{rows: [[total, first_event]]}} <- ProjectionsRepo.query(query_total),
+         {:ok, %{rows: [[recent]]}} <- ProjectionsRepo.query(query_recent) do
       # Calculer taux global
       global_rate =
         if first_event && total > 0 do
@@ -131,7 +131,7 @@ defmodule BaladosSyncWeb.AdminController do
         limit: ^limit
       )
 
-    Repo.all(query)
+    ProjectionsRepo.all(query)
   end
 
   defp get_top_episodes(limit) do
@@ -148,7 +148,7 @@ defmodule BaladosSyncWeb.AdminController do
         limit: ^limit
       )
 
-    Repo.all(query)
+    ProjectionsRepo.all(query)
   end
 
   defp get_cache_stats(feed_url) do

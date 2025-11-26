@@ -1,7 +1,7 @@
 defmodule BaladosSyncWeb.PublicController do
   use BaladosSyncWeb, :controller
 
-  alias BaladosSyncProjections.Repo
+  alias BaladosSyncProjections.ProjectionsRepo
 
   alias BaladosSyncProjections.Schemas.{
     PodcastPopularity,
@@ -21,7 +21,7 @@ defmodule BaladosSyncWeb.PublicController do
         limit: ^limit
       )
 
-    podcasts = Repo.all(query)
+    podcasts = ProjectionsRepo.all(query)
 
     json(conn, %{podcasts: podcasts})
   end
@@ -43,13 +43,13 @@ defmodule BaladosSyncWeb.PublicController do
         query
       end
 
-    episodes = Repo.all(query)
+    episodes = ProjectionsRepo.all(query)
 
     json(conn, %{episodes: episodes})
   end
 
   def feed_popularity(conn, %{"feed" => feed}) do
-    case Repo.get(PodcastPopularity, feed) do
+    case ProjectionsRepo.get(PodcastPopularity, feed) do
       nil ->
         conn
         |> put_status(:not_found)
@@ -61,7 +61,7 @@ defmodule BaladosSyncWeb.PublicController do
   end
 
   def episode_popularity(conn, %{"item" => item}) do
-    case Repo.get(EpisodePopularity, item) do
+    case ProjectionsRepo.get(EpisodePopularity, item) do
       nil ->
         conn
         |> put_status(:not_found)
@@ -108,7 +108,7 @@ defmodule BaladosSyncWeb.PublicController do
         query
       end
 
-    events = Repo.all(query)
+    events = ProjectionsRepo.all(query)
 
     # Masquer les user_id si privacy == anonymous
     events =

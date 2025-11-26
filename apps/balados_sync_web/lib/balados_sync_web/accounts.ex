@@ -4,7 +4,7 @@ defmodule BaladosSyncWeb.Accounts do
   """
 
   import Ecto.Query, warn: false
-  alias BaladosSyncProjections.Repo
+  alias BaladosSyncProjections.SystemRepo
   alias BaladosSyncProjections.Schemas.User
 
   ## User registration
@@ -24,7 +24,7 @@ defmodule BaladosSyncWeb.Accounts do
   def register_user(attrs) do
     %User{}
     |> User.registration_changeset(attrs)
-    |> Repo.insert()
+    |> SystemRepo.insert()
   end
 
   @doc """
@@ -55,7 +55,7 @@ defmodule BaladosSyncWeb.Accounts do
 
   """
   def get_user_by_email(email) when is_binary(email) do
-    Repo.get_by(User, email: email)
+    SystemRepo.get_by(User, email: email)
   end
 
   @doc """
@@ -75,7 +75,7 @@ defmodule BaladosSyncWeb.Accounts do
   """
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
-    user = Repo.get_by(User, email: email)
+    user = SystemRepo.get_by(User, email: email)
     verify_user_password(user, password)
   end
 
@@ -93,7 +93,7 @@ defmodule BaladosSyncWeb.Accounts do
   """
   def get_user_by_username_and_password(username, password)
       when is_binary(username) and is_binary(password) do
-    user = Repo.get_by(User, username: username)
+    user = SystemRepo.get_by(User, username: username)
     verify_user_password(user, password)
   end
 
@@ -115,7 +115,7 @@ defmodule BaladosSyncWeb.Accounts do
         {:ok, updated_user} =
           user
           |> User.reset_failed_attempts_changeset()
-          |> Repo.update()
+          |> SystemRepo.update()
 
         {:ok, updated_user}
 
@@ -124,7 +124,7 @@ defmodule BaladosSyncWeb.Accounts do
         # Increment failed attempts
         user
         |> User.increment_failed_attempts_changeset()
-        |> Repo.update()
+        |> SystemRepo.update()
 
         {:error, :invalid_credentials}
     end
@@ -143,14 +143,14 @@ defmodule BaladosSyncWeb.Accounts do
 
   """
   def get_user(id) do
-    Repo.get(User, id)
+    SystemRepo.get(User, id)
   end
 
   @doc """
   Gets a user by username.
   """
   def get_user_by_username(username) when is_binary(username) do
-    Repo.get_by(User, username: username)
+    SystemRepo.get_by(User, username: username)
   end
 
   ## User confirmation
@@ -161,7 +161,7 @@ defmodule BaladosSyncWeb.Accounts do
   def confirm_user(%User{} = user) do
     user
     |> User.confirm_changeset()
-    |> Repo.update()
+    |> SystemRepo.update()
   end
 
   ## Account locking
@@ -172,7 +172,7 @@ defmodule BaladosSyncWeb.Accounts do
   def lock_user(%User{} = user) do
     user
     |> User.lock_changeset()
-    |> Repo.update()
+    |> SystemRepo.update()
   end
 
   @doc """
@@ -181,7 +181,7 @@ defmodule BaladosSyncWeb.Accounts do
   def unlock_user(%User{} = user) do
     user
     |> User.unlock_changeset()
-    |> Repo.update()
+    |> SystemRepo.update()
   end
 
   ## Admin functions
@@ -190,14 +190,14 @@ defmodule BaladosSyncWeb.Accounts do
   Checks if any users exist in the system.
   """
   def any_users_exist? do
-    Repo.exists?(User)
+    SystemRepo.exists?(User)
   end
 
   @doc """
   Counts total number of users.
   """
   def count_users do
-    Repo.aggregate(User, :count, :id)
+    SystemRepo.aggregate(User, :count, :id)
   end
 
   @doc """
@@ -207,7 +207,7 @@ defmodule BaladosSyncWeb.Accounts do
     %User{}
     |> User.registration_changeset(attrs)
     |> Ecto.Changeset.put_change(:is_admin, true)
-    |> Repo.insert()
+    |> SystemRepo.insert()
   end
 
   @doc """

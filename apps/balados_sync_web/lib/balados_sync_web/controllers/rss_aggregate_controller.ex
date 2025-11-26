@@ -3,7 +3,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
   require Logger
 
   alias BaladosSyncWeb.RssCache
-  alias BaladosSyncProjections.Repo
+  alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.{PlayToken, Subscription, Playlist, PlaylistItem}
   import Ecto.Query
 
@@ -69,7 +69,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
         select: t.user_id
       )
 
-    case Repo.one(query) do
+    case ProjectionsRepo.one(query) do
       nil -> {:error, :invalid_token}
       user_id -> {:ok, user_id}
     end
@@ -82,7 +82,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
         where: is_nil(s.unsubscribed_at) or s.subscribed_at > s.unsubscribed_at,
         select: %{feed: s.rss_source_feed, title: s.rss_feed_title}
       )
-      |> Repo.all()
+      |> ProjectionsRepo.all()
 
     {:ok, subscriptions}
   end
@@ -93,7 +93,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
         where: p.user_id == ^user_id and p.id == ^playlist_id,
         preload: [items: ^from(pi in PlaylistItem, where: is_nil(pi.deleted_at))]
       )
-      |> Repo.one()
+      |> ProjectionsRepo.one()
 
     case playlist do
       nil -> {:error, :not_found}
@@ -315,7 +315,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
   defp update_token_last_used(token) do
     Task.start(fn ->
       from(t in PlayToken, where: t.token == ^token)
-      |> Repo.update_all(set: [last_used_at: DateTime.utc_now()])
+      |> ProjectionsRepo.update_all(set: [last_used_at: DateTime.utc_now()])
     end)
   end
 end

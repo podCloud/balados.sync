@@ -18,7 +18,7 @@ defmodule BaladosSyncProjections.DataCase do
 
   using do
     quote do
-      alias BaladosSyncProjections.Repo
+      alias BaladosSyncProjections.ProjectionsRepo
 
       import Ecto
       import Ecto.Changeset

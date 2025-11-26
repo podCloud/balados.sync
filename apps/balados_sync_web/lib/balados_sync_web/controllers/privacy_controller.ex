@@ -3,7 +3,7 @@ defmodule BaladosSyncWeb.PrivacyController do
 
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.ChangePrivacy
-  alias BaladosSyncProjections.Repo
+  alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.UserPrivacy
   alias BaladosSyncWeb.Plugs.JWTAuth
   import Ecto.Query
@@ -71,7 +71,7 @@ defmodule BaladosSyncWeb.PrivacyController do
         query
       end
 
-    privacy_settings = Repo.all(query)
+    privacy_settings = ProjectionsRepo.all(query)
 
     json(conn, %{privacy_settings: privacy_settings})
   end

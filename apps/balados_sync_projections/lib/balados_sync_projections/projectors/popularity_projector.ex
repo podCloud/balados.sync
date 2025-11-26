@@ -1,7 +1,7 @@
 defmodule BaladosSyncProjections.Projectors.PopularityProjector do
   use Commanded.Projections.Ecto,
     application: BaladosSyncCore.Dispatcher,
-    repo: BaladosSyncProjections.Repo,
+    repo: BaladosSyncProjections.ProjectionsRepo,
     name: "PopularityProjector"
 
   import Ecto.Query
@@ -41,7 +41,7 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
         select: p.privacy
       )
 
-    privacy = BaladosSyncProjections.Repo.one(query) || "public"
+    privacy = BaladosSyncProjections.ProjectionsRepo.one(query) || "public"
     privacy == "public"
   end
 

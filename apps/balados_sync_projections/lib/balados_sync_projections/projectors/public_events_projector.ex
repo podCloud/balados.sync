@@ -1,7 +1,7 @@
 defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
   use Commanded.Projections.Ecto,
     application: BaladosSyncCore.Dispatcher,
-    repo: BaladosSyncProjections.Repo,
+    repo: BaladosSyncProjections.ProjectionsRepo,
     name: "PublicEventsProjector"
 
   import Ecto.Query
@@ -35,7 +35,7 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
         select: p.privacy
       )
 
-    BaladosSyncProjections.Repo.one(query) || :public
+    BaladosSyncProjections.ProjectionsRepo.one(query) || :public
   end
 
   project(%UserSubscribed{} = event, _metadata, fn multi ->

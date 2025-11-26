@@ -1,7 +1,7 @@
 defmodule BaladosSyncProjections.Projectors.PlayStatusesProjector do
   use Commanded.Projections.Ecto,
     application: BaladosSyncCore.Dispatcher,
-    repo: BaladosSyncProjections.Repo,
+    repo: BaladosSyncProjections.ProjectionsRepo,
     name: "PlayStatusesProjector"
 
   alias BaladosSyncCore.Events.{PlayRecorded, PositionUpdated, UserCheckpoint}

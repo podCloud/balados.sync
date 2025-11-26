@@ -30,7 +30,7 @@ defmodule Mix.Tasks.ResetSystem do
 
   use Mix.Task
 
-  alias BaladosSyncProjections.Repo
+  alias BaladosSyncProjections.SystemRepo
 
   @system_tables [
     "users",
@@ -72,18 +72,18 @@ defmodule Mix.Tasks.ResetSystem do
     Mix.shell().info("")
     Mix.shell().info("Truncating system tables...")
 
-    Repo.transaction(fn ->
+    SystemRepo.transaction(fn ->
       # Disable triggers and foreign key constraints temporarily
-      Repo.query!("SET session_replication_role = replica")
+      SystemRepo.query!("SET session_replication_role = replica")
 
       # Truncate system schema tables
       Enum.each(@system_tables, fn table ->
         Mix.shell().info("  - system.#{table}")
-        Repo.query!("TRUNCATE TABLE system.#{table} CASCADE")
+        SystemRepo.query!("TRUNCATE TABLE system.#{table} CASCADE")
       end)
 
       # Re-enable constraints
-      Repo.query!("SET session_replication_role = DEFAULT")
+      SystemRepo.query!("SET session_replication_role = DEFAULT")
     end)
   end
 end

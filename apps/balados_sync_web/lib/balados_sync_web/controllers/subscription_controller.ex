@@ -28,7 +28,7 @@ defmodule BaladosSyncWeb.SubscriptionController do
 
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.{Subscribe, Unsubscribe}
-  alias BaladosSyncProjections.Repo
+  alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.Subscription
   alias BaladosSyncWeb.Plugs.JWTAuth
   import Ecto.Query
@@ -128,7 +128,7 @@ defmodule BaladosSyncWeb.SubscriptionController do
     device_name = conn.assigns.device_name
 
     # Récupérer le source_id depuis les projections
-    subscription = Repo.get_by(Subscription, user_id: user_id, rss_source_feed: feed)
+    subscription = ProjectionsRepo.get_by(Subscription, user_id: user_id, rss_source_feed: feed)
 
     command = %Unsubscribe{
       user_id: user_id,
@@ -185,7 +185,7 @@ defmodule BaladosSyncWeb.SubscriptionController do
         where: s.user_id == ^user_id,
         where: is_nil(s.unsubscribed_at) or s.subscribed_at > s.unsubscribed_at
       )
-      |> Repo.all()
+      |> ProjectionsRepo.all()
 
     json(conn, %{subscriptions: subscriptions})
   end

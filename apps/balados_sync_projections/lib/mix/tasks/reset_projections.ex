@@ -34,7 +34,7 @@ defmodule Mix.Tasks.ResetProjections do
 
   use Mix.Task
 
-  alias BaladosSyncProjections.Repo
+  alias BaladosSyncProjections.ProjectionsRepo
 
   @projection_tables_users [
     "subscriptions",
@@ -72,24 +72,24 @@ defmodule Mix.Tasks.ResetProjections do
   defp truncate_projections do
     Mix.shell().info("Truncating projection tables...")
 
-    Repo.transaction(fn ->
+    ProjectionsRepo.transaction(fn ->
       # Disable triggers and foreign key constraints temporarily
-      Repo.query!("SET session_replication_role = replica")
+      ProjectionsRepo.query!("SET session_replication_role = replica")
 
       # Truncate users schema projections
       Enum.each(@projection_tables_users, fn table ->
         Mix.shell().info("  - users.#{table}")
-        Repo.query!("TRUNCATE TABLE users.#{table} CASCADE")
+        ProjectionsRepo.query!("TRUNCATE TABLE users.#{table} CASCADE")
       end)
 
       # Truncate public schema projections
       Enum.each(@projection_tables_public, fn table ->
         Mix.shell().info("  - public.#{table}")
-        Repo.query!("TRUNCATE TABLE public.#{table} CASCADE")
+        ProjectionsRepo.query!("TRUNCATE TABLE public.#{table} CASCADE")
       end)
 
       # Re-enable constraints
-      Repo.query!("SET session_replication_role = DEFAULT")
+      ProjectionsRepo.query!("SET session_replication_role = DEFAULT")
     end)
   end
 
