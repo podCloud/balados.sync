@@ -17,14 +17,14 @@ defmodule BaladosSyncWeb.SetupController do
   end
 
   # Crée le premier admin
-  def create(conn, %{"setup" => setup_params}) do
+  def create(conn, %{"user" => user_params}) do
     if Accounts.any_users_exist?() do
       # Protection contre race condition
       conn
       |> put_flash(:error, "System already configured")
       |> redirect(to: ~p"/")
     else
-      case Accounts.register_admin_user(setup_params) do
+      case Accounts.register_admin_user(user_params) do
         {:ok, user} ->
           conn
           |> put_flash(:info, "Welcome! You are now the admin of this Balados Sync instance.")

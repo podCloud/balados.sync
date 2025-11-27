@@ -99,7 +99,21 @@ defmodule BaladosSyncWeb.Plugs.UserAuth do
   """
   def fetch_current_user(conn, _opts) do
     {user_token, conn} = ensure_user_token(conn)
-    user = user_token && Accounts.get_user(user_token)
+
+    user =
+      if user_token do
+        try do
+          Accounts.get_user(user_token)
+        rescue
+          Postgrex.Error ->
+            # If there's a database error (e.g., corrupted session data), return nil
+            # This allows the user to proceed without crashing
+            nil
+        end
+      else
+        nil
+      end
+
     assign(conn, :current_user, user)
   end
 
