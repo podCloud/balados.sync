@@ -2,7 +2,7 @@ defmodule BaladosSyncProjections.Schemas.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @primary_key {:id, :binary_id, autogenerate: true}
+  @primary_key {:id, :string, autogenerate: {Ecto.UUID, :generate, []}}
   @schema_prefix "system"
   schema "users" do
     field :email, :string

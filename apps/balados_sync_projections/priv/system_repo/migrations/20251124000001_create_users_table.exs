@@ -6,7 +6,7 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreateUsersTable do
       add :id, :string, primary_key: true
       add :email, :string
       add :username, :string
-      add :hashed_password, :string
+      add :hashed_password, :text
       add :confirmed_at, :utc_datetime
       add :locked_at, :utc_datetime
       add :failed_login_attempts, :integer, default: 0

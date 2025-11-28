@@ -204,10 +204,22 @@ defmodule BaladosSyncWeb.Accounts do
   Registers the first admin user during initial setup.
   """
   def register_admin_user(attrs) do
-    %User{}
-    |> User.registration_changeset(attrs)
-    |> Ecto.Changeset.put_change(:is_admin, true)
-    |> SystemRepo.insert()
+    require Logger
+
+    changeset =
+      %User{}
+      |> User.registration_changeset(attrs)
+      |> Ecto.Changeset.put_change(:is_admin, true)
+
+    Logger.debug("Register admin changeset changes: #{inspect(changeset.changes, pretty: true)}")
+    Logger.debug("Register admin changeset data: #{inspect(changeset.data, pretty: true)}")
+
+    # Log each field and its value before insert
+    Enum.each(changeset.changes, fn {key, value} ->
+      Logger.debug("  #{key}: #{inspect(value)}")
+    end)
+
+    SystemRepo.insert(changeset)
   end
 
   @doc """

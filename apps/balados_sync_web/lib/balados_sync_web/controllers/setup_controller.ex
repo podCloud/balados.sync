@@ -38,7 +38,16 @@ defmodule BaladosSyncWeb.SetupController do
       rescue
         error in Postgrex.Error ->
           require Logger
-          Logger.error("Setup error: #{inspect(error)}")
+          Logger.error("Setup error details:")
+          Logger.error("  Message: #{error.message}")
+          Logger.error("  Postgres code: #{inspect(error.postgres[:code])}")
+          Logger.error("  Postgres message: #{error.postgres[:message]}")
+          Logger.error("  Query: #{error.query}")
+          Logger.error("  Full error: #{inspect(error)}")
+
+          # Log user params for debugging
+          Logger.error("  User params: #{inspect(user_params, pretty: true)}")
+
           changeset = Accounts.change_user_registration(%User{})
           conn
           |> put_flash(:error, "Database error. Check logs.")
