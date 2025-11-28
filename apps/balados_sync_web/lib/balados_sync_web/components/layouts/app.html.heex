@@ -16,6 +16,11 @@
         <.link navigate={~p"/dashboard"} class="hover:text-zinc-700">
           Dashboard
         </.link>
+        <%= if BaladosSyncWeb.Accounts.admin?(@current_user) do %>
+          <.link navigate={~p"/admin"} class="text-blue-600 hover:text-blue-700 font-semibold">
+            Admin
+          </.link>
+        <% end %>
         <.link
           href={~p"/users/log_out"}
           method="delete"
