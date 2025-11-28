@@ -14,7 +14,8 @@
       "Bash(tree:*)",
       "Bash(timeout 15 mix compile:*)",
       "Bash(mix format:*)",
-      "WebFetch(domain:hexdocs.pm)"
+      "WebFetch(domain:hexdocs.pm)",
+      "Bash(psql:*)"
     ],
     "deny": [],
     "ask": []

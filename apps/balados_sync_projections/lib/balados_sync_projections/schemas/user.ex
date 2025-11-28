@@ -78,12 +78,9 @@ defmodule BaladosSyncProjections.Schemas.User do
 
     if hash_password? && password && changeset.valid? do
       changeset
-      # Hashing could be done with `Bcrypt`, but in such case as you are
-      # using a library, make sure to hash the password in a separate
-      # process, as `Bcrypt.hash_pwd_salt/1` is CPU intensive and can
-      # cause your application to hang.
-      |> validate_length(:password, max: 72, count: :bytes)
-      |> put_change(:hashed_password, Bcrypt.hash_pwd_salt(password))
+      # Using Argon2 for password hashing (best practice 2025)
+      # Make sure to hash the password in a separate process as it is CPU intensive
+      |> put_change(:hashed_password, Argon2.hash_pwd_salt(password))
       |> delete_change(:password)
     else
       changeset
@@ -191,15 +188,15 @@ defmodule BaladosSyncProjections.Schemas.User do
   Verifies the password.
 
   If there is no user or the user doesn't have a password, we call
-  `Bcrypt.no_user_verify/0` to avoid timing attacks.
+  `Argon2.no_user_verify/0` to avoid timing attacks.
   """
   def valid_password?(%__MODULE__{hashed_password: hashed_password}, password)
       when is_binary(hashed_password) and byte_size(password) > 0 do
-    Bcrypt.verify_pass(password, hashed_password)
+    Argon2.verify_pass(password, hashed_password)
   end
 
   def valid_password?(_, _) do
-    Bcrypt.no_user_verify()
+    Argon2.no_user_verify()
     false
   end
 

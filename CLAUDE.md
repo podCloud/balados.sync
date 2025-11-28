@@ -598,3 +598,4 @@ Le projet vise à devenir open source et communautaire. Guidelines de contributi
 
 **Dernière mise à jour** : 2025-11-26
 **Statut du projet** : 🟡 En développement actif - Phase de stabilisation - Multi-Repo Architecture
+- Pour se connecter à postgresql UTILISE LE MDP dans le fichier de config
