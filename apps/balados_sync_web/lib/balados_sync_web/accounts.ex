@@ -102,7 +102,7 @@ defmodule BaladosSyncWeb.Accounts do
       # User doesn't exist
       is_nil(user) ->
         # Call no_user_verify to prevent timing attacks
-        Argon2.no_user_verify()
+        Bcrypt.no_user_verify()
         {:error, :invalid_credentials}
 
       # Account is locked

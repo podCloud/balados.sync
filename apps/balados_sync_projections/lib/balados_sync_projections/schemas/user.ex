@@ -77,12 +77,10 @@ defmodule BaladosSyncProjections.Schemas.User do
     password = get_change(changeset, :password)
 
     if hash_password? && password && changeset.valid? do
-      # Using Argon2 for password hashing (best practice 2025)
-      # hash_pwd_salt returns a binary string, convert to UTF-8 string for database storage
-      hashed = password |> Argon2.hash_pwd_salt() |> to_string()
-
       changeset
-      |> put_change(:hashed_password, hashed)
+      # Using Bcrypt for password hashing
+      # TODO: Switch back to Argon2 once UTF-8 encoding issue is resolved
+      |> put_change(:hashed_password, Bcrypt.hash_pwd_salt(password))
       |> delete_change(:password)
     else
       changeset
@@ -190,15 +188,15 @@ defmodule BaladosSyncProjections.Schemas.User do
   Verifies the password.
 
   If there is no user or the user doesn't have a password, we call
-  `Argon2.no_user_verify/0` to avoid timing attacks.
+  `Bcrypt.no_user_verify/0` to avoid timing attacks.
   """
   def valid_password?(%__MODULE__{hashed_password: hashed_password}, password)
       when is_binary(hashed_password) and byte_size(password) > 0 do
-    Argon2.verify_pass(password, hashed_password)
+    Bcrypt.verify_pass(password, hashed_password)
   end
 
   def valid_password?(_, _) do
-    Argon2.no_user_verify()
+    Bcrypt.no_user_verify()
     false
   end
 
