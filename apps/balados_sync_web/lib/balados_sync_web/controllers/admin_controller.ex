@@ -90,9 +90,9 @@ defmodule BaladosSyncWeb.AdminController do
       global_rate =
         if first_event && total > 0 do
           duration_seconds = DateTime.diff(DateTime.utc_now(), first_event, :second)
-          if duration_seconds > 0, do: total / duration_seconds, else: 0
+          if duration_seconds > 0, do: total * 1.0 / duration_seconds, else: 0.0
         else
-          0
+          0.0
         end
 
       # Calculer taux récent (events/seconde sur 5 min)
@@ -120,7 +120,7 @@ defmodule BaladosSyncWeb.AdminController do
 
   defp get_top_podcasts(limit) do
     query =
-      from(p in "public.podcast_popularity",
+      from(p in "podcast_popularity",
         select: %{
           feed: p.rss_source_feed,
           score: p.score,
@@ -136,7 +136,7 @@ defmodule BaladosSyncWeb.AdminController do
 
   defp get_top_episodes(limit) do
     query =
-      from(e in "public.episode_popularity",
+      from(e in "episode_popularity",
         select: %{
           feed: e.rss_source_feed,
           item: e.rss_source_item,
