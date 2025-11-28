@@ -77,10 +77,12 @@ defmodule BaladosSyncProjections.Schemas.User do
     password = get_change(changeset, :password)
 
     if hash_password? && password && changeset.valid? do
-      changeset
       # Using Argon2 for password hashing (best practice 2025)
-      # Make sure to hash the password in a separate process as it is CPU intensive
-      |> put_change(:hashed_password, Argon2.hash_pwd_salt(password))
+      # hash_pwd_salt returns a binary string, convert to UTF-8 string for database storage
+      hashed = password |> Argon2.hash_pwd_salt() |> to_string()
+
+      changeset
+      |> put_change(:hashed_password, hashed)
       |> delete_change(:password)
     else
       changeset

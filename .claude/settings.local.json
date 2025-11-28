@@ -15,7 +15,10 @@
       "Bash(timeout 15 mix compile:*)",
       "Bash(mix format:*)",
       "WebFetch(domain:hexdocs.pm)",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(/tmp/test_argon2.sh)"
     ],
     "deny": [],
     "ask": []
