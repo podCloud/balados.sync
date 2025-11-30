@@ -1,0 +1,38 @@
+<div class="px-4 py-10 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-5xl">
+    <h1 class="text-4xl font-bold text-zinc-900">Trending Episodes</h1>
+    <p class="text-zinc-600 mt-2">Most popular episodes on Balados Sync</p>
+
+    <div class="mt-10 space-y-4">
+      <%= for {episode, index} <- Enum.with_index(@episodes, 1) do %>
+        <div class="bg-white shadow rounded-lg p-6 flex gap-6">
+          <!-- Rank Badge -->
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 rounded-full bg-green-600 text-white flex items-center justify-center text-xl font-bold">
+              <%= index %>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1">
+            <.link
+              navigate={~p"/episodes/#{episode.rss_source_item}"}
+              class="text-lg font-semibold text-blue-600 hover:text-blue-700"
+            >
+              <%= episode.item_title || "Unknown Episode" %>
+            </.link>
+            <p class="text-sm text-zinc-600 mt-1">
+              From: <span class="font-medium"><%= episode.feed_title || "Unknown Podcast" %></span>
+            </p>
+
+            <div class="flex gap-6 mt-2 text-sm text-zinc-600">
+              <span>Score: <span class="font-semibold"><%= episode.score %></span></span>
+              <span>Plays: <span class="font-semibold"><%= episode.plays %></span></span>
+              <span>Likes: <span class="font-semibold"><%= episode.likes %></span></span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

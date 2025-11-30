@@ -1,0 +1,52 @@
+<div class="px-4 py-10 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-5xl">
+    <h1 class="text-4xl font-bold text-zinc-900">Trending Podcasts</h1>
+    <p class="text-zinc-600 mt-2">Most popular podcasts on Balados Sync</p>
+
+    <div class="mt-10 space-y-4">
+      <%= for {podcast, index} <- Enum.with_index(@podcasts, 1) do %>
+        <div class="bg-white shadow rounded-lg p-6 flex gap-6">
+          <!-- Rank Badge -->
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold">
+              <%= index %>
+            </div>
+          </div>
+
+          <!-- Cover -->
+          <%= if podcast.metadata && podcast.metadata.cover do %>
+            <img
+              src={podcast.metadata.cover.src}
+              alt={podcast.metadata.title}
+              class="w-24 h-24 rounded-lg shadow object-cover"
+            />
+          <% else %>
+            <div class="w-24 h-24 rounded-lg bg-zinc-200 flex items-center justify-center flex-shrink-0">
+              <span class="text-zinc-400 text-xs">No Cover</span>
+            </div>
+          <% end %>
+
+          <!-- Content -->
+          <div class="flex-1">
+            <.link
+              navigate={~p"/podcasts/#{podcast.rss_source_feed}"}
+              class="text-xl font-semibold text-blue-600 hover:text-blue-700"
+            >
+              <%= podcast.metadata && podcast.metadata.title || podcast.feed_title || "Unknown" %>
+            </.link>
+
+            <div class="flex gap-6 mt-2 text-sm text-zinc-600">
+              <span>Score: <span class="font-semibold"><%= podcast.score %></span></span>
+              <span>Plays: <span class="font-semibold"><%= podcast.plays %></span></span>
+              <span>Likes: <span class="font-semibold"><%= podcast.likes %></span></span>
+            </div>
+
+            <p class="text-sm text-zinc-700 mt-2 line-clamp-2">
+              <%= podcast.metadata && podcast.metadata.description %>
+            </p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

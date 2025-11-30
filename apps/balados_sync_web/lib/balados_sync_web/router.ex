@@ -35,6 +35,12 @@ defmodule BaladosSyncWeb.Router do
 
     # App authorization (public, but may redirect to login if not authenticated)
     get "/authorize", AppAuthController, :authorize
+
+    # Public discovery pages
+    get "/trending/podcasts", PublicController, :trending_podcasts_html
+    get "/trending/episodes", PublicController, :trending_episodes_html
+    get "/podcasts/:feed", PublicController, :feed_page
+    get "/episodes/:item", PublicController, :episode_page
   end
 
   # Routes for user authentication (public access)

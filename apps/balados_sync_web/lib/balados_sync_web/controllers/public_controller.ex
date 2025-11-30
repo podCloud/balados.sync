@@ -1,6 +1,8 @@
 defmodule BaladosSyncWeb.PublicController do
   use BaladosSyncWeb, :controller
 
+  require Logger
+
   alias BaladosSyncProjections.ProjectionsRepo
 
   alias BaladosSyncProjections.Schemas.{
@@ -8,6 +10,8 @@ defmodule BaladosSyncWeb.PublicController do
     EpisodePopularity,
     PublicEvent
   }
+
+  alias BaladosSyncWeb.RssCache
 
   import Ecto.Query
 
@@ -127,5 +131,123 @@ defmodule BaladosSyncWeb.PublicController do
         offset: offset
       }
     })
+  end
+
+  # ===== HTML Views for Public Discovery =====
+
+  @doc """
+  Display top 10 trending podcasts in HTML.
+  """
+  def trending_podcasts_html(conn, _params) do
+    podcasts =
+      from(p in PodcastPopularity,
+        order_by: [desc: fragment("score - score_previous"), desc: :score],
+        limit: 10
+      )
+      |> ProjectionsRepo.all()
+      |> Enum.map(fn p -> Map.put(p, :metadata, fetch_metadata_safe(p.rss_source_feed)) end)
+
+    render(conn, :trending_podcasts, podcasts: podcasts)
+  end
+
+  @doc """
+  Display top 10 trending episodes in HTML.
+  """
+  def trending_episodes_html(conn, _params) do
+    episodes =
+      from(e in EpisodePopularity,
+        order_by: [desc: fragment("score - score_previous"), desc: :score],
+        limit: 10
+      )
+      |> ProjectionsRepo.all()
+
+    render(conn, :trending_episodes, episodes: episodes)
+  end
+
+  @doc """
+  Display a single podcast feed page with recent episodes.
+  """
+  def feed_page(conn, %{"feed" => encoded_feed}) do
+    with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
+         {:ok, xml} <- RssCache.fetch_feed(feed_url),
+         {:ok, metadata} <- BaladosSyncWeb.RssParser.parse_feed(xml),
+         {:ok, episodes} <- BaladosSyncWeb.RssParser.parse_episodes(xml) do
+      popularity = ProjectionsRepo.get(PodcastPopularity, encoded_feed)
+
+      render(conn, :feed_page,
+        encoded_feed: encoded_feed,
+        metadata: metadata,
+        episodes: Enum.take(episodes, 20),
+        popularity: popularity
+      )
+    else
+      _ ->
+        conn
+        |> put_flash(:error, "Feed not found")
+        |> redirect(to: ~p"/trending/podcasts")
+    end
+  end
+
+  @doc """
+  Display a single episode page with details and popularity stats.
+  """
+  def episode_page(conn, %{"item" => encoded_item}) do
+    with {:ok, feed_url} <- decode_episode_feed(encoded_item),
+         {:ok, xml} <- RssCache.fetch_feed(feed_url),
+         {:ok, episodes} <- BaladosSyncWeb.RssParser.parse_episodes(xml),
+         episode when not is_nil(episode) <- find_episode(episodes, encoded_item) do
+      popularity = ProjectionsRepo.get(EpisodePopularity, encoded_item)
+
+      render(conn, :episode_page,
+        episode: episode,
+        encoded_item: encoded_item,
+        popularity: popularity
+      )
+    else
+      _ ->
+        conn
+        |> put_flash(:error, "Episode not found")
+        |> redirect(to: ~p"/trending/episodes")
+    end
+  end
+
+  # ===== Private Helpers =====
+
+  defp fetch_metadata_safe(encoded_feed) do
+    with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
+         {:ok, metadata} <- RssCache.get_feed_metadata(feed_url) do
+      metadata
+    else
+      _ -> nil
+    end
+  end
+
+  defp decode_episode_feed(encoded_item) do
+    # Episode IDs are base64("feed_url,guid,enclosure")
+    case Base.url_decode64(encoded_item, padding: false) do
+      {:ok, decoded} ->
+        case String.split(decoded, ",", parts: 2) do
+          [feed_url, _rest] -> {:ok, feed_url}
+          _ -> {:error, :invalid_format}
+        end
+
+      :error ->
+        {:error, :invalid_encoding}
+    end
+  end
+
+  defp find_episode(episodes, encoded_item) do
+    with {:ok, decoded} <- Base.url_decode64(encoded_item, padding: false) do
+      parts = String.split(decoded, ",")
+      guid = Enum.at(parts, 1)
+
+      if guid do
+        Enum.find(episodes, fn ep -> ep.guid == guid end)
+      else
+        nil
+      end
+    else
+      _ -> nil
+    end
   end
 end
