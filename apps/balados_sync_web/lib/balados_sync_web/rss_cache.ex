@@ -50,6 +50,45 @@ defmodule BaladosSyncWeb.RssCache do
     Cachex.put(@cache_name, key, value, ttl: @cache_ttl)
   end
 
+  @doc """
+  Fetch et parse un flux RSS, retournant à la fois le XML brut et les métadonnées parsées.
+
+  Utilise le cache à deux niveaux: XML et métadonnées parsées.
+  """
+  def fetch_and_parse_feed(feed_url) do
+    with {:ok, xml} <- fetch_feed(feed_url),
+         {:ok, metadata} <- BaladosSyncWeb.RssParser.parse_feed(xml) do
+      {:ok, %{xml: xml, metadata: metadata}}
+    end
+  end
+
+  @doc """
+  Récupère les métadonnées parsées d'un flux RSS depuis le cache ou en fetchant.
+
+  Les métadonnées sont cachées séparément du XML brut pour un accès rapide.
+  """
+  def get_feed_metadata(feed_url) do
+    cache_key = {:metadata, feed_url}
+
+    case get(cache_key) do
+      {:ok, cached_metadata} ->
+        Logger.debug("Metadata cache HIT: #{feed_url}")
+        {:ok, cached_metadata}
+
+      :miss ->
+        Logger.debug("Metadata cache MISS: #{feed_url}")
+
+        case fetch_and_parse_feed(feed_url) do
+          {:ok, %{metadata: metadata}} ->
+            put(cache_key, metadata)
+            {:ok, metadata}
+
+          error ->
+            error
+        end
+    end
+  end
+
   # Fetch HTTP d'un flux RSS
   defp fetch_from_url(url) do
     case HTTPoison.get(url, [], follow_redirect: true, timeout: 10_000, recv_timeout: 10_000) do

@@ -1,0 +1,51 @@
+<div class="px-4 py-10 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-2xl">
+    <.header>
+      Add New Subscription
+      <:subtitle>Enter the RSS feed URL of the podcast you want to subscribe to</:subtitle>
+    </.header>
+
+    <div class="mt-10 bg-white shadow rounded-lg p-6">
+      <.form for={%{}} action={~p"/my-subscriptions"} method="post">
+        <div class="space-y-4">
+          <div>
+            <label for="feed_url" class="block text-sm font-medium text-zinc-900">
+              RSS Feed URL
+            </label>
+            <input
+              type="url"
+              id="feed_url"
+              name="feed_url"
+              required
+              placeholder="https://example.com/podcast/feed.xml"
+              class="mt-1 block w-full rounded-md border-zinc-300 shadow-sm px-3 py-2 border"
+            />
+          </div>
+
+          <%= if @preview do %>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 class="font-semibold text-blue-900"><%= @preview.title %></h3>
+              <p class="text-sm text-blue-700 mt-1">by <%= @preview.author %></p>
+              <p class="text-sm text-blue-600 mt-2"><%= @preview.description %></p>
+            </div>
+          <% end %>
+
+          <div class="flex gap-4 pt-4">
+            <button
+              type="submit"
+              class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              Subscribe
+            </button>
+            <.link
+              navigate={~p"/my-subscriptions"}
+              class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+            >
+              Cancel
+            </.link>
+          </div>
+        </div>
+      </.form>
+    </div>
+  </div>
+</div>

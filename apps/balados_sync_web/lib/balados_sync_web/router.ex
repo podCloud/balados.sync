@@ -35,6 +35,12 @@ defmodule BaladosSyncWeb.Router do
 
     # App authorization (public, but may redirect to login if not authenticated)
     get "/authorize", AppAuthController, :authorize
+
+    # Public discovery pages
+    get "/trending/podcasts", PublicController, :trending_podcasts_html
+    get "/trending/episodes", PublicController, :trending_episodes_html
+    get "/podcasts/:feed", PublicController, :feed_page
+    get "/episodes/:item", PublicController, :episode_page
   end
 
   # Routes for user authentication (public access)
@@ -53,6 +59,14 @@ defmodule BaladosSyncWeb.Router do
 
     get "/dashboard", DashboardController, :index
     delete "/users/log_out", UserSessionController, :delete
+
+    # Web Subscriptions (HTML interface for managing subscriptions)
+    get "/my-subscriptions", WebSubscriptionsController, :index
+    get "/my-subscriptions/new", WebSubscriptionsController, :new
+    post "/my-subscriptions", WebSubscriptionsController, :create
+    get "/my-subscriptions/export.opml", WebSubscriptionsController, :export_opml
+    get "/my-subscriptions/:feed", WebSubscriptionsController, :show
+    delete "/my-subscriptions/:feed", WebSubscriptionsController, :delete
 
     # App authorization confirmation (requires authentication)
     post "/authorize", AppAuthController, :create_authorization
@@ -123,6 +137,7 @@ defmodule BaladosSyncWeb.Router do
     post "/subscriptions", SubscriptionController, :create
     delete "/subscriptions/:feed", SubscriptionController, :delete
     get "/subscriptions", SubscriptionController, :index
+    get "/subscriptions/:feed/metadata", SubscriptionController, :metadata
 
     # Play status
     post "/play", PlayController, :record

@@ -42,3 +42,6 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+// Subscription management enhancements
+import "./subscriptions.js"
+

@@ -532,6 +532,90 @@ Accès :
 
 ---
 
+## 🎙️ Fonctionnalités Récentes
+
+### Web Subscription Interface (v1.0)
+
+**Nouvelle fonctionnalité** : Interface web complète pour la gestion des abonnements RSS des utilisateurs.
+
+#### Contenu
+
+- **Gestion des Abonnements** : Ajouter, visualiser, supprimer des abonnements
+  - Page `/my-subscriptions` : Liste tous les abonnements avec couvertures et descriptions
+  - Page `/my-subscriptions/new` : Formulaire d'ajout avec prévisualisation du flux
+  - Page `/my-subscriptions/:feed` : Détails du flux et liste des épisodes récents
+  - Bouton `/my-subscriptions/export.opml` : Export OPML de tous les abonnements
+
+- **Métadonnées Asynchrones** : Chargement intelligent des métadonnées RSS
+  - Métadonnées stockées au moment de l'abonnement (title, author, description, cover, episodes_count, language)
+  - Enrichissement asynchrone dans le projector (ne bloque pas l'événement)
+  - Rafraîchissement AJAX sur la page d'abonnements pour charger les métadonnées manquantes
+  - Endpoint API : `GET /api/v1/subscriptions/:feed/metadata` (authentifié)
+
+- **Découverte Publique** : Pages de tendances accessibles à tous
+  - `/trending/podcasts` : Top 10 des podcasts par popularité
+  - `/trending/episodes` : Top 10 des épisodes par popularité
+  - `/podcasts/:feed` : Page publique d'un podcast avec épisodes récents
+  - `/episodes/:item` : Page publique d'un épisode avec statistiques
+
+#### Architecture
+
+**Composants Principaux** :
+- `RssParser` : Module de parsing RSS utilisant SweetXml pour extraire métadonnées et épisodes
+- `RssCache` : Mise en cache à deux niveaux (XML brut + métadonnées parsées) avec TTL de 5 min
+- `WebSubscriptionsController` : 6 actions pour CRUD + export OPML
+- `SubscriptionsProjector` : Enrichissement asynchrone des métadonnées via Task.start
+- `PublicController` : 4 actions pour pages de découverte publiques
+- `subscriptions.js` : Progressive enhancement pour chargement AJAX des métadonnées
+
+**Patterns CQRS** :
+- Subscribe/Unsubscribe commands dispatched via Dispatcher
+- Projections avec eventual consistency pour métadonnées
+- Device ID généré depuis IP hash (pour interface web)
+
+**Codage des URLs** :
+- Feeds : Base64 URL-encoded sans padding
+- Episodes : Format base64("feed_url,guid,enclosure_url") pour identification unique
+
+#### Utilisation
+
+**Pour les Utilisateurs Authentifiés** :
+```
+GET  /my-subscriptions           # Lister abonnements
+GET  /my-subscriptions/new       # Formulaire d'ajout
+POST /my-subscriptions           # Créer abonnement
+GET  /my-subscriptions/:feed     # Voir détails flux
+DELETE /my-subscriptions/:feed   # Supprimer abonnement
+GET  /my-subscriptions/export.opml # Télécharger OPML
+```
+
+**Pour Tous** (Public) :
+```
+GET /trending/podcasts           # Top 10 podcasts
+GET /trending/episodes           # Top 10 épisodes
+GET /podcasts/:feed              # Détails podcast
+GET /episodes/:item              # Détails épisode
+```
+
+**API Interne** (Authentifiée) :
+```
+GET /api/v1/subscriptions/:feed/metadata  # Récupérer métadonnées
+```
+
+#### Commits
+
+9 commits implémentant la feature complète :
+- RSS Parser module et intégration cache
+- Enrichissement asynchrone des métadonnées
+- Endpoint API pour métadonnées
+- Controller web avec actions CRUD + OPML
+- Templates pour gestion des abonnements
+- Routes et navigation
+- Pages de découverte publiques
+- JavaScript AJAX pour chargement asynchrone
+
+---
+
 ## 📖 Ressources Additionnelles
 
 ### Documentation Externe
@@ -601,5 +685,6 @@ Le projet vise à devenir open source et communautaire. Guidelines de contributi
 
 ---
 
-**Dernière mise à jour** : 2025-11-26
-**Statut du projet** : 🟡 En développement actif - Phase de stabilisation - Multi-Repo Architecture
+**Dernière mise à jour** : 2025-11-30
+**Statut du projet** : 🟡 En développement actif - Web UI + Public Discovery - Multi-Repo Architecture
+**Branche en cours** : feature/subscription-web-interface (prêt pour merge)
