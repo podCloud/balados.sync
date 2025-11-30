@@ -16,7 +16,7 @@ defmodule BaladosSyncWeb.AdminController do
   end
 
   def generate_rss_link(conn, %{"feed_url" => feed_url}) do
-    encoded_feed = Base.encode64(feed_url)
+    encoded_feed = Base.url_encode64(feed_url, padding: false)
     proxy_url = unverified_url(conn, ~p"/api/v1/rss/proxy/#{encoded_feed}")
 
     # Vérifier cache stats

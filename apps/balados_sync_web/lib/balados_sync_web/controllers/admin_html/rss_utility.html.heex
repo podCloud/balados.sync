@@ -143,6 +143,88 @@
           </div>
         </div>
       </div>
+
+      <!-- Base64 Encoder Section -->
+      <div class="mt-10">
+        <div class="bg-white shadow rounded-lg p-6">
+          <h3 class="text-lg font-medium text-zinc-900 mb-4">GUID & Enclosure Encoder</h3>
+
+          <div class="space-y-4">
+            <div>
+              <label for="episode-guid" class="block text-sm font-medium text-zinc-700">
+                Episode GUID
+              </label>
+              <div class="mt-1">
+                <input
+                  type="text"
+                  id="episode-guid"
+                  placeholder="e.g., episode-123"
+                  class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-zinc-300 rounded-md"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="enclosure-url" class="block text-sm font-medium text-zinc-700">
+                Enclosure URL
+              </label>
+              <div class="mt-1">
+                <input
+                  type="url"
+                  id="enclosure-url"
+                  placeholder="https://example.com/episode.mp3"
+                  class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-zinc-300 rounded-md"
+                />
+              </div>
+            </div>
+
+            <div>
+              <button
+                onclick="encodeEpisode()"
+                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                Encode Base64
+              </button>
+            </div>
+
+            <div id="encoder-results" class="hidden">
+              <div>
+                <label class="block text-sm font-medium text-zinc-700 mb-2">
+                  Encoded Episode ID
+                </label>
+                <div class="flex">
+                  <input
+                    type="text"
+                    id="encoded-episode"
+                    readonly
+                    class="flex-1 shadow-sm bg-zinc-50 focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-zinc-300 rounded-l-md font-mono text-sm"
+                  />
+                  <button
+                    onclick="copyToClipboard('encoded-episode')"
+                    class="inline-flex items-center px-4 py-2 border border-l-0 border-zinc-300 text-sm font-medium rounded-r-md text-zinc-700 bg-zinc-50 hover:bg-zinc-100"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <p class="mt-2 text-sm text-zinc-500">
+                  Use this in your episode link:
+                  <code class="text-xs bg-zinc-100 px-1 py-0.5 rounded">
+                    /api/v1/rss/proxy/{encoded_feed}/{encoded_episode_id}
+                  </code>
+                </p>
+              </div>
+
+              <div class="mt-4 bg-green-50 border border-green-200 rounded-md p-4">
+                <p class="text-sm text-green-800">
+                  <strong>Format:</strong> guid,enclosure_url
+                  <br />
+                  <code id="format-preview" class="text-xs bg-white px-1 py-0.5 rounded mt-1 inline-block"></code>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -196,5 +278,33 @@
         button.textContent = originalText;
       }, 2000);
     });
+  }
+
+  // URL-safe Base64 encoding (removes padding and replaces +/ with -_)
+  function urlSafeBase64Encode(str) {
+    return btoa(str)
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+  }
+
+  // Encode episode GUID and enclosure URL to base64
+  function encodeEpisode() {
+    const guid = document.getElementById('episode-guid').value.trim();
+    const enclosureUrl = document.getElementById('enclosure-url').value.trim();
+
+    if (!guid || !enclosureUrl) {
+      alert('Please enter both GUID and Enclosure URL');
+      return;
+    }
+
+    // Format: "guid,enclosure_url"
+    const combined = `${guid},${enclosureUrl}`;
+    const encoded = urlSafeBase64Encode(combined); // URL-safe Base64 encode
+
+    // Show results
+    document.getElementById('encoder-results').classList.remove('hidden');
+    document.getElementById('encoded-episode').value = encoded;
+    document.getElementById('format-preview').textContent = combined;
   }
 </script>

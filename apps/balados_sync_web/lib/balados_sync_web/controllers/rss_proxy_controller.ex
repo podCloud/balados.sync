@@ -65,14 +65,29 @@ defmodule BaladosSyncWeb.RssProxyController do
   end
 
   defp decode_feed_id(encoded) do
-    case Base.decode64(encoded) do
+    # Try URL-safe base64 first, fallback to standard base64
+    case Base.url_decode64(encoded) do
       {:ok, decoded} -> {:ok, decoded}
-      :error -> {:error, :invalid_base64}
+      :error ->
+        # Fallback to standard base64 for backwards compatibility
+        case Base.decode64(encoded) do
+          {:ok, decoded} -> {:ok, decoded}
+          :error -> {:error, :invalid_base64}
+        end
     end
   end
 
   defp decode_episode_id(encoded) do
-    case Base.decode64(encoded) do
+    # Try URL-safe base64 first, fallback to standard base64
+    decoded =
+      case Base.url_decode64(encoded) do
+        {:ok, decoded} -> {:ok, decoded}
+        :error ->
+          # Fallback to standard base64 for backwards compatibility
+          Base.decode64(encoded)
+      end
+
+    case decoded do
       {:ok, decoded} ->
         case String.split(decoded, ",", parts: 2) do
           [guid, enclosure] -> {:ok, {guid, enclosure}}
