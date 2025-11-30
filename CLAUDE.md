@@ -566,6 +566,11 @@ Le projet vise à devenir open source et communautaire. Guidelines de contributi
 
 ## 📝 Notes pour Claude Code
 
+### Prérequis pour chaque session
+- Pour se connecter à postgresql UTILISE LE MDP dans le fichier de config
+- Tu ne peux pas démarrer ou arrêter le server phoenix. Demande moi de le faire et attends ma confirmation
+- Mets à jour Claude.md ou les fichiers de docs correspondants à chaque commit
+
 ### Lors du Travail sur ce Projet
 
 1. **Consulter les docs thématiques** plutôt que de tout garder ici
@@ -598,5 +603,3 @@ Le projet vise à devenir open source et communautaire. Guidelines de contributi
 
 **Dernière mise à jour** : 2025-11-26
 **Statut du projet** : 🟡 En développement actif - Phase de stabilisation - Multi-Repo Architecture
-- Pour se connecter à postgresql UTILISE LE MDP dans le fichier de config
-- always ask me to restart or start phx.server
