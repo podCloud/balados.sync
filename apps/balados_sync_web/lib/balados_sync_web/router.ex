@@ -54,6 +54,14 @@ defmodule BaladosSyncWeb.Router do
     get "/dashboard", DashboardController, :index
     delete "/users/log_out", UserSessionController, :delete
 
+    # Web Subscriptions (HTML interface for managing subscriptions)
+    get "/my-subscriptions", WebSubscriptionsController, :index
+    get "/my-subscriptions/new", WebSubscriptionsController, :new
+    post "/my-subscriptions", WebSubscriptionsController, :create
+    get "/my-subscriptions/export.opml", WebSubscriptionsController, :export_opml
+    get "/my-subscriptions/:feed", WebSubscriptionsController, :show
+    delete "/my-subscriptions/:feed", WebSubscriptionsController, :delete
+
     # App authorization confirmation (requires authentication)
     post "/authorize", AppAuthController, :create_authorization
 

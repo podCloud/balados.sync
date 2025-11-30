@@ -12,7 +12,6 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   use BaladosSyncWeb, :controller
 
   require Logger
-  import Ecto.Query
 
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.{Subscribe, Unsubscribe}
