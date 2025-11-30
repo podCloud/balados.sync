@@ -34,7 +34,7 @@ defmodule BaladosSyncWeb.SubscriptionController do
   import Ecto.Query
 
   # Scope requirements for subscription management
-  plug JWTAuth, [scopes: ["user.subscriptions.read"]] when action in [:index]
+  plug JWTAuth, [scopes: ["user.subscriptions.read"]] when action in [:index, :metadata]
   plug JWTAuth, [scopes: ["user.subscriptions.write"]] when action in [:create, :delete]
 
   @doc """
@@ -188,5 +188,62 @@ defmodule BaladosSyncWeb.SubscriptionController do
       |> ProjectionsRepo.all()
 
     json(conn, %{subscriptions: subscriptions})
+  end
+
+  @doc """
+  Fetches fresh metadata for a podcast feed via AJAX.
+
+  Returns parsed feed metadata (title, description, author, cover, etc.) from the RSS cache.
+  Used by the web interface to progressively load metadata for subscriptions.
+
+  ## Parameters
+
+  - `feed` - Base64-encoded RSS feed URL (from URL path)
+
+  ## Example Request
+
+      GET /api/v1/subscriptions/aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0/metadata
+      Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+
+  ## Example Response (Success)
+
+      {
+        "metadata": {
+          "title": "Example Podcast",
+          "description": "A great podcast about...",
+          "author": "John Doe",
+          "cover": {
+            "src": "https://example.com/cover.jpg",
+            "srcset": null
+          },
+          "language": "en",
+          "episodes_count": 42
+        }
+      }
+
+  ## Example Response (Error)
+
+      {
+        "error": "Invalid feed encoding"
+      }
+  """
+  def metadata(conn, %{"feed" => encoded_feed}) do
+    case Base.url_decode64(encoded_feed, padding: false) do
+      {:ok, feed_url} ->
+        case BaladosSyncWeb.RssCache.get_feed_metadata(feed_url) do
+          {:ok, metadata} ->
+            json(conn, %{metadata: metadata})
+
+          {:error, _reason} ->
+            conn
+            |> put_status(:bad_gateway)
+            |> json(%{error: "Failed to fetch feed metadata"})
+        end
+
+      :error ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "Invalid feed encoding"})
+    end
   end
 end

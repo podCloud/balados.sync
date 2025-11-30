@@ -123,6 +123,7 @@ defmodule BaladosSyncWeb.Router do
     post "/subscriptions", SubscriptionController, :create
     delete "/subscriptions/:feed", SubscriptionController, :delete
     get "/subscriptions", SubscriptionController, :index
+    get "/subscriptions/:feed/metadata", SubscriptionController, :metadata
 
     # Play status
     post "/play", PlayController, :record
