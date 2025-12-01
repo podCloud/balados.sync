@@ -8,6 +8,8 @@ defmodule BaladosSyncWeb.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      BaladosSyncCore.Application,
+      BaladosSyncProjections.Application,
       BaladosSyncWeb.Telemetry,
       # Start a worker by calling: BaladosSyncWeb.Worker.start_link(arg)
       # {BaladosSyncWeb.Worker, arg},
