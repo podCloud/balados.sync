@@ -23,7 +23,7 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
   @score_save 3
   @score_share 2
 
-  defp is_user_public?(user_id, feed, item) do
+  defp is_user_public_with_repo?(repo, user_id, feed, item) do
     query =
       from(p in UserPrivacy,
         where: p.user_id == ^user_id,
@@ -41,14 +41,14 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
         select: p.privacy
       )
 
-    privacy = BaladosSyncProjections.ProjectionsRepo.one(query) || "public"
+    privacy = repo.one(query) || "public"
     privacy == "public"
   end
 
   project(%UserSubscribed{} = event, _metadata, fn multi ->
-    is_public = is_user_public?(event.user_id, event.rss_source_feed, nil)
-
     Ecto.Multi.run(multi, :podcast_popularity, fn repo, _changes ->
+      is_public = is_user_public_with_repo?(repo, event.user_id, event.rss_source_feed, nil)
+
       popularity =
         repo.get(PodcastPopularity, event.rss_source_feed) ||
           %PodcastPopularity{rss_source_feed: event.rss_source_feed}
@@ -78,11 +78,11 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
   end)
 
   project(%PlayRecorded{} = event, _metadata, fn multi ->
-    is_public = is_user_public?(event.user_id, event.rss_source_feed, event.rss_source_item)
-
     # Incrémenter podcast popularity
     multi =
       Ecto.Multi.run(multi, :podcast_popularity, fn repo, _changes ->
+        is_public = is_user_public_with_repo?(repo, event.user_id, event.rss_source_feed, event.rss_source_item)
+
         popularity =
           repo.get(PodcastPopularity, event.rss_source_feed) ||
             %PodcastPopularity{rss_source_feed: event.rss_source_feed}
@@ -107,6 +107,8 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
 
     # Incrémenter episode popularity
     Ecto.Multi.run(multi, :episode_popularity, fn repo, _changes ->
+      is_public = is_user_public_with_repo?(repo, event.user_id, event.rss_source_feed, event.rss_source_item)
+
       popularity =
         repo.get(EpisodePopularity, event.rss_source_item) ||
           %EpisodePopularity{
@@ -134,8 +136,6 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
   end)
 
   project(%EpisodeSaved{} = event, _metadata, fn multi ->
-    is_public = is_user_public?(event.user_id, event.rss_source_feed, event.rss_source_item)
-
     # Incrémenter podcast score
     multi =
       Ecto.Multi.run(multi, :podcast_score, fn repo, _changes ->
@@ -154,6 +154,8 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
 
     # Incrémenter episode likes
     Ecto.Multi.run(multi, :episode_saved, fn repo, _changes ->
+      is_public = is_user_public_with_repo?(repo, event.user_id, event.rss_source_feed, event.rss_source_item)
+
       popularity =
         repo.get(EpisodePopularity, event.rss_source_item) ||
           %EpisodePopularity{

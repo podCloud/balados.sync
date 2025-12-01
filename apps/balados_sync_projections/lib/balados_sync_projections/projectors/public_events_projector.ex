@@ -16,7 +16,7 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
   alias BaladosSyncProjections.Schemas.{PublicEvent, UserPrivacy}
 
   # Helper pour récupérer la privacy actuelle pour un user/feed/item
-  defp get_privacy(user_id, feed, item) do
+  defp get_privacy(repo, user_id, feed, item) do
     # Privacy la plus spécifique : item > feed > user
     query =
       from(p in UserPrivacy,
@@ -35,44 +35,48 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
         select: p.privacy
       )
 
-    BaladosSyncProjections.ProjectionsRepo.one(query) || :public
+    repo.one(query) || :public
   end
 
   project(%UserSubscribed{} = event, _metadata, fn multi ->
-    privacy = get_privacy(event.user_id, event.rss_source_feed, nil)
+    Ecto.Multi.run(multi, :public_event, fn repo, _changes ->
+      privacy = get_privacy(repo, event.user_id, event.rss_source_feed, nil)
 
-    if privacy in [:public, :anonymous] do
-      Ecto.Multi.insert(multi, :public_event, %PublicEvent{
-        # Gardé même si anonymous
-        user_id: event.user_id,
-        event_type: "subscribe",
-        rss_source_feed: event.rss_source_feed,
-        privacy: to_string(privacy),
-        event_data: %{},
-        event_timestamp: event.timestamp
-      })
-    else
-      multi
-    end
+      if privacy in [:public, :anonymous] do
+        repo.insert(%PublicEvent{
+          # Gardé même si anonymous
+          user_id: event.user_id,
+          event_type: "subscribe",
+          rss_source_feed: event.rss_source_feed,
+          privacy: to_string(privacy),
+          event_data: %{},
+          event_timestamp: event.timestamp
+        })
+      else
+        {:ok, nil}
+      end
+    end)
   end)
 
   project(%PlayRecorded{} = event, _metadata, fn multi ->
-    privacy = get_privacy(event.user_id, event.rss_source_feed, event.rss_source_item)
+    Ecto.Multi.run(multi, :public_event, fn repo, _changes ->
+      privacy = get_privacy(repo, event.user_id, event.rss_source_feed, event.rss_source_item)
 
-    if privacy in [:public, :anonymous] do
-      Ecto.Multi.insert(multi, :public_event, %PublicEvent{
-        # Gardé même si anonymous
-        user_id: event.user_id,
-        event_type: "play",
-        rss_source_feed: event.rss_source_feed,
-        rss_source_item: event.rss_source_item,
-        privacy: to_string(privacy),
-        event_data: %{position: event.position, played: event.played},
-        event_timestamp: event.timestamp
-      })
-    else
-      multi
-    end
+      if privacy in [:public, :anonymous] do
+        repo.insert(%PublicEvent{
+          # Gardé même si anonymous
+          user_id: event.user_id,
+          event_type: "play",
+          rss_source_feed: event.rss_source_feed,
+          rss_source_item: event.rss_source_item,
+          privacy: to_string(privacy),
+          event_data: %{position: event.position, played: event.played},
+          event_timestamp: event.timestamp
+        })
+      else
+        {:ok, nil}
+      end
+    end)
   end)
 
   project(%PrivacyChanged{} = event, _metadata, fn multi ->
