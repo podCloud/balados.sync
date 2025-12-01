@@ -14,11 +14,17 @@ defmodule Mix.Tasks.Projections.Migrate do
   def run(_args) do
     {:ok, _} = Application.ensure_all_started(:ecto_sql)
 
-    Ecto.Migrator.run(
+    Ecto.Migrator.with_repo(
       BaladosSyncProjections.ProjectionsRepo,
-      migrations_path(),
-      :up,
-      all: true
+      fn _repo ->
+        Ecto.Migrator.run(
+          BaladosSyncProjections.ProjectionsRepo,
+          migrations_path(),
+          :up,
+          all: true
+        )
+      end,
+      []
     )
   end
 
