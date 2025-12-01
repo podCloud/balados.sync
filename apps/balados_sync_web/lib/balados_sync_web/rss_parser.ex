@@ -24,10 +24,8 @@ defmodule BaladosSyncWeb.RssParser do
       "My Awesome Podcast"
   """
   def parse_feed(xml_string) when is_binary(xml_string) do
-    case SweetXml.parse(xml_string) do
-      {:ok, doc} -> extract_feed_metadata(doc)
-      {:error, reason} -> {:error, {:parse_error, reason}}
-    end
+    doc = SweetXml.parse(xml_string)
+    extract_feed_metadata(doc)
   rescue
     e ->
       Logger.error("RSS parsing error: #{inspect(e)}")
@@ -45,10 +43,8 @@ defmodule BaladosSyncWeb.RssParser do
       42
   """
   def parse_episodes(xml_string) when is_binary(xml_string) do
-    case SweetXml.parse(xml_string) do
-      {:ok, doc} -> extract_episodes(doc)
-      {:error, reason} -> {:error, {:parse_error, reason}}
-    end
+    doc = SweetXml.parse(xml_string)
+    extract_episodes(doc)
   rescue
     e ->
       Logger.error("Episode parsing error: #{inspect(e)}")
