@@ -1,7 +1,7 @@
 import Config
 
 # Configure your database
-config :balados_sync_projections, BaladosSyncProjections.SystemRepo,
+config :balados_sync_core, BaladosSyncCore.SystemRepo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",

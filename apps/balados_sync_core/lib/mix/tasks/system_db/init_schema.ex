@@ -16,7 +16,7 @@ defmodule Mix.Tasks.SystemDb.InitSchema do
   def run(_args) do
     Mix.Task.run("app.start")
 
-    repo = BaladosSyncProjections.SystemRepo
+    repo = BaladosSyncCore.SystemRepo
 
     try do
       # Create the system schema if it doesn't exist

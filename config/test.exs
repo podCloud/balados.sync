@@ -5,7 +5,7 @@ import Config
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
-config :balados_sync_projections, BaladosSyncProjections.SystemRepo,
+config :balados_sync_core, BaladosSyncCore.SystemRepo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",

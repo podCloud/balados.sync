@@ -30,7 +30,7 @@ defmodule Mix.Tasks.ResetSystem do
 
   use Mix.Task
 
-  alias BaladosSyncProjections.SystemRepo
+  alias BaladosSyncCore.SystemRepo
 
   @system_tables [
     "users",

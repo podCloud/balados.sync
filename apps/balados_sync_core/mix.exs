@@ -36,6 +36,8 @@ defmodule BaladosSyncCore.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:ecto_sql, "~> 3.10"},
+      {:postgrex, ">= 0.0.0"},
       {:commanded, "~> 1.4"},
       {:eventstore, "~> 1.4"},
       {:commanded_eventstore_adapter, "~> 1.4"},

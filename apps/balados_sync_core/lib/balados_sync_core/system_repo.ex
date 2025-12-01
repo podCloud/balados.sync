@@ -1,6 +1,6 @@
-defmodule BaladosSyncProjections.SystemRepo do
+defmodule BaladosSyncCore.SystemRepo do
   use Ecto.Repo,
-    otp_app: :balados_sync_projections,
+    otp_app: :balados_sync_core,
     adapter: Ecto.Adapters.Postgres
 
   @impl true

@@ -10,8 +10,11 @@
 import Config
 
 # Configure Mix tasks and generators
+config :balados_sync_core,
+  ecto_repos: [BaladosSyncCore.SystemRepo]
+
 config :balados_sync_projections,
-  ecto_repos: [BaladosSyncProjections.SystemRepo, BaladosSyncProjections.ProjectionsRepo]
+  ecto_repos: [BaladosSyncProjections.ProjectionsRepo]
 
 # Configures the mailer
 #
@@ -23,7 +26,7 @@ config :balados_sync_projections,
 config :balados_sync_core, BaladosSyncCore.Mailer, adapter: Swoosh.Adapters.Local
 
 config :balados_sync_web,
-  ecto_repos: [BaladosSyncProjections.SystemRepo, BaladosSyncProjections.ProjectionsRepo],
+  ecto_repos: [BaladosSyncCore.SystemRepo, BaladosSyncProjections.ProjectionsRepo],
   generators: [context_app: :balados_sync_core]
 
 # Configures the endpoint

@@ -90,7 +90,7 @@ defmodule BaladosSyncProjections.Schemas.User do
   defp maybe_validate_unique_email(changeset, opts) do
     if Keyword.get(opts, :validate_email, true) do
       changeset
-      |> unsafe_validate_unique(:email, BaladosSyncProjections.SystemRepo)
+      |> unsafe_validate_unique(:email, BaladosSyncCore.SystemRepo)
       |> unique_constraint(:email)
     else
       changeset

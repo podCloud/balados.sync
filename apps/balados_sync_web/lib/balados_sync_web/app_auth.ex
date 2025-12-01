@@ -22,7 +22,7 @@ defmodule BaladosSyncWeb.AppAuth do
 
   require Logger
 
-  alias BaladosSyncProjections.SystemRepo
+  alias BaladosSyncCore.SystemRepo
   alias BaladosSyncProjections.Schemas.AppToken
   alias BaladosSyncWeb.Scopes
   import Ecto.Query

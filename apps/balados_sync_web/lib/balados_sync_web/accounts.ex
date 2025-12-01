@@ -4,7 +4,7 @@ defmodule BaladosSyncWeb.Accounts do
   """
 
   import Ecto.Query, warn: false
-  alias BaladosSyncProjections.SystemRepo
+  alias BaladosSyncCore.SystemRepo
   alias BaladosSyncProjections.Schemas.User
 
   ## User registration

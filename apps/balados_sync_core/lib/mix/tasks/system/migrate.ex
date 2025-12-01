@@ -19,7 +19,7 @@ defmodule Mix.Tasks.System.Migrate do
     {:ok, _} = Application.ensure_all_started(:ecto_sql)
 
     Ecto.Migrator.run(
-      BaladosSyncProjections.SystemRepo,
+      BaladosSyncCore.SystemRepo,
       migrations_path(),
       :up,
       all: true
