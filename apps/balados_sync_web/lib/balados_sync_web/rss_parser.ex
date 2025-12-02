@@ -133,7 +133,10 @@ defmodule BaladosSyncWeb.RssParser do
       else
         description = extract_text(item, ~x"./description/text()") || ""
         author = extract_episode_author(item)
-        pub_date = extract_and_parse_pub_date(item)
+        pub_date_raw = extract_text(item, ~x"./pubDate/text()") ||
+                      extract_text(item, ~x"./published/text()") ||
+                      extract_text(item, ~x"./updated/text()")
+        pub_date = parse_pub_date(pub_date_raw)
         duration = parse_duration(extract_text(item, ~x"./itunes:duration/text()"))
         enclosure = extract_enclosure(item)
         cover = extract_text(item, ~x"./itunes:image/@href")
@@ -145,6 +148,7 @@ defmodule BaladosSyncWeb.RssParser do
           description: description,
           author: author,
           pub_date: pub_date,
+          pub_date_raw: pub_date_raw,
           duration: duration,
           enclosure: enclosure,
           cover: cover,
@@ -201,15 +205,6 @@ defmodule BaladosSyncWeb.RssParser do
     _ -> nil
   end
 
-  # Extract pubDate from RSS or Atom feeds
-  defp extract_and_parse_pub_date(item) do
-    date_string =
-      extract_text(item, ~x"./pubDate/text()") ||
-      extract_text(item, ~x"./published/text()") ||
-      extract_text(item, ~x"./updated/text()")
-
-    parse_pub_date(date_string)
-  end
 
   defp parse_pub_date(nil), do: nil
 
@@ -224,17 +219,11 @@ defmodule BaladosSyncWeb.RssParser do
       {:ok, datetime, _offset} ->
         datetime
 
-      :error ->
-        # RSS dates use RFC 822 format like "Mon, 03 Jan 2022 06:00:00 +0000"
-        # Timex doesn't support timezone offsets in RFC1123, so replace offset with Z
-        clean_date = String.replace(date_string, ~r/ [+-]\d{4}$/, " Z")
-
-        case Timex.parse(clean_date, "{RFC1123}") do
-          {:ok, datetime} ->
-            datetime
-
-          :error ->
-            nil
+      {:error, _reason} ->
+        # Try Timex for RFC 2822 dates (RSS standard)
+        case Timex.parse(date_string, "{RFC2822}") do
+          {:ok, datetime} -> datetime
+          {:error, _} -> nil
         end
     end
   rescue
