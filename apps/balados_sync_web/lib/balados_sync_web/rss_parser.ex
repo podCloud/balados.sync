@@ -225,7 +225,7 @@ defmodule BaladosSyncWeb.RssParser do
         datetime
 
       :error ->
-        # RSS dates use RFC 2822 format like "Mon, 03 Jan 2022 06:00:00 +0000"
+        # RSS dates use RFC 822 format like "Mon, 03 Jan 2022 06:00:00 +0000"
         # Timex doesn't support timezone offsets in RFC1123, so replace offset with Z
         clean_date = String.replace(date_string, ~r/ [+-]\d{4}$/, " Z")
 
