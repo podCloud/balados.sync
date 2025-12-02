@@ -220,15 +220,78 @@ defmodule BaladosSyncWeb.RssParser do
         datetime
 
       {:error, _reason} ->
-        # Try Timex for RFC 2822 dates (RSS standard)
-        case Timex.parse(date_string, "{RFC2822}") do
-          {:ok, datetime} -> datetime
-          {:error, _} -> nil
-        end
+        # Try parsing RFC 2822 format manually: "Mon, 03 Jan 2022 06:00:00 +0000"
+        parse_rfc2822_manual(date_string)
     end
   rescue
     _ ->
       nil
+  end
+
+  defp parse_rfc2822_manual(date_string) do
+    # Format: "Day, DD Mon YYYY HH:MM:SS +/-HHMM"
+    parts = String.split(date_string, " ", trim: true)
+
+    case parts do
+      [_day_comma, day, month_str, year, time_str, tz_str] ->
+        try do
+          # Parse components
+          day_int = String.to_integer(day)
+          year_int = String.to_integer(year)
+          month_int = month_to_int(month_str)
+          [h, m, s] = time_str |> String.split(":") |> Enum.map(&String.to_integer/1)
+
+          # Parse timezone offset (e.g., "+0000" or "-0500")
+          tz_offset = parse_tz_offset(tz_str)
+
+          # Create NaiveDateTime then convert to DateTime
+          {:ok, naive_dt} = NaiveDateTime.new(year_int, month_int, day_int, h, m, s, 0)
+          {:ok, dt_utc} = DateTime.from_naive(naive_dt, "UTC")
+          DateTime.add(dt_utc, -tz_offset, :second)
+        rescue
+          _ -> nil
+        end
+
+      _ ->
+        nil
+    end
+  rescue
+    _ -> nil
+  end
+
+  defp month_to_int("Jan"), do: 1
+  defp month_to_int("Feb"), do: 2
+  defp month_to_int("Mar"), do: 3
+  defp month_to_int("Apr"), do: 4
+  defp month_to_int("May"), do: 5
+  defp month_to_int("Jun"), do: 6
+  defp month_to_int("Jul"), do: 7
+  defp month_to_int("Aug"), do: 8
+  defp month_to_int("Sep"), do: 9
+  defp month_to_int("Oct"), do: 10
+  defp month_to_int("Nov"), do: 11
+  defp month_to_int("Dec"), do: 12
+  defp month_to_int(_), do: raise(ArgumentError, "Invalid month")
+
+  defp parse_tz_offset(tz_str) do
+    case String.slice(tz_str, 0..0) do
+      "+" ->
+        offset_int = String.to_integer(String.slice(tz_str, 1..-1))
+        hours = div(offset_int, 100)
+        minutes = rem(offset_int, 100)
+        hours * 3600 + minutes * 60
+
+      "-" ->
+        offset_int = String.to_integer(String.slice(tz_str, 1..-1))
+        hours = div(offset_int, 100)
+        minutes = rem(offset_int, 100)
+        -(hours * 3600 + minutes * 60)
+
+      _ ->
+        0
+    end
+  rescue
+    _ -> 0
   end
 
   defp parse_duration(nil), do: nil
