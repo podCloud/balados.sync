@@ -18,11 +18,31 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
   # Helper pour récupérer la privacy actuelle pour un user/feed/item
   defp get_privacy(repo, user_id, feed, item) do
     # Privacy la plus spécifique : item > feed > user
+    # Check with Elixir is_nil to avoid type inference issues with fragments
+    item_condition = if is_nil(item), do: true, else: false
+    feed_condition = if is_nil(feed), do: true, else: false
+
     query =
       from(p in UserPrivacy,
-        where: p.user_id == ^user_id,
-        where: fragment("(? IS NULL OR ? = ? OR ? IS NULL)", ^item, p.rss_source_item, ^item, p.rss_source_item),
-        where: fragment("(? IS NULL OR ? = ? OR ? IS NULL)", ^feed, p.rss_source_feed, ^feed, p.rss_source_feed),
+        where: p.user_id == ^user_id
+      )
+
+    query =
+      if item_condition do
+        from(p in query, where: is_nil(p.rss_source_item))
+      else
+        from(p in query, where: p.rss_source_item == ^item or is_nil(p.rss_source_item))
+      end
+
+    query =
+      if feed_condition do
+        from(p in query, where: is_nil(p.rss_source_feed))
+      else
+        from(p in query, where: p.rss_source_feed == ^feed or is_nil(p.rss_source_feed))
+      end
+
+    query =
+      from(p in query,
         order_by: [
           desc:
             fragment(
@@ -50,7 +70,7 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
           rss_source_feed: event.rss_source_feed,
           privacy: to_string(privacy),
           event_data: %{},
-          event_timestamp: event.timestamp
+          event_timestamp: parse_datetime(event.timestamp)
         })
       else
         {:ok, nil}
@@ -71,7 +91,7 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
           rss_source_item: event.rss_source_item,
           privacy: to_string(privacy),
           event_data: %{position: event.position, played: event.played},
-          event_timestamp: event.timestamp
+          event_timestamp: parse_datetime(event.timestamp)
         })
       else
         {:ok, nil}
@@ -179,4 +199,17 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
 
     Ecto.Multi.delete_all(multi, :delete_events, query)
   end)
+
+  # Parse ISO8601 datetime string to DateTime struct
+  # Truncate microseconds to :second (Ecto :utc_datetime expects 0 microseconds)
+  defp parse_datetime(nil), do: nil
+  defp parse_datetime(dt) when is_struct(dt, DateTime) do
+    DateTime.truncate(dt, :second)
+  end
+  defp parse_datetime(dt_string) when is_binary(dt_string) do
+    case DateTime.from_iso8601(dt_string) do
+      {:ok, datetime, _offset} -> DateTime.truncate(datetime, :second)
+      {:error, _} -> nil
+    end
+  end
 end

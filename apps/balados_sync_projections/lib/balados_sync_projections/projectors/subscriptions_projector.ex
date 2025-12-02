@@ -13,7 +13,6 @@ defmodule BaladosSyncProjections.Projectors.SubscriptionsProjector do
   project(%UserSubscribed{} = event, _metadata, fn multi ->
     # Insérer la subscription immédiatement (ne pas bloquer sur fetch RSS)
     subscribed_at = parse_datetime(event.subscribed_at)
-    unsubscribed_at = parse_datetime(event.unsubscribed_at)
 
     multi =
       Ecto.Multi.insert(
@@ -24,7 +23,7 @@ defmodule BaladosSyncProjections.Projectors.SubscriptionsProjector do
           rss_source_feed: event.rss_source_feed,
           rss_source_id: event.rss_source_id,
           subscribed_at: subscribed_at,
-          unsubscribed_at: unsubscribed_at
+          unsubscribed_at: nil
         },
         on_conflict: {:replace, [:subscribed_at, :unsubscribed_at, :rss_source_id, :updated_at]},
         conflict_target: [:user_id, :rss_source_feed]
@@ -95,11 +94,14 @@ defmodule BaladosSyncProjections.Projectors.SubscriptionsProjector do
   end
 
   # Parse ISO8601 datetime string to DateTime struct
+  # Truncate microseconds to :second (Ecto :utc_datetime expects 0 microseconds)
   defp parse_datetime(nil), do: nil
-  defp parse_datetime(dt) when is_struct(dt, DateTime), do: dt
+  defp parse_datetime(dt) when is_struct(dt, DateTime) do
+    DateTime.truncate(dt, :second)
+  end
   defp parse_datetime(dt_string) when is_binary(dt_string) do
     case DateTime.from_iso8601(dt_string) do
-      {:ok, datetime, _offset} -> datetime
+      {:ok, datetime, _offset} -> DateTime.truncate(datetime, :second)
       {:error, _} -> nil
     end
   end

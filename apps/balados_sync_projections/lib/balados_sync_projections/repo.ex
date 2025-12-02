@@ -8,9 +8,4 @@ defmodule BaladosSyncProjections.ProjectionsRepo do
     config = Keyword.put(config, :migration_default_prefix, "public")
     {:ok, config}
   end
-
-  @impl true
-  def default_options(_operation) do
-    [prefix: "public"]
-  end
 end
