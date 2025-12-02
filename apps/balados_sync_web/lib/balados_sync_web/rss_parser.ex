@@ -133,7 +133,7 @@ defmodule BaladosSyncWeb.RssParser do
       else
         description = extract_text(item, ~x"./description/text()") || ""
         author = extract_episode_author(item)
-        pub_date = parse_pub_date(extract_text(item, ~x"./pubDate/text()"))
+        pub_date = extract_and_parse_pub_date(item)
         duration = parse_duration(extract_text(item, ~x"./itunes:duration/text()"))
         enclosure = extract_enclosure(item)
         cover = extract_text(item, ~x"./itunes:image/@href")
@@ -199,6 +199,18 @@ defmodule BaladosSyncWeb.RssParser do
     end
   rescue
     _ -> nil
+  end
+
+  # Extract pubDate trying multiple XPath variants
+  defp extract_and_parse_pub_date(item) do
+    date_string =
+      extract_text(item, ~x"./pubDate/text()") ||
+      extract_text(item, ~x"./pubdate/text()") ||
+      extract_text(item, ~x"./PubDate/text()") ||
+      extract_text(item, ~x"./updated/text()") ||
+      extract_text(item, ~x"./published/text()")
+
+    parse_pub_date(date_string)
   end
 
   defp parse_pub_date(nil), do: nil
