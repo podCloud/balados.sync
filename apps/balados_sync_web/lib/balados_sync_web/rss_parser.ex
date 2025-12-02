@@ -219,11 +219,11 @@ defmodule BaladosSyncWeb.RssParser do
 
   # Extract pubDate from RSS or Atom feeds
   defp extract_and_parse_pub_date(item) do
-    pubDate = extract_text(item, ~x"./pubDate/text()")
-    published = extract_text(item, ~x"./published/text()")
-    updated = extract_text(item, ~x"./updated/text()")
+    date_string =
+      extract_text(item, ~x"./pubDate/text()") ||
+      extract_text(item, ~x"./published/text()") ||
+      extract_text(item, ~x"./updated/text()")
 
-    date_string = pubDate || published || updated
     parse_pub_date(date_string)
   end
 
@@ -236,28 +236,29 @@ defmodule BaladosSyncWeb.RssParser do
   defp parse_pub_date(date_string) when is_binary(date_string) do
     date_string = String.trim(date_string)
 
-    Logger.debug("Parsing pub_date: #{inspect(date_string)}")
-
     case DateTime.from_iso8601(date_string) do
       {:ok, datetime, _offset} ->
-        Logger.debug("Parsed as ISO8601: #{inspect(datetime)}")
         datetime
 
       :error ->
-        # Try RFC 2822 format with Timex
-        try do
-          datetime = Timex.parse!(date_string, "{RFC2822}")
-          Logger.debug("Parsed as RFC2822 with Timex: #{inspect(datetime)}")
-          datetime
-        rescue
-          _ ->
-            Logger.debug("Could not parse date with Timex: #{inspect(date_string)}")
-            nil
+        # Try RFC 822 with timezone (RFC822z)
+        case Timex.parse(date_string, "{RFC822z}") do
+          {:ok, datetime} ->
+            datetime
+
+          :error ->
+            # Try RFC 1123 with timezone (RFC1123z)
+            case Timex.parse(date_string, "{RFC1123z}") do
+              {:ok, datetime} ->
+                datetime
+
+              :error ->
+                nil
+            end
         end
     end
   rescue
-    e ->
-      Logger.error("Error parsing pub_date: #{inspect(e)}, string: #{inspect(date_string)}")
+    _ ->
       nil
   end
 
