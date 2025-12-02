@@ -135,6 +135,7 @@ defmodule BaladosSyncWeb.RssParser do
         duration = parse_duration(extract_text(item, ~x"./itunes:duration/text()"))
         enclosure = extract_enclosure(item)
         cover = extract_text(item, ~x"./itunes:image/@href")
+        link = extract_text(item, ~x"./link/text()")
 
         %{
           guid: guid,
@@ -144,7 +145,8 @@ defmodule BaladosSyncWeb.RssParser do
           pub_date: pub_date,
           duration: duration,
           enclosure: enclosure,
-          cover: cover
+          cover: cover,
+          link: link
         }
       end
     rescue
