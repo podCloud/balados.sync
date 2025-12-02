@@ -21,8 +21,8 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
     query =
       from(p in UserPrivacy,
         where: p.user_id == ^user_id,
-        where: is_nil(^item) or p.rss_source_item == ^item or is_nil(p.rss_source_item),
-        where: is_nil(^feed) or p.rss_source_feed == ^feed or is_nil(p.rss_source_feed),
+        where: fragment("(? IS NULL OR ? = ? OR ? IS NULL)", ^item, p.rss_source_item, ^item, p.rss_source_item),
+        where: fragment("(? IS NULL OR ? = ? OR ? IS NULL)", ^feed, p.rss_source_feed, ^feed, p.rss_source_feed),
         order_by: [
           desc:
             fragment(
