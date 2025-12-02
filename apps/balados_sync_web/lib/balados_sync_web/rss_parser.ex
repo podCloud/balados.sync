@@ -203,22 +203,6 @@ defmodule BaladosSyncWeb.RssParser do
 
   # Extract pubDate from RSS or Atom feeds
   defp extract_and_parse_pub_date(item) do
-    pubDate = extract_text(item, ~x"./pubDate/text()")
-    published = extract_text(item, ~x"./published/text()")
-    updated = extract_text(item, ~x"./updated/text()")
-
-    date_string = pubDate || published || updated
-
-    # Debug logging
-    if is_nil(date_string) do
-      Logger.debug("No pub_date found. pubDate=#{inspect(pubDate)}, published=#{inspect(published)}, updated=#{inspect(updated)}")
-    end
-
-    parse_pub_date(date_string)
-  end
-
-  # Extract pubDate from RSS or Atom feeds
-  defp extract_and_parse_pub_date(item) do
     date_string =
       extract_text(item, ~x"./pubDate/text()") ||
       extract_text(item, ~x"./published/text()") ||
@@ -241,18 +225,16 @@ defmodule BaladosSyncWeb.RssParser do
         datetime
 
       :error ->
-        try do
-          # Try RFC 822 with timezone
-          Timex.parse!(date_string, "{RFC822z}")
-        rescue
-          _ ->
-            try do
-              # Try RFC 1123 with timezone
-              Timex.parse!(date_string, "{RFC1123z}")
-            rescue
-              _ ->
-                nil
-            end
+        # For RFC dates with timezone offset like "Mon, 03 Jan 2022 06:00:00 +0000"
+        # Replace the offset with Z for Timex parsing
+        clean_date = String.replace(date_string, ~r/ [+-]\d{4}$/, " Z")
+
+        case Timex.parse(clean_date, "{RFC1123}") do
+          {:ok, datetime} ->
+            datetime
+
+          :error ->
+            nil
         end
     end
   rescue
