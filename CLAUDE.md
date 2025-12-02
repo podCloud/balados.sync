@@ -614,9 +614,9 @@ GET /api/v1/subscriptions/:feed/metadata  # Récupérer métadonnées
 - Pages de découverte publiques
 - JavaScript AJAX pour chargement asynchrone
 
-### Play Gateway Links with Automatic "Balados Web" Token (v1.1)
+### Play Gateway Links with Automatic "Balados Web" Token (v1.1+)
 
-**Nouvelle fonctionnalité** : Les liens d'épisodes de l'interface web utilisent automatiquement la play gateway pour tracker les écoutes.
+**Nouvelle fonctionnalité** : Les liens d'épisodes de l'interface web utilisent automatiquement la play gateway pour tracker les écoutes, avec support flexible domain/path.
 
 #### Contenu
 
@@ -625,26 +625,49 @@ GET /api/v1/subscriptions/:feed/metadata  # Récupérer métadonnées
   - Stocké dans `system.play_tokens` (données permanentes)
   - Génération sécurisée avec 32 bytes aléatoires (Base64url)
 
-- **Links de Play Gateway dans l'Interface Web** : Les épisodes de subscriptions utilisent la play gateway
+- **Modes Play Gateway Simples** : Support de deux modes pour développement/production
+  - **External domain mode** (production) : `https://{play_domain}/{token}/{feed}/{item}`
+    - Activation : ajouter `config :balados_sync_web, play_domain: "play.example.com"` en production
+  - **Local path mode** (développement, défaut) : `/play/{token}/{feed}/{item}`
+    - Automatique si `play_domain` n'est pas configuré (meilleur pour single-domain dev)
+
+- **Links de Play Gateway dans l'Interface Web** : Épisodes et feeds agrégés utilisent la play gateway
   - Template `/my-subscriptions/:feed` utilise le play gateway pour les liens d'enclosure
-  - Format : `https://play.{domain}/{play_token}/{feed_encoded}/{item_id_encoded}`
+  - RSS agrégé (subscriptions + playlists) transforme les enclosures pour tracking
   - Permet le tracking automatique des écoutes via RecordPlay command
 
 #### Architecture
 
 **Composants Principaux** :
-- `PlayTokenHelper` : Module helper pour get_or_create du token "Balados Web"
+- `PlayTokenHelper` : Module helper pour get_or_create du token et construction d'URLs
   - `get_or_create_balados_web_token/1` : Crée le token si absent, le retourne sinon
   - `get_balados_web_token/1` : Récupère le token existant si valide
   - `create_balados_web_token/1` : Crée un nouveau token (gère les races conditions)
+  - `build_play_url/3` : Construit l'URL selon la configuration (`play_domain` ou `/play/`)
 - `WebSubscriptionsController.show/2` : Crée automatiquement le token au premier accès
+- `RssAggregateController` : Utilise `build_play_url` pour transformer les feeds
 - `show.html.heex` : Génère les URLs play gateway avec le token
+- Routes : Support du path mode `/play/:token/:feed/:item` (et subdomain si play_domain externe)
 
 **Patterns Utilisés** :
 - Automatic creation on first use (lazy initialization)
 - PlayToken stored in `system` schema (permanent data, non-event-sourced)
 - Race condition handling via unique constraint on (user_id, name)
-- Play domain configurable via `Application.get_env(:balados_sync_web, :play_domain, "play.balados.sync")`
+- Simple URL generation : `build_play_url` retourne soit une URL externe soit un path relatif
+
+#### Configuration
+
+**Production (external domain)** :
+```elixir
+config :balados_sync_web,
+  play_domain: "play.example.com"  # URLs: https://play.example.com/...
+```
+
+**Développement (local path, défaut)** :
+```elixir
+# Aucune configuration nécessaire
+# URLs: /play/token/feed/item (routes locales)
+```
 
 #### Utilisation
 
@@ -652,6 +675,7 @@ GET /api/v1/subscriptions/:feed/metadata  # Récupérer métadonnées
 - Premier accès à `/my-subscriptions/:feed` crée un token "Balados Web"
 - Token utilisé automatiquement pour tous les liens d'enclosure
 - Token partagé pour tous les feeds de l'utilisateur
+- Mode (external/path) choisi automatiquement selon configuration
 
 **Données Techniques** :
 - Token : 32 bytes random → Base64url (43 caractères)
@@ -660,10 +684,9 @@ GET /api/v1/subscriptions/:feed/metadata  # Récupérer métadonnées
 
 #### Commits
 
-3 commits implémentant la feature :
-- Création du module PlayTokenHelper avec logique de création/retrieval
-- Mise à jour du WebSubscriptionsController pour créer le token automatiquement
-- Modification du template show.html.heex pour utiliser les liens play gateway
+2 commits implémentant la feature complète :
+- Création du module PlayTokenHelper avec logique de création/retrieval et build_play_url simple
+- Ajout du support path mode + mise à jour controllers, templates et routes
 
 ---
 

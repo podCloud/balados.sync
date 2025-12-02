@@ -4,6 +4,18 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
 
   PlayTokens allow authenticated users to track plays through the RSS aggregation gateway
   without requiring full app authentication on each play.
+
+  Supports two play gateway modes:
+  1. External domain mode (production): https://{play_domain}/{token}/{feed}/{item}
+  2. Local path mode (development, default): /play/{token}/{feed}/{item}
+
+  Configuration:
+  - If `play_domain` is set, uses external domain URLs
+  - Otherwise, uses local path (/play/) as default (for single-domain development)
+
+  Example config:
+    config :balados_sync_web, play_domain: "play.example.com"  # Production
+    # or omit for development path mode at /play/
   """
 
   alias BaladosSyncProjections.ProjectionsRepo
@@ -72,6 +84,31 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
 
       {:error, reason} ->
         {:error, reason}
+    end
+  end
+
+  @doc """
+  Builds a play gateway URL for the given token, feed, and item.
+
+  Intelligently chooses between:
+  - External domain mode: https://{play_domain}/{token}/{feed}/{item}
+  - Local path mode: /play/{token}/{feed}/{item}
+
+  Configuration:
+  - If `play_domain` is set, uses external domain URLs
+  - Otherwise, uses local path routes (development default)
+
+  The encoding is applied by the caller for flexibility.
+  """
+  def build_play_url(token, encoded_feed, item_id_encoded) do
+    case Application.get_env(:balados_sync_web, :play_domain) do
+      # External domain mode (when play_domain is configured, e.g., "play.example.com")
+      play_domain when is_binary(play_domain) ->
+        "https://#{play_domain}/#{token}/#{encoded_feed}/#{item_id_encoded}"
+
+      # Local path mode (default when play_domain is not set)
+      nil ->
+        "/play/#{token}/#{encoded_feed}/#{item_id_encoded}"
     end
   end
 end

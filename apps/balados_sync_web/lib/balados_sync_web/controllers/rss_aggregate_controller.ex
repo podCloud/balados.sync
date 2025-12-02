@@ -197,8 +197,6 @@ defmodule BaladosSyncWeb.RssAggregateController do
       doc = xml |> parse()
       items = doc |> xpath(~x"//item"l)
 
-      play_domain = Application.get_env(:balados_sync_web, :play_domain, "play.balados.sync")
-
       transformed_items =
         items
         |> Enum.map(fn item_node ->
@@ -213,7 +211,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
 
           # Construire l'item_id et l'URL play
           item_id_encoded = Base.encode64("#{guid},#{enclosure_url}")
-          play_url = "https://#{play_domain}/#{user_token}/#{encoded_feed}/#{item_id_encoded}"
+          play_url = PlayTokenHelper.build_play_url(user_token, encoded_feed, item_id_encoded)
 
           # Nouveau titre avec format "Podcast Name - Episode Title"
           new_title = "#{feed_title} - #{original_title}"

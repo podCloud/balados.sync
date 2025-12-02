@@ -97,9 +97,8 @@
                 <%= if episode.enclosure do %>
                   <%
                     # Generate play gateway URL for tracking listens
-                    play_domain = Application.get_env(:balados_sync_web, :play_domain, "play.balados.sync")
                     item_id_encoded = Base.encode64("#{episode.guid || ""},#{episode.enclosure.url}")
-                    play_url = "https://#{play_domain}/#{@play_token}/#{@encoded_feed}/#{item_id_encoded}"
+                    play_url = BaladosSyncWeb.PlayTokenHelper.build_play_url(@play_token, @encoded_feed, item_id_encoded)
                   %>
                   <a
                     href={play_url}

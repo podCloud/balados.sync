@@ -189,4 +189,11 @@ defmodule BaladosSyncWeb.Router do
 
     get "/:user_token/:feed_id/:item_id", PlayGatewayController, :play
   end
+
+  # Play gateway (path /play/ - alternative for development)
+  scope "/play", BaladosSyncWeb do
+    pipe_through :play_gateway
+
+    get "/:user_token/:feed_id/:item_id", PlayGatewayController, :play
+  end
 end
