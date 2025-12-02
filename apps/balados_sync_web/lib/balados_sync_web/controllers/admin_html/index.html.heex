@@ -244,10 +244,15 @@
                 <tr>
                   <td class="px-6 py-4 text-sm truncate max-w-md">
                     <div class="font-semibold text-zinc-900"><%= episode.title || "Unknown Episode" %></div>
-                    <div class="text-xs text-zinc-500 flex gap-2 mt-1">
-                      <%= if episode.article_link do %>
-                        <a href={episode.article_link} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
-                          Article
+                    <%= if episode.guid do %>
+                      <div class="text-xs text-zinc-400 mt-1 font-mono truncate">
+                        <%= episode.guid %>
+                      </div>
+                    <% end %>
+                    <div class="text-xs text-zinc-500 flex gap-2 mt-2">
+                      <%= if episode.episode_link do %>
+                        <a href={episode.episode_link} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+                          Episode Link
                         </a>
                       <% end %>
                       <%= if episode.feed_url do %>

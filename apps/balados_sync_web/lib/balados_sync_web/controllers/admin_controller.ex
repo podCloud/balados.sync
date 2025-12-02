@@ -172,21 +172,39 @@ defmodule BaladosSyncWeb.AdminController do
 
   defp enrich_episode_title(episode) do
     with {:ok, feed_url} <- Base.url_decode64(episode.feed, padding: false),
+         {:ok, guid} <- extract_guid_from_item(episode.item),
          {:ok, xml} <- RssCache.fetch_feed(feed_url),
          {:ok, episodes} <- BaladosSyncWeb.RssParser.parse_episodes(xml) do
       # Find episode by guid
-      found_episode = Enum.find(episodes, fn ep -> ep.guid == episode.item end)
+      found_episode = Enum.find(episodes, fn ep -> ep.guid == guid end)
 
       episode
       |> Map.put(:title, found_episode && found_episode.title)
-      |> Map.put(:article_link, found_episode && found_episode.link)
+      |> Map.put(:guid, guid)
+      |> Map.put(:episode_link, found_episode && (found_episode.link || found_episode.enclosure && found_episode.enclosure.url))
       |> Map.put(:feed_url, feed_url)
     else
       _ ->
         episode
         |> Map.put(:title, nil)
-        |> Map.put(:article_link, nil)
+        |> Map.put(:guid, nil)
+        |> Map.put(:episode_link, nil)
         |> Map.put(:feed_url, nil)
+    end
+  end
+
+  defp extract_guid_from_item(encoded_item) do
+    with {:ok, decoded} <- Base.url_decode64(encoded_item, padding: false) do
+      parts = String.split(decoded, ",", parts: 2)
+      guid = Enum.at(parts, 1)
+
+      if guid do
+        {:ok, guid}
+      else
+        {:error, :invalid_format}
+      end
+    else
+      :error -> {:error, :invalid_encoding}
     end
   end
 
