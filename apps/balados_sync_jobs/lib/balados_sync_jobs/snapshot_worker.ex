@@ -3,6 +3,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   import Ecto.Query
 
   alias BaladosSyncCore.Commands.Snapshot
+  alias BaladosSyncCore.EventStore
   alias BaladosSyncProjections.ProjectionsRepo
 
   @forty_five_days_ago_seconds 45 * 24 * 60 * 60
@@ -51,9 +52,8 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     )
     """
 
-    # Execute raw query - à adapter selon votre EventStore
-    # TODO: Adapter selon EventStore
-    {:ok, result} = Ecto.Adapters.SQL.query(Repo, query, [cutoff_date])
+    # Execute raw query against EventStore
+    {:ok, result} = Ecto.Adapters.SQL.query(EventStore, query, [cutoff_date])
 
     Enum.map(result.rows, fn [user_id, event_type, feed, item] ->
       %{user_id: user_id, event_type: event_type, feed: feed, item: item}
@@ -86,14 +86,13 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     thirty_one_days_ago = DateTime.add(DateTime.utc_now(), -@thirty_one_days_ago_seconds, :second)
 
     # Supprimer les events de plus de 31 jours pour cet user
-    # TODO: EventStore peut avoir sa propre API de suppression
     query = """
     DELETE FROM events.events
     WHERE data->>'user_id' = $1
     AND created_at < $2
     """
 
-    case Ecto.Adapters.SQL.query(Repo, query, [user_id, thirty_one_days_ago]) do
+    case Ecto.Adapters.SQL.query(EventStore, query, [user_id, thirty_one_days_ago]) do
       {:ok, result} ->
         Logger.info("Cleaned up #{result.num_rows} old events for user #{user_id}")
 
