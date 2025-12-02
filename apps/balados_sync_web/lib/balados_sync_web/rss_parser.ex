@@ -201,14 +201,12 @@ defmodule BaladosSyncWeb.RssParser do
     _ -> nil
   end
 
-  # Extract pubDate trying multiple XPath variants
+  # Extract pubDate from RSS or Atom feeds
   defp extract_and_parse_pub_date(item) do
     date_string =
       extract_text(item, ~x"./pubDate/text()") ||
-      extract_text(item, ~x"./pubdate/text()") ||
-      extract_text(item, ~x"./PubDate/text()") ||
-      extract_text(item, ~x"./updated/text()") ||
-      extract_text(item, ~x"./published/text()")
+      extract_text(item, ~x"./published/text()") ||
+      extract_text(item, ~x"./updated/text()")
 
     parse_pub_date(date_string)
   end
