@@ -681,12 +681,14 @@ config :balados_sync_web,
 - Token : 32 bytes random → Base64url (43 caractères)
 - Stockage : Table `system.play_tokens` (colonne `name = 'Balados Web'`)
 - Lifecycle : Créé une fois, réutilisé, peut être révoqué via `revoked_at`
+- Encodage : Tous les feed_id et item_id utilisent `Base.url_encode64(..., padding: false)` pour la sécurité des URLs
 
 #### Commits
 
-2 commits implémentant la feature complète :
+3 commits implémentant la feature complète :
 - Création du module PlayTokenHelper avec logique de création/retrieval et build_play_url simple
 - Ajout du support path mode + mise à jour controllers, templates et routes
+- Fix: utilisation de Base.url_encode64/url_decode64 pour tous les IDs dans les URLs
 
 ---
 
