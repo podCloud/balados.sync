@@ -1,6 +1,7 @@
 defmodule BaladosSyncWeb.AdminController do
   use BaladosSyncWeb, :controller
   alias BaladosSyncWeb.Accounts
+  alias BaladosSyncWeb.RssCache
   alias BaladosSyncProjections.ProjectionsRepo
   import Ecto.Query
 
@@ -132,6 +133,23 @@ defmodule BaladosSyncWeb.AdminController do
       )
 
     ProjectionsRepo.all(query)
+    |> Enum.map(&enrich_podcast_title/1)
+  end
+
+  defp enrich_podcast_title(podcast) do
+    with {:ok, feed_url} <- Base.url_decode64(podcast.feed, padding: false),
+         {:ok, metadata} <- RssCache.get_feed_metadata(feed_url) do
+      podcast
+      |> Map.put(:title, metadata.title)
+      |> Map.put(:website_link, metadata.link)
+      |> Map.put(:feed_url, feed_url)
+    else
+      _ ->
+        podcast
+        |> Map.put(:title, nil)
+        |> Map.put(:website_link, nil)
+        |> Map.put(:feed_url, nil)
+    end
   end
 
   defp get_top_episodes(limit) do
@@ -149,6 +167,27 @@ defmodule BaladosSyncWeb.AdminController do
       )
 
     ProjectionsRepo.all(query)
+    |> Enum.map(&enrich_episode_title/1)
+  end
+
+  defp enrich_episode_title(episode) do
+    with {:ok, feed_url} <- Base.url_decode64(episode.feed, padding: false),
+         {:ok, xml} <- RssCache.fetch_feed(feed_url),
+         {:ok, episodes} <- BaladosSyncWeb.RssParser.parse_episodes(xml) do
+      # Find episode by guid
+      found_episode = Enum.find(episodes, fn ep -> ep.guid == episode.item end)
+
+      episode
+      |> Map.put(:title, found_episode && found_episode.title)
+      |> Map.put(:article_link, found_episode && found_episode.link)
+      |> Map.put(:feed_url, feed_url)
+    else
+      _ ->
+        episode
+        |> Map.put(:title, nil)
+        |> Map.put(:article_link, nil)
+        |> Map.put(:feed_url, nil)
+    end
   end
 
   defp get_cache_stats(feed_url) do

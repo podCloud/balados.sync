@@ -28,6 +28,11 @@
         <h1 class="text-3xl font-bold text-zinc-900"><%= @metadata.title %></h1>
         <p class="text-zinc-600 mt-1">by <%= @metadata.author %></p>
         <p class="text-sm text-zinc-700 mt-4"><%= @metadata.description %></p>
+        <%= if @subscription.updated_at do %>
+          <p class="text-xs text-zinc-500 mt-2">
+            Updated <%= time_ago_in_words(@subscription.updated_at) %>
+          </p>
+        <% end %>
 
         <div class="mt-6 flex gap-2">
           <.link
@@ -75,16 +80,6 @@
 
               <!-- Links -->
               <div class="mt-4 flex gap-3">
-                <%= if episode.enclosure do %>
-                  <a
-                    href={episode.enclosure.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-blue-600 hover:underline text-sm"
-                  >
-                    Download/Play Episode →
-                  </a>
-                <% end %>
                 <%= if episode.link do %>
                   <a
                     href={episode.link}
@@ -93,6 +88,16 @@
                     class="text-blue-600 hover:underline text-sm"
                   >
                     Read Article →
+                  </a>
+                <% end %>
+                <%= if episode.enclosure do %>
+                  <a
+                    href={episode.enclosure.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-blue-600 hover:underline text-sm"
+                  >
+                    Download/Play Episode →
                   </a>
                 <% end %>
               </div>

@@ -61,6 +61,7 @@ defmodule BaladosSyncWeb.RssParser do
       cover = extract_feed_cover(doc)
       language = extract_text(doc, ~x"//rss/channel/language/text()")
       episodes_count = count_items(doc)
+      link = extract_text(doc, ~x"//rss/channel/link/text()")
 
       {:ok,
        %{
@@ -69,7 +70,8 @@ defmodule BaladosSyncWeb.RssParser do
          author: author || "Unknown",
          cover: cover,
          language: language,
-         episodes_count: episodes_count
+         episodes_count: episodes_count,
+         link: link
        }}
     rescue
       _ -> {:error, :extraction_failed}
@@ -216,11 +218,35 @@ defmodule BaladosSyncWeb.RssParser do
         # Try RFC 2822 format (common in RSS)
         case Timex.parse(date_string, "{RFC2822}") do
           {:ok, datetime} -> DateTime.from_naive!(datetime, "Etc/UTC")
-          {:error, _} -> nil
+          {:error, _} ->
+            # Try with GMT/UTC timezone replacement
+            case try_parse_with_tz_replacement(date_string) do
+              {:ok, datetime} -> datetime
+              :error -> nil
+            end
         end
     end
   rescue
     _ -> nil
+  end
+
+  defp try_parse_with_tz_replacement(date_string) do
+    # Replace common timezone abbreviations with offsets
+    date_string = String.replace(date_string, " GMT", " +0000")
+    date_string = String.replace(date_string, " UTC", " +0000")
+    date_string = String.replace(date_string, " PST", " -0800")
+    date_string = String.replace(date_string, " EST", " -0500")
+    date_string = String.replace(date_string, " CST", " -0600")
+    date_string = String.replace(date_string, " MST", " -0700")
+    date_string = String.replace(date_string, " BST", " +0100")
+    date_string = String.replace(date_string, " CET", " +0100")
+
+    case Timex.parse(date_string, "{RFC2822}") do
+      {:ok, datetime} -> {:ok, DateTime.from_naive!(datetime, "Etc/UTC")}
+      {:error, _} -> :error
+    end
+  rescue
+    _ -> :error
   end
 
   defp parse_duration(nil), do: nil

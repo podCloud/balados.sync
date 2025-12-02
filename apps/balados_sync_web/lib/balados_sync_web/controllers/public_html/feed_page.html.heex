@@ -79,7 +79,9 @@
 
               <div class="flex gap-4 text-sm text-zinc-500 mt-2">
                 <%= if episode.pub_date do %>
-                  <span><%= Calendar.strftime(episode.pub_date, "%B %d, %Y") %></span>
+                  <span title={Calendar.strftime(episode.pub_date, "%B %d, %Y at %H:%M")}>
+                    <%= time_ago_in_words(episode.pub_date) %>
+                  </span>
                 <% end %>
                 <%= if episode.duration do %>
                   <span><%= format_duration(episode.duration) %></span>
@@ -90,9 +92,19 @@
                 <%= episode.description %>
               </p>
 
-              <!-- Play Link -->
-              <%= if episode.enclosure do %>
-                <div class="mt-4">
+              <!-- Links -->
+              <div class="mt-4 flex gap-3">
+                <%= if episode.link do %>
+                  <a
+                    href={episode.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-blue-600 hover:underline text-sm"
+                  >
+                    Read Article →
+                  </a>
+                <% end %>
+                <%= if episode.enclosure do %>
                   <a
                     href={episode.enclosure.url}
                     target="_blank"
@@ -101,8 +113,8 @@
                   >
                     Download/Play Episode →
                   </a>
-                </div>
-              <% end %>
+                <% end %>
+              </div>
             </div>
           <% end %>
         </div>

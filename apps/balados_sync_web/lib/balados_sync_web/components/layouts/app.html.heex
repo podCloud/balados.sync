@@ -13,14 +13,23 @@
         <span class="text-zinc-600">
           <%= @current_user.email %>
         </span>
-        <.link navigate={~p"/dashboard"} class="hover:text-zinc-700">
+        <.link
+          navigate={~p"/dashboard"}
+          class={if String.starts_with?(@conn.request_path, "/dashboard"), do: "text-blue-600 border-b-2 border-blue-600", else: "hover:text-zinc-700"}
+        >
           Dashboard
         </.link>
-        <.link navigate={~p"/my-subscriptions"} class="hover:text-zinc-700">
+        <.link
+          navigate={~p"/my-subscriptions"}
+          class={if String.starts_with?(@conn.request_path, "/my-subscriptions"), do: "text-blue-600 border-b-2 border-blue-600", else: "hover:text-zinc-700"}
+        >
           Subscriptions
         </.link>
         <%= if BaladosSyncWeb.Accounts.admin?(@current_user) do %>
-          <.link navigate={~p"/admin"} class="text-blue-600 hover:text-blue-700 font-semibold">
+          <.link
+            navigate={~p"/admin"}
+            class={if String.starts_with?(@conn.request_path, "/admin"), do: "text-blue-600 border-b-2 border-blue-600", else: "hover:text-zinc-700"}
+          >
             Admin
           </.link>
         <% end %>

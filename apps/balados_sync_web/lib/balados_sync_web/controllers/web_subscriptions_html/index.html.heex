@@ -60,20 +60,12 @@
                 <%= sub.metadata && sub.metadata.description %>
               </p>
 
-              <div class="mt-4 flex gap-2">
+              <div class="mt-4">
                 <.link
                   navigate={~p"/my-subscriptions/#{sub.rss_source_feed}"}
-                  class="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-blue-700"
+                  class="block w-full rounded-lg bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-blue-700"
                 >
                   View
-                </.link>
-                <.link
-                  href={~p"/my-subscriptions/#{sub.rss_source_feed}"}
-                  method="delete"
-                  data-confirm="Are you sure you want to unsubscribe?"
-                  class="flex-1 rounded-lg bg-red-600 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-red-700"
-                >
-                  Unsubscribe
                 </.link>
               </div>
             </div>

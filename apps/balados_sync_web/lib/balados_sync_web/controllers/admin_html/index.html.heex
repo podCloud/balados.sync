@@ -136,7 +136,7 @@
                 scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
               >
-                Feed URL
+                Podcast Title
               </th>
               <th
                 scope="col"
@@ -168,11 +168,20 @@
             <% else %>
               <%= for podcast <- @stats.top_podcasts do %>
                 <tr>
-                  <td class="px-6 py-4 text-sm text-zinc-900 font-mono truncate max-w-md">
-                    <%= case Base.decode64(podcast.feed) do
-                      {:ok, decoded} -> decoded
-                      :error -> podcast.feed
-                    end %>
+                  <td class="px-6 py-4 text-sm truncate max-w-md">
+                    <div class="font-semibold text-zinc-900"><%= podcast.title || "Unknown Podcast" %></div>
+                    <div class="text-xs text-zinc-500 flex gap-2 mt-1">
+                      <%= if podcast.website_link do %>
+                        <a href={podcast.website_link} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+                          Website
+                        </a>
+                      <% end %>
+                      <%= if podcast.feed_url do %>
+                        <a href={podcast.feed_url} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+                          RSS Feed
+                        </a>
+                      <% end %>
+                    </div>
                   </td>
                   <td class="px-6 py-4 text-sm font-semibold text-zinc-900">
                     <%= podcast.score %>
@@ -201,7 +210,7 @@
                 scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
               >
-                Episode GUID
+                Episode Title
               </th>
               <th
                 scope="col"
@@ -233,8 +242,20 @@
             <% else %>
               <%= for episode <- @stats.top_episodes do %>
                 <tr>
-                  <td class="px-6 py-4 text-sm text-zinc-900 font-mono truncate max-w-md">
-                    <%= episode.item %>
+                  <td class="px-6 py-4 text-sm truncate max-w-md">
+                    <div class="font-semibold text-zinc-900"><%= episode.title || "Unknown Episode" %></div>
+                    <div class="text-xs text-zinc-500 flex gap-2 mt-1">
+                      <%= if episode.article_link do %>
+                        <a href={episode.article_link} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+                          Article
+                        </a>
+                      <% end %>
+                      <%= if episode.feed_url do %>
+                        <a href={episode.feed_url} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+                          RSS Feed
+                        </a>
+                      <% end %>
+                    </div>
                   </td>
                   <td class="px-6 py-4 text-sm font-semibold text-zinc-900">
                     <%= episode.score %>

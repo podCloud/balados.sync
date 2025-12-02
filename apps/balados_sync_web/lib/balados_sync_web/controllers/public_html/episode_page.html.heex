@@ -17,7 +17,9 @@
           <span>by <span class="font-medium"><%= @episode.author %></span></span>
         <% end %>
         <%= if @episode.pub_date do %>
-          <span><%= Calendar.strftime(@episode.pub_date, "%B %d, %Y") %></span>
+          <span title={Calendar.strftime(@episode.pub_date, "%B %d, %Y at %H:%M")}>
+            <%= time_ago_in_words(@episode.pub_date) %>
+          </span>
         <% end %>
         <%= if @episode.duration do %>
           <span><%= format_duration(@episode.duration) %></span>

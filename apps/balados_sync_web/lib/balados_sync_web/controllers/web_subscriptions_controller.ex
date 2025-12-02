@@ -191,7 +191,15 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   def export_opml(conn, _params) do
     user_id = conn.assigns.current_user.id
     subscriptions = Queries.get_user_subscriptions(user_id)
-    opml_content = generate_opml(subscriptions, conn.assigns.current_user)
+
+    # Enrich subscriptions with metadata for better OPML titles
+    enriched_subscriptions =
+      Enum.map(subscriptions, fn sub ->
+        metadata = fetch_metadata_safe(sub.rss_source_feed)
+        Map.put(sub, :metadata, metadata)
+      end)
+
+    opml_content = generate_opml(enriched_subscriptions, conn.assigns.current_user)
 
     conn
     |> put_resp_content_type("application/xml")
@@ -238,7 +246,12 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
       subscriptions
       |> Enum.map(fn sub ->
         with {:ok, feed_url} <- Base.url_decode64(sub.rss_source_feed, padding: false) do
-          title = sub.rss_feed_title || "Unknown Podcast"
+          # Try to use metadata title first, then rss_feed_title, then default
+          title =
+            (sub.metadata && sub.metadata.title) ||
+            sub.rss_feed_title ||
+            "Unknown Podcast"
+
           ~s(<outline type="rss" text="#{escape_xml(title)}" xmlUrl="#{escape_xml(feed_url)}" />)
         else
           _ -> ""

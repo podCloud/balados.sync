@@ -18,7 +18,8 @@
       "Bash(psql:*)",
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "Bash(/tmp/test_argon2.sh)"
+      "Bash(/tmp/test_argon2.sh)",
+      "Skill(git-commit-helper)"
     ],
     "deny": [],
     "ask": []
