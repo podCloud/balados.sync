@@ -190,6 +190,7 @@ defmodule BaladosSyncWeb.RssParser do
       nil -> nil
       "" -> nil
       text when is_binary(text) -> String.trim(text)
+      text when is_list(text) -> text |> to_string() |> String.trim()
       _other -> nil
     end
   rescue
@@ -197,6 +198,10 @@ defmodule BaladosSyncWeb.RssParser do
   end
 
   defp parse_pub_date(nil), do: nil
+
+  defp parse_pub_date(date_string) when is_list(date_string) do
+    parse_pub_date(to_string(date_string))
+  end
 
   defp parse_pub_date(date_string) when is_binary(date_string) do
     date_string = String.trim(date_string)
@@ -217,6 +222,10 @@ defmodule BaladosSyncWeb.RssParser do
   end
 
   defp parse_duration(nil), do: nil
+
+  defp parse_duration(duration_string) when is_list(duration_string) do
+    parse_duration(to_string(duration_string))
+  end
 
   defp parse_duration(duration_string) when is_binary(duration_string) do
     duration_string = String.trim(duration_string)
