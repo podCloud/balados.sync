@@ -241,18 +241,16 @@ defmodule BaladosSyncWeb.RssParser do
         datetime
 
       :error ->
-        # Try RFC 822 with timezone (RFC822z)
-        case Timex.parse(date_string, "{RFC822z}") do
-          {:ok, datetime} ->
-            datetime
-
-          :error ->
-            # Try RFC 1123 with timezone (RFC1123z)
-            case Timex.parse(date_string, "{RFC1123z}") do
-              {:ok, datetime} ->
-                datetime
-
-              :error ->
+        try do
+          # Try RFC 822 with timezone
+          Timex.parse!(date_string, "{RFC822z}")
+        rescue
+          _ ->
+            try do
+              # Try RFC 1123 with timezone
+              Timex.parse!(date_string, "{RFC1123z}")
+            rescue
+              _ ->
                 nil
             end
         end
