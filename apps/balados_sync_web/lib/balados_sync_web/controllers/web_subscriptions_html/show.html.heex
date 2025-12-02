@@ -96,8 +96,8 @@
                 <% end %>
                 <%= if episode.enclosure do %>
                   <%
-                    # Generate play gateway URL for tracking listens
-                    item_id_encoded = Base.encode64("#{episode.guid || ""},#{episode.enclosure.url}")
+                    # Generate play gateway URL for tracking listens (URL-safe encoding)
+                    item_id_encoded = Base.url_encode64("#{episode.guid || ""},#{episode.enclosure.url}", padding: false)
                     play_url = BaladosSyncWeb.PlayTokenHelper.build_play_url(@play_token, @encoded_feed, item_id_encoded)
                   %>
                   <a

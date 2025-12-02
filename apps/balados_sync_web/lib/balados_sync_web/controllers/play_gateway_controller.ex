@@ -55,7 +55,7 @@ defmodule BaladosSyncWeb.PlayGatewayController do
   end
 
   defp decode_base64(encoded) do
-    case Base.decode64(encoded) do
+    case Base.url_decode64(encoded, padding: false) do
       {:ok, decoded} -> {:ok, decoded}
       :error -> {:error, :invalid_base64}
     end

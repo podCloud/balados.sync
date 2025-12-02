@@ -106,8 +106,8 @@ defmodule BaladosSyncWeb.RssAggregateController do
     tasks =
       Enum.map(subscriptions, fn sub ->
         Task.async(fn ->
-          # Décoder le feed URL
-          {:ok, feed_url} = Base.decode64(sub.feed)
+          # Décoder le feed URL (URL-safe encoding)
+          {:ok, feed_url} = Base.url_decode64(sub.feed, padding: false)
 
           case RssCache.fetch_feed(feed_url) do
             {:ok, xml} ->
@@ -149,7 +149,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
     tasks =
       Enum.map(items_by_feed, fn {feed, items} ->
         Task.async(fn ->
-          {:ok, feed_url} = Base.decode64(feed)
+          {:ok, feed_url} = Base.url_decode64(feed, padding: false)
           feed_title = List.first(items).feed_title || "Unknown Podcast"
           item_ids = Enum.map(items, & &1.rss_source_item)
 
@@ -209,8 +209,8 @@ defmodule BaladosSyncWeb.RssAggregateController do
           # Parser la date
           pub_date_parsed = parse_pub_date(pub_date_str)
 
-          # Construire l'item_id et l'URL play
-          item_id_encoded = Base.encode64("#{guid},#{enclosure_url}")
+          # Construire l'item_id et l'URL play (URL-safe encoding)
+          item_id_encoded = Base.url_encode64("#{guid},#{enclosure_url}", padding: false)
           play_url = PlayTokenHelper.build_play_url(user_token, encoded_feed, item_id_encoded)
 
           # Nouveau titre avec format "Podcast Name - Episode Title"
@@ -241,10 +241,10 @@ defmodule BaladosSyncWeb.RssAggregateController do
       # Filtrer si nécessaire
       final_items =
         if filter_item_ids do
-          # Décoder les guids des filter_item_ids
+          # Décoder les guids des filter_item_ids (URL-safe encoding)
           target_guids =
             Enum.map(filter_item_ids, fn encoded ->
-              case Base.decode64(encoded) do
+              case Base.url_decode64(encoded, padding: false) do
                 {:ok, decoded} ->
                   [guid | _] = String.split(decoded, ",", parts: 2)
                   guid
