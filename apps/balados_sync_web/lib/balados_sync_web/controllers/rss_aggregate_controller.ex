@@ -3,6 +3,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
   require Logger
 
   alias BaladosSyncWeb.RssCache
+  alias BaladosSyncWeb.PlayTokenHelper
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.{PlayToken, Subscription, Playlist, PlaylistItem}
   import Ecto.Query

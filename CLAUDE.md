@@ -614,6 +614,57 @@ GET /api/v1/subscriptions/:feed/metadata  # Récupérer métadonnées
 - Pages de découverte publiques
 - JavaScript AJAX pour chargement asynchrone
 
+### Play Gateway Links with Automatic "Balados Web" Token (v1.1)
+
+**Nouvelle fonctionnalité** : Les liens d'épisodes de l'interface web utilisent automatiquement la play gateway pour tracker les écoutes.
+
+#### Contenu
+
+- **Tokens de Lecture Automatiques** : Token "Balados Web" créé automatiquement
+  - Créé lors de la première consultation d'une subscription
+  - Stocké dans `system.play_tokens` (données permanentes)
+  - Génération sécurisée avec 32 bytes aléatoires (Base64url)
+
+- **Links de Play Gateway dans l'Interface Web** : Les épisodes de subscriptions utilisent la play gateway
+  - Template `/my-subscriptions/:feed` utilise le play gateway pour les liens d'enclosure
+  - Format : `https://play.{domain}/{play_token}/{feed_encoded}/{item_id_encoded}`
+  - Permet le tracking automatique des écoutes via RecordPlay command
+
+#### Architecture
+
+**Composants Principaux** :
+- `PlayTokenHelper` : Module helper pour get_or_create du token "Balados Web"
+  - `get_or_create_balados_web_token/1` : Crée le token si absent, le retourne sinon
+  - `get_balados_web_token/1` : Récupère le token existant si valide
+  - `create_balados_web_token/1` : Crée un nouveau token (gère les races conditions)
+- `WebSubscriptionsController.show/2` : Crée automatiquement le token au premier accès
+- `show.html.heex` : Génère les URLs play gateway avec le token
+
+**Patterns Utilisés** :
+- Automatic creation on first use (lazy initialization)
+- PlayToken stored in `system` schema (permanent data, non-event-sourced)
+- Race condition handling via unique constraint on (user_id, name)
+- Play domain configurable via `Application.get_env(:balados_sync_web, :play_domain, "play.balados.sync")`
+
+#### Utilisation
+
+**Automatique** : Aucune action utilisateur requise
+- Premier accès à `/my-subscriptions/:feed` crée un token "Balados Web"
+- Token utilisé automatiquement pour tous les liens d'enclosure
+- Token partagé pour tous les feeds de l'utilisateur
+
+**Données Techniques** :
+- Token : 32 bytes random → Base64url (43 caractères)
+- Stockage : Table `system.play_tokens` (colonne `name = 'Balados Web'`)
+- Lifecycle : Créé une fois, réutilisé, peut être révoqué via `revoked_at`
+
+#### Commits
+
+3 commits implémentant la feature :
+- Création du module PlayTokenHelper avec logique de création/retrieval
+- Mise à jour du WebSubscriptionsController pour créer le token automatiquement
+- Modification du template show.html.heex pour utiliser les liens play gateway
+
 ---
 
 ## 📖 Ressources Additionnelles
@@ -685,6 +736,6 @@ Le projet vise à devenir open source et communautaire. Guidelines de contributi
 
 ---
 
-**Dernière mise à jour** : 2025-11-30
-**Statut du projet** : 🟡 En développement actif - Web UI + Public Discovery - Multi-Repo Architecture
-**Branche en cours** : feature/subscription-web-interface (prêt pour merge)
+**Dernière mise à jour** : 2025-12-02
+**Statut du projet** : 🟡 En développement actif - Web UI + Auto Play Gateway Token - Multi-Repo Architecture
+**Branche en cours** : main (Play Gateway Token feature implémentée)

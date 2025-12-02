@@ -19,6 +19,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   alias BaladosSyncProjections.Schemas.Subscription
   alias BaladosSyncWeb.Queries
   alias BaladosSyncWeb.RssCache
+  alias BaladosSyncWeb.PlayTokenHelper
 
   # All actions require authenticated user
   plug :require_authenticated_user
@@ -46,6 +47,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   Show details of a single subscription (feed and episodes).
 
   Fetches the feed from RSS cache and displays episodes list.
+  Automatically creates "Balados Web" play token if needed for play gateway links.
   """
   def show(conn, %{"feed" => encoded_feed}) do
     user_id = conn.assigns.current_user.id
@@ -64,18 +66,29 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
       |> halt()
     end
 
+    # Get or create "Balados Web" token for play gateway links
+    play_token_result = PlayTokenHelper.get_or_create_balados_web_token(user_id)
+
     # Fetch and parse feed
     with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
          {:ok, xml} <- RssCache.fetch_feed(feed_url),
          {:ok, metadata} <- BaladosSyncWeb.RssParser.parse_feed(xml),
-         {:ok, episodes} <- BaladosSyncWeb.RssParser.parse_episodes(xml) do
+         {:ok, episodes} <- BaladosSyncWeb.RssParser.parse_episodes(xml),
+         {:ok, play_token} <- play_token_result do
       render(conn, :show,
         subscription: subscription,
         metadata: metadata,
         episodes: episodes,
-        encoded_feed: encoded_feed
+        encoded_feed: encoded_feed,
+        play_token: play_token
       )
     else
+      {:error, reason} when reason != :invalid_base64 and reason != :fetch_failed and reason != :parse_failed ->
+        Logger.error("Failed to get play token: #{inspect(reason)}")
+        conn
+        |> put_flash(:error, "Failed to load feed")
+        |> redirect(to: ~p"/my-subscriptions")
+
       _ ->
         conn
         |> put_flash(:error, "Failed to load feed")
