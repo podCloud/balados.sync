@@ -203,11 +203,27 @@ defmodule BaladosSyncWeb.RssParser do
 
   # Extract pubDate from RSS or Atom feeds
   defp extract_and_parse_pub_date(item) do
-    date_string =
-      extract_text(item, ~x"./pubDate/text()") ||
-      extract_text(item, ~x"./published/text()") ||
-      extract_text(item, ~x"./updated/text()")
+    pubDate = extract_text(item, ~x"./pubDate/text()")
+    published = extract_text(item, ~x"./published/text()")
+    updated = extract_text(item, ~x"./updated/text()")
 
+    date_string = pubDate || published || updated
+
+    # Debug logging
+    if is_nil(date_string) do
+      Logger.debug("No pub_date found. pubDate=#{inspect(pubDate)}, published=#{inspect(published)}, updated=#{inspect(updated)}")
+    end
+
+    parse_pub_date(date_string)
+  end
+
+  # Extract pubDate from RSS or Atom feeds
+  defp extract_and_parse_pub_date(item) do
+    pubDate = extract_text(item, ~x"./pubDate/text()")
+    published = extract_text(item, ~x"./published/text()")
+    updated = extract_text(item, ~x"./updated/text()")
+
+    date_string = pubDate || published || updated
     parse_pub_date(date_string)
   end
 
@@ -220,43 +236,29 @@ defmodule BaladosSyncWeb.RssParser do
   defp parse_pub_date(date_string) when is_binary(date_string) do
     date_string = String.trim(date_string)
 
+    Logger.debug("Parsing pub_date: #{inspect(date_string)}")
+
     case DateTime.from_iso8601(date_string) do
       {:ok, datetime, _offset} ->
+        Logger.debug("Parsed as ISO8601: #{inspect(datetime)}")
         datetime
 
       :error ->
-        # Try RFC 2822 format (common in RSS)
-        case Timex.parse(date_string, "{RFC2822}") do
-          {:ok, datetime} -> DateTime.from_naive!(datetime, "Etc/UTC")
-          {:error, _} ->
-            # Try with GMT/UTC timezone replacement
-            case try_parse_with_tz_replacement(date_string) do
-              {:ok, datetime} -> datetime
-              :error -> nil
-            end
+        # Try RFC 2822 format with Timex
+        try do
+          datetime = Timex.parse!(date_string, "{RFC2822}")
+          Logger.debug("Parsed as RFC2822 with Timex: #{inspect(datetime)}")
+          datetime
+        rescue
+          _ ->
+            Logger.debug("Could not parse date with Timex: #{inspect(date_string)}")
+            nil
         end
     end
   rescue
-    _ -> nil
-  end
-
-  defp try_parse_with_tz_replacement(date_string) do
-    # Replace common timezone abbreviations with offsets
-    date_string = String.replace(date_string, " GMT", " +0000")
-    date_string = String.replace(date_string, " UTC", " +0000")
-    date_string = String.replace(date_string, " PST", " -0800")
-    date_string = String.replace(date_string, " EST", " -0500")
-    date_string = String.replace(date_string, " CST", " -0600")
-    date_string = String.replace(date_string, " MST", " -0700")
-    date_string = String.replace(date_string, " BST", " +0100")
-    date_string = String.replace(date_string, " CET", " +0100")
-
-    case Timex.parse(date_string, "{RFC2822}") do
-      {:ok, datetime} -> {:ok, DateTime.from_naive!(datetime, "Etc/UTC")}
-      {:error, _} -> :error
-    end
-  rescue
-    _ -> :error
+    e ->
+      Logger.error("Error parsing pub_date: #{inspect(e)}, string: #{inspect(date_string)}")
+      nil
   end
 
   defp parse_duration(nil), do: nil

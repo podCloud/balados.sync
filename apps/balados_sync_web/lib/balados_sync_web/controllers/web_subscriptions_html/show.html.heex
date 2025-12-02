@@ -68,6 +68,10 @@
                   <span title={Calendar.strftime(episode.pub_date, "%B %d, %Y at %H:%M")}>
                     <%= time_ago_in_words(episode.pub_date) %>
                   </span>
+                <% else %>
+                  <span class="text-red-600 font-mono text-xs bg-red-50 px-2 py-1 rounded">
+                    pub_date: <%= inspect(episode.pub_date) %>
+                  </span>
                 <% end %>
                 <%= if episode.duration do %>
                   <span><%= format_duration(episode.duration) %></span>
