@@ -761,7 +761,96 @@ Le projet vise à devenir open source et communautaire. Guidelines de contributi
 
 ### Gestion des Bugs Connus
 
-Voir [docs/KNOWN_BUGS.md](docs/KNOWN_BUGS.md) pour la liste des bugs en cours.
+Tous les bugs connus ont été résolus. Fichier `docs/KNOWN_BUGS.md` supprimé.
+
+---
+
+## 🔧 Live WebSocket Gateway (v1.2)
+
+**Nouvelle fonctionnalité** : WebSocket standard pour communication temps réel avec authentification PlayToken/JWT.
+
+### Contenu
+
+- **WebSocket Standard** (pas Phoenix Channels)
+  - Compatible avec JS vanilla et n'importe quelle app tierce
+  - Implémente WebSock behaviour (standard Elixir)
+  - Pas de dépendance à une librairie client Phoenix spécifique
+
+- **Authentification Duale**
+  - **PlayToken** : Simple bearer token (B64url, 32 bytes)
+  - **JWT AppToken** : Full JWT avec scopes
+  - Détection automatique du type de token
+  - Premier message DOIT être `{"type": "auth", "token": "xxx"}`
+
+- **State Management**
+  - Connexion commencée en `:unauthenticated`
+  - Transition à `:authenticated` après validation
+  - Seul `{"type": "auth"}` accepté avant auth
+  - État persistent pendant la connexion
+
+- **Message Format** (JSON)
+  ```json
+  {"type": "auth", "token": "xxx"}
+  {"type": "record_play", "feed": "...", "item": "...", "position": 123, "played": false}
+  ```
+
+- **Réponses**
+  ```json
+  {"status": "ok", "message": "...", "data": {...}}
+  {"status": "error", "error": {"message": "...", "code": "..."}}
+  ```
+
+### Architecture
+
+**Modules Créés** :
+- `LiveWebSocket.State` : Gestion d'état de connexion
+- `LiveWebSocket.Auth` : Authentification PlayToken/JWT
+- `LiveWebSocket.MessageHandler` : Parsing, validation, dispatch
+- `LiveWebSocket` : Handler WebSocket (WebSock behaviour)
+- `LiveWebSocketController` : HTTP upgrade
+
+**Routes** :
+- **Production (subdomain)** : `GET /api/v1/live` (host: "sync.")
+- **Production (path)** : `GET /sync/api/v1/live`
+- **Développement** : `ws://localhost:4000/sync/api/v1/live`
+
+**Intégration** :
+- Réutilise `AppAuth.verify_app_request/1` pour JWT
+- Réutilise `PlayToken` schema et validation
+- Dispatch synchrone via `Dispatcher.dispatch(RecordPlay)`
+- Updates `last_used_at` async (Task.start)
+
+### Utilisation
+
+**Client JavaScript** :
+```javascript
+const ws = new WebSocket('ws://localhost:4000/sync/api/v1/live');
+
+ws.onopen = () => {
+  ws.send(JSON.stringify({type: 'auth', token: 'your_token'}));
+};
+
+ws.onmessage = (e) => {
+  const response = JSON.parse(e.data);
+  if (response.status === 'ok' && response.data?.user_id) {
+    // Authentifié
+    ws.send(JSON.stringify({
+      type: 'record_play',
+      feed: btoa(feedUrl).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
+      item: btoa(itemId).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
+      position: 123,
+      played: false
+    }));
+  }
+};
+```
+
+### Commits
+
+1 commit implémentant la feature complète :
+- Modules WebSocket avec authentification duale
+- Routes avec support subdomain + path
+- Intégration avec CQRS/Event Sourcing existant
 
 ---
 
@@ -781,9 +870,6 @@ Voir [docs/KNOWN_BUGS.md](docs/KNOWN_BUGS.md) pour la liste des bugs en cours.
 - **Logs détaillés** partout dans PopularityProjector pour debugguer les problèmes
 - **Exception handling** : try/rescue blocks avec messages d'erreur explicites
 - **Trace complète** : PlayRecorded event → podcast update → episode update → async enrichment
-
-### Bug Connu : Unknown Episode
-⚠️ **EN COURS** : Episode affiche "unknown episode" même après Play. Voir [docs/KNOWN_BUGS.md](docs/KNOWN_BUGS.md)
 
 ---
 
