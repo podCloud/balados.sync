@@ -2,7 +2,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
   use BaladosSyncWeb, :controller
   require Logger
 
-  alias BaladosSyncWeb.RssCache
+  alias BaladosSyncCore.RssCache
   alias BaladosSyncWeb.PlayTokenHelper
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.{PlayToken, Subscription, Playlist, PlaylistItem}

@@ -2,7 +2,7 @@ defmodule BaladosSyncWeb.RssProxyController do
   use BaladosSyncWeb, :controller
   require Logger
 
-  alias BaladosSyncWeb.RssCache
+  alias BaladosSyncCore.RssCache
 
   def proxy(conn, %{"encoded_feed_id" => encoded_feed_id}) do
     with {:ok, feed_url} <- decode_feed_id(encoded_feed_id),

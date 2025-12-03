@@ -15,10 +15,11 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
 
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.{Subscribe, Unsubscribe}
+  alias BaladosSyncCore.RssCache
+  alias BaladosSyncCore.RssParser
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.Subscription
   alias BaladosSyncWeb.Queries
-  alias BaladosSyncWeb.RssCache
   alias BaladosSyncWeb.PlayTokenHelper
 
   # All actions require authenticated user
@@ -72,8 +73,8 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
     # Fetch and parse feed
     with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
          {:ok, xml} <- RssCache.fetch_feed(feed_url),
-         {:ok, metadata} <- BaladosSyncWeb.RssParser.parse_feed(xml),
-         {:ok, episodes} <- BaladosSyncWeb.RssParser.parse_episodes(xml),
+         {:ok, metadata} <- RssParser.parse_feed(xml),
+         {:ok, episodes} <- RssParser.parse_episodes(xml),
          {:ok, play_token} <- play_token_result do
       render(conn, :show,
         subscription: subscription,
@@ -236,7 +237,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
 
   defp preview_feed(url) do
     with {:ok, xml} <- RssCache.fetch_feed(url),
-         {:ok, metadata} <- BaladosSyncWeb.RssParser.parse_feed(xml) do
+         {:ok, metadata} <- RssParser.parse_feed(xml) do
       {:ok, metadata}
     else
       {:error, :fetch_failed} -> {:error, "Could not fetch feed"}

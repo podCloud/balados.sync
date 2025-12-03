@@ -1,7 +1,8 @@
 defmodule BaladosSyncWeb.AdminController do
   use BaladosSyncWeb, :controller
   alias BaladosSyncWeb.Accounts
-  alias BaladosSyncWeb.RssCache
+  alias BaladosSyncCore.RssCache
+  alias BaladosSyncCore.RssParser
   alias BaladosSyncProjections.ProjectionsRepo
   import Ecto.Query
 
@@ -174,7 +175,7 @@ defmodule BaladosSyncWeb.AdminController do
     with {:ok, feed_url} <- Base.url_decode64(episode.feed, padding: false),
          {:ok, guid} <- extract_guid_from_item(episode.item),
          {:ok, xml} <- RssCache.fetch_feed(feed_url),
-         {:ok, episodes} <- BaladosSyncWeb.RssParser.parse_episodes(xml) do
+         {:ok, episodes} <- RssParser.parse_episodes(xml) do
       # Find episode by guid
       found_episode = Enum.find(episodes, fn ep -> ep.guid == guid end)
 

@@ -44,7 +44,10 @@ defmodule BaladosSyncCore.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:phoenix_pubsub, "~> 2.1"},
       {:swoosh, "~> 1.5"},
-      {:finch, "~> 0.13"}
+      {:finch, "~> 0.13"},
+      {:httpoison, "~> 2.0"},
+      {:cachex, "~> 3.6"},
+      {:sweet_xml, "~> 0.7"}
     ]
   end
 

@@ -3,6 +3,8 @@ defmodule BaladosSyncWeb.PublicController do
 
   require Logger
 
+  alias BaladosSyncCore.RssCache
+  alias BaladosSyncCore.RssParser
   alias BaladosSyncProjections.ProjectionsRepo
 
   alias BaladosSyncProjections.Schemas.{
@@ -10,8 +12,6 @@ defmodule BaladosSyncWeb.PublicController do
     EpisodePopularity,
     PublicEvent
   }
-
-  alias BaladosSyncWeb.RssCache
 
   import Ecto.Query
 
@@ -170,8 +170,8 @@ defmodule BaladosSyncWeb.PublicController do
   def feed_page(conn, %{"feed" => encoded_feed}) do
     with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
          {:ok, xml} <- RssCache.fetch_feed(feed_url),
-         {:ok, metadata} <- BaladosSyncWeb.RssParser.parse_feed(xml),
-         {:ok, episodes} <- BaladosSyncWeb.RssParser.parse_episodes(xml) do
+         {:ok, metadata} <- RssParser.parse_feed(xml),
+         {:ok, episodes} <- RssParser.parse_episodes(xml) do
       popularity = ProjectionsRepo.get(PodcastPopularity, encoded_feed)
 
       render(conn, :feed_page,
@@ -194,7 +194,7 @@ defmodule BaladosSyncWeb.PublicController do
   def episode_page(conn, %{"item" => encoded_item}) do
     with {:ok, feed_url} <- decode_episode_feed(encoded_item),
          {:ok, xml} <- RssCache.fetch_feed(feed_url),
-         {:ok, episodes} <- BaladosSyncWeb.RssParser.parse_episodes(xml),
+         {:ok, episodes} <- RssParser.parse_episodes(xml),
          episode when not is_nil(episode) <- find_episode(episodes, encoded_item) do
       popularity = ProjectionsRepo.get(EpisodePopularity, encoded_item)
 

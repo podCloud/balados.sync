@@ -230,7 +230,7 @@ defmodule BaladosSyncWeb.SubscriptionController do
   def metadata(conn, %{"feed" => encoded_feed}) do
     case Base.url_decode64(encoded_feed, padding: false) do
       {:ok, feed_url} ->
-        case BaladosSyncWeb.RssCache.get_feed_metadata(feed_url) do
+        case BaladosSyncCore.RssCache.get_feed_metadata(feed_url) do
           {:ok, metadata} ->
             json(conn, %{metadata: metadata})
 
