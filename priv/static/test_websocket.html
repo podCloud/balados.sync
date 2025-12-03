@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balados Sync - WebSocket Play Gateway Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .section {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .section h2 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.connected {
+            background: #48bb78;
+        }
+
+        .status-indicator.disconnected {
+            background: #cbd5e0;
+        }
+
+        .status-indicator.error {
+            background: #f56565;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-text {
+            display: inline-block;
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        #log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            height: 400px;
+            overflow-y: auto;
+            line-height: 1.5;
+            grid-column: 1 / -1;
+        }
+
+        .log-line {
+            padding: 3px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .log-time {
+            color: #858585;
+            margin-right: 10px;
+        }
+
+        .log-level-info {
+            color: #4ec9b0;
+        }
+
+        .log-level-success {
+            color: #48bb78;
+        }
+
+        .log-level-error {
+            color: #f56565;
+        }
+
+        .log-level-warning {
+            color: #ecc94b;
+        }
+
+        .message-template {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .message-template h3 {
+            font-size: 12px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .template-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .template-buttons button {
+            flex: 0 1 auto;
+            padding: 6px 12px;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            #log {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎙️ Balados Sync Live WebSocket</h1>
+            <p>Test play event recording via WebSocket gateway</p>
+        </div>
+
+        <div class="content">
+            <!-- Connection Section -->
+            <div class="section">
+                <h2>Connection</h2>
+                <div class="form-group">
+                    <label>Status: <span class="status-indicator disconnected"></span><span class="status-text">Disconnected</span></label>
+                </div>
+                <div class="form-group">
+                    <label for="url">WebSocket URL</label>
+                    <input type="text" id="url" placeholder="ws://localhost:4000/sync/api/v1/live"
+                           value="ws://localhost:4000/sync/api/v1/live">
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="connect()">Connect</button>
+                    <button class="btn-danger" onclick="disconnect()">Disconnect</button>
+                </div>
+            </div>
+
+            <!-- Authentication Section -->
+            <div class="section">
+                <h2>Authentication</h2>
+                <div class="form-group">
+                    <label for="token">Token (PlayToken or JWT)</label>
+                    <input type="text" id="token" placeholder="Your auth token" value="">
+                </div>
+                <div class="button-group">
+                    <button class="btn-success" onclick="sendAuth()">Send Auth</button>
+                </div>
+            </div>
+
+            <!-- Record Play Section -->
+            <div class="section">
+                <h2>Record Play Event</h2>
+                <div class="form-group">
+                    <label for="feedUrl">Feed URL</label>
+                    <input type="text" id="feedUrl" placeholder="https://example.com/feed.xml"
+                           value="https://example.com/feed.xml">
+                </div>
+                <div class="form-group">
+                    <label for="itemId">Item ID (guid,enclosure_url)</label>
+                    <input type="text" id="itemId" placeholder="guid123,https://example.com/episode.mp3"
+                           value="guid123,https://example.com/episode.mp3">
+                </div>
+                <div class="form-group">
+                    <label for="position">Position (seconds)</label>
+                    <input type="number" id="position" placeholder="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="played">
+                        <input type="checkbox" id="played" style="width: auto; margin-right: 5px;">
+                        Mark as played
+                    </label>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="sendRecordPlay()">Send Record Play</button>
+                </div>
+
+                <div class="message-template">
+                    <h3>Quick Templates</h3>
+                    <div class="template-buttons">
+                        <button class="btn-secondary" onclick="quickPlay(0, false)">Play (0s)</button>
+                        <button class="btn-secondary" onclick="quickPlay(30, false)">Play (30s)</button>
+                        <button class="btn-secondary" onclick="quickPlay(300, false)">Play (5m)</button>
+                        <button class="btn-secondary" onclick="quickPlay(600, true)">Completed</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Raw Message Section -->
+            <div class="section">
+                <h2>Raw Message</h2>
+                <div class="form-group">
+                    <label for="rawMessage">JSON Message</label>
+                    <textarea id="rawMessage" placeholder='{"type": "record_play", ...}'></textarea>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="sendRawMessage()">Send</button>
+                    <button class="btn-secondary" onclick="clearRawMessage()">Clear</button>
+                </div>
+            </div>
+
+            <!-- Log Section -->
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let authenticated = false;
+
+        function formatTime() {
+            const now = new Date();
+            return now.toLocaleTimeString();
+        }
+
+        function log(message, level = 'info') {
+            const logEl = document.getElementById('log');
+            const time = formatTime();
+            const levelClass = `log-level-${level}`;
+            const line = document.createElement('div');
+            line.className = 'log-line';
+            line.innerHTML = `<span class="log-time">${time}</span><span class="${levelClass}">[${level.toUpperCase()}]</span> ${message}`;
+            logEl.appendChild(line);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function updateStatus(connected) {
+            const indicator = document.querySelector('.status-indicator');
+            const text = document.querySelector('.status-text');
+
+            if (connected) {
+                indicator.className = 'status-indicator connected';
+                text.textContent = 'Connected';
+            } else {
+                indicator.className = 'status-indicator disconnected';
+                text.textContent = 'Disconnected';
+                authenticated = false;
+            }
+        }
+
+        function connect() {
+            const url = document.getElementById('url').value;
+
+            if (!url) {
+                log('URL is required', 'error');
+                return;
+            }
+
+            if (ws) {
+                ws.close();
+            }
+
+            try {
+                ws = new WebSocket(url);
+
+                ws.onopen = () => {
+                    log(`Connected to ${url}`, 'success');
+                    updateStatus(true);
+                };
+
+                ws.onmessage = (event) => {
+                    try {
+                        const response = JSON.parse(event.data);
+                        handleMessage(response);
+                    } catch (e) {
+                        log(`Received: ${event.data}`, 'info');
+                    }
+                };
+
+                ws.onerror = (error) => {
+                    log(`Connection error: ${error}`, 'error');
+                };
+
+                ws.onclose = () => {
+                    log('Connection closed', 'warning');
+                    updateStatus(false);
+                    ws = null;
+                };
+            } catch (e) {
+                log(`Connection error: ${e.message}`, 'error');
+            }
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+                log('Disconnected', 'info');
+                updateStatus(false);
+            } else {
+                log('Not connected', 'warning');
+            }
+        }
+
+        function handleMessage(response) {
+            if (response.status === 'connected') {
+                log('Waiting for authentication...', 'info');
+            } else if (response.status === 'ok' && response.data?.user_id) {
+                authenticated = true;
+                log(`Authenticated as user: ${response.data.user_id}`, 'success');
+            } else if (response.status === 'ok') {
+                log(`Event recorded: ${JSON.stringify(response.data)}`, 'success');
+            } else if (response.status === 'error') {
+                log(`Error: ${response.error.message} (${response.error.code})`, 'error');
+            } else {
+                log(`Response: ${JSON.stringify(response)}`, 'info');
+            }
+        }
+
+        function sendMessage(message) {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('WebSocket not connected', 'error');
+                return;
+            }
+
+            try {
+                ws.send(JSON.stringify(message));
+                log(`Sent: ${JSON.stringify(message)}`, 'info');
+            } catch (e) {
+                log(`Send error: ${e.message}`, 'error');
+            }
+        }
+
+        function sendAuth() {
+            const token = document.getElementById('token').value;
+            if (!token) {
+                log('Token is required', 'error');
+                return;
+            }
+
+            sendMessage({
+                type: 'auth',
+                token: token
+            });
+        }
+
+        function encodeB64(str) {
+            return btoa(str)
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=/g, '');
+        }
+
+        function sendRecordPlay() {
+            if (!authenticated) {
+                log('Not authenticated. Please authenticate first.', 'error');
+                return;
+            }
+
+            const feedUrl = document.getElementById('feedUrl').value;
+            const itemId = document.getElementById('itemId').value;
+            const position = parseInt(document.getElementById('position').value) || 0;
+            const played = document.getElementById('played').checked;
+
+            if (!feedUrl || !itemId) {
+                log('Feed URL and Item ID are required', 'error');
+                return;
+            }
+
+            sendMessage({
+                type: 'record_play',
+                feed: encodeB64(feedUrl),
+                item: encodeB64(itemId),
+                position: position,
+                played: played
+            });
+        }
+
+        function quickPlay(position, played) {
+            document.getElementById('position').value = position;
+            document.getElementById('played').checked = played;
+            sendRecordPlay();
+        }
+
+        function sendRawMessage() {
+            const raw = document.getElementById('rawMessage').value;
+            if (!raw) {
+                log('Message is required', 'error');
+                return;
+            }
+
+            try {
+                const message = JSON.parse(raw);
+                sendMessage(message);
+            } catch (e) {
+                log(`Invalid JSON: ${e.message}`, 'error');
+            }
+        }
+
+        function clearRawMessage() {
+            document.getElementById('rawMessage').value = '';
+        }
+
+        // Log startup
+        window.addEventListener('load', () => {
+            log('WebSocket tester ready', 'success');
+            log('1. Enter your token and click "Send Auth"', 'info');
+            log('2. Fill in feed details and click "Send Record Play"', 'info');
+        });
+    </script>
+</body>
+</html>
