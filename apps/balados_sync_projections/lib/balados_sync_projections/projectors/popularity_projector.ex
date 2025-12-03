@@ -4,6 +4,7 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
     repo: BaladosSyncProjections.ProjectionsRepo,
     name: "PopularityProjector"
 
+  require Logger
   import Ecto.Query
 
   alias BaladosSyncCore.Events.{
@@ -14,8 +15,10 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
     EpisodeShared,
     PopularityRecalculated
   }
+  alias BaladosSyncCore.RssCache
 
   alias BaladosSyncProjections.Schemas.{PodcastPopularity, EpisodePopularity, UserPrivacy}
+  alias BaladosSyncProjections.ProjectionsRepo
 
   # Scores par type d'action
   @score_subscribe 10
@@ -98,60 +101,123 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
   end)
 
   project(%PlayRecorded{} = event, _metadata, fn multi ->
+    Logger.info("[PopularityProjector] PlayRecorded event: user=#{event.user_id}, feed=#{event.rss_source_feed}, item=#{event.rss_source_item}")
+
     # Incrémenter podcast popularity
     multi =
       Ecto.Multi.run(multi, :podcast_popularity, fn repo, _changes ->
-        is_public = is_user_public_with_repo?(repo, event.user_id, event.rss_source_feed, event.rss_source_item)
+        try do
+          Logger.debug("[PopularityProjector] Processing podcast popularity for feed: #{event.rss_source_feed}")
 
-        popularity =
-          repo.get(PodcastPopularity, event.rss_source_feed) ||
-            %PodcastPopularity{rss_source_feed: event.rss_source_feed}
+          is_public = is_user_public_with_repo?(repo, event.user_id, event.rss_source_feed, event.rss_source_item)
+          Logger.debug("[PopularityProjector] Is public: #{is_public}")
 
-        updated = %{
-          popularity
-          | score: popularity.score + @score_play,
-            plays: popularity.plays + 1,
-            plays_people:
-              if(is_public,
-                do: add_recent_user(popularity.plays_people, event.user_id),
-                else: popularity.plays_people
-              )
-        }
+          popularity =
+            repo.get(PodcastPopularity, event.rss_source_feed) ||
+              %PodcastPopularity{rss_source_feed: event.rss_source_feed}
 
-        repo.insert_or_update(
-          PodcastPopularity.changeset(updated, %{}),
-          on_conflict: :replace_all,
-          conflict_target: :rss_source_feed
-        )
+          Logger.debug("[PopularityProjector] Current podcast popularity: plays=#{popularity.plays}, score=#{popularity.score}")
+
+          updated = %{
+            popularity
+            | score: popularity.score + @score_play,
+              plays: popularity.plays + 1,
+              plays_people:
+                if(is_public,
+                  do: add_recent_user(popularity.plays_people, event.user_id),
+                  else: popularity.plays_people
+                )
+          }
+
+          Logger.debug("[PopularityProjector] Updated podcast popularity: plays=#{updated.plays}, score=#{updated.score}")
+
+          result = repo.insert_or_update(
+            PodcastPopularity.changeset(updated, %{}),
+            on_conflict: :replace_all,
+            conflict_target: :rss_source_feed
+          )
+
+          case result do
+            {:ok, data} ->
+              Logger.info("[PopularityProjector] Podcast popularity updated successfully: plays=#{data.plays}, score=#{data.score}")
+              {:ok, result}
+            {:error, reason} ->
+              Logger.error("[PopularityProjector] Failed to update podcast popularity: #{inspect(reason)}")
+              {:error, reason}
+          end
+        rescue
+          error in RuntimeError ->
+            Logger.error("[PopularityProjector] RuntimeError updating podcast popularity: #{error.message}")
+            {:error, :runtime_error}
+          error ->
+            Logger.error("[PopularityProjector] Unexpected exception updating podcast popularity: #{Exception.format(:error, error)}")
+            {:error, :unexpected_error}
+        end
       end)
 
     # Incrémenter episode popularity
-    Ecto.Multi.run(multi, :episode_popularity, fn repo, _changes ->
-      is_public = is_user_public_with_repo?(repo, event.user_id, event.rss_source_feed, event.rss_source_item)
+    multi =
+      Ecto.Multi.run(multi, :episode_popularity, fn repo, _changes ->
+        try do
+          Logger.debug("[PopularityProjector] Processing episode popularity for item: #{event.rss_source_item}")
 
-      popularity =
-        repo.get(EpisodePopularity, event.rss_source_item) ||
-          %EpisodePopularity{
-            rss_source_item: event.rss_source_item,
-            rss_source_feed: event.rss_source_feed
+          is_public = is_user_public_with_repo?(repo, event.user_id, event.rss_source_feed, event.rss_source_item)
+          Logger.debug("[PopularityProjector] Episode is public: #{is_public}")
+
+          popularity =
+            repo.get(EpisodePopularity, event.rss_source_item) ||
+              %EpisodePopularity{
+                rss_source_item: event.rss_source_item,
+                rss_source_feed: event.rss_source_feed
+              }
+
+          Logger.debug("[PopularityProjector] Current episode popularity: plays=#{popularity.plays}, score=#{popularity.score}")
+
+          updated = %{
+            popularity
+            | score: popularity.score + @score_play,
+              plays: popularity.plays + 1,
+              plays_people:
+                if(is_public,
+                  do: add_recent_user(popularity.plays_people, event.user_id),
+                  else: popularity.plays_people
+                )
           }
 
-      updated = %{
-        popularity
-        | score: popularity.score + @score_play,
-          plays: popularity.plays + 1,
-          plays_people:
-            if(is_public,
-              do: add_recent_user(popularity.plays_people, event.user_id),
-              else: popularity.plays_people
-            )
-      }
+          Logger.debug("[PopularityProjector] Updated episode popularity: plays=#{updated.plays}, score=#{updated.score}")
 
-      repo.insert_or_update(
-        EpisodePopularity.changeset(updated, %{}),
-        on_conflict: :replace_all,
-        conflict_target: :rss_source_item
-      )
+          result = repo.insert_or_update(
+            EpisodePopularity.changeset(updated, %{}),
+            on_conflict: :replace_all,
+            conflict_target: :rss_source_item
+          )
+
+          case result do
+            {:ok, data} ->
+              Logger.info("[PopularityProjector] Episode popularity updated successfully: item=#{event.rss_source_item}, plays=#{data.plays}, score=#{data.score}")
+              {:ok, result}
+            {:error, reason} ->
+              Logger.error("[PopularityProjector] Failed to update episode popularity: #{inspect(reason)}")
+              {:error, reason}
+          end
+        rescue
+          error in RuntimeError ->
+            Logger.error("[PopularityProjector] RuntimeError updating episode popularity: #{error.message}")
+            {:error, :runtime_error}
+          error ->
+            Logger.error("[PopularityProjector] Unexpected exception updating episode popularity: #{Exception.format(:error, error)}")
+            {:error, :unexpected_error}
+        end
+      end)
+
+    # Enrichir async avec les métadonnées de l'épisode
+    # Lancer le Task APRÈS que la transaction soit complète (ne pas bloquer)
+    Ecto.Multi.run(multi, :enrich_metadata, fn _repo, _changes ->
+      Logger.debug("[PopularityProjector] Starting async metadata enrichment for item: #{event.rss_source_item}")
+      Task.start(fn ->
+        enrich_episode_metadata_async(event.rss_source_feed, event.rss_source_item)
+      end)
+      {:ok, :enriched}
     end)
   end)
 
@@ -274,4 +340,92 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
   end
 
   defp add_recent_user(_people_list, user_id), do: [user_id]
+
+  # Enrichir async les métadonnées d'épisode depuis le RSS (source de vérité)
+  defp enrich_episode_metadata_async(encoded_feed, encoded_item) do
+    Task.start(fn ->
+      try do
+        Logger.debug("[PopularityProjector] Enriching metadata: feed=#{encoded_feed}, item=#{encoded_item}")
+
+        # Décoder les IDs
+        feed_url = Base.url_decode64!(encoded_feed, padding: false)
+        decoded_item = Base.url_decode64!(encoded_item, padding: false)
+        Logger.debug("[PopularityProjector] Decoded feed_url=#{feed_url}, item=#{decoded_item}")
+
+        case String.split(decoded_item, ",", parts: 2) do
+          [guid, _enclosure_url] ->
+            Logger.debug("[PopularityProjector] Looking for episode with guid=#{guid}")
+
+            # Récupérer et parser le RSS
+            case RssCache.fetch_and_parse_feed(feed_url) do
+              {:ok, {feed_metadata, episodes}} ->
+                Logger.debug("[PopularityProjector] Successfully fetched RSS: #{feed_metadata.title}, #{length(episodes)} episodes")
+
+                # Trouver l'épisode
+                case Enum.find(episodes, &(&1.guid == guid)) do
+                  nil ->
+                    Logger.warning("[PopularityProjector] Episode with guid=#{guid} not found in RSS feed")
+                    :ok
+
+                  episode ->
+                    Logger.info("[PopularityProjector] Found episode: #{episode.title}")
+                    # Mettre à jour la projection avec les métadonnées du RSS
+                    update_episode_metadata(encoded_item, episode, feed_metadata)
+                end
+
+              {:error, reason} ->
+                Logger.error("[PopularityProjector] Failed to fetch RSS from #{feed_url}: #{inspect(reason)}")
+                :ok
+            end
+
+          _ ->
+            Logger.error("[PopularityProjector] Invalid item format: #{decoded_item}")
+            :ok
+        end
+      rescue
+        error ->
+          Logger.error("[PopularityProjector] Exception during metadata enrichment: #{inspect(error)}")
+          :ok
+      end
+    end)
+  end
+
+  defp update_episode_metadata(encoded_item, episode, feed_metadata) do
+    try do
+      Logger.debug("[PopularityProjector] Updating metadata for item=#{encoded_item}")
+
+      popularity =
+        ProjectionsRepo.get(EpisodePopularity, encoded_item) ||
+          %EpisodePopularity{rss_source_item: encoded_item}
+
+      # Toujours mettre à jour avec les données du RSS (source de vérité)
+      updated = %{
+        popularity
+        | episode_title: episode.title,
+          episode_author: episode.author,
+          episode_description: episode.description,
+          episode_cover: episode.cover,
+          podcast_title: feed_metadata.title
+      }
+
+      result = ProjectionsRepo.insert_or_update(
+        EpisodePopularity.changeset(updated, %{}),
+        on_conflict: :replace_all,
+        conflict_target: :rss_source_item
+      )
+
+      case result do
+        {:ok, _} ->
+          Logger.info("[PopularityProjector] Metadata enrichment successful: title=#{episode.title}")
+        {:error, reason} ->
+          Logger.error("[PopularityProjector] Failed to update metadata: #{inspect(reason)}")
+      end
+
+      result
+    rescue
+      error ->
+        Logger.error("[PopularityProjector] Exception updating metadata: #{inspect(error)}")
+        {:error, error}
+    end
+  end
 end
