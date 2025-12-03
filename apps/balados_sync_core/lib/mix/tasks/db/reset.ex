@@ -78,7 +78,8 @@ defmodule Mix.Tasks.Db.Reset do
     case get_confirmation("Type 'DELETE' to confirm:") do
       :confirmed ->
         Mix.shell().info("Resetting system schema...")
-        Mix.Task.run("ecto.reset", ["--prefix", "system"])
+        Mix.Tasks.Ecto.Drop.run(["--repo", "BaladosSyncProjections.SystemRepo"])
+        Mix.Tasks.Ecto.Create.run(["--repo", "BaladosSyncProjections.SystemRepo"])
         Mix.shell().info("✅ System schema reset complete")
 
       :cancelled ->
@@ -102,11 +103,11 @@ defmodule Mix.Tasks.Db.Reset do
 
     case get_confirmation("Type 'DELETE ALL EVENTS' to confirm:") do
       :confirmed ->
-        Mix.shell().info("Resetting events schema...")
-        # Reset event store via Ecto
-        Mix.Task.run("ecto.reset", ["--prefix", "events"])
-        Mix.shell().info("✅ Events schema reset complete (EVENTS DELETED!)")
-        Mix.shell().info("⚠️  You must replay events or restore from backup")
+        Mix.shell().info("Resetting EventStore...")
+        Mix.Tasks.EventStore.Drop.run([])
+        Mix.Tasks.EventStore.Create.run([])
+        Mix.shell().info("✅ EventStore reset complete (EVENTS DELETED!)")
+        Mix.shell().info("⚠️  You must run: mix event_store.init -a balados_sync_core")
 
       :cancelled ->
         Mix.shell().info("❌ Reset cancelled")
@@ -128,7 +129,8 @@ defmodule Mix.Tasks.Db.Reset do
     case get_confirmation("Type 'DELETE' to confirm:") do
       :confirmed ->
         Mix.shell().info("Resetting projections schema...")
-        Mix.Task.run("ecto.reset", ["--prefix", "public"])
+        Mix.Tasks.Ecto.Drop.run(["--repo", "BaladosSyncProjections.ProjectionsRepo"])
+        Mix.Tasks.Ecto.Create.run(["--repo", "BaladosSyncProjections.ProjectionsRepo"])
         Mix.shell().info("✅ Projections reset complete - rebuilding from events...")
 
       :cancelled ->
@@ -154,7 +156,8 @@ defmodule Mix.Tasks.Db.Reset do
     case get_confirmation("Type 'DELETE ALL DATA' to confirm:") do
       :confirmed ->
         Mix.shell().info("Wiping all data...")
-        Mix.Task.run("ecto.reset", [])
+        Mix.Tasks.Ecto.Drop.run([])
+        Mix.Tasks.Ecto.Create.run([])
         Mix.shell().info("✅ All data deleted")
         Mix.shell().info("⚠️  You must now run:")
         Mix.shell().info("   1. mix event_store.init -a balados_sync_core")
