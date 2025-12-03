@@ -401,13 +401,21 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
           }
 
       # Toujours mettre à jour avec les données du RSS (source de vérité)
+      # Convert episode.cover (string URL) to map format if present
+      episode_cover_map =
+        if is_binary(episode.cover) do
+          %{src: episode.cover, srcset: nil}
+        else
+          episode.cover
+        end
+
       attrs = %{
         rss_source_item: encoded_item,
         rss_source_feed: encoded_feed,
         episode_title: episode.title,
         episode_author: episode.author,
         episode_description: episode.description,
-        episode_cover: episode.cover,
+        episode_cover: episode_cover_map,
         podcast_title: feed_metadata.title
       }
 
