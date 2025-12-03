@@ -20,7 +20,8 @@
       "WebFetch(domain:github.com)",
       "Bash(/tmp/test_argon2.sh)",
       "Skill(git-commit-helper)",
-      "Bash(PGPASSWORD=postgres psql:*)"
+      "Bash(PGPASSWORD=postgres psql:*)",
+      "Bash(timeout 60 mix compile:*)"
     ],
     "deny": [],
     "ask": []
