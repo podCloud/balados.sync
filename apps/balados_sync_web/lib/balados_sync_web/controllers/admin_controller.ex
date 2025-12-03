@@ -161,7 +161,9 @@ defmodule BaladosSyncWeb.AdminController do
           item: e.rss_source_item,
           score: e.score,
           plays: e.plays,
-          likes: e.likes
+          likes: e.likes,
+          title: e.episode_title,
+          podcast_title: e.podcast_title
         },
         order_by: [desc: e.score],
         limit: ^limit
@@ -173,24 +175,30 @@ defmodule BaladosSyncWeb.AdminController do
 
   defp enrich_episode_title(episode) do
     with {:ok, feed_url} <- Base.url_decode64(episode.feed, padding: false),
-         {:ok, guid} <- extract_guid_from_item(episode.item),
-         {:ok, xml} <- RssCache.fetch_feed(feed_url),
-         {:ok, episodes} <- RssParser.parse_episodes(xml) do
-      # Find episode by guid
-      found_episode = Enum.find(episodes, fn ep -> ep.guid == guid end)
+         {:ok, guid} <- extract_guid_from_item(episode.item) do
+      # Use the enriched title from DB if available, otherwise try RSS
+      title = episode.title || fetch_title_from_rss(feed_url, guid)
 
       episode
-      |> Map.put(:title, found_episode && found_episode.title)
+      |> Map.put(:title, title)
       |> Map.put(:guid, guid)
-      |> Map.put(:episode_link, found_episode && (found_episode.link || found_episode.enclosure && found_episode.enclosure.url))
       |> Map.put(:feed_url, feed_url)
     else
       _ ->
         episode
         |> Map.put(:title, nil)
         |> Map.put(:guid, nil)
-        |> Map.put(:episode_link, nil)
         |> Map.put(:feed_url, nil)
+    end
+  end
+
+  defp fetch_title_from_rss(feed_url, guid) do
+    with {:ok, xml} <- RssCache.fetch_feed(feed_url),
+         {:ok, episodes} <- RssParser.parse_episodes(xml) do
+      found_episode = Enum.find(episodes, fn ep -> ep.guid == guid end)
+      found_episode && found_episode.title
+    else
+      _ -> nil
     end
   end
 
