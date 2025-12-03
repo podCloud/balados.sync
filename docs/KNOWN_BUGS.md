@@ -1,68 +1,44 @@
 # Known Bugs
 
-## 🐛 Episode Metadata Not Enriched from RSS (MINOR)
+*(No active bugs - all issues resolved as of 2025-12-03)*
 
-**Status:** Partially Resolved - 2025-12-03
+## ✅ RESOLVED: Unknown Episode in Play Gateway
+
+**Status:** FIXED - 2025-12-03
 **Date Reported:** 2025-12-03
-**Severity:** Low
-**Fixed:** Podcast and episode popularity metrics (plays, scores) ✅
+**Severity:** Was High - Now Resolved
 
-### Description
-When a user plays an episode via the Play Gateway link:
-- `episode_popularity.episode_title` remains NULL (still unfixed)
-- `episode_popularity.podcast_title` remains NULL (still unfixed)
-- `podcast_popularity` NOW CORRECTLY updated ✅ (FIXED 2025-12-03)
-- `episode_popularity` plays/scores NOW CORRECTLY updated ✅ (FIXED 2025-12-03)
+### What Was Fixed
+When a user played an episode via Play Gateway:
+- `podcast_popularity` updates: plays and score now correctly increment ✅
+- `episode_popularity` updates: plays and score now correctly increment ✅
+- `episode_popularity.episode_title`: Now enriched from RSS ✅
+- `episode_popularity.podcast_title`: Now enriched from RSS ✅
+- `episode_popularity.episode_cover`: Now enriched from RSS ✅
 
-### Root Cause Found and Fixed
-The `PopularityProjector` was using `changeset(updated, %{})` with an empty attributes map, which caused Ecto to create an empty changeset with no actual changes to persist. This was fixed by creating proper attributes maps before calling changeset.
+### Root Causes Found and Fixed
 
-**Fixes Applied:**
-1. Podcast popularity update (line 108-155): Changed from `changeset(updated, %{})` to proper `attrs` map
-2. Episode popularity update (line 157-209): Changed from `changeset(updated, %{})` to proper `attrs` map
-3. Metadata enrichment (line 391-427): Added `rss_source_feed` to both struct creation and attrs
+**Issue 1: Empty Changeset Maps**
+- The `PopularityProjector` was using `changeset(updated, %{})` with empty attribute maps
+- This caused Ecto to create changesets with no actual changes
+- **Fix**: Created proper `attrs` maps before calling changeset
+- **Result**: Both podcast and episode popularity metrics now persist correctly
 
-### Remaining Issue
-Episode metadata (title, author, description, cover, podcast_title) are still not being enriched from RSS feed. This requires investigation into the async Task execution and database persistence within ProjectionsRepo context.
+**Issue 2: Cover Format Mismatch**
+- RssParser returns `episode.cover` as a string URL
+- EpisodePopularity schema expects `episode_cover` as a map `{src, srcset}`
+- **Fix**: Convert string URL to proper map format before changeset
+- **Result**: All metadata fields now enrich and persist correctly
 
-### Current Test Results (After Fix - 2025-12-03)
-
-**Verified Working:**
-- Podcast popularity now correctly updated:
-  - plays: 0 → 7 ✅
-  - score: 10 → 35 ✅
-- Episode popularity plays/scores correctly updated:
-  - plays: 0 → 7 ✅
-  - score: 0 → 35 ✅
-
-**Still Not Working:**
-- Async metadata enrichment (episode_title, podcast_title) remains NULL
-  - Task.start() executes and logs success, but changes not persisted to DB
-  - Requires investigation into async Task context with ProjectionsRepo
-
-### Steps to Reproduce Metadata Issue
-1. Play an episode via Play Gateway
-2. Check logs: `[PopularityProjector] Metadata enrichment successful: title=...` appears ✓
-3. Check database: episode_title and podcast_title still NULL ✗
-
-### Investigation Notes for Metadata
-- Async task successfully fetches RSS and finds episode
-- Logs show "Metadata enrichment successful"
-- changeset appears valid with proper attrs
-- `ProjectionsRepo.insert_or_update()` call completes without error
-- Yet changes don't appear in database
-
-**Hypothesis:** Async Task.start() may execute in a context where ProjectionsRepo connection or transaction handling is problematic
+### Test Results
+- Podcast popularity: plays 0→9, score 10→45 ✅
+- Episode popularity: plays 0→9, score 0→45 ✅
+- Episode title: "C´était mieux avant" ✅
+- Podcast title: "Découvrez, le Podcast" ✅
+- Episode cover: Enriched from RSS ✅
 
 ### Related Files
-- `/apps/balados_sync_projections/lib/balados_sync_projections/projectors/popularity_projector.ex` (100+)
-- `/apps/balados_sync_core/lib/balados_sync_core/rss_cache.ex` (new)
-- `/apps/balados_sync_core/lib/balados_sync_core/rss_parser.ex` (moved from web)
+- `/apps/balados_sync_projections/lib/balados_sync_projections/projectors/popularity_projector.ex`
+- `/apps/balados_sync_core/lib/balados_sync_core/rss_cache.ex`
+- `/apps/balados_sync_core/lib/balados_sync_core/rss_parser.ex`
 - `/apps/balados_sync_projections/lib/balados_sync_projections/schemas/episode_popularity.ex`
-
-### Environment
-- Elixir 1.15.0
-- Postgres 14+
-- Eventstore 1.4
-- Commanded 1.4
-- Last tested: 2025-12-03 after server restart
