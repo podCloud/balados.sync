@@ -166,7 +166,8 @@ defmodule Mix.Tasks.Db.Reset do
   end
 
   defp get_confirmation(prompt) do
-    case Mix.shell().prompt(prompt) do
+    response = Mix.shell().prompt(prompt) |> String.trim()
+    case response do
       "DELETE" -> :confirmed
       "DELETE ALL EVENTS" -> :confirmed
       "DELETE ALL DATA" -> :confirmed
