@@ -759,9 +759,38 @@ Le projet vise à devenir open source et communautaire. Guidelines de contributi
 │       └── authentication.livemd       # Documentation API auth
 ```
 
+### Gestion des Bugs Connus
+
+Voir [docs/KNOWN_BUGS.md](docs/KNOWN_BUGS.md) pour la liste des bugs en cours.
+
 ---
 
-**Dernière mise à jour** : 2025-12-02
-**Statut du projet** : 🟡 En développement actif - Web UI + Auto Play Gateway Token - Multi-Repo Architecture
-**Branche en cours** : main (Play Gateway Token feature implémentée)
-- From now on you must compile and check your work before commiting
+## 🔧 Améliorations Récentes (2025-12-03)
+
+### Refactoring RSS Cache et Parser
+- **Déplacement vers Core** : `RssCache` et `RssParser` ont été déplacés de `balados_sync_web` vers `balados_sync_core` pour éviter dépendances circulaires
+- **Dépendances ajoutées à Core** : `httpoison`, `cachex`, `sweet_xml`
+- **Web devient client** : `balados_sync_web` appelle `BaladosSyncCore.RssCache` et `BaladosSyncCore.RssParser` directement
+
+### Enrichissement Async Métadonnées
+- **PopularityProjector enrichit async** : Lors d'un PlayRecorded, enrichit `episode_popularity` avec titre/auteur/description/cover depuis RSS
+- **Podcast title** : Nouveau champ `podcast_title` ajouté à `EpisodePopularity` (migration appliquée)
+- **Source de vérité** : Les données RSS sont toujours à jour (synchronisation à chaque play)
+
+### Logging Amélioré
+- **Logs détaillés** partout dans PopularityProjector pour debugguer les problèmes
+- **Exception handling** : try/rescue blocks avec messages d'erreur explicites
+- **Trace complète** : PlayRecorded event → podcast update → episode update → async enrichment
+
+### Bug Connu : Unknown Episode
+⚠️ **EN COURS** : Episode affiche "unknown episode" même après Play. Voir [docs/KNOWN_BUGS.md](docs/KNOWN_BUGS.md)
+
+---
+
+**Dernière mise à jour** : 2025-12-03
+**Statut du projet** : 🟡 En développement actif - Refactoring RSS + Enrichissement Async - Unknown Episode Bug
+**Branche en cours** : main
+**Priorités** :
+1. ✅ Compiler et vérifier avant chaque commit
+2. ✅ Ajouter logs détaillés pour tous les rescues et opérations DB
+3. 🔲 Résoudre bug "unknown episode" (à investiguer avec les nouveaux logs)
