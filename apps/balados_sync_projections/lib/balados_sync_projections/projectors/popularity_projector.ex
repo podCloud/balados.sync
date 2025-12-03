@@ -409,6 +409,9 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
           episode.cover
         end
 
+      # Extract episode link (prefer episode.link, fallback to enclosure.url)
+      episode_link = episode.link || (episode.enclosure && episode.enclosure.url)
+
       attrs = %{
         rss_source_item: encoded_item,
         rss_source_feed: encoded_feed,
@@ -416,6 +419,7 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
         episode_author: episode.author,
         episode_description: episode.description,
         episode_cover: episode_cover_map,
+        episode_link: episode_link,
         podcast_title: feed_metadata.title
       }
 

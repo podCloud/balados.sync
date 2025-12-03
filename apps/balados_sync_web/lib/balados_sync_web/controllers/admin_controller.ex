@@ -163,7 +163,8 @@ defmodule BaladosSyncWeb.AdminController do
           plays: e.plays,
           likes: e.likes,
           title: e.episode_title,
-          podcast_title: e.podcast_title
+          podcast_title: e.podcast_title,
+          episode_link: e.episode_link
         },
         order_by: [desc: e.score],
         limit: ^limit
@@ -177,26 +178,35 @@ defmodule BaladosSyncWeb.AdminController do
     with {:ok, feed_url} <- Base.url_decode64(episode.feed, padding: false),
          {:ok, guid} <- extract_guid_from_item(episode.item) do
       # Use the enriched title from DB if available, otherwise try RSS
-      title = episode.title || fetch_title_from_rss(feed_url, guid)
+      title = episode.title || fetch_episode_metadata_from_rss(feed_url, guid, :title)
+      # Use the enriched episode_link from DB if available, otherwise try RSS
+      episode_link = episode.episode_link || fetch_episode_metadata_from_rss(feed_url, guid, :link)
 
       episode
       |> Map.put(:title, title)
       |> Map.put(:guid, guid)
       |> Map.put(:feed_url, feed_url)
+      |> Map.put(:episode_link, episode_link)
     else
       _ ->
         episode
         |> Map.put(:title, nil)
         |> Map.put(:guid, nil)
         |> Map.put(:feed_url, nil)
+        |> Map.put(:episode_link, nil)
     end
   end
 
-  defp fetch_title_from_rss(feed_url, guid) do
+  defp fetch_episode_metadata_from_rss(feed_url, guid, field) do
     with {:ok, xml} <- RssCache.fetch_feed(feed_url),
          {:ok, episodes} <- RssParser.parse_episodes(xml) do
       found_episode = Enum.find(episodes, fn ep -> ep.guid == guid end)
-      found_episode && found_episode.title
+
+      case field do
+        :title -> found_episode && found_episode.title
+        :link -> found_episode && (found_episode.link || found_episode.enclosure && found_episode.enclosure.url)
+        _ -> nil
+      end
     else
       _ -> nil
     end

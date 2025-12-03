@@ -11,6 +11,7 @@ defmodule BaladosSyncProjections.Schemas.EpisodePopularity do
     field :episode_author, :string
     field :episode_description, :string
     field :podcast_title, :string
+    field :episode_link, :string
     # {src, srcset}
     field :episode_cover, :map
     field :score, :integer, default: 0
@@ -34,6 +35,7 @@ defmodule BaladosSyncProjections.Schemas.EpisodePopularity do
       :episode_author,
       :episode_description,
       :podcast_title,
+      :episode_link,
       :episode_cover,
       :score,
       :score_previous,
