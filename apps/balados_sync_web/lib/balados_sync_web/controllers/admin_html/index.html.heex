@@ -43,16 +43,16 @@
             Events Rate (5 min)
           </dt>
           <dd class="mt-1 text-3xl font-extrabold text-zinc-900">
-            <%= if @stats.event_rates.recent.events_per_minute do %>
-              <%= @stats.event_rates.recent.events_per_minute %>
+            <%= if @stats.event_rates[:recent][:events_per_minute] do %>
+              <%= @stats.event_rates[:recent][:events_per_minute] %>
               <span class="text-lg font-normal text-zinc-500">/min</span>
             <% else %>
               <span class="text-lg font-normal text-zinc-500">N/A</span>
             <% end %>
           </dd>
           <dd class="mt-1 text-sm text-zinc-500">
-            <%= if @stats.event_rates.recent.recent_events do %>
-              <%= @stats.event_rates.recent.recent_events %> events in last 5 minutes
+            <%= if @stats.event_rates[:recent][:recent_events] do %>
+              <%= @stats.event_rates[:recent][:recent_events] %> events in last 5 minutes
             <% else %>
               No data available
             <% end %>
@@ -74,25 +74,25 @@
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Total Events:</dt>
                   <dd class="text-sm font-medium text-zinc-900">
-                    <%= @stats.event_rates.global.total_events || "N/A" %>
+                    <%= @stats.event_rates[:global][:total_events] || "N/A" %>
                   </dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Per Second:</dt>
                   <dd class="text-sm font-medium text-zinc-900">
-                    <%= @stats.event_rates.global.events_per_second || "N/A" %>
+                    <%= @stats.event_rates[:global][:events_per_second] || "N/A" %>
                   </dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Per Minute:</dt>
                   <dd class="text-sm font-medium text-zinc-900">
-                    <%= @stats.event_rates.global.events_per_minute || "N/A" %>
+                    <%= @stats.event_rates[:global][:events_per_minute] || "N/A" %>
                   </dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Per Hour:</dt>
                   <dd class="text-sm font-medium text-zinc-900">
-                    <%= @stats.event_rates.global.events_per_hour || "N/A" %>
+                    <%= @stats.event_rates[:global][:events_per_hour] || "N/A" %>
                   </dd>
                 </div>
               </dl>
@@ -100,31 +100,31 @@
             <!-- Recent Rates -->
             <div>
               <h4 class="text-sm font-semibold text-zinc-700 mb-3">
-                Recent (<%= @stats.event_rates.recent.period %>)
+                Recent (<%= @stats.event_rates[:recent][:period] %>)
               </h4>
               <dl class="space-y-2">
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Recent Events:</dt>
                   <dd class="text-sm font-medium text-zinc-900">
-                    <%= @stats.event_rates.recent.recent_events || "N/A" %>
+                    <%= @stats.event_rates[:recent][:recent_events] || "N/A" %>
                   </dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Per Second:</dt>
                   <dd class="text-sm font-medium text-zinc-900">
-                    <%= @stats.event_rates.recent.events_per_second || "N/A" %>
+                    <%= @stats.event_rates[:recent][:events_per_second] || "N/A" %>
                   </dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Per Minute:</dt>
                   <dd class="text-sm font-medium text-zinc-900">
-                    <%= @stats.event_rates.recent.events_per_minute || "N/A" %>
+                    <%= @stats.event_rates[:recent][:events_per_minute] || "N/A" %>
                   </dd>
                 </div>
                 <div class="flex justify-between">
                   <dt class="text-sm text-zinc-500">Per Hour:</dt>
                   <dd class="text-sm font-medium text-zinc-900">
-                    <%= @stats.event_rates.recent.events_per_hour || "N/A" %>
+                    <%= @stats.event_rates[:recent][:events_per_hour] || "N/A" %>
                   </dd>
                 </div>
               </dl>

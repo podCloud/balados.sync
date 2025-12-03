@@ -764,3 +764,4 @@ Le projet vise à devenir open source et communautaire. Guidelines de contributi
 **Dernière mise à jour** : 2025-12-02
 **Statut du projet** : 🟡 En développement actif - Web UI + Auto Play Gateway Token - Multi-Repo Architecture
 **Branche en cours** : main (Play Gateway Token feature implémentée)
+- From now on you must compile and check your work before commiting

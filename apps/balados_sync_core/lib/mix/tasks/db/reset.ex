@@ -6,12 +6,15 @@ defmodule Mix.Tasks.Db.Reset do
   @moduledoc """
   Resets database schemas with required confirmation.
 
+  Uses ecto.drop/create for Ecto repos and event_store.drop/create for EventStore.
+
   ## Options
 
   - `--system` - Reset only system schema (users, tokens)
   - `--events` - Reset only events schema (EventStore) - EXTREME DANGER
   - `--projections` - Reset only projections (public schema)
   - `--all` - Reset everything (system, events, projections)
+  - `--migrate` - Run db.migrate after reset (can be combined with other options)
 
   If no option is provided, shows usage.
 
@@ -22,10 +25,12 @@ defmodule Mix.Tasks.Db.Reset do
       $ mix db.reset --system
       $ mix db.reset --projections
       $ mix db.reset --all
+      $ mix db.reset --projections --migrate
+      $ mix db.reset --system --migrate
   """
 
   def run(args) do
-    {opts, _, _} = OptionParser.parse(args, switches: [system: :boolean, events: :boolean, projections: :boolean, all: :boolean])
+    {opts, _, _} = OptionParser.parse(args, switches: [system: :boolean, events: :boolean, projections: :boolean, all: :boolean, migrate: :boolean])
 
     case {opts[:system], opts[:events], opts[:projections], opts[:all]} do
       {nil, nil, nil, nil} ->
@@ -33,24 +38,39 @@ defmodule Mix.Tasks.Db.Reset do
 
       {true, nil, nil, nil} ->
         reset_system()
+        maybe_migrate(opts[:migrate], "--system")
 
       {nil, true, nil, nil} ->
         reset_events()
+        maybe_migrate(opts[:migrate], "--events")
 
       {nil, nil, true, nil} ->
         reset_projections()
+        maybe_migrate(opts[:migrate], "--projections")
 
       {nil, nil, nil, true} ->
         reset_all()
+        maybe_migrate(opts[:migrate], nil)
 
       _ ->
-        Mix.raise("Only one option can be specified at a time")
+        Mix.raise("Only one of --system, --events, --projections, or --all can be specified")
+    end
+  end
+
+  defp maybe_migrate(false, _repo_option), do: nil
+  defp maybe_migrate(nil, _repo_option), do: nil
+  defp maybe_migrate(true, repo_option) do
+    Mix.shell().info("\nRunning migrations...")
+    if repo_option do
+      Mix.Tasks.Db.Migrate.run([repo_option])
+    else
+      Mix.Tasks.Db.Migrate.run([])
     end
   end
 
   defp print_usage do
     IO.puts("""
-    Usage: mix db.reset [OPTION]
+    Usage: mix db.reset [OPTION] [--migrate]
 
     Safely reset database schemas with validation.
 
@@ -59,10 +79,12 @@ defmodule Mix.Tasks.Db.Reset do
       --events       Reset only events schema (EventStore) - EXTREME DANGER
       --projections  Reset only projections (public schema)
       --all          Reset everything (system, events, projections)
+      --migrate      Run db.migrate after reset (optional)
 
     Examples:
       $ mix db.reset --system
       $ mix db.reset --projections
+      $ mix db.reset --projections --migrate
       $ mix db.reset --all
     """)
   end
@@ -107,7 +129,6 @@ defmodule Mix.Tasks.Db.Reset do
         Mix.Tasks.EventStore.Drop.run([])
         Mix.Tasks.EventStore.Create.run([])
         Mix.shell().info("✅ EventStore reset complete (EVENTS DELETED!)")
-        Mix.shell().info("⚠️  You must run: mix event_store.init -a balados_sync_core")
 
       :cancelled ->
         Mix.shell().info("❌ Reset cancelled")
@@ -131,7 +152,7 @@ defmodule Mix.Tasks.Db.Reset do
         Mix.shell().info("Resetting projections schema...")
         Mix.Tasks.Ecto.Drop.run(["--repo", "BaladosSyncProjections.ProjectionsRepo"])
         Mix.Tasks.Ecto.Create.run(["--repo", "BaladosSyncProjections.ProjectionsRepo"])
-        Mix.shell().info("✅ Projections reset complete - rebuilding from events...")
+        Mix.shell().info("✅ Projections reset complete")
 
       :cancelled ->
         Mix.shell().info("❌ Reset cancelled")
@@ -147,21 +168,17 @@ defmodule Mix.Tasks.Db.Reset do
     - Deletes all events (CANNOT BE RECOVERED!)
     - Deletes all projections
 
-    After this, you must:
-    1. Run: mix event_store.init -a balados_sync_core
-    2. Run: mix db.init
-    3. Create a new admin user via web interface
+    After this, you must run migrations to recreate the schemas.
     """)
 
     case get_confirmation("Type 'DELETE ALL DATA' to confirm:") do
       :confirmed ->
         Mix.shell().info("Wiping all data...")
         Mix.Tasks.Ecto.Drop.run([])
+        Mix.Tasks.EventStore.Drop.run([])
         Mix.Tasks.Ecto.Create.run([])
+        Mix.Tasks.EventStore.Create.run([])
         Mix.shell().info("✅ All data deleted")
-        Mix.shell().info("⚠️  You must now run:")
-        Mix.shell().info("   1. mix event_store.init -a balados_sync_core")
-        Mix.shell().info("   2. mix db.init")
 
       :cancelled ->
         Mix.shell().info("❌ Reset cancelled")
