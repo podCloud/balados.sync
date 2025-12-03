@@ -73,8 +73,8 @@ defmodule BaladosSyncWeb.PlayGatewayController do
   defp record_play_command(user_id, feed_url, item_id) do
     command = %RecordPlay{
       user_id: user_id,
-      rss_source_feed: Base.encode64(feed_url),
-      rss_source_item: Base.encode64(item_id),
+      rss_source_feed: Base.url_encode64(feed_url, padding: false),
+      rss_source_item: Base.url_encode64(item_id, padding: false),
       position: 0,
       played: false,
       event_infos: %{device_id: nil, device_name: "RSS Player"}
