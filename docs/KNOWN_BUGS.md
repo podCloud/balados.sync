@@ -1,100 +1,58 @@
 # Known Bugs
 
-## 🐛 Unknown Episode in Play Gateway (CRITICAL)
+## 🐛 Episode Metadata Not Enriched from RSS (MINOR)
 
-**Status:** Open - Not yet resolved
+**Status:** Partially Resolved - 2025-12-03
 **Date Reported:** 2025-12-03
-**Severity:** High
+**Severity:** Low
+**Fixed:** Podcast and episode popularity metrics (plays, scores) ✅
 
 ### Description
-When a user plays an episode via the Play Gateway link, the episode appears as "unknown episode" in the UI. Additionally:
-- `episode_popularity.episode_title` remains NULL
-- `podcast_popularity` is NOT updated (plays = 0, score unchanged)
-- Only `episode_popularity` gets updated with plays count and score
+When a user plays an episode via the Play Gateway link:
+- `episode_popularity.episode_title` remains NULL (still unfixed)
+- `episode_popularity.podcast_title` remains NULL (still unfixed)
+- `podcast_popularity` NOW CORRECTLY updated ✅ (FIXED 2025-12-03)
+- `episode_popularity` plays/scores NOW CORRECTLY updated ✅ (FIXED 2025-12-03)
 
-### Expected Behavior
-- Episode title should be fetched from RSS and stored in `episode_popularity.episode_title`
-- Podcast title should be stored in `episode_popularity.podcast_title`
-- `podcast_popularity` should be incremented (plays + 1, score + 5)
+### Root Cause Found and Fixed
+The `PopularityProjector` was using `changeset(updated, %{})` with an empty attributes map, which caused Ecto to create an empty changeset with no actual changes to persist. This was fixed by creating proper attributes maps before calling changeset.
 
-### Actual Behavior
-- Episode displays as "unknown episode"
-- Episode metadata NOT enriched from RSS
-- Podcast popularity metrics NOT updated
+**Fixes Applied:**
+1. Podcast popularity update (line 108-155): Changed from `changeset(updated, %{})` to proper `attrs` map
+2. Episode popularity update (line 157-209): Changed from `changeset(updated, %{})` to proper `attrs` map
+3. Metadata enrichment (line 391-427): Added `rss_source_feed` to both struct creation and attrs
 
-### Investigation Details
+### Remaining Issue
+Episode metadata (title, author, description, cover, podcast_title) are still not being enriched from RSS feed. This requires investigation into the async Task execution and database persistence within ProjectionsRepo context.
 
-**Code Changes Made (2025-12-03):**
-1. Moved `RssCache` and `RssParser` from `balados_sync_web` to `balados_sync_core`
-2. Added async metadata enrichment in `PopularityProjector.enrich_episode_metadata_async/2`
-3. Added extensive logging to `PopularityProjector` to trace execution:
-   - Logs for PlayRecorded event reception
-   - Logs for podcast_popularity update attempt
-   - Logs for episode_popularity update attempt
-   - Logs for async metadata enrichment
-   - Full exception details in rescue blocks
-4. Added `podcast_title` field to `EpisodePopularity` schema
+### Current Test Results (After Fix - 2025-12-03)
 
-**Event Flow Analysis:**
-```
-PlayRecorded Event (decoded from Base64)
-├── Feed: https://decouvrez.lepodcast.fr/rss
-├── Item GUID: 65423905453819671ff3ddf6
-├── Enclosure: https://stats.podcloud.fr/decouvrez/cetait-mieux-avant/...
-│
-├── PopularityProjector:podcast_popularity -> SHOULD update (but doesn't)
-├── PopularityProjector:episode_popularity -> Updates plays=1, score=5 ✓
-└── PopularityProjector:enrich_metadata -> Async RSS fetch (TODO: verify)
-```
+**Verified Working:**
+- Podcast popularity now correctly updated:
+  - plays: 0 → 7 ✅
+  - score: 10 → 35 ✅
+- Episode popularity plays/scores correctly updated:
+  - plays: 0 → 7 ✅
+  - score: 0 → 35 ✅
 
-**Database State (Last Known):**
-```sql
--- podcast_popularity (NOT UPDATED)
-plays = 0, score = 10 (only from subscription)
+**Still Not Working:**
+- Async metadata enrichment (episode_title, podcast_title) remains NULL
+  - Task.start() executes and logs success, but changes not persisted to DB
+  - Requires investigation into async Task context with ProjectionsRepo
 
--- episode_popularity (UPDATED)
-plays = 1, score = 5, episode_title = NULL ✗
-```
+### Steps to Reproduce Metadata Issue
+1. Play an episode via Play Gateway
+2. Check logs: `[PopularityProjector] Metadata enrichment successful: title=...` appears ✓
+3. Check database: episode_title and podcast_title still NULL ✗
 
-**Logs Added (for debugging):**
-- `[PopularityProjector] PlayRecorded event: user=..., feed=..., item=...`
-- `[PopularityProjector] Processing podcast popularity for feed: ...`
-- `[PopularityProjector] Current podcast popularity: plays=..., score=...`
-- `[PopularityProjector] Updated podcast popularity: plays=..., score=...`
-- `[PopularityProjector] Podcast popularity updated successfully: plays=..., score=...`
-- `[PopularityProjector] Processing episode popularity for item: ...`
-- `[PopularityProjector] Starting async metadata enrichment for item: ...`
-- `[PopularityProjector] Enriching metadata: feed=..., item=...`
-- `[PopularityProjector] Found episode: title=...` (if found)
+### Investigation Notes for Metadata
+- Async task successfully fetches RSS and finds episode
+- Logs show "Metadata enrichment successful"
+- changeset appears valid with proper attrs
+- `ProjectionsRepo.insert_or_update()` call completes without error
+- Yet changes don't appear in database
 
-### Steps to Reproduce
-1. Log in to web interface
-2. Subscribe to podcast: https://decouvrez.lepodcast.fr/rss
-3. Click on a feed episode to view details
-4. Click "Écouter" (play button) which links to play gateway
-5. Observe episode displays as "unknown episode"
-6. Check database:
-   ```sql
-   SELECT episode_title, podcast_title, plays FROM episode_popularity WHERE rss_source_item = '...';
-   SELECT plays, score FROM podcast_popularity WHERE rss_source_feed = '...';
-   ```
-
-### Possible Root Causes
-1. **Projector Transaction Failure**: `Ecto.Multi.run` for podcast_popularity may be failing silently
-2. **Event Projection Lag**: Projector may not have reprocessed events after code changes
-3. **RSS Fetch Timeout**: Async enrichment may be timing out when fetching RSS
-4. **Base64 Decoding Issue**: Episode item IDs may not be decoding correctly
-5. **Database Constraint**: Episode_popularity update may be blocking podcast_popularity update
-
-### Workarounds
-- None currently available
-
-### Next Steps
-1. **Check Projector Logs**: Monitor application logs for any ERROR or WARNING messages from PopularityProjector
-2. **Manually Reset Projector**: Reset `projection_versions.last_seen_event_number` to 0 for PopularityProjector to force reprocessing
-3. **Test with New Play**: After reset, trigger a new play and check logs
-4. **Verify RSS Cache**: Ensure RssCache.fetch_and_parse_feed() is working correctly
-5. **Add Unit Tests**: Create tests for PopularityProjector.project/3 callback with PlayRecorded events
+**Hypothesis:** Async Task.start() may execute in a context where ProjectionsRepo connection or transaction handling is problematic
 
 ### Related Files
 - `/apps/balados_sync_projections/lib/balados_sync_projections/projectors/popularity_projector.ex` (100+)

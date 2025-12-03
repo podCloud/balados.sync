@@ -118,21 +118,20 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
 
           Logger.debug("[PopularityProjector] Current podcast popularity: plays=#{popularity.plays}, score=#{popularity.score}")
 
-          updated = %{
-            popularity
-            | score: popularity.score + @score_play,
-              plays: popularity.plays + 1,
-              plays_people:
-                if(is_public,
-                  do: add_recent_user(popularity.plays_people, event.user_id),
-                  else: popularity.plays_people
-                )
+          attrs = %{
+            score: popularity.score + @score_play,
+            plays: popularity.plays + 1,
+            plays_people:
+              if(is_public,
+                do: add_recent_user(popularity.plays_people, event.user_id),
+                else: popularity.plays_people
+              )
           }
 
-          Logger.debug("[PopularityProjector] Updated podcast popularity: plays=#{updated.plays}, score=#{updated.score}")
+          Logger.debug("[PopularityProjector] Updated podcast popularity: plays=#{attrs.plays}, score=#{attrs.score}")
 
           result = repo.insert_or_update(
-            PodcastPopularity.changeset(updated, %{}),
+            PodcastPopularity.changeset(popularity, attrs),
             on_conflict: :replace_all,
             conflict_target: :rss_source_feed
           )
@@ -173,21 +172,20 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
 
           Logger.debug("[PopularityProjector] Current episode popularity: plays=#{popularity.plays}, score=#{popularity.score}")
 
-          updated = %{
-            popularity
-            | score: popularity.score + @score_play,
-              plays: popularity.plays + 1,
-              plays_people:
-                if(is_public,
-                  do: add_recent_user(popularity.plays_people, event.user_id),
-                  else: popularity.plays_people
-                )
+          attrs = %{
+            score: popularity.score + @score_play,
+            plays: popularity.plays + 1,
+            plays_people:
+              if(is_public,
+                do: add_recent_user(popularity.plays_people, event.user_id),
+                else: popularity.plays_people
+              )
           }
 
-          Logger.debug("[PopularityProjector] Updated episode popularity: plays=#{updated.plays}, score=#{updated.score}")
+          Logger.debug("[PopularityProjector] Updated episode popularity: plays=#{attrs.plays}, score=#{attrs.score}")
 
           result = repo.insert_or_update(
-            EpisodePopularity.changeset(updated, %{}),
+            EpisodePopularity.changeset(popularity, attrs),
             on_conflict: :replace_all,
             conflict_target: :rss_source_item
           )
@@ -212,13 +210,16 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
 
     # Enrichir async avec les métadonnées de l'épisode
     # Lancer le Task APRÈS que la transaction soit complète (ne pas bloquer)
-    Ecto.Multi.run(multi, :enrich_metadata, fn _repo, _changes ->
-      Logger.debug("[PopularityProjector] Starting async metadata enrichment for item: #{event.rss_source_item}")
-      Task.start(fn ->
-        enrich_episode_metadata_async(event.rss_source_feed, event.rss_source_item)
+    multi =
+      Ecto.Multi.run(multi, :enrich_metadata, fn _repo, _changes ->
+        Logger.debug("[PopularityProjector] Starting async metadata enrichment for item: #{event.rss_source_item}")
+        Task.start(fn ->
+          enrich_episode_metadata_async(event.rss_source_feed, event.rss_source_item)
+        end)
+        {:ok, :enriched}
       end)
-      {:ok, :enriched}
-    end)
+
+    multi
   end)
 
   project(%EpisodeSaved{} = event, _metadata, fn multi ->
@@ -343,73 +344,75 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
 
   # Enrichir async les métadonnées d'épisode depuis le RSS (source de vérité)
   defp enrich_episode_metadata_async(encoded_feed, encoded_item) do
-    Task.start(fn ->
-      try do
-        Logger.debug("[PopularityProjector] Enriching metadata: feed=#{encoded_feed}, item=#{encoded_item}")
+    try do
+      Logger.debug("[PopularityProjector] Enriching metadata: feed=#{encoded_feed}, item=#{encoded_item}")
 
-        # Décoder les IDs
-        feed_url = Base.url_decode64!(encoded_feed, padding: false)
-        decoded_item = Base.url_decode64!(encoded_item, padding: false)
-        Logger.debug("[PopularityProjector] Decoded feed_url=#{feed_url}, item=#{decoded_item}")
+      # Décoder les IDs
+      feed_url = Base.url_decode64!(encoded_feed, padding: false)
+      decoded_item = Base.url_decode64!(encoded_item, padding: false)
+      Logger.debug("[PopularityProjector] Decoded feed_url=#{feed_url}, item=#{decoded_item}")
 
-        case String.split(decoded_item, ",", parts: 2) do
-          [guid, _enclosure_url] ->
-            Logger.debug("[PopularityProjector] Looking for episode with guid=#{guid}")
+      case String.split(decoded_item, ",", parts: 2) do
+        [guid, _enclosure_url] ->
+          Logger.debug("[PopularityProjector] Looking for episode with guid=#{guid}")
 
-            # Récupérer et parser le RSS
-            case RssCache.fetch_and_parse_feed(feed_url) do
-              {:ok, {feed_metadata, episodes}} ->
-                Logger.debug("[PopularityProjector] Successfully fetched RSS: #{feed_metadata.title}, #{length(episodes)} episodes")
+          # Récupérer et parser le RSS
+          case RssCache.fetch_and_parse_feed(feed_url) do
+            {:ok, {feed_metadata, episodes}} ->
+              Logger.debug("[PopularityProjector] Successfully fetched RSS: #{feed_metadata.title}, #{length(episodes)} episodes")
 
-                # Trouver l'épisode
-                case Enum.find(episodes, &(&1.guid == guid)) do
-                  nil ->
-                    Logger.warning("[PopularityProjector] Episode with guid=#{guid} not found in RSS feed")
-                    :ok
+              # Trouver l'épisode
+              case Enum.find(episodes, &(&1.guid == guid)) do
+                nil ->
+                  Logger.warning("[PopularityProjector] Episode with guid=#{guid} not found in RSS feed")
+                  :ok
 
-                  episode ->
-                    Logger.info("[PopularityProjector] Found episode: #{episode.title}")
-                    # Mettre à jour la projection avec les métadonnées du RSS
-                    update_episode_metadata(encoded_item, episode, feed_metadata)
-                end
+                episode ->
+                  Logger.info("[PopularityProjector] Found episode: #{episode.title}")
+                  # Mettre à jour la projection avec les métadonnées du RSS
+                  update_episode_metadata(encoded_feed, encoded_item, episode, feed_metadata)
+              end
 
-              {:error, reason} ->
-                Logger.error("[PopularityProjector] Failed to fetch RSS from #{feed_url}: #{inspect(reason)}")
-                :ok
-            end
+            {:error, reason} ->
+              Logger.error("[PopularityProjector] Failed to fetch RSS from #{feed_url}: #{inspect(reason)}")
+              :ok
+          end
 
-          _ ->
-            Logger.error("[PopularityProjector] Invalid item format: #{decoded_item}")
-            :ok
-        end
-      rescue
-        error ->
-          Logger.error("[PopularityProjector] Exception during metadata enrichment: #{inspect(error)}")
+        _ ->
+          Logger.error("[PopularityProjector] Invalid item format: #{decoded_item}")
           :ok
       end
-    end)
+    rescue
+      error ->
+        Logger.error("[PopularityProjector] Exception during metadata enrichment: #{inspect(error)}")
+        :ok
+    end
   end
 
-  defp update_episode_metadata(encoded_item, episode, feed_metadata) do
+  defp update_episode_metadata(encoded_feed, encoded_item, episode, feed_metadata) do
     try do
       Logger.debug("[PopularityProjector] Updating metadata for item=#{encoded_item}")
 
       popularity =
         ProjectionsRepo.get(EpisodePopularity, encoded_item) ||
-          %EpisodePopularity{rss_source_item: encoded_item}
+          %EpisodePopularity{
+            rss_source_item: encoded_item,
+            rss_source_feed: encoded_feed
+          }
 
       # Toujours mettre à jour avec les données du RSS (source de vérité)
-      updated = %{
-        popularity
-        | episode_title: episode.title,
-          episode_author: episode.author,
-          episode_description: episode.description,
-          episode_cover: episode.cover,
-          podcast_title: feed_metadata.title
+      attrs = %{
+        rss_source_item: encoded_item,
+        rss_source_feed: encoded_feed,
+        episode_title: episode.title,
+        episode_author: episode.author,
+        episode_description: episode.description,
+        episode_cover: episode.cover,
+        podcast_title: feed_metadata.title
       }
 
       result = ProjectionsRepo.insert_or_update(
-        EpisodePopularity.changeset(updated, %{}),
+        EpisodePopularity.changeset(popularity, attrs),
         on_conflict: :replace_all,
         conflict_target: :rss_source_item
       )
