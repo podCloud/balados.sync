@@ -404,13 +404,10 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
           }
 
       # Toujours mettre à jour avec les données du RSS (source de vérité)
-      # Convert episode.cover (string URL) to map format if present
-      episode_cover_map =
-        if is_binary(episode.cover) do
-          %{src: episode.cover, srcset: nil}
-        else
-          episode.cover
-        end
+      # Normalize cover format: RssParser returns cover as a string URL for episodes
+      # We normalize it to map format {src, srcset} for consistency with feed-level covers
+      # Defensive coding: also handles cases where cover might already be a map
+      episode_cover_map = normalize_cover(episode.cover)
 
       # Extract episode link (prefer episode.link, fallback to enclosure.url)
       episode_link = episode.link || (episode.enclosure && episode.enclosure.url)
@@ -446,4 +443,17 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
         {:error, error}
     end
   end
+
+  @doc false
+  defp normalize_cover(cover) when is_binary(cover) do
+    # Convert string URL to map format
+    %{src: cover, srcset: nil}
+  end
+
+  defp normalize_cover(cover) when is_map(cover) do
+    # Already in map format (defensive against different sources)
+    cover
+  end
+
+  defp normalize_cover(_), do: nil
 end
