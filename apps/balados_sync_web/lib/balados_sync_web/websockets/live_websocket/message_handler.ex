@@ -10,6 +10,10 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
   alias BaladosSyncCore.Commands.RecordPlay
   alias BaladosSyncWeb.LiveWebSocket.{Auth, State}
 
+  # Rate limiting: 10 record_play messages per second per user
+  @rate_limit_scale 10
+  @rate_limit_limit 10
+
   @doc """
   Handles an incoming message from the WebSocket client.
 
@@ -121,6 +125,21 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
 
   @doc false
   defp dispatch_play_command(message, %State{} = state) do
+    # Check rate limit before dispatching
+    rate_limit_key = "websocket_play:#{state.user_id}"
+
+    case Hammer.check_rate(rate_limit_key, @rate_limit_scale, @rate_limit_limit) do
+      {:allow, _count} ->
+        do_dispatch_play_command(message, state)
+
+      {:deny, _limit} ->
+        Logger.warning("Rate limit exceeded for user #{state.user_id}")
+        {:error, error_response("Too many play events. Rate limited to #{@rate_limit_limit} per second.", "RATE_LIMITED")}
+    end
+  end
+
+  @doc false
+  defp do_dispatch_play_command(message, %State{} = state) do
     try do
       command = %RecordPlay{
         user_id: state.user_id,

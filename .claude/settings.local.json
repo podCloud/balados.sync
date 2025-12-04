@@ -28,7 +28,8 @@
       "Bash(timeout 120 mix compile:*)",
       "Bash(gh issue create:*)",
       "Bash(git push:*)",
-      "Bash(gh pr comment:*)"
+      "Bash(gh pr comment:*)",
+      "Bash(timeout 120 mix deps.get:*)"
     ],
     "deny": [],
     "ask": []
