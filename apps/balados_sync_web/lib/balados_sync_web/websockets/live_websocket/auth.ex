@@ -9,7 +9,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.Auth do
   require Logger
 
   alias BaladosSyncProjections.Schemas.PlayToken
-  alias BaladosSyncProjections.ProjectionsRepo
+  alias BaladosSyncCore.SystemRepo
   alias BaladosSyncWeb.AppAuth
   import Ecto.Query
 
@@ -57,7 +57,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.Auth do
         select: t.user_id
       )
 
-    case ProjectionsRepo.one(query) do
+    case SystemRepo.one(query) do
       nil ->
         Logger.debug("PlayToken validation failed: invalid or revoked token")
         {:error, :invalid_token}
@@ -89,7 +89,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.Auth do
     Task.start(fn ->
       try do
         from(t in PlayToken, where: t.token == ^token)
-        |> ProjectionsRepo.update_all(set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)])
+        |> SystemRepo.update_all(set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)])
 
         Logger.debug("PlayToken last_used_at updated successfully for token")
       rescue

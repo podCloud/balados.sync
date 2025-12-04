@@ -119,6 +119,7 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
           Logger.debug("[PopularityProjector] Current podcast popularity: plays=#{popularity.plays}, score=#{popularity.score}")
 
           attrs = %{
+            rss_source_feed: event.rss_source_feed,
             score: popularity.score + @score_play,
             plays: popularity.plays + 1,
             plays_people:
@@ -173,6 +174,8 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
           Logger.debug("[PopularityProjector] Current episode popularity: plays=#{popularity.plays}, score=#{popularity.score}")
 
           attrs = %{
+            rss_source_item: event.rss_source_item,
+            rss_source_feed: event.rss_source_feed,
             score: popularity.score + @score_play,
             plays: popularity.plays + 1,
             plays_people:

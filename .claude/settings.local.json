@@ -25,7 +25,8 @@
       "Bash(timeout 120 mix test:*)",
       "Bash(gh pr list:*)",
       "Bash(gh pr view:*)",
-      "Bash(timeout 120 mix compile:*)"
+      "Bash(timeout 120 mix compile:*)",
+      "Bash(gh issue create:*)"
     ],
     "deny": [],
     "ask": []
