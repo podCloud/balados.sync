@@ -22,7 +22,7 @@ defmodule BaladosSyncWeb.LiveWebSocketController do
       %{},
       timeout: 60_000,
       compress: false,
-      max_frame_size: :infinity
+      max_frame_size: 65_536
     )
   end
 end

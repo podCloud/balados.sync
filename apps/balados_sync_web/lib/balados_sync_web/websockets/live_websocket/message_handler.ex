@@ -11,7 +11,8 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
   alias BaladosSyncWeb.LiveWebSocket.{Auth, State}
 
   # Rate limiting: 10 record_play messages per second per user
-  @rate_limit_scale 10
+  # Scale in milliseconds: 1_000 ms = 1 second
+  @rate_limit_scale 1_000
   @rate_limit_limit 10
 
   @doc """
@@ -181,18 +182,18 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
   @doc false
   defp extract_position(message) do
     case Map.get(message, "position") do
-      nil -> {:error, "MISSING_FIELDS"}
+      nil -> {:ok, 0}
       value when is_integer(value) and value >= 0 -> {:ok, value}
-      _ -> {:error, "MISSING_FIELDS"}
+      _ -> {:error, "INVALID_POSITION"}
     end
   end
 
   @doc false
   defp extract_played(message) do
     case Map.get(message, "played") do
-      nil -> {:error, "MISSING_FIELDS"}
+      nil -> {:ok, false}
       value when is_boolean(value) -> {:ok, value}
-      _ -> {:error, "MISSING_FIELDS"}
+      _ -> {:error, "INVALID_PLAYED"}
     end
   end
 

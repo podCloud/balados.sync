@@ -236,7 +236,7 @@ defmodule BaladosSyncWeb.LiveWebSocketIntegrationTest do
     end
 
     test "state is touched after processing message", %{authenticated_state: state} do
-      before_touch = state.last_activity
+      before_touch = state.last_activity_at
 
       play_msg = Jason.encode!(%{
         "type" => "record_play",
@@ -250,8 +250,8 @@ defmodule BaladosSyncWeb.LiveWebSocketIntegrationTest do
       )
 
       # Verify that state was updated
-      assert new_state.last_activity != before_touch or
-             DateTime.compare(new_state.last_activity, before_touch) == :gt
+      assert new_state.last_activity_at != before_touch or
+             DateTime.compare(new_state.last_activity_at, before_touch) == :gt
     end
   end
 
