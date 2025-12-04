@@ -73,9 +73,10 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
           response = success_response(%{"user_id" => user_id}, "Authenticated successfully")
           {:ok, response, new_state}
 
-        {:error, _reason} ->
-          Logger.warning("Authentication failed with provided token")
-          {:error, error_response("Invalid or revoked token", "INVALID_TOKEN")}
+        {:error, reason} ->
+          Logger.warning("Authentication failed: #{inspect(reason)}")
+          error_msg = format_auth_error(reason)
+          {:error, error_response(error_msg, "INVALID_TOKEN")}
       end
     end
   end
@@ -139,7 +140,8 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
 
         {:error, reason} ->
           Logger.error("Failed to dispatch play command: #{inspect(reason)}")
-          {:error, error_response("Failed to record play event", "INTERNAL_ERROR")}
+          error_msg = "Failed to record play event: #{format_dispatch_error(reason)}"
+          {:error, error_response(error_msg, "DISPATCH_ERROR")}
       end
     rescue
       e ->
@@ -194,4 +196,14 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
       }
     })
   end
+
+  @doc false
+  defp format_auth_error(:invalid_token), do: "Invalid or revoked token"
+  defp format_auth_error(:insufficient_scope), do: "Token does not have required scopes for play recording"
+  defp format_auth_error(reason), do: inspect(reason)
+
+  @doc false
+  defp format_dispatch_error(reason) when is_atom(reason), do: Atom.to_string(reason)
+  defp format_dispatch_error(reason) when is_binary(reason), do: reason
+  defp format_dispatch_error(reason), do: inspect(reason)
 end

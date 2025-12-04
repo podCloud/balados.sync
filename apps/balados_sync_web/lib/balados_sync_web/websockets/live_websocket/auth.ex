@@ -34,9 +34,15 @@ defmodule BaladosSyncWeb.LiveWebSocket.Auth do
 
   @doc false
   defp detect_token_type(token) do
-    case String.split(token, ".") |> length() do
-      3 -> :jwt_token
-      _ -> :play_token
+    case String.split(token, ".") do
+      [header, payload, signature]
+      when byte_size(header) > 0 and byte_size(payload) > 0 and byte_size(signature) > 0 ->
+        # JWT format: three non-empty parts separated by dots
+        :jwt_token
+
+      _ ->
+        # PlayToken: simple base64 string (0 or 1+ dots are both valid)
+        :play_token
     end
   end
 
@@ -75,14 +81,30 @@ defmodule BaladosSyncWeb.LiveWebSocket.Auth do
     case AppAuth.verify_app_request(token) do
       {:ok, %{claims: claims}} ->
         user_id = claims["sub"]
-        Logger.debug("JWT token validated for user: #{user_id}")
-        {:ok, user_id, :jwt_token}
+        scopes = claims["scopes"] || []
+
+        if has_play_scope?(scopes) do
+          Logger.debug("JWT token validated for user: #{user_id} with scopes: #{inspect(scopes)}")
+          {:ok, user_id, :jwt_token}
+        else
+          Logger.debug("JWT token has insufficient scopes: #{inspect(scopes)}")
+          {:error, :insufficient_scope}
+        end
 
       {:error, reason} ->
         Logger.debug("JWT token validation failed: #{inspect(reason)}")
         {:error, :invalid_token}
     end
   end
+
+  @doc false
+  defp has_play_scope?(scopes) when is_list(scopes) do
+    Enum.any?(scopes, fn scope ->
+      scope in ["*", "*.write", "user.*", "user.*.write", "user.plays.write"]
+    end)
+  end
+
+  defp has_play_scope?(_), do: false
 
   @doc false
   defp update_play_token_last_used(token) do
