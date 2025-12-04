@@ -22,7 +22,10 @@
       "Skill(git-commit-helper)",
       "Bash(PGPASSWORD=postgres psql:*)",
       "Bash(timeout 60 mix compile:*)",
-      "Bash(timeout 120 mix test:*)"
+      "Bash(timeout 120 mix test:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(timeout 120 mix compile:*)"
     ],
     "deny": [],
     "ask": []

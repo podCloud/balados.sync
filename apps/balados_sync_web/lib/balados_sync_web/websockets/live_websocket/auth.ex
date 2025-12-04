@@ -87,8 +87,15 @@ defmodule BaladosSyncWeb.LiveWebSocket.Auth do
   @doc false
   defp update_play_token_last_used(token) do
     Task.start(fn ->
-      from(t in PlayToken, where: t.token == ^token)
-      |> ProjectionsRepo.update_all(set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)])
+      try do
+        from(t in PlayToken, where: t.token == ^token)
+        |> ProjectionsRepo.update_all(set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)])
+
+        Logger.debug("PlayToken last_used_at updated successfully for token")
+      rescue
+        e ->
+          Logger.warning("Failed to update PlayToken last_used_at: #{inspect(e)}")
+      end
     end)
   end
 end
