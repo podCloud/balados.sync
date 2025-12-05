@@ -82,6 +82,10 @@ config :balados_sync_core, BaladosSyncCore.EventStore,
   pool_size: 10,
   pool_overflow: 10
 
+# Configure Hammer for rate limiting
+config :hammer,
+  backend: {Hammer.Backend.ETS, [expiry_ms: 60_000, cleanup_interval_ms: 5_000]}
+
 # Configure Quantum scheduler for background jobs
 config :balados_sync_jobs, BaladosSyncJobs.Scheduler,
   jobs: [
