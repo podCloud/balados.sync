@@ -59,7 +59,8 @@ defmodule BaladosSyncWeb.Layouts do
   @doc """
   Get WebSocket authentication token for JavaScript
 
-  Returns the "Balados Web" PlayToken if user is authenticated, nil otherwise
+  Returns the "Balados Web Sync" PlayToken if user is authenticated, nil otherwise.
+  This token is used for WebSocket play event tracking on subscription and discovery pages.
   """
   def get_ws_token(conn) do
     case conn.assigns[:current_user_id] do
@@ -67,10 +68,10 @@ defmodule BaladosSyncWeb.Layouts do
         nil
 
       user_id ->
-        # Try to get or create the "Balados Web" play token
+        # Try to get or create the "Balados Web Sync" play token for WebSocket
         try do
-          case BaladosSyncWeb.PlayTokenHelper.get_or_create_balados_web_token(user_id) do
-            {:ok, token} -> token.token
+          case BaladosSyncWeb.PlayTokenHelper.get_or_create_websocket_token(user_id) do
+            {:ok, token} -> token
             _ -> nil
           end
         rescue

@@ -18,7 +18,7 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
     # or omit for development path mode at /play/
   """
 
-  alias BaladosSyncProjections.ProjectionsRepo
+  alias BaladosSyncCore.SystemRepo
   alias BaladosSyncProjections.Schemas.PlayToken
   import Ecto.Query
 
@@ -41,6 +41,24 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
   end
 
   @doc """
+  Gets or creates a PlayToken named "Balados Web Sync" for the user.
+
+  This is used for WebSocket play event tracking. The token is automatically
+  created on first use when accessing subscription/discovery pages.
+
+  Returns {:ok, token_string} on success, {:error, reason} on failure.
+  """
+  def get_or_create_websocket_token(user_id) do
+    case get_websocket_token(user_id) do
+      {:ok, token} ->
+        {:ok, token}
+
+      :not_found ->
+        create_websocket_token(user_id)
+    end
+  end
+
+  @doc """
   Gets the existing "Balados Web" token for the user, if it exists and is not revoked.
 
   Returns {:ok, token_string} if found, :not_found if not found or revoked, {:error, reason} on failure.
@@ -52,7 +70,7 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
         select: t.token
       )
 
-    case ProjectionsRepo.one(query) do
+    case SystemRepo.one(query) do
       nil -> :not_found
       token -> {:ok, token}
     end
@@ -74,13 +92,60 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
       name: "Balados Web"
     }
 
-    case ProjectionsRepo.insert(play_token) do
+    case SystemRepo.insert(play_token) do
       {:ok, _} ->
         {:ok, token}
 
       # If token somehow already exists (race condition), fetch it instead
       {:error, %{errors: [token: {"has already been taken", _}]}} ->
         get_balados_web_token(user_id)
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  @doc """
+  Gets the existing "Balados Web Sync" token for the user, if it exists and is not revoked.
+
+  Returns {:ok, token_string} if found, :not_found if not found or revoked, {:error, reason} on failure.
+  """
+  def get_websocket_token(user_id) do
+    query =
+      from(t in PlayToken,
+        where: t.user_id == ^user_id and t.name == "Balados Web Sync" and is_nil(t.revoked_at),
+        select: t.token
+      )
+
+    case SystemRepo.one(query) do
+      nil -> :not_found
+      token -> {:ok, token}
+    end
+  end
+
+  @doc """
+  Creates a new "Balados Web Sync" PlayToken for the user.
+
+  Only creates if a valid token doesn't already exist. If one already exists, returns it.
+
+  Returns {:ok, token_string} on success, {:error, reason} on failure.
+  """
+  def create_websocket_token(user_id) do
+    token = PlayToken.generate_token()
+
+    play_token = %PlayToken{
+      user_id: user_id,
+      token: token,
+      name: "Balados Web Sync"
+    }
+
+    case SystemRepo.insert(play_token) do
+      {:ok, _} ->
+        {:ok, token}
+
+      # If token somehow already exists (race condition), fetch it instead
+      {:error, %{errors: [token: {"has already been taken", _}]}} ->
+        get_websocket_token(user_id)
 
       {:error, reason} ->
         {:error, reason}
