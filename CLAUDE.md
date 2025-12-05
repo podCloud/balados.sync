@@ -877,6 +877,37 @@ ws.onmessage = (e) => {
 - ✅ Logging visible dans la console pour déboguer les problèmes de connexion
 - ✅ Serveur démarre sans erreur
 
+### Token WebSocket Automatique - "Balados Web Sync"
+- **Auto-création du token** : Token "Balados Web Sync" créé automatiquement lors du premier accès à `/my-subscriptions`
+- **Stockage sécurisé** : Stocké dans `system.play_tokens` avec gestion des race conditions
+- **Integration Phoenix** : Utilise `layouts.ex` pour récupérer/créer le token et l'injecter dans les meta tags HTML
+- **Métadonnées HTML** : Token injecté via `<meta name="ws-token">` pour que le JavaScript `dispatch_events.ts` puisse l'utiliser
+
+### Protocol WebSocket - Migration vers 'opid'
+- **Changement de protocol** : Les messages WebSocket utilisent maintenant `opid` (operation ID) au lieu de `id` pour la corrélation request/response
+  - **Avant** : `{"id":1,"type":"record_play",...}`
+  - **Après** : `{"opid":1,"type":"record_play",...}`
+- **Client JavaScript** : `dispatch_events.ts` mis à jour pour envoyer `opid` et traiter les réponses avec `opid`
+- **Server Elixir** : `message_handler.ex` mis à jour pour extraire `opid` et l'inclure dans les réponses avec `success_response_with_opid()` et `error_response_with_opid()`
+
+### Bug Fix Critical - Message Handler Field Stripping
+- **Problème** : Le `MessageHandler` reconstruisait un message incomplet lors du routage des messages authentifiés
+  - **Symptôme** : Serveur recevait `{"type": "record_play"}` au lieu du message complet avec opid, feed, item, position, played
+  - **Root cause** : Pattern match `%{"type" => type}` extrayait seulement le type, puis on créait un message incomplet `%{"type" => type}` au lieu de passer le message complet
+- **Fix** : Utilisation de `= message` en fin de pattern match pour capturer le message complet
+  ```elixir
+  # Avant (BUGUÉ)
+  defp handle_parsed_message(%{"type" => type}, state) when is_binary(type) do
+    handle_authenticated_message(%{"type" => type}, state)  # ❌ Message incomplet
+  end
+
+  # Après (FIXÉ)
+  defp handle_parsed_message(%{"type" => type} = message, state) when is_binary(type) do
+    handle_authenticated_message(message, state)  # ✅ Message complet
+  end
+  ```
+- **Logging amélioré** : Ajout de logs détaillés dans le validation et dispatch pour détecter les futurs problèmes
+
 ---
 
 ## 🔧 Améliorations Antérieures (2025-12-03)
@@ -908,11 +939,21 @@ ws.onmessage = (e) => {
 - **Résultat**: Les enclosures s'ouvrent dans un nouvel onglet et l'event est enregistré en background
 
 **Dernière mise à jour** : 2025-12-05
-**Statut du projet** : 🟢 Stable - WebSocket fonctionnel, Tous les problèmes résolus
+**Statut du projet** : 🟢 Stable - WebSocket fully functional avec tracking play events
 **Branche en cours** : main
 **Statuts des Tâches** :
-1. ✅ WebSocket fonctionnel avec logging complet
-2. ✅ Configuration Hammer pour rate limiting
-3. ✅ Tous les watchers fonctionnent sans erreur
-4. ✅ Liens externes ouvrent dans nouvel onglet (fire-and-forget WebSocket)
-- tu peux lancer mix phx.server mais pas arrêter un existant avec pkill ou autre, il faut me demander si c'est pas un de tes shell qui controle le server
+1. ✅ Token "Balados Web Sync" créé automatiquement pour les utilisateurs authentifiés
+2. ✅ Protocol WebSocket migré de `id` à `opid` (operation ID)
+3. ✅ Bug fix critical: message handler now passes complete messages (all fields preserved)
+4. ✅ WebSocket fonctionnel avec logging complet
+5. ✅ Configuration Hammer pour rate limiting
+6. ✅ Tous les watchers fonctionnent sans erreur
+7. ✅ Liens externes ouvrent dans nouvel onglet (fire-and-forget WebSocket)
+
+**Détails du Dernier Fix** :
+- Identifié et corrigé un bug critique où le `MessageHandler` supprimait les champs du message lors du routage
+- Le serveur reçoit maintenant le message complet avec tous les champs (opid, feed, item, position, played)
+- Les réponses du serveur incluent l'opid pour la corrélation request/response
+- Commit: `c1a8a6d` - fix(websocket): fix message field stripping in authenticated message handler
+
+**Notes** : tu peux lancer mix phx.server mais pas arrêter un existant avec pkill ou autre, il faut me demander si c'est pas un de tes shell qui controle le server
