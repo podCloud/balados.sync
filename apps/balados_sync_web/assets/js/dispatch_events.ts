@@ -324,30 +324,18 @@ class DispatchEventHandler {
 
     const feed = link.getAttribute('data-feed')
     const item = link.getAttribute('data-item')
-    const href = (link as HTMLAnchorElement).href
 
-    // Always prevent default to handle it ourselves
-    event.preventDefault()
-
-    // If no WebSocket token, redirect directly
-    if (!this.wsManager.token) {
-      window.location.href = href
-      return
+    // If we have a token, send the play event in the background
+    // Don't prevent default - let the browser handle the link normally
+    if (this.wsManager.token) {
+      // Fire and forget - don't wait for response
+      this.wsManager.connect()
+        .then(() => this.wsManager.sendRecordPlay(feed || '', item || ''))
+        .catch(() => {
+          // Silently ignore errors - link will open anyway
+          console.debug('[DispatchEvents] Background play event recording failed (link still opens)')
+        })
     }
-
-    // Try to send event via WebSocket, with timeout fallback
-    this.wsManager
-      .connect()
-      .then(() => this.wsManager.sendRecordPlay(feed || '', item || ''))
-      .then(() => {
-        // Success: redirect after event recorded
-        window.location.href = href
-      })
-      .catch((error: Error) => {
-        console.warn('[DispatchEvents] Failed to record play event, redirecting anyway:', error)
-        // Timeout or error: redirect anyway (graceful degradation)
-        window.location.href = href
-      })
   }
 }
 
