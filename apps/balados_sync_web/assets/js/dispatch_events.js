@@ -89,13 +89,13 @@ class WebSocketManager {
     return new Promise((resolve, reject) => {
       const messageId = ++this.messageId;
 
-      // Store handler for response
-      this.responseHandlers.set(messageId, { resolve, reject });
-
       const timeout = setTimeout(() => {
         this.responseHandlers.delete(messageId);
         reject(new Error('record_play timeout'));
       }, 5000);
+
+      // Store handler with timeout for cleanup
+      this.responseHandlers.set(messageId, { resolve, reject, timeout });
 
       const message = {
         id: messageId,
@@ -109,11 +109,18 @@ class WebSocketManager {
       if (this.state === 'connected' && this.ws && this.ws.readyState === WebSocket.OPEN) {
         this.ws.send(JSON.stringify(message));
       } else {
-        // Queue message if not connected
+        // Queue message if not connected (max 50 messages to prevent unbounded growth)
+        if (this.messageQueue.length >= 50) {
+          const dropped = this.messageQueue.shift();
+          clearTimeout(dropped.timeout);
+          console.warn('[DispatchEvents] Message queue full, dropping oldest message');
+        }
         this.messageQueue.push({ message, messageId, timeout, resolve, reject });
 
         // Try to reconnect and send
         this.connect().catch(() => {
+          clearTimeout(timeout);
+          this.responseHandlers.delete(messageId);
           reject(new Error('Failed to connect to WebSocket'));
         });
       }
@@ -147,7 +154,7 @@ class WebSocketManager {
       const data = JSON.parse(event.data);
 
       // Handle auth response
-      if (data.type === 'auth' || (data.status === 'ok' && !data.data?.user_id === undefined)) {
+      if (data.type === 'auth' || (data.status === 'ok' && data.data?.user_id !== undefined)) {
         clearTimeout(this.connectTimeout);
 
         if (data.status === 'ok') {
@@ -163,7 +170,8 @@ class WebSocketManager {
 
       // Handle record_play response
       if (data.id && this.responseHandlers.has(data.id)) {
-        const { resolve, reject } = this.responseHandlers.get(data.id);
+        const { resolve, reject, timeout } = this.responseHandlers.get(data.id);
+        clearTimeout(timeout);
         this.responseHandlers.delete(data.id);
 
         if (data.status === 'ok') {
