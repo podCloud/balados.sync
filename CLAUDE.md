@@ -854,7 +854,32 @@ ws.onmessage = (e) => {
 
 ---
 
-## 🔧 Améliorations Récentes (2025-12-03)
+## 🔧 Corrections & Améliorations Récentes (2025-12-05)
+
+### Fixes de Configuration et Démarrage
+- **Fix TypeScript watcher cassé** : Supprimé le watcher TypeScript invalide qui utilisait `FS.cmd` (module non disponible) causant 5000+ erreurs par requête HTTP
+- **Ajout Hammer config** : Configuration manquante pour le rate limiting du WebSocket (expiry_ms + cleanup_interval_ms)
+- **Fix dev.exs** : Correction de la syntaxe du watcher TypeScript initial qui causait une compilation impossible
+
+### WebSocket JavaScript - Debugging et Logging
+- **Logging complet** du cycle de vie dispatch_events.ts :
+  - Log au chargement du module
+  - Log lors de la lecture des meta tags
+  - Log de l'état du DOM (loading vs déjà loaded)
+  - Log de l'endpoint et token configurés
+  - Log de completion de l'initialisation
+- **Gestion de DOMContentLoaded** : Support des deux cas (script defer qui arrive trop tard vs script qui s'exécute au bon moment)
+- **Debugging facilité** : `window.__dispatchEventsManager` disponible pour debugging console
+
+### Résultat
+- ✅ WebSocket fonctionne correctement
+- ✅ dispatch_events.ts compilé et chargé (~5000 lignes dans app.js)
+- ✅ Logging visible dans la console pour déboguer les problèmes de connexion
+- ✅ Serveur démarre sans erreur
+
+---
+
+## 🔧 Améliorations Antérieures (2025-12-03)
 
 ### Refactoring RSS Cache et Parser
 - **Déplacement vers Core** : `RssCache` et `RssParser` ont été déplacés de `balados_sync_web` vers `balados_sync_core` pour éviter dépendances circulaires
@@ -873,10 +898,12 @@ ws.onmessage = (e) => {
 
 ---
 
-**Dernière mise à jour** : 2025-12-03
-**Statut du projet** : 🟡 En développement actif - Refactoring RSS + Enrichissement Async - Unknown Episode Bug
+**Dernière mise à jour** : 2025-12-05
+**Statut du projet** : 🟢 Stable - WebSocket fonctionnel, Logging amélioré
 **Branche en cours** : main
-**Priorités** :
-1. ✅ Compiler et vérifier avant chaque commit
-2. ✅ Ajouter logs détaillés pour tous les rescues et opérations DB
-3. 🔲 Résoudre bug "unknown episode" (à investiguer avec les nouveaux logs)
+**Statuts des Tâches** :
+1. ✅ WebSocket fonctionnel avec logging complet
+2. ✅ Configuration Hammer pour rate limiting
+3. ✅ Tous les watchers fonctionnent sans erreur
+4. ⏳ Vérification des liens externes (target=_blank)
+- tu peux lancer mix phx.server mais pas arrêter un existant avec pkill ou autre, il faut me demander si c'est pas un de tes shell qui controle le server
