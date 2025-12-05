@@ -49,11 +49,16 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
   Returns {:ok, token_string} on success, {:error, reason} on failure.
   """
   def get_or_create_websocket_token(user_id) do
+    require Logger
+    Logger.debug("[PlayTokenHelper] Getting or creating WebSocket token for user #{user_id}")
+
     case get_websocket_token(user_id) do
       {:ok, token} ->
+        Logger.debug("[PlayTokenHelper] WebSocket token already exists for user #{user_id}")
         {:ok, token}
 
       :not_found ->
+        Logger.debug("[PlayTokenHelper] Creating new WebSocket token for user #{user_id}")
         create_websocket_token(user_id)
     end
   end
@@ -131,6 +136,8 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
   Returns {:ok, token_string} on success, {:error, reason} on failure.
   """
   def create_websocket_token(user_id) do
+    require Logger
+
     token = PlayToken.generate_token()
 
     play_token = %PlayToken{
@@ -139,15 +146,20 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
       name: "Balados Web Sync"
     }
 
+    Logger.debug("[PlayTokenHelper] Inserting WebSocket token for user #{user_id}")
+
     case SystemRepo.insert(play_token) do
       {:ok, _} ->
+        Logger.debug("[PlayTokenHelper] WebSocket token created successfully for user #{user_id}")
         {:ok, token}
 
       # If token somehow already exists (race condition), fetch it instead
       {:error, %{errors: [token: {"has already been taken", _}]}} ->
+        Logger.debug("[PlayTokenHelper] WebSocket token race condition, fetching existing token for user #{user_id}")
         get_websocket_token(user_id)
 
       {:error, reason} ->
+        Logger.error("[PlayTokenHelper] Failed to create WebSocket token for user #{user_id}: #{inspect(reason)}")
         {:error, reason}
     end
   end
