@@ -13,6 +13,8 @@
  * </a>
  */
 
+console.log('[DispatchEvents] Module loading...')
+
 /**
  * Configuration constants
  */
@@ -349,14 +351,19 @@ class DispatchEventHandler {
   }
 }
 
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize function
+const initializeDispatchEvents = () => {
+  console.log('[DispatchEvents] Initializing dispatch events system')
+
   // Get configuration from meta tags
   const wsEndpointElement = document.querySelector<HTMLMetaElement>('meta[name="ws-endpoint"]')
   const wsTokenElement = document.querySelector<HTMLMetaElement>('meta[name="ws-token"]')
 
   const wsEndpoint = wsEndpointElement?.content
   const wsToken = wsTokenElement?.content
+
+  console.log('[DispatchEvents] WS Endpoint:', wsEndpoint)
+  console.log('[DispatchEvents] WS Token:', wsToken ? '(present)' : '(not set)')
 
   // Only initialize if we have an endpoint
   if (!wsEndpoint) {
@@ -372,4 +379,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Make wsManager available globally for debugging if needed
   window.__dispatchEventsManager = wsManager
-})
+
+  console.log('[DispatchEvents] Initialization complete')
+}
+
+// Handle both DOMContentLoaded and already loaded
+if (document.readyState === 'loading') {
+  console.log('[DispatchEvents] DOM still loading, waiting for DOMContentLoaded')
+  document.addEventListener('DOMContentLoaded', initializeDispatchEvents)
+} else {
+  console.log('[DispatchEvents] DOM already loaded, initializing immediately')
+  initializeDispatchEvents()
+}
