@@ -10,5 +10,62 @@ defmodule BaladosSyncWeb.Layouts do
   """
   use BaladosSyncWeb, :html
 
+  @doc """
+  Get WebSocket endpoint for JavaScript dispatch events
+
+  Returns appropriate WebSocket URL based on environment:
+  - Dev: ws://localhost:4000/sync/api/v1/live
+  - Prod subdomain: wss://sync.example.com/api/v1/live
+  - Prod path: wss://example.com/sync/api/v1/live
+  """
+  def get_ws_endpoint(conn) do
+    scheme = if Enum.member?([:prod], Mix.env()), do: "wss", else: "ws"
+
+    # Check if using subdomain mode (config has play_domain set)
+    play_domain = Application.get_env(:balados_sync_web, :play_domain)
+
+    if play_domain && Mix.env() == :prod do
+      # Subdomain mode: wss://sync.example.com/api/v1/live
+      # Extract base domain from play_domain
+      base_domain = String.replace(play_domain, ~r/^play\./, "")
+      "#{scheme}://sync.#{base_domain}/api/v1/live"
+    else
+      # Path mode: wss://example.com/sync/api/v1/live
+      host = conn.host || "localhost"
+      port = if Mix.env() == :prod, do: "", else: ":#{conn.adapter |> elem(1) |> elem(1)}"
+      "#{scheme}://#{host}#{port}/sync/api/v1/live"
+    end
+  rescue
+    # Fallback to path mode if anything fails
+    _ ->
+      host = conn.host || "localhost"
+      port = if Mix.env() == :prod, do: "", else: ":4000"
+      scheme = if Mix.env() == :prod, do: "wss", else: "ws"
+      "#{scheme}://#{host}#{port}/sync/api/v1/live"
+  end
+
+  @doc """
+  Get WebSocket authentication token for JavaScript
+
+  Returns the "Balados Web" PlayToken if user is authenticated, nil otherwise
+  """
+  def get_ws_token(conn) do
+    case conn.assigns[:current_user_id] do
+      nil ->
+        nil
+
+      user_id ->
+        # Try to get or create the "Balados Web" play token
+        try do
+          case BaladosSyncWeb.PlayTokenHelper.get_or_create_balados_web_token(user_id) do
+            {:ok, token} -> token.token
+            _ -> nil
+          end
+        rescue
+          _ -> nil
+        end
+    end
+  end
+
   embed_templates "layouts/*"
 end

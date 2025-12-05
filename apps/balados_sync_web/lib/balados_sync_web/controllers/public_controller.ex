@@ -176,6 +176,7 @@ defmodule BaladosSyncWeb.PublicController do
 
       render(conn, :feed_page,
         encoded_feed: encoded_feed,
+        feed_url: feed_url,
         metadata: metadata,
         episodes: Enum.take(episodes, 20),
         popularity: popularity
@@ -200,6 +201,7 @@ defmodule BaladosSyncWeb.PublicController do
 
       render(conn, :episode_page,
         episode: episode,
+        feed_url: feed_url,
         encoded_item: encoded_item,
         popularity: popularity
       )

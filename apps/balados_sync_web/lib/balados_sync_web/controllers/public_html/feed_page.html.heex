@@ -107,6 +107,9 @@
                 <%= if episode.enclosure do %>
                   <a
                     href={episode.enclosure.url}
+                    data-dispatch-event="play"
+                    data-feed={Base.url_encode64(@feed_url, padding: false)}
+                    data-item={Base.url_encode64("#{@feed_url},#{episode.guid},#{episode.enclosure.url}", padding: false)}
                     target="_blank"
                     rel="noopener noreferrer"
                     class="text-blue-600 hover:underline text-sm"

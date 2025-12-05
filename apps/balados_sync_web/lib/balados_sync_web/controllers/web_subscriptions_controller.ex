@@ -81,6 +81,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
         metadata: metadata,
         episodes: episodes,
         encoded_feed: encoded_feed,
+        feed_url: feed_url,
         play_token: play_token
       )
     else

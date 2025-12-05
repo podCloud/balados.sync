@@ -45,3 +45,6 @@ window.liveSocket = liveSocket
 // Subscription management enhancements
 import "./subscriptions.js"
 
+// WebSocket dispatch events for play tracking
+import "./dispatch_events.js"
+
