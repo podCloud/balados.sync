@@ -139,7 +139,7 @@ class WebSocketManager {
       this.responseHandlers.set(messageId, { resolve, reject, timeout })
 
       const message = {
-        id: messageId,
+        opid: messageId,
         type: 'record_play',
         feed,
         item,
@@ -214,13 +214,13 @@ class WebSocketManager {
       }
 
       // Handle record_play response
-      if (data.id && this.responseHandlers.has(data.id)) {
-        const handler = this.responseHandlers.get(data.id)
+      if (data.opid && this.responseHandlers.has(data.opid)) {
+        const handler = this.responseHandlers.get(data.opid)
         if (!handler) return
 
         const { resolve, reject, timeout } = handler
         clearTimeout(timeout)
-        this.responseHandlers.delete(data.id)
+        this.responseHandlers.delete(data.opid)
 
         if (data.status === 'ok') {
           resolve(data)

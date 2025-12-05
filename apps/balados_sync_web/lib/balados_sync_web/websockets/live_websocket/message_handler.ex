@@ -51,10 +51,10 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
     handle_auth_message(token, state)
   end
 
-  defp handle_parsed_message(%{"type" => type}, state) when is_binary(type) do
+  defp handle_parsed_message(%{"type" => type} = message, state) when is_binary(type) do
     cond do
       State.authenticated?(state) ->
-        handle_authenticated_message(%{"type" => type}, state)
+        handle_authenticated_message(message, state)
 
       true ->
         Logger.debug("Attempted to send #{type} message before authentication")
@@ -98,21 +98,24 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
 
   @doc false
   defp handle_record_play_message(message, %State{} = state) do
+    opid = Map.get(message, "opid")
     case validate_record_play_message(message) do
       {:ok, validated_message} ->
-        dispatch_play_command(validated_message, state)
+        dispatch_play_command(validated_message, opid, state)
 
       {:error, error_code} ->
-        {:error, error_response("Missing or invalid fields for record_play", error_code)}
+        {:error, error_response_with_opid("Missing or invalid fields for record_play", error_code, opid)}
     end
   end
 
   @doc false
   defp validate_record_play_message(message) do
-    with {:ok, feed} <- extract_required(message, "feed"),
+    Logger.debug("[MessageHandler] Validating record_play message: #{inspect(message)}")
+    result = with {:ok, feed} <- extract_required(message, "feed"),
          {:ok, item} <- extract_required(message, "item"),
          {:ok, position} <- extract_position(message),
          {:ok, played} <- extract_played(message) do
+      Logger.debug("[MessageHandler] Validation successful: feed=#{feed}, item=#{item}")
       {:ok, %{
         "feed" => feed,
         "item" => item,
@@ -120,27 +123,30 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
         "played" => played
       }}
     else
-      {:error, code} -> {:error, code}
+      {:error, code} ->
+        Logger.error("[MessageHandler] Validation failed with code: #{code}, message: #{inspect(message)}")
+        {:error, code}
     end
+    result
   end
 
   @doc false
-  defp dispatch_play_command(message, %State{} = state) do
+  defp dispatch_play_command(message, opid, %State{} = state) do
     # Check rate limit before dispatching
     rate_limit_key = "websocket_play:#{state.user_id}"
 
     case Hammer.check_rate(rate_limit_key, @rate_limit_scale, @rate_limit_limit) do
       {:allow, _count} ->
-        do_dispatch_play_command(message, state)
+        do_dispatch_play_command(message, opid, state)
 
       {:deny, _limit} ->
         Logger.warning("Rate limit exceeded for user #{state.user_id}")
-        {:error, error_response("Too many play events. Rate limited to #{@rate_limit_limit} per second.", "RATE_LIMITED")}
+        {:error, error_response_with_opid("Too many play events. Rate limited to #{@rate_limit_limit} per second.", "RATE_LIMITED", opid)}
     end
   end
 
   @doc false
-  defp do_dispatch_play_command(message, %State{} = state) do
+  defp do_dispatch_play_command(message, opid, %State{} = state) do
     try do
       command = %RecordPlay{
         user_id: state.user_id,
@@ -154,19 +160,19 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
       case Dispatcher.dispatch(command) do
         :ok ->
           Logger.info("Play event recorded for user #{state.user_id}")
-          response = success_response(message, "Play event recorded")
+          response = success_response_with_opid(message, "Play event recorded", opid)
           new_state = State.touch(state)
           {:ok, response, new_state}
 
         {:error, reason} ->
           Logger.error("Failed to dispatch play command: #{inspect(reason)}")
           error_msg = "Failed to record play event: #{format_dispatch_error(reason)}"
-          {:error, error_response(error_msg, "DISPATCH_ERROR")}
+          {:error, error_response_with_opid(error_msg, "DISPATCH_ERROR", opid)}
       end
     rescue
       e ->
         Logger.error("Exception while dispatching play command: #{inspect(e)}")
-        {:error, error_response("Internal server error", "INTERNAL_ERROR")}
+        {:error, error_response_with_opid("Internal server error", "INTERNAL_ERROR", opid)}
     end
   end
 
@@ -214,6 +220,28 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
         "message" => message,
         "code" => code
       }
+    })
+  end
+
+  @doc false
+  defp success_response_with_opid(data, message, opid) do
+    Jason.encode!(%{
+      "status" => "ok",
+      "message" => message,
+      "data" => data,
+      "opid" => opid
+    })
+  end
+
+  @doc false
+  defp error_response_with_opid(message, code, opid) do
+    Jason.encode!(%{
+      "status" => "error",
+      "error" => %{
+        "message" => message,
+        "code" => code
+      },
+      "opid" => opid
     })
   end
 
