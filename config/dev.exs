@@ -35,7 +35,8 @@ config :balados_sync_web, BaladosSyncWeb.Endpoint,
   secret_key_base: "u3D45ojriZxbpJaXRlRjz6d1qC++oclK0ofcxzOoMI1gabVCiLN3/Uph44zUbPU4",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:balados_sync_web, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:balados_sync_web, ~w(--watch)]}
+    tailwind: {Tailwind, :install_and_run, [:balados_sync_web, ~w(--watch)]},
+    typescript: {FS, :cmd, ["npx", ~w(tsc --noEmit --watch --preserveWatchOutput --pretty), [cd: Path.expand("../apps/balados_sync_web/assets", __DIR__), :stream]]}
   ]
 
 # ## SSL Support
