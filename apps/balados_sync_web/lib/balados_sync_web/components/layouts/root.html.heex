@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
+    <meta name="ws-endpoint" content={get_ws_endpoint(@conn)} />
+    <meta name="ws-token" content={get_ws_token(@conn)} />
     <.live_title suffix=" · Phoenix Framework">
       <%= assigns[:page_title] || "BaladosSync" %>
     </.live_title>

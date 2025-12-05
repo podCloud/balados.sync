@@ -95,13 +95,11 @@
                   </a>
                 <% end %>
                 <%= if episode.enclosure do %>
-                  <%
-                    # Generate play gateway URL for tracking listens (URL-safe encoding)
-                    item_id_encoded = Base.url_encode64("#{episode.guid || ""},#{episode.enclosure.url}", padding: false)
-                    play_url = BaladosSyncWeb.PlayTokenHelper.build_play_url(@play_token, @encoded_feed, item_id_encoded)
-                  %>
                   <a
-                    href={play_url}
+                    href={episode.enclosure.url}
+                    data-dispatch-event="play"
+                    data-feed={Base.url_encode64(@feed_url, padding: false)}
+                    data-item={Base.url_encode64("#{@feed_url},#{episode.guid},#{episode.enclosure.url}", padding: false)}
                     target="_blank"
                     rel="noopener noreferrer"
                     class="text-blue-600 hover:underline text-sm font-medium"
