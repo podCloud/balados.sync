@@ -898,12 +898,21 @@ ws.onmessage = (e) => {
 
 ---
 
+### Liens Externes - target=_blank (Fire and Forget WebSocket)
+- **Problème identifié**: Les liens avec `data-dispatch-event="play"` utilisaient `preventDefault()` + `window.location.href`, ignorant `target="_blank"`
+- **Fix appliqué**: Changement en approche fire-and-forget
+  - N'annule plus l'événement default
+  - Envoie l'événement WebSocket en arrière-plan
+  - Laisse le navigateur gérer le lien normalement
+  - Les erreurs WebSocket n'affectent pas l'ouverture du lien
+- **Résultat**: Les enclosures s'ouvrent dans un nouvel onglet et l'event est enregistré en background
+
 **Dernière mise à jour** : 2025-12-05
-**Statut du projet** : 🟢 Stable - WebSocket fonctionnel, Logging amélioré
+**Statut du projet** : 🟢 Stable - WebSocket fonctionnel, Tous les problèmes résolus
 **Branche en cours** : main
 **Statuts des Tâches** :
 1. ✅ WebSocket fonctionnel avec logging complet
 2. ✅ Configuration Hammer pour rate limiting
 3. ✅ Tous les watchers fonctionnent sans erreur
-4. ⏳ Vérification des liens externes (target=_blank)
+4. ✅ Liens externes ouvrent dans nouvel onglet (fire-and-forget WebSocket)
 - tu peux lancer mix phx.server mais pas arrêter un existant avec pkill ou autre, il faut me demander si c'est pas un de tes shell qui controle le server
