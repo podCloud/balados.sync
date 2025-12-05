@@ -19,7 +19,17 @@
       "WebSearch",
       "WebFetch(domain:github.com)",
       "Bash(/tmp/test_argon2.sh)",
-      "Skill(git-commit-helper)"
+      "Skill(git-commit-helper)",
+      "Bash(PGPASSWORD=postgres psql:*)",
+      "Bash(timeout 60 mix compile:*)",
+      "Bash(timeout 120 mix test:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(timeout 120 mix compile:*)",
+      "Bash(gh issue create:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr comment:*)",
+      "Bash(timeout 120 mix deps.get:*)"
     ],
     "deny": [],
     "ask": []

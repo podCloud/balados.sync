@@ -127,6 +127,11 @@ defmodule BaladosSyncWeb.Router do
     plug :accepts, ["*"]
   end
 
+  scope "/api/v1", BaladosSyncWeb, host: "sync." do
+    # Live WebSocket (with subdomain sync)
+    get "/live", LiveWebSocketController, :upgrade
+  end
+
   scope "/api/v1", BaladosSyncWeb do
     pipe_through :api
 
@@ -195,5 +200,10 @@ defmodule BaladosSyncWeb.Router do
     pipe_through :play_gateway
 
     get "/:user_token/:feed_id/:item_id", PlayGatewayController, :play
+  end
+
+  # Live WebSocket (path /sync/ - for production alternative and development)
+  scope "/sync/api/v1", BaladosSyncWeb do
+    get "/live", LiveWebSocketController, :upgrade
   end
 end
