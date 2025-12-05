@@ -65,16 +65,16 @@ defmodule BaladosSyncWeb.Layouts do
   def get_ws_token(conn) do
     require Logger
 
-    case conn.assigns[:current_user_id] do
+    case conn.assigns[:current_user] do
       nil ->
         nil
 
-      user_id ->
+      current_user ->
         # Try to get or create the "Balados Web Sync" play token for WebSocket
         try do
-          case BaladosSyncWeb.PlayTokenHelper.get_or_create_websocket_token(user_id) do
+          case BaladosSyncWeb.PlayTokenHelper.get_or_create_websocket_token(current_user.id) do
             {:ok, token} ->
-              Logger.debug("[Layouts] WebSocket token created for user #{user_id}: #{token}")
+              Logger.debug("[Layouts] WebSocket token created for user #{current_user.id}: #{token}")
               token
 
             error ->
