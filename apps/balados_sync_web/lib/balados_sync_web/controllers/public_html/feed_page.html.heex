@@ -50,13 +50,59 @@
           </div>
         <% end %>
 
-        <div class="mt-6">
-          <.link
-            navigate={~p"/my-subscriptions/new"}
-            class="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-          >
-            Subscribe to this Podcast
-          </.link>
+        <div class="mt-6 flex gap-3 flex-wrap">
+          <%= if @current_user do %>
+            <%= if @is_subscribed do %>
+              <!-- Unsubscribe button (authenticated + subscribed) -->
+              <.link
+                href={~p"/podcasts/#{@encoded_feed}/subscribe"}
+                method="delete"
+                data-confirm="Unsubscribe from this podcast?"
+                class="inline-block rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+              >
+                Unsubscribe
+              </.link>
+              <.link
+                navigate={~p"/my-subscriptions"}
+                class="inline-block rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+              >
+                Manage Subscriptions
+              </.link>
+            <% else %>
+              <!-- Quick subscribe button (authenticated + not subscribed) -->
+              <.link
+                href={~p"/podcasts/#{@encoded_feed}/subscribe"}
+                method="post"
+                class="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Subscribe
+              </.link>
+              <button
+                type="button"
+                data-feed-url={@feed_url}
+                data-encoded-feed={@encoded_feed}
+                class="inline-block rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 js-show-subscribe-modal"
+              >
+                Add Custom RSS
+              </button>
+            <% end %>
+          <% else %>
+            <!-- Login required (not authenticated) -->
+            <button
+              type="button"
+              data-feed-url={@feed_url}
+              data-encoded-feed={@encoded_feed}
+              class="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 js-show-login-modal"
+            >
+              Subscribe
+            </button>
+            <.link
+              navigate={~p"/users/register"}
+              class="inline-block rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+            >
+              Create Account
+            </.link>
+          <% end %>
         </div>
       </div>
     </div>
