@@ -84,4 +84,33 @@ defmodule BaladosSyncWeb.Queries do
       created_at: item.inserted_at
     }
   end
+
+  @doc """
+  Check if a user is subscribed to a specific feed.
+  Returns true if subscribed, false otherwise.
+  """
+  def is_user_subscribed?(user_id, encoded_feed) do
+    from(s in Subscription,
+      where: s.user_id == ^user_id and s.rss_source_feed == ^encoded_feed,
+      where: is_nil(s.unsubscribed_at) or s.subscribed_at > s.unsubscribed_at,
+      select: s.id
+    )
+    |> ProjectionsRepo.one()
+    |> case do
+      nil -> false
+      _ -> true
+    end
+  end
+
+  @doc """
+  Get subscription details for a user and feed.
+  Returns the subscription record or nil if not subscribed.
+  """
+  def get_user_subscription(user_id, encoded_feed) do
+    from(s in Subscription,
+      where: s.user_id == ^user_id and s.rss_source_feed == ^encoded_feed,
+      where: is_nil(s.unsubscribed_at) or s.subscribed_at > s.unsubscribed_at
+    )
+    |> ProjectionsRepo.one()
+  end
 end
