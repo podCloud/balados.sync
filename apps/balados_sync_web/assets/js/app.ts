@@ -50,3 +50,6 @@ import "./subscriptions.ts"
 
 // WebSocket dispatch events for play tracking
 import "./dispatch_events.ts"
+
+// Modal management for login and subscription forms
+import "./modals"

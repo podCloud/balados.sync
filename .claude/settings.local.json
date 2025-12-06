@@ -30,7 +30,8 @@
       "Bash(git push:*)",
       "Bash(gh pr comment:*)",
       "Bash(timeout 120 mix deps.get:*)",
-      "Bash(gh pr create:*)"
+      "Bash(gh pr create:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []
