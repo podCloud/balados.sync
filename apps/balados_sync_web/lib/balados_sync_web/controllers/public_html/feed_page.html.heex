@@ -170,4 +170,30 @@
       <% end %>
     </div>
   </div>
+
+  <!-- Login Modal (for unauthenticated users) -->
+  <%= unless @current_user do %>
+    <.login_modal
+      id="login-modal"
+      login_url={~p"/users/log_in?return_to=/podcasts/#{@encoded_feed}"}
+      register_url={~p"/users/register"}
+    >
+      <p class="text-zinc-700 mb-4">
+        Please log in to subscribe to this podcast and sync your listening progress across devices.
+      </p>
+    </.login_modal>
+  <% end %>
+
+  <!-- Subscribe Modal (for authenticated users) -->
+  <%= if @current_user && !@is_subscribed do %>
+    <.subscribe_modal
+      id="subscribe-modal"
+      subscribe_url={~p"/my-subscriptions"}
+      feed_url={@feed_url}
+    >
+      <p class="text-zinc-700 mb-4">
+        You can subscribe to this podcast or enter a different RSS feed URL.
+      </p>
+    </.subscribe_modal>
+  <% end %>
 </div>

@@ -602,6 +602,155 @@ defmodule BaladosSyncWeb.CoreComponents do
     """
   end
 
+  @doc """
+  Renders a login modal for unauthenticated users trying to subscribe.
+
+  ## Examples
+
+      <.login_modal id="login-modal" login_url="/users/log_in?return_to=/podcasts/abc123" register_url="/users/register">
+        <p>Please log in to subscribe to this podcast.</p>
+      </.login_modal>
+  """
+  attr :id, :string, required: true
+  attr :login_url, :string, required: true
+  attr :register_url, :string, required: true
+  slot :inner_block, required: false
+
+  def login_modal(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="p-6">
+          <div class="flex justify-between items-start mb-4">
+            <h2 class="text-2xl font-bold text-zinc-900">Log In to Subscribe</h2>
+            <button
+              type="button"
+              class="text-zinc-400 hover:text-zinc-600 js-hide-modal"
+              aria-label="Close"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <%= render_slot(@inner_block) %>
+
+          <form action={@login_url} method="post" class="space-y-6">
+            <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+            <div>
+              <label for="username" class="block text-sm font-semibold leading-6 text-zinc-800">
+                Username
+              </label>
+              <input
+                type="text"
+                name="user[username]"
+                id="username"
+                class="mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6 border-zinc-300 focus:border-zinc-400"
+                required
+              />
+            </div>
+            <div>
+              <label for="password" class="block text-sm font-semibold leading-6 text-zinc-800">
+                Password
+              </label>
+              <input
+                type="password"
+                name="user[password]"
+                id="password"
+                class="mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6 border-zinc-300 focus:border-zinc-400"
+                required
+              />
+            </div>
+            <div>
+              <label for="remember_me" class="flex items-center gap-4">
+                <input type="checkbox" name="user[remember_me]" id="remember_me" class="rounded" />
+                <span class="text-sm leading-6 text-zinc-600">Keep me logged in</span>
+              </label>
+            </div>
+            <button type="submit" class="w-full rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+              Log In
+            </button>
+          </form>
+
+          <div class="mt-4 text-center text-sm text-zinc-600">
+            Don't have an account?
+            <a href={@register_url} class="text-blue-600 hover:underline">
+              Sign up
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a subscription modal with RSS URL input for authenticated users.
+
+  ## Examples
+
+      <.subscribe_modal id="subscribe-modal" subscribe_url="/my-subscriptions" feed_url="https://example.com/feed.xml">
+        <p>Add this podcast to your subscriptions.</p>
+      </.subscribe_modal>
+  """
+  attr :id, :string, required: true
+  attr :subscribe_url, :string, required: true
+  attr :feed_url, :string, default: ""
+  slot :inner_block, required: false
+
+  def subscribe_modal(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="p-6">
+          <div class="flex justify-between items-start mb-4">
+            <h2 class="text-2xl font-bold text-zinc-900">Add Subscription</h2>
+            <button
+              type="button"
+              class="text-zinc-400 hover:text-zinc-600 js-hide-modal"
+              aria-label="Close"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <%= render_slot(@inner_block) %>
+
+          <form action={@subscribe_url} method="post" class="space-y-6">
+            <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+            <div>
+              <label for="feed_url" class="block text-sm font-semibold leading-6 text-zinc-800">
+                RSS Feed URL
+              </label>
+              <input
+                type="text"
+                name="feed_url"
+                id="feed_url"
+                value={@feed_url}
+                placeholder="https://example.com/feed.xml"
+                class="mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6 border-zinc-300 focus:border-zinc-400"
+                required
+              />
+            </div>
+            <button type="submit" class="w-full rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
   ## JS Commands
 
   def show(js \\ %JS{}, selector) do
