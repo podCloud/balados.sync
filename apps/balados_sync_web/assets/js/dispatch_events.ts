@@ -325,17 +325,36 @@ class DispatchEventHandler {
     const feed = link.getAttribute('data-feed')
     const item = link.getAttribute('data-item')
 
-    // If we have a token, send the play event in the background
-    // Don't prevent default - let the browser handle the link normally
-    if (this.wsManager.token) {
-      // Fire and forget - don't wait for response
-      this.wsManager.connect()
-        .then(() => this.wsManager.sendRecordPlay(feed || '', item || ''))
-        .catch(() => {
-          // Silently ignore errors - link will open anyway
-          console.debug('[DispatchEvents] Background play event recording failed (link still opens)')
-        })
+    if (!feed || !item) {
+      console.warn('[DispatchEvents] Missing feed or item attributes')
+      return
     }
+
+    // Fire-and-forget: check privacy async, don't block link
+    // Import dynamically to avoid circular dependencies
+    import('./privacy_manager').then(({ privacyManager }) => {
+      privacyManager.ensurePrivacy(feed, 'play')
+        .then((privacy) => {
+          if (privacy === 'private' || privacy === null) {
+            console.log('[DispatchEvents] Privacy is private or not set, not recording play')
+            return
+          }
+
+          // Privacy is anonymous or public - send WebSocket
+          if (this.wsManager.token) {
+            this.wsManager.connect()
+              .then(() => this.wsManager.sendRecordPlay(feed, item))
+              .catch((err) => {
+                console.error('[DispatchEvents] Failed to send play event:', err)
+              })
+          }
+        })
+        .catch((err) => {
+          console.error('[DispatchEvents] Privacy check failed:', err)
+        })
+    })
+
+    // Don't prevent default - let link open normally
   }
 }
 

@@ -45,6 +45,10 @@ defmodule BaladosSyncWeb.Router do
     # Subscribe/Unsubscribe actions (authentication checked in controller)
     post "/podcasts/:feed/subscribe", PublicController, :subscribe_to_feed
     delete "/podcasts/:feed/subscribe", PublicController, :unsubscribe_from_feed
+
+    # Privacy check/set (session auth, works for both authenticated and unauthenticated)
+    get "/privacy/check/:feed", WebPrivacyController, :check_privacy
+    post "/privacy/set/:feed", WebPrivacyController, :set_privacy
   end
 
   # Routes for user authentication (public access)

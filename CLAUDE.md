@@ -964,6 +964,104 @@ GET /my-subscriptions/:feed      # Redirige vers /podcasts/:feed
 
 ---
 
+## 🔐 Privacy Choice Modal (v1.4)
+
+**Nouvelle fonctionnalité** : Modal de choix de confidentialité (privé/anonyme/public) affichée la première fois qu'un utilisateur s'abonne ou lit un épisode d'un podcast.
+
+### Contenu
+
+- **Modal Intelligente** : Demande le niveau de confidentialité une seule fois par podcast
+  - Privé : Aucun partage public, pas d'événement WebSocket
+  - Anonyme : Contribue aux statistiques sans révéler l'identité
+  - Public : Visible dans la découverte avec attribution
+
+- **Portée par Podcast** : Modal s'affiche pour chaque nouveau podcast
+  - Stockage dans la table `user_privacy` (feed-level)
+  - Cache client pour éviter vérifications répétées
+  - Choix persistent entre les sessions
+
+- **Intégration Subscribe & Play** :
+  - Subscribe : Modal bloque le formulaire jusqu'au choix
+  - Play : Fire-and-forget non-bloquant (link ouvre immédiatement)
+  - Même modal pour les deux contextes avec texte dynamique
+
+#### Architecture
+
+**Composants Backend** :
+- `WebPrivacyController` : Endpoints session-authenticated
+  - `GET /privacy/check/:feed` - Vérifie si privacy est défini
+  - `POST /privacy/set/:feed` - Défini privacy et dispatch ChangePrivacy command
+- Utilise session cookies (pas JWT) pour navigateur
+- Dispatch `ChangePrivacy` command via Dispatcher CQRS
+
+**Composants Frontend** :
+- `PrivacyManager` (TypeScript) : Gestion centralisée
+  - Cache en mémoire par feed
+  - Communication avec serveur
+  - Gestion du cycle de vie modal (show/hide/events)
+- `SubscribeFlowHandler` : Interception bouton subscribe
+  - Demande privacy avant dispatch
+  - Crée et soumet form automatiquement
+- `privacy_modal` component : Interface utilisateur
+  - 3 boutons avec icônes et descriptions
+  - Responsive avec Tailwind
+  - Support clavier (Escape, Tab, focus)
+- Intégration dans `dispatch_events.ts` : Check privacy avant WebSocket
+
+#### Routes
+
+```
+GET  /privacy/check/:feed        # Vérifier si privacy set (session auth)
+POST /privacy/set/:feed          # Définir privacy (session auth)
+```
+
+#### Commandes CQRS
+
+- `ChangePrivacy` : Dispatch depuis WebPrivacyController
+  - `user_id`, `rss_source_feed` (feed-level), `privacy` (atom)
+  - `event_infos` : device_id, device_name
+  - Émet `PrivacyChanged` event
+
+#### Fichiers Créés/Modifiés
+
+**Créés** (4 fichiers) :
+1. `apps/balados_sync_web/lib/balados_sync_web/controllers/web_privacy_controller.ex`
+2. `apps/balados_sync_web/assets/js/privacy_manager.ts`
+3. `apps/balados_sync_web/assets/js/subscribe_flow.ts`
+4. `apps/balados_sync_web/test/balados_sync_web/controllers/web_privacy_controller_test.exs`
+
+**Modifiés** (6 fichiers) :
+1. `apps/balados_sync_web/lib/balados_sync_web/router.ex` - Routes
+2. `apps/balados_sync_web/lib/balados_sync_web/components/core_components.ex` - privacy_modal component
+3. `apps/balados_sync_web/lib/balados_sync_web/components/layouts/root.html.heex` - Modal au layout
+4. `apps/balados_sync_web/lib/balados_sync_web/controllers/public_html/feed_page.html.heex` - Bouton subscribe
+5. `apps/balados_sync_web/assets/js/dispatch_events.ts` - Privacy check avant WebSocket
+6. `apps/balados_sync_web/assets/js/app.ts` - Imports
+
+#### Patterns Clés
+
+- **Session vs JWT Auth** : Endpoints web utilisent session (navigateur), endpoints API utilisent JWT
+- **Fire-and-Forget** : Play events en background, link ouvre immédiatement
+- **Cache Client** : Évite appels serveur répétés, invalide au changement
+- **CQRS Pattern** : Dispatch via Dispatcher, projections mises à jour automatiquement
+
+#### Tests
+
+**Backend** :
+- Unauthenticated check → `has_privacy: false`
+- Authenticated check (not set) → `has_privacy: false`
+- Authenticated check (set) → `has_privacy: true, privacy: level`
+- Set privacy → Dispatch et storage vérifié
+- Invalid privacy → Default to public
+
+**Frontend (Manuel)** :
+- Subscribe → Modal → choix → subscription créée
+- Play → Modal → choix → WebSocket si not private
+- Cache → Pas de duplicate calls
+- Cancel → Aucune action
+
+---
+
 ## 🔧 Corrections & Améliorations Récentes (2025-12-06)
 
 ### Fixes de Configuration et Démarrage

@@ -751,6 +751,138 @@ defmodule BaladosSyncWeb.CoreComponents do
     """
   end
 
+  @doc """
+  Renders a privacy choice modal for first-time feed interaction.
+
+  This modal allows users to choose their privacy level (private, anonymous, or public)
+  for a podcast subscription or play activity.
+
+  ## Attributes
+  - `id` (required) - The modal HTML element ID
+  - `feed` (required) - Base64-encoded feed URL
+  - `context` (default: "subscribe") - Either "subscribe" or "play"
+
+  ## Examples
+
+      <.privacy_modal id="privacy-modal" feed={@encoded_feed} context="subscribe" />
+  """
+  attr :id, :string, required: true
+  attr :feed, :string, required: true
+  attr :context, :string, default: "subscribe"
+  slot :inner_block, required: false
+
+  def privacy_modal(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      data-feed={@feed}
+      data-context={@context}
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
+        <div class="p-6">
+          <div class="flex justify-between items-start mb-4">
+            <h2 class="text-2xl font-bold text-zinc-900">
+              <%= if @context == "subscribe" do %>
+                Privacy Settings for This Podcast
+              <% else %>
+                Choose Privacy Level
+              <% end %>
+            </h2>
+            <button
+              type="button"
+              class="text-zinc-400 hover:text-zinc-600 js-hide-modal"
+              aria-label="Close"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <%= render_slot(@inner_block) %>
+
+          <p class="text-sm text-zinc-600 mb-6">
+            <%= if @context == "subscribe" do %>
+              Choose how your activity for this podcast will be shared. This can be changed later.
+            <% else %>
+              Before recording this play, choose your privacy level for this podcast.
+            <% end %>
+          </p>
+
+          <div class="space-y-3">
+            <!-- Private Option -->
+            <button
+              type="button"
+              data-privacy="private"
+              class="js-privacy-option w-full text-left p-4 border-2 border-zinc-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+            >
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 mt-1">
+                  <svg class="w-6 h-6 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="font-semibold text-zinc-900">Private</h3>
+                  <p class="text-sm text-zinc-600">Your activity is completely hidden. Not shared publicly or in discovery.</p>
+                </div>
+              </div>
+            </button>
+
+            <!-- Anonymous Option -->
+            <button
+              type="button"
+              data-privacy="anonymous"
+              class="js-privacy-option w-full text-left p-4 border-2 border-zinc-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+            >
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 mt-1">
+                  <svg class="w-6 h-6 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="font-semibold text-zinc-900">Anonymous</h3>
+                  <p class="text-sm text-zinc-600">Contributes to podcast popularity but without your identity.</p>
+                </div>
+              </div>
+            </button>
+
+            <!-- Public Option -->
+            <button
+              type="button"
+              data-privacy="public"
+              class="js-privacy-option w-full text-left p-4 border-2 border-zinc-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+            >
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 mt-1">
+                  <svg class="w-6 h-6 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="font-semibold text-zinc-900">Public</h3>
+                  <p class="text-sm text-zinc-600">Your activity is visible in discovery and contributes to recommendations.</p>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <div class="mt-6 flex gap-3">
+            <button
+              type="button"
+              class="flex-1 rounded-lg bg-zinc-200 px-3 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-300 js-hide-modal"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
   ## JS Commands
 
   def show(js \\ %JS{}, selector) do

@@ -53,3 +53,9 @@ import "./dispatch_events.ts"
 
 // Modal management for login and subscription forms
 import "./modals"
+
+// Privacy management for subscriptions and plays
+import { privacyManager } from "./privacy_manager"
+
+// Subscribe flow with privacy checks
+import "./subscribe_flow"

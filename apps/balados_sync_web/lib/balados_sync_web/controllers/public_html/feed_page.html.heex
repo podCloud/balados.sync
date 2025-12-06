@@ -70,13 +70,14 @@
               </.link>
             <% else %>
               <!-- Quick subscribe button (authenticated + not subscribed) -->
-              <.link
-                href={~p"/podcasts/#{@encoded_feed}/subscribe"}
-                method="post"
-                class="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              <button
+                type="button"
+                class="js-subscribe-with-privacy inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                data-feed={@encoded_feed}
+                data-subscribe-url={~p"/podcasts/#{@encoded_feed}/subscribe"}
               >
                 Subscribe
-              </.link>
+              </button>
               <button
                 type="button"
                 data-feed-url={@feed_url}
