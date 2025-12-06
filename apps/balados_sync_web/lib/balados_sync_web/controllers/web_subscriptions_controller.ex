@@ -14,13 +14,10 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   require Logger
 
   alias BaladosSyncCore.Dispatcher
-  alias BaladosSyncCore.Commands.{Subscribe, Unsubscribe}
+  alias BaladosSyncCore.Commands.Subscribe
   alias BaladosSyncCore.RssCache
   alias BaladosSyncCore.RssParser
-  alias BaladosSyncProjections.ProjectionsRepo
-  alias BaladosSyncProjections.Schemas.Subscription
   alias BaladosSyncWeb.Queries
-  alias BaladosSyncWeb.PlayTokenHelper
 
   # All actions require authenticated user
   plug :require_authenticated_user
@@ -45,57 +42,11 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   end
 
   @doc """
-  Show details of a single subscription (feed and episodes).
-
-  Fetches the feed from RSS cache and displays episodes list.
-  Automatically creates "Balados Web" play token if needed for play gateway links.
+  Redirect old /my-subscriptions/:feed URLs to public /podcasts/:feed page.
+  This preserves existing bookmarks while consolidating the UI.
   """
-  def show(conn, %{"feed" => encoded_feed}) do
-    user_id = conn.assigns.current_user.id
-
-    # Verify user is subscribed to this feed
-    subscription =
-      ProjectionsRepo.get_by(Subscription,
-        user_id: user_id,
-        rss_source_feed: encoded_feed
-      )
-
-    unless subscription do
-      conn
-      |> put_flash(:error, "Subscription not found")
-      |> redirect(to: ~p"/my-subscriptions")
-      |> halt()
-    end
-
-    # Get or create "Balados Web" token for play gateway links
-    play_token_result = PlayTokenHelper.get_or_create_balados_web_token(user_id)
-
-    # Fetch and parse feed
-    with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
-         {:ok, xml} <- RssCache.fetch_feed(feed_url),
-         {:ok, metadata} <- RssParser.parse_feed(xml),
-         {:ok, episodes} <- RssParser.parse_episodes(xml),
-         {:ok, play_token} <- play_token_result do
-      render(conn, :show,
-        subscription: subscription,
-        metadata: metadata,
-        episodes: episodes,
-        encoded_feed: encoded_feed,
-        feed_url: feed_url,
-        play_token: play_token
-      )
-    else
-      {:error, reason} when reason != :invalid_base64 and reason != :fetch_failed and reason != :parse_failed ->
-        Logger.error("Failed to get play token: #{inspect(reason)}")
-        conn
-        |> put_flash(:error, "Failed to load feed")
-        |> redirect(to: ~p"/my-subscriptions")
-
-      _ ->
-        conn
-        |> put_flash(:error, "Failed to load feed")
-        |> redirect(to: ~p"/my-subscriptions")
-    end
+  def redirect_to_public(conn, %{"feed" => encoded_feed}) do
+    redirect(conn, to: ~p"/podcasts/#{encoded_feed}")
   end
 
   @doc """
@@ -153,50 +104,6 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
         conn
         |> put_flash(:error, "Invalid feed: #{reason}")
         |> render(:new, changeset: nil, preview: nil)
-    end
-  end
-
-  @doc """
-  Unsubscribe from a podcast.
-  """
-  def delete(conn, %{"feed" => encoded_feed}) do
-    user_id = conn.assigns.current_user.id
-
-    # Get subscription for source_id
-    subscription =
-      ProjectionsRepo.get_by(Subscription,
-        user_id: user_id,
-        rss_source_feed: encoded_feed
-      )
-
-    unless subscription do
-      conn
-      |> put_flash(:error, "Subscription not found")
-      |> redirect(to: ~p"/my-subscriptions")
-      |> halt()
-    end
-
-    command = %Unsubscribe{
-      user_id: user_id,
-      rss_source_feed: encoded_feed,
-      rss_source_id: subscription.rss_source_id,
-      unsubscribed_at: DateTime.utc_now(),
-      event_infos: %{
-        device_id: "web-#{:erlang.phash2(conn.remote_ip)}",
-        device_name: "Web Browser"
-      }
-    }
-
-    case Dispatcher.dispatch(command) do
-      :ok ->
-        conn
-        |> put_flash(:info, "Successfully unsubscribed")
-        |> redirect(to: ~p"/my-subscriptions")
-
-      {:error, reason} ->
-        conn
-        |> put_flash(:error, "Failed to unsubscribe: #{inspect(reason)}")
-        |> redirect(to: ~p"/my-subscriptions")
     end
   end
 
