@@ -41,6 +41,10 @@ defmodule BaladosSyncWeb.Router do
     get "/trending/episodes", PublicController, :trending_episodes_html
     get "/podcasts/:feed", PublicController, :feed_page
     get "/episodes/:item", PublicController, :episode_page
+
+    # Subscribe/Unsubscribe actions (authentication checked in controller)
+    post "/podcasts/:feed/subscribe", PublicController, :subscribe_to_feed
+    delete "/podcasts/:feed/subscribe", PublicController, :unsubscribe_from_feed
   end
 
   # Routes for user authentication (public access)
@@ -65,8 +69,9 @@ defmodule BaladosSyncWeb.Router do
     get "/my-subscriptions/new", WebSubscriptionsController, :new
     post "/my-subscriptions", WebSubscriptionsController, :create
     get "/my-subscriptions/export.opml", WebSubscriptionsController, :export_opml
-    get "/my-subscriptions/:feed", WebSubscriptionsController, :show
-    delete "/my-subscriptions/:feed", WebSubscriptionsController, :delete
+
+    # Redirect old subscription detail page to public podcast page
+    get "/my-subscriptions/:feed", WebSubscriptionsController, :redirect_to_public
 
     # App authorization confirmation (requires authentication)
     post "/authorize", AppAuthController, :create_authorization
