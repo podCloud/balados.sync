@@ -5,6 +5,8 @@ defmodule BaladosSyncWeb.PublicController do
 
   alias BaladosSyncCore.RssCache
   alias BaladosSyncCore.RssParser
+  alias BaladosSyncCore.Dispatcher
+  alias BaladosSyncCore.Commands.{Subscribe, Unsubscribe}
   alias BaladosSyncProjections.ProjectionsRepo
 
   alias BaladosSyncProjections.Schemas.{
@@ -166,6 +168,7 @@ defmodule BaladosSyncWeb.PublicController do
 
   @doc """
   Display a single podcast feed page with recent episodes.
+  Shows conditional subscribe/unsubscribe buttons based on authentication status.
   """
   def feed_page(conn, %{"feed" => encoded_feed}) do
     with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
@@ -174,12 +177,30 @@ defmodule BaladosSyncWeb.PublicController do
          {:ok, episodes} <- RssParser.parse_episodes(xml) do
       popularity = ProjectionsRepo.get(PodcastPopularity, encoded_feed)
 
+      # Check if user is authenticated and subscribed
+      current_user = conn.assigns[:current_user]
+      is_subscribed = if current_user do
+        BaladosSyncWeb.Queries.is_user_subscribed?(current_user.id, encoded_feed)
+      else
+        false
+      end
+
+      # Get subscription details if subscribed (for source_id in unsubscribe)
+      subscription = if is_subscribed do
+        BaladosSyncWeb.Queries.get_user_subscription(current_user.id, encoded_feed)
+      else
+        nil
+      end
+
       render(conn, :feed_page,
         encoded_feed: encoded_feed,
         feed_url: feed_url,
         metadata: metadata,
         episodes: Enum.take(episodes, 20),
-        popularity: popularity
+        popularity: popularity,
+        is_subscribed: is_subscribed,
+        subscription: subscription,
+        current_user: current_user
       )
     else
       _ ->
@@ -210,6 +231,106 @@ defmodule BaladosSyncWeb.PublicController do
         conn
         |> put_flash(:error, "Episode not found")
         |> redirect(to: ~p"/trending/episodes")
+    end
+  end
+
+  @doc """
+  Quick subscribe from public feed page.
+  Requires authentication.
+  """
+  def subscribe_to_feed(conn, %{"feed" => encoded_feed}) do
+    unless conn.assigns[:current_user] do
+      conn
+      |> put_flash(:error, "You must be logged in to subscribe")
+      |> redirect(to: ~p"/users/log_in?return_to=/podcasts/#{encoded_feed}")
+      |> halt()
+    end
+
+    user_id = conn.assigns.current_user.id
+
+    case Base.url_decode64(encoded_feed, padding: false) do
+      {:ok, feed_url} ->
+        source_id = generate_source_id(feed_url)
+
+        command = %Subscribe{
+          user_id: user_id,
+          rss_source_feed: encoded_feed,
+          rss_source_id: source_id,
+          subscribed_at: DateTime.utc_now(),
+          event_infos: %{
+            device_id: "web-#{:erlang.phash2(conn.remote_ip)}",
+            device_name: "Web Browser"
+          }
+        }
+
+        case Dispatcher.dispatch(command) do
+          :ok ->
+            conn
+            |> put_flash(:info, "Successfully subscribed")
+            |> redirect(to: ~p"/podcasts/#{encoded_feed}")
+
+          {:error, :already_subscribed} ->
+            conn
+            |> put_flash(:warning, "Already subscribed")
+            |> redirect(to: ~p"/podcasts/#{encoded_feed}")
+
+          {:error, reason} ->
+            conn
+            |> put_flash(:error, "Failed to subscribe: #{inspect(reason)}")
+            |> redirect(to: ~p"/podcasts/#{encoded_feed}")
+        end
+
+      :error ->
+        conn
+        |> put_flash(:error, "Invalid feed")
+        |> redirect(to: ~p"/trending/podcasts")
+    end
+  end
+
+  @doc """
+  Quick unsubscribe from public feed page.
+  Requires authentication and existing subscription.
+  """
+  def unsubscribe_from_feed(conn, %{"feed" => encoded_feed}) do
+    unless conn.assigns[:current_user] do
+      conn
+      |> put_flash(:error, "You must be logged in")
+      |> redirect(to: ~p"/users/log_in")
+      |> halt()
+    end
+
+    user_id = conn.assigns.current_user.id
+
+    subscription = BaladosSyncWeb.Queries.get_user_subscription(user_id, encoded_feed)
+
+    unless subscription do
+      conn
+      |> put_flash(:error, "Not subscribed to this podcast")
+      |> redirect(to: ~p"/podcasts/#{encoded_feed}")
+      |> halt()
+    end
+
+    command = %Unsubscribe{
+      user_id: user_id,
+      rss_source_feed: encoded_feed,
+      rss_source_id: subscription.rss_source_id,
+      unsubscribed_at: DateTime.utc_now(),
+      event_infos: %{
+        device_id: "web-#{:erlang.phash2(conn.remote_ip)}",
+        device_name: "Web Browser"
+      }
+    }
+
+    case Dispatcher.dispatch(command) do
+      :ok ->
+        conn
+        |> put_flash(:info, "Successfully unsubscribed")
+        |> redirect(to: ~p"/podcasts/#{encoded_feed}")
+
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, "Failed to unsubscribe: #{inspect(reason)}")
+        |> redirect(to: ~p"/podcasts/#{encoded_feed}")
     end
   end
 
@@ -251,5 +372,11 @@ defmodule BaladosSyncWeb.PublicController do
     else
       _ -> nil
     end
+  end
+
+  defp generate_source_id(feed_url) do
+    :crypto.hash(:sha256, feed_url)
+    |> Base.encode16(case: :lower)
+    |> String.slice(0, 16)
   end
 end
