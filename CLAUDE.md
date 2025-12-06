@@ -543,7 +543,7 @@ Accès :
 - **Gestion des Abonnements** : Ajouter, visualiser, supprimer des abonnements
   - Page `/my-subscriptions` : Liste tous les abonnements avec couvertures et descriptions
   - Page `/my-subscriptions/new` : Formulaire d'ajout avec prévisualisation du flux
-  - Page `/my-subscriptions/:feed` : Détails du flux et liste des épisodes récents
+  - Page `/my-subscriptions/:feed` : **Redirige vers `/podcasts/:feed`** (page publique consolidée)
   - Bouton `/my-subscriptions/export.opml` : Export OPML de tous les abonnements
 
 - **Métadonnées Asynchrones** : Chargement intelligent des métadonnées RSS
@@ -854,7 +854,117 @@ ws.onmessage = (e) => {
 
 ---
 
-## 🔧 Corrections & Améliorations Récentes (2025-12-05)
+## 🎙️ Subscription Pages Refactoring (v1.3)
+
+**Nouvelle fonctionnalité** : Consolidation des pages d'abonnement - les pages détail des abonnements redirigent maintenant vers les pages publiques avec UI conditionnelle pour subscribe/unsubscribe.
+
+### Contenu
+
+- **Consolidation des Pages** : Suppression des pages dédiées aux abonnements
+  - `/my-subscriptions/:feed` redirige maintenant vers `/podcasts/:feed` (page publique)
+  - `/my-subscriptions` reste pour lister tous les abonnements (page privée)
+  - `/my-subscriptions/new` reste pour ajouter des abonnements
+  - Export OPML reste à `/my-subscriptions/export.opml`
+
+- **UI Conditionnelle sur Pages Publiques** : Boutons subscribe/unsubscribe contextuels
+  - **Non authentifié** : Bouton "Subscribe" + "Create Account"
+    - Clic sur "Subscribe" → modal de login inline
+    - Après login, utilisateur redirigé vers `/podcasts/:feed`
+  - **Authentifié + non abonné** : Bouton "Subscribe" (action rapide) + "Add Custom RSS" (modal)
+    - "Subscribe" : POST directement → s'abonne immédiatement avec flash confirmation
+    - "Add Custom RSS" : Modal pour saisir URL RSS personnalisée
+  - **Authentifié + abonné** : Bouton "Unsubscribe" + "Manage Subscriptions"
+    - "Unsubscribe" : DELETE avec confirmation → flash success
+    - "Manage Subscriptions" : Lien vers `/my-subscriptions`
+
+- **Modal Components** : Composants réutilisables pour login et subscription
+  - Login modal : Formulaire inline avec fields username/password/remember_me
+  - Subscribe modal : Form pour saisir URL RSS manuelle
+
+### Architecture
+
+**Composants Modifiés** :
+- `PublicController` : Ajout actions `subscribe_to_feed/2` et `unsubscribe_from_feed/2`
+  - Vérifie authentification, valide encodage base64, dispatch CQRS commands
+  - Gère Subscribe/Unsubscribe commands via Dispatcher
+  - Génère source_id avec hash SHA256 (cohérent avec WebSubscriptionsController)
+- `WebSubscriptionsController` : Remplacement `show/2` par redirect, suppression `delete/2`
+  - `redirect_to_public/2` : Redirige `/my-subscriptions/:feed` → `/podcasts/:feed`
+- `Queries` : Ajout fonctions de vérification d'abonnement
+  - `is_user_subscribed?/2` : Retourne boolean si l'utilisateur a un abonnement actif
+  - `get_user_subscription/2` : Récupère l'objet subscription (pour source_id dans unsubscribe)
+- `core_components.ex` : Ajout modaux
+  - `login_modal/1` : Composant modal avec formulaire de login
+  - `subscribe_modal/1` : Composant modal avec form URL RSS
+- `feed_page.html.heex` : Remplacement bouton subscribe/unsubscribe par UI conditionnelle
+- `index.html.heex` : Update liens vers `/podcasts/:feed` au lieu de `/my-subscriptions/:feed`
+- `show.html.heex` : Fichier supprimé (plus nécessaire)
+
+**Modules Créés** :
+- `ModalManager` (TypeScript) : Classe de gestion des modals
+  - Gère show/hide sur clics des triggers, clics background, touche Escape
+  - Auto-focus du premier input
+  - Auto-initialisation au DOM ready
+
+**Patterns CQRS** :
+- Subscribe command : Créé dans PublicController.subscribe_to_feed avec device_id basé sur IP
+- Unsubscribe command : Créé dans PublicController.unsubscribe_from_feed
+- Queries pour vérification d'état (replique pattern de read models)
+
+**Routes** :
+- `POST /podcasts/:feed/subscribe` → PublicController.subscribe_to_feed
+- `DELETE /podcasts/:feed/subscribe` → PublicController.unsubscribe_from_feed
+- `GET /my-subscriptions/:feed` → WebSubscriptionsController.redirect_to_public
+- (Supprimé) `DELETE /my-subscriptions/:feed`
+
+### Utilisation
+
+**Utilisateurs Authentifiés** :
+```
+GET  /my-subscriptions           # Lister abonnements privé (inchangé)
+GET  /my-subscriptions/new       # Ajouter abonnement (inchangé)
+GET  /podcasts/:feed             # Voir détails avec UI subscribe/unsubscribe
+POST /podcasts/:feed/subscribe   # Subscribe rapide
+DELETE /podcasts/:feed/subscribe # Unsubscribe
+```
+
+**Utilisateurs Non Authentifiés** :
+```
+GET /podcasts/:feed              # Voir détails avec modal login
+GET /trending/podcasts           # Top podcasts (inchangé)
+GET /trending/episodes           # Top épisodes (inchangé)
+```
+
+**Redirects** :
+```
+GET /my-subscriptions/:feed      # Redirige vers /podcasts/:feed
+```
+
+### Commits
+
+7 commits implémentant la feature complète :
+1. `feat(queries): add subscription checking functions` - Ajout is_user_subscribed?/2 et get_user_subscription/2
+2. `feat(public): add subscription status to feed_page` - Vérification d'abonnement dans feed_page
+3. `feat(public): add subscribe/unsubscribe actions` - Actions PublicController pour subscribe/unsubscribe
+4. `feat(routes): add subscribe/unsubscribe routes to public scope` - Routes pour subscribe/unsubscribe publiques
+5. `refactor(web_subscriptions): redirect detail page to public podcast page` - Redirect et suppression delete
+6. `feat(templates): update subscription index links to public pages` - Update liens dans index
+7. `feat(templates): add conditional subscribe/unsubscribe UI to public feed page` - UI conditionnelle
+8. `feat(components): add login and subscribe modal components` - Modaux composants
+9. `feat(js): add modal management TypeScript module` - ModalManager TypeScript
+10. `feat(js): integrate modals into app` - Import dans app.ts
+
+### Améliorations Apportées
+
+- **UX simplifiée** : Une seule page pour découvrir et s'abonner à un podcast
+- **Cohérence** : Pages publiques et privées utilisent la même source de données
+- **Accessibility** : Modals gérées au clavier (Escape, Tab, focus)
+- **Progressive enhancement** : Modals fonctionnent sans JavaScript (submit au serveur)
+- **CQRS clean** : Utilisation complète du pattern avec Dispatcher et commands
+
+---
+
+## 🔧 Corrections & Améliorations Récentes (2025-12-06)
 
 ### Fixes de Configuration et Démarrage
 - **Fix TypeScript watcher cassé** : Supprimé le watcher TypeScript invalide qui utilisait `FS.cmd` (module non disponible) causant 5000+ erreurs par requête HTTP
@@ -938,8 +1048,8 @@ ws.onmessage = (e) => {
   - Les erreurs WebSocket n'affectent pas l'ouverture du lien
 - **Résultat**: Les enclosures s'ouvrent dans un nouvel onglet et l'event est enregistré en background
 
-**Dernière mise à jour** : 2025-12-05
-**Statut du projet** : 🟢 Stable - WebSocket fully functional avec tracking play events
+**Dernière mise à jour** : 2025-12-06
+**Statut du projet** : 🟢 Stable - Subscription refactoring complete avec pages publiques consolidées
 **Branche en cours** : main
 **Statuts des Tâches** :
 1. ✅ Token "Balados Web Sync" créé automatiquement pour les utilisateurs authentifiés
@@ -949,6 +1059,9 @@ ws.onmessage = (e) => {
 5. ✅ Configuration Hammer pour rate limiting
 6. ✅ Tous les watchers fonctionnent sans erreur
 7. ✅ Liens externes ouvrent dans nouvel onglet (fire-and-forget WebSocket)
+8. ✅ Pages d'abonnement consolidées : `/my-subscriptions/:feed` redirige vers `/podcasts/:feed`
+9. ✅ UI conditionnelle sur pages publiques (subscribe/unsubscribe selon état auth)
+10. ✅ Modals pour login et subscription forms
 
 **Détails du Dernier Fix** :
 - Identifié et corrigé un bug critique où le `MessageHandler` supprimait les champs du message lors du routage
