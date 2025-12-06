@@ -76,8 +76,10 @@ tmtags
 ehthumbs.db
 Thumbs.db
 
-# Claude Code local settings
+# Claude Code local settings and cache
 .claude/settings.local.json
+.claude/cache/
+.claude/plans/
 
 # Crash dumps
 *.dump
