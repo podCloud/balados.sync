@@ -45,6 +45,13 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
     # Sort by title
     podcasts_with_privacy = Enum.sort_by(podcasts_with_privacy, & &1.title)
 
+    # Log podcast covers status
+    require Logger
+    with_covers = Enum.count(podcasts_with_privacy, & &1.cover)
+    total = Enum.count(podcasts_with_privacy)
+    Logger.info("[PrivacyManager] Podcasts with covers: #{with_covers}/#{total}")
+    Logger.info("[PrivacyManager] First 3 podcasts: #{inspect(Enum.take(podcasts_with_privacy, 3))}")
+
     # Group by privacy level
     grouped =
       Enum.group_by(podcasts_with_privacy, & &1.privacy_atom)
