@@ -19,6 +19,12 @@ defmodule BaladosSyncWeb.Router do
     plug BaladosSyncWeb.Plugs.UserAuth, :require_authenticated_user
   end
 
+  pipeline :api_json do
+    plug :accepts, ["json"]
+    plug :fetch_session
+    plug BaladosSyncWeb.Plugs.UserAuth, :fetch_current_user
+  end
+
   # Setup route (accessible même sans users)
   scope "/", BaladosSyncWeb do
     pipe_through :browser
@@ -45,8 +51,12 @@ defmodule BaladosSyncWeb.Router do
     # Subscribe/Unsubscribe actions (authentication checked in controller)
     post "/podcasts/:feed/subscribe", PublicController, :subscribe_to_feed
     delete "/podcasts/:feed/subscribe", PublicController, :unsubscribe_from_feed
+  end
 
-    # Privacy check/set (session auth, works for both authenticated and unauthenticated)
+  # Privacy check/set endpoints (JSON, session auth, works for both authenticated and unauthenticated)
+  scope "/", BaladosSyncWeb do
+    pipe_through :api_json
+
     get "/privacy/check/:feed", WebPrivacyController, :check_privacy
     post "/privacy/set/:feed", WebPrivacyController, :set_privacy
   end
