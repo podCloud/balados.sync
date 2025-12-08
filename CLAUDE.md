@@ -1022,3 +1022,92 @@ POST /privacy/set/:feed          # Définir privacy (session auth)
 - Play → Modal → choix → WebSocket si not private
 - Cache → Pas de duplicate calls
 - Cancel → Aucune action
+
+
+---
+
+## 🔐 Privacy Manager Page (v1.5)
+
+**Nouvelle fonctionnalité** : Page dédiée pour gérer les niveaux de confidentialité de tous les podcasts d'un utilisateur, avec groupement par niveau et contrôles rapides.
+
+### Contenu
+
+- **Page Centralisée** : Vue complète des niveaux de confidentialité
+  - Accessible via `/privacy-manager` (authenticated only)
+  - Groupement en 3 sections : Public, Anonymous, Private
+  - Chaque section affiche icône, nom, et count
+  - Thème couleur distinct (bleu, violet, rouge)
+
+- **Gestion Simple** : Select + Button pour chaque podcast
+  - Dropdown pour sélectionner le nouveau niveau
+  - Bouton "Save" pour soumettre le changement
+  - Flash message de confirmation ou erreur
+  - Hover effect pour visual feedback
+
+- **Navigation** : Lien "Privacy" ajouté à la top bar
+  - Visible uniquement pour users authentifiés
+  - Après "Subscriptions" dans le menu
+  - Active state quando on the page
+
+#### Architecture
+
+**Composants Backend** :
+- `PrivacyManagerController` : Controller pour page management
+  - `index/2` : Liste all user subscriptions + privacy levels, group par privacy
+  - `update_privacy/2` : POST endpoint pour changer privacy level
+  - Query ProjectionsRepo pour subscriptions et UserPrivacy
+  - Dispatch `ChangePrivacy` command via Dispatcher
+- Réutilise `WebPrivacyController` pour la logique backend existante
+
+**Composants Frontend** :
+- `privacy_manager_html/index.html.heex` : Template avec 3 sections groupées
+  - Responsive layout avec Tailwind
+  - Form pour chaque podcast avec select + button
+  - Icônes SVG pour visual distinction
+  - Summary statistics au bottom
+  - Empty states pour chaque section
+
+**Patterns CQRS** :
+- `ChangePrivacy` command : Dispatchée depuis le controller
+- Projections automatiquement mises à jour
+- Immediate feedback via flash messages
+
+#### Routes
+
+```
+GET  /privacy-manager                # Liste et groupe les podcasts par privacy level
+POST /privacy-manager/:feed          # Changer privacy level pour un podcast
+```
+
+#### Fichiers Créés/Modifiés
+
+**Créés** (2 fichiers) :
+1. `apps/balados_sync_web/lib/balados_sync_web/controllers/privacy_manager_controller.ex` - Controller
+2. `apps/balados_sync_web/lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex` - Template
+
+**Modifiés** (2 fichiers) :
+1. `apps/balados_sync_web/lib/balados_sync_web/router.ex` - Routes
+2. `apps/balados_sync_web/lib/balados_sync_web/components/layouts/app.html.heex` - "Privacy" link in top bar
+
+#### Patterns Clés
+
+- **Groupement côté Server** : Enum.group_by pour organiser par privacy level
+- **Enrichissement** : Map pour associer feed_id aux privacy levels
+- **Form submission** : POST pour chaque changement (simple et clear)
+- **Flash feedback** : Messages de succès/erreur pour user awareness
+
+#### Utilisation
+
+**Utilisateurs Authentifiés** :
+```
+GET  /privacy-manager             # Voir tous les podcasts groupés par privacy
+POST /privacy-manager/:feed       # Changer le privacy level
+```
+
+**Workflow** :
+1. User clique "Privacy" dans la top bar
+2. Page affiche 3 sections (Public, Anonymous, Private)
+3. User sélectionne nouveau level dans le dropdown
+4. User clique "Save"
+5. Page se recharge avec flash message de confirmation
+6. Podcast moved dans la nouvelle section
