@@ -39,7 +39,7 @@
             <%= for podcast <- Map.get(@grouped, :public, []) do %>
               <div class="podcast-item px-4 py-6 sm:p-8 hover:bg-blue-50 transition" data-feed={podcast.feed} data-current-privacy={podcast.privacy}>
                 <div class="flex items-center justify-between gap-4">
-                  <div class="flex items-center gap-4 flex-1 min-w-0">
+                  <a href={~p"/podcasts/#{podcast.feed}"} class="flex items-center gap-4 flex-1 min-w-0 hover:opacity-80 transition">
                     <img :if={podcast.cover != nil} src={podcast.cover} alt={podcast.title} class="h-16 w-16 flex-shrink-0 rounded object-cover" />
                     <div :if={podcast.cover == nil} class="h-16 w-16 flex-shrink-0 rounded bg-blue-100 flex items-center justify-center text-xs text-blue-600 font-bold">
                       NO IMG
@@ -47,7 +47,7 @@
                     <div class="flex-1 min-w-0">
                       <h3 class="font-semibold text-zinc-900 text-lg truncate podcast-title"><%= podcast.title %></h3>
                     </div>
-                  </div>
+                  </a>
                   <button class="edit-btn flex-shrink-0 p-2 hover:bg-white rounded-md transition" aria-label="Edit privacy">
                     <svg class="h-5 w-5 text-zinc-600 hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -103,7 +103,7 @@
             <%= for podcast <- Map.get(@grouped, :anonymous, []) do %>
               <div class="podcast-item px-4 py-6 sm:p-8 hover:bg-purple-50 transition" data-feed={podcast.feed} data-current-privacy={podcast.privacy}>
                 <div class="flex items-center justify-between gap-4">
-                  <div class="flex items-center gap-4 flex-1 min-w-0">
+                  <a href={~p"/podcasts/#{podcast.feed}"} class="flex items-center gap-4 flex-1 min-w-0 hover:opacity-80 transition">
                     <img :if={podcast.cover != nil} src={podcast.cover} alt={podcast.title} class="h-16 w-16 flex-shrink-0 rounded object-cover" />
                     <div :if={podcast.cover == nil} class="h-16 w-16 flex-shrink-0 rounded bg-blue-100 flex items-center justify-center text-xs text-blue-600 font-bold">
                       NO IMG
@@ -111,7 +111,7 @@
                     <div class="flex-1 min-w-0">
                       <h3 class="font-semibold text-zinc-900 text-lg truncate podcast-title"><%= podcast.title %></h3>
                     </div>
-                  </div>
+                  </a>
                   <button class="edit-btn flex-shrink-0 p-2 hover:bg-white rounded-md transition" aria-label="Edit privacy">
                     <svg class="h-5 w-5 text-zinc-600 hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -167,7 +167,7 @@
             <%= for podcast <- Map.get(@grouped, :private, []) do %>
               <div class="podcast-item px-4 py-6 sm:p-8 hover:bg-red-50 transition" data-feed={podcast.feed} data-current-privacy={podcast.privacy}>
                 <div class="flex items-center justify-between gap-4">
-                  <div class="flex items-center gap-4 flex-1 min-w-0">
+                  <a href={~p"/podcasts/#{podcast.feed}"} class="flex items-center gap-4 flex-1 min-w-0 hover:opacity-80 transition">
                     <img :if={podcast.cover != nil} src={podcast.cover} alt={podcast.title} class="h-16 w-16 flex-shrink-0 rounded object-cover" />
                     <div :if={podcast.cover == nil} class="h-16 w-16 flex-shrink-0 rounded bg-blue-100 flex items-center justify-center text-xs text-blue-600 font-bold">
                       NO IMG
@@ -175,7 +175,7 @@
                     <div class="flex-1 min-w-0">
                       <h3 class="font-semibold text-zinc-900 text-lg truncate podcast-title"><%= podcast.title %></h3>
                     </div>
-                  </div>
+                  </a>
                   <button class="edit-btn flex-shrink-0 p-2 hover:bg-white rounded-md transition" aria-label="Edit privacy">
                     <svg class="h-5 w-5 text-zinc-600 hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
