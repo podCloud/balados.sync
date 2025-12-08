@@ -602,17 +602,6 @@ GET /episodes/:item              # Détails épisode
 GET /api/v1/subscriptions/:feed/metadata  # Récupérer métadonnées
 ```
 
-#### Commits
-
-9 commits implémentant la feature complète :
-- RSS Parser module et intégration cache
-- Enrichissement asynchrone des métadonnées
-- Endpoint API pour métadonnées
-- Controller web avec actions CRUD + OPML
-- Templates pour gestion des abonnements
-- Routes et navigation
-- Pages de découverte publiques
-- JavaScript AJAX pour chargement asynchrone
 
 ### Play Gateway Links with Automatic "Balados Web" Token (v1.1+)
 
@@ -683,12 +672,6 @@ config :balados_sync_web,
 - Lifecycle : Créé une fois, réutilisé, peut être révoqué via `revoked_at`
 - Encodage : Tous les feed_id et item_id utilisent `Base.url_encode64(..., padding: false)` pour la sécurité des URLs
 
-#### Commits
-
-3 commits implémentant la feature complète :
-- Création du module PlayTokenHelper avec logique de création/retrieval et build_play_url simple
-- Ajout du support path mode + mise à jour controllers, templates et routes
-- Fix: utilisation de Base.url_encode64/url_decode64 pour tous les IDs dans les URLs
 
 ---
 
@@ -845,13 +828,6 @@ ws.onmessage = (e) => {
 };
 ```
 
-### Commits
-
-1 commit implémentant la feature complète :
-- Modules WebSocket avec authentification duale
-- Routes avec support subdomain + path
-- Intégration avec CQRS/Event Sourcing existant
-
 ---
 
 ## 🎙️ Subscription Pages Refactoring (v1.3)
@@ -940,19 +916,6 @@ GET /trending/episodes           # Top épisodes (inchangé)
 GET /my-subscriptions/:feed      # Redirige vers /podcasts/:feed
 ```
 
-### Commits
-
-7 commits implémentant la feature complète :
-1. `feat(queries): add subscription checking functions` - Ajout is_user_subscribed?/2 et get_user_subscription/2
-2. `feat(public): add subscription status to feed_page` - Vérification d'abonnement dans feed_page
-3. `feat(public): add subscribe/unsubscribe actions` - Actions PublicController pour subscribe/unsubscribe
-4. `feat(routes): add subscribe/unsubscribe routes to public scope` - Routes pour subscribe/unsubscribe publiques
-5. `refactor(web_subscriptions): redirect detail page to public podcast page` - Redirect et suppression delete
-6. `feat(templates): update subscription index links to public pages` - Update liens dans index
-7. `feat(templates): add conditional subscribe/unsubscribe UI to public feed page` - UI conditionnelle
-8. `feat(components): add login and subscribe modal components` - Modaux composants
-9. `feat(js): add modal management TypeScript module` - ModalManager TypeScript
-10. `feat(js): integrate modals into app` - Import dans app.ts
 
 ### Améliorations Apportées
 
@@ -1059,112 +1022,3 @@ POST /privacy/set/:feed          # Définir privacy (session auth)
 - Play → Modal → choix → WebSocket si not private
 - Cache → Pas de duplicate calls
 - Cancel → Aucune action
-
----
-
-## 🔧 Corrections & Améliorations Récentes (2025-12-06)
-
-### Fixes de Configuration et Démarrage
-- **Fix TypeScript watcher cassé** : Supprimé le watcher TypeScript invalide qui utilisait `FS.cmd` (module non disponible) causant 5000+ erreurs par requête HTTP
-- **Ajout Hammer config** : Configuration manquante pour le rate limiting du WebSocket (expiry_ms + cleanup_interval_ms)
-- **Fix dev.exs** : Correction de la syntaxe du watcher TypeScript initial qui causait une compilation impossible
-
-### WebSocket JavaScript - Debugging et Logging
-- **Logging complet** du cycle de vie dispatch_events.ts :
-  - Log au chargement du module
-  - Log lors de la lecture des meta tags
-  - Log de l'état du DOM (loading vs déjà loaded)
-  - Log de l'endpoint et token configurés
-  - Log de completion de l'initialisation
-- **Gestion de DOMContentLoaded** : Support des deux cas (script defer qui arrive trop tard vs script qui s'exécute au bon moment)
-- **Debugging facilité** : `window.__dispatchEventsManager` disponible pour debugging console
-
-### Résultat
-- ✅ WebSocket fonctionne correctement
-- ✅ dispatch_events.ts compilé et chargé (~5000 lignes dans app.js)
-- ✅ Logging visible dans la console pour déboguer les problèmes de connexion
-- ✅ Serveur démarre sans erreur
-
-### Token WebSocket Automatique - "Balados Web Sync"
-- **Auto-création du token** : Token "Balados Web Sync" créé automatiquement lors du premier accès à `/my-subscriptions`
-- **Stockage sécurisé** : Stocké dans `system.play_tokens` avec gestion des race conditions
-- **Integration Phoenix** : Utilise `layouts.ex` pour récupérer/créer le token et l'injecter dans les meta tags HTML
-- **Métadonnées HTML** : Token injecté via `<meta name="ws-token">` pour que le JavaScript `dispatch_events.ts` puisse l'utiliser
-
-### Protocol WebSocket - Migration vers 'opid'
-- **Changement de protocol** : Les messages WebSocket utilisent maintenant `opid` (operation ID) au lieu de `id` pour la corrélation request/response
-  - **Avant** : `{"id":1,"type":"record_play",...}`
-  - **Après** : `{"opid":1,"type":"record_play",...}`
-- **Client JavaScript** : `dispatch_events.ts` mis à jour pour envoyer `opid` et traiter les réponses avec `opid`
-- **Server Elixir** : `message_handler.ex` mis à jour pour extraire `opid` et l'inclure dans les réponses avec `success_response_with_opid()` et `error_response_with_opid()`
-
-### Bug Fix Critical - Message Handler Field Stripping
-- **Problème** : Le `MessageHandler` reconstruisait un message incomplet lors du routage des messages authentifiés
-  - **Symptôme** : Serveur recevait `{"type": "record_play"}` au lieu du message complet avec opid, feed, item, position, played
-  - **Root cause** : Pattern match `%{"type" => type}` extrayait seulement le type, puis on créait un message incomplet `%{"type" => type}` au lieu de passer le message complet
-- **Fix** : Utilisation de `= message` en fin de pattern match pour capturer le message complet
-  ```elixir
-  # Avant (BUGUÉ)
-  defp handle_parsed_message(%{"type" => type}, state) when is_binary(type) do
-    handle_authenticated_message(%{"type" => type}, state)  # ❌ Message incomplet
-  end
-
-  # Après (FIXÉ)
-  defp handle_parsed_message(%{"type" => type} = message, state) when is_binary(type) do
-    handle_authenticated_message(message, state)  # ✅ Message complet
-  end
-  ```
-- **Logging amélioré** : Ajout de logs détaillés dans le validation et dispatch pour détecter les futurs problèmes
-
----
-
-## 🔧 Améliorations Antérieures (2025-12-03)
-
-### Refactoring RSS Cache et Parser
-- **Déplacement vers Core** : `RssCache` et `RssParser` ont été déplacés de `balados_sync_web` vers `balados_sync_core` pour éviter dépendances circulaires
-- **Dépendances ajoutées à Core** : `httpoison`, `cachex`, `sweet_xml`
-- **Web devient client** : `balados_sync_web` appelle `BaladosSyncCore.RssCache` et `BaladosSyncCore.RssParser` directement
-
-### Enrichissement Async Métadonnées
-- **PopularityProjector enrichit async** : Lors d'un PlayRecorded, enrichit `episode_popularity` avec titre/auteur/description/cover depuis RSS
-- **Podcast title** : Nouveau champ `podcast_title` ajouté à `EpisodePopularity` (migration appliquée)
-- **Source de vérité** : Les données RSS sont toujours à jour (synchronisation à chaque play)
-
-### Logging Amélioré
-- **Logs détaillés** partout dans PopularityProjector pour debugguer les problèmes
-- **Exception handling** : try/rescue blocks avec messages d'erreur explicites
-- **Trace complète** : PlayRecorded event → podcast update → episode update → async enrichment
-
----
-
-### Liens Externes - target=_blank (Fire and Forget WebSocket)
-- **Problème identifié**: Les liens avec `data-dispatch-event="play"` utilisaient `preventDefault()` + `window.location.href`, ignorant `target="_blank"`
-- **Fix appliqué**: Changement en approche fire-and-forget
-  - N'annule plus l'événement default
-  - Envoie l'événement WebSocket en arrière-plan
-  - Laisse le navigateur gérer le lien normalement
-  - Les erreurs WebSocket n'affectent pas l'ouverture du lien
-- **Résultat**: Les enclosures s'ouvrent dans un nouvel onglet et l'event est enregistré en background
-
-**Dernière mise à jour** : 2025-12-06
-**Statut du projet** : 🟢 Stable - Subscription refactoring complete avec pages publiques consolidées
-**Branche en cours** : main
-**Statuts des Tâches** :
-1. ✅ Token "Balados Web Sync" créé automatiquement pour les utilisateurs authentifiés
-2. ✅ Protocol WebSocket migré de `id` à `opid` (operation ID)
-3. ✅ Bug fix critical: message handler now passes complete messages (all fields preserved)
-4. ✅ WebSocket fonctionnel avec logging complet
-5. ✅ Configuration Hammer pour rate limiting
-6. ✅ Tous les watchers fonctionnent sans erreur
-7. ✅ Liens externes ouvrent dans nouvel onglet (fire-and-forget WebSocket)
-8. ✅ Pages d'abonnement consolidées : `/my-subscriptions/:feed` redirige vers `/podcasts/:feed`
-9. ✅ UI conditionnelle sur pages publiques (subscribe/unsubscribe selon état auth)
-10. ✅ Modals pour login et subscription forms
-
-**Détails du Dernier Fix** :
-- Identifié et corrigé un bug critique où le `MessageHandler` supprimait les champs du message lors du routage
-- Le serveur reçoit maintenant le message complet avec tous les champs (opid, feed, item, position, played)
-- Les réponses du serveur incluent l'opid pour la corrélation request/response
-- Commit: `c1a8a6d` - fix(websocket): fix message field stripping in authenticated message handler
-
-**Notes** : tu peux lancer mix phx.server mais pas arrêter un existant avec pkill ou autre, il faut me demander si c'est pas un de tes shell qui controle le server
