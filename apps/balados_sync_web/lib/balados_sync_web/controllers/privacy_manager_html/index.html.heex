@@ -39,8 +39,19 @@
             <%= for podcast <- Map.get(@grouped, :public, []) do %>
               <div class="podcast-item px-4 py-6 sm:p-8 hover:bg-blue-50 transition" data-feed={podcast.feed} data-current-privacy={podcast.privacy}>
                 <div class="flex items-center justify-between gap-4">
-                  <div class="flex-1 min-w-0">
-                    <h3 class="font-semibold text-zinc-900 text-lg truncate podcast-title"><%= podcast.title %></h3>
+                  <div class="flex items-center gap-4 flex-1 min-w-0">
+                    <% if podcast.cover do %>
+                      <img src={podcast.cover} alt={podcast.title} class="h-16 w-16 flex-shrink-0 rounded object-cover" />
+                    <% else %>
+                      <div class="h-16 w-16 flex-shrink-0 rounded bg-zinc-200 flex items-center justify-center">
+                        <svg class="h-8 w-8 text-zinc-400" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M9 3v2H5v4H3V5a2 2 0 012-2h4zm6 0a2 2 0 012 2v4h-2V5h-4V3h4zM9 13v2H5v4h2v2H5a2 2 0 01-2-2v-4h2v-2h4zm6 0v2h4v-2h-4zm2-8h2v2h-2V5zm0 8h2v2h-2v-2z" />
+                        </svg>
+                      </div>
+                    <% end %>
+                    <div class="flex-1 min-w-0">
+                      <h3 class="font-semibold text-zinc-900 text-lg truncate podcast-title"><%= podcast.title %></h3>
+                    </div>
                   </div>
                   <button class="edit-btn flex-shrink-0 p-2 hover:bg-white rounded-md transition" aria-label="Edit privacy">
                     <svg class="h-5 w-5 text-zinc-600 hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,8 +108,19 @@
             <%= for podcast <- Map.get(@grouped, :anonymous, []) do %>
               <div class="podcast-item px-4 py-6 sm:p-8 hover:bg-purple-50 transition" data-feed={podcast.feed} data-current-privacy={podcast.privacy}>
                 <div class="flex items-center justify-between gap-4">
-                  <div class="flex-1 min-w-0">
-                    <h3 class="font-semibold text-zinc-900 text-lg truncate podcast-title"><%= podcast.title %></h3>
+                  <div class="flex items-center gap-4 flex-1 min-w-0">
+                    <% if podcast.cover do %>
+                      <img src={podcast.cover} alt={podcast.title} class="h-16 w-16 flex-shrink-0 rounded object-cover" />
+                    <% else %>
+                      <div class="h-16 w-16 flex-shrink-0 rounded bg-zinc-200 flex items-center justify-center">
+                        <svg class="h-8 w-8 text-zinc-400" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M9 3v2H5v4H3V5a2 2 0 012-2h4zm6 0a2 2 0 012 2v4h-2V5h-4V3h4zM9 13v2H5v4h2v2H5a2 2 0 01-2-2v-4h2v-2h4zm6 0v2h4v-2h-4zm2-8h2v2h-2V5zm0 8h2v2h-2v-2z" />
+                        </svg>
+                      </div>
+                    <% end %>
+                    <div class="flex-1 min-w-0">
+                      <h3 class="font-semibold text-zinc-900 text-lg truncate podcast-title"><%= podcast.title %></h3>
+                    </div>
                   </div>
                   <button class="edit-btn flex-shrink-0 p-2 hover:bg-white rounded-md transition" aria-label="Edit privacy">
                     <svg class="h-5 w-5 text-zinc-600 hover:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,8 +177,19 @@
             <%= for podcast <- Map.get(@grouped, :private, []) do %>
               <div class="podcast-item px-4 py-6 sm:p-8 hover:bg-red-50 transition" data-feed={podcast.feed} data-current-privacy={podcast.privacy}>
                 <div class="flex items-center justify-between gap-4">
-                  <div class="flex-1 min-w-0">
-                    <h3 class="font-semibold text-zinc-900 text-lg truncate podcast-title"><%= podcast.title %></h3>
+                  <div class="flex items-center gap-4 flex-1 min-w-0">
+                    <% if podcast.cover do %>
+                      <img src={podcast.cover} alt={podcast.title} class="h-16 w-16 flex-shrink-0 rounded object-cover" />
+                    <% else %>
+                      <div class="h-16 w-16 flex-shrink-0 rounded bg-zinc-200 flex items-center justify-center">
+                        <svg class="h-8 w-8 text-zinc-400" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M9 3v2H5v4H3V5a2 2 0 012-2h4zm6 0a2 2 0 012 2v4h-2V5h-4V3h4zM9 13v2H5v4h2v2H5a2 2 0 01-2-2v-4h2v-2h4zm6 0v2h4v-2h-4zm2-8h2v2h-2V5zm0 8h2v2h-2v-2z" />
+                        </svg>
+                      </div>
+                    <% end %>
+                    <div class="flex-1 min-w-0">
+                      <h3 class="font-semibold text-zinc-900 text-lg truncate podcast-title"><%= podcast.title %></h3>
+                    </div>
                   </div>
                   <button class="edit-btn flex-shrink-0 p-2 hover:bg-white rounded-md transition" aria-label="Edit privacy">
                     <svg class="h-5 w-5 text-zinc-600 hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

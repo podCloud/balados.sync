@@ -26,16 +26,17 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
       )
       |> Map.new()
 
-    # Enrich subscriptions with privacy level and fetch metadata for titles
+    # Enrich subscriptions with privacy level and fetch metadata for titles and covers
     podcasts_with_privacy =
       Enum.map(subscriptions, fn sub ->
         privacy = Map.get(privacy_map, sub.rss_source_feed, "public")
-        # Try to fetch metadata to get proper title
-        title = fetch_title_for_feed(sub.rss_source_feed, sub.rss_feed_title)
+        # Try to fetch metadata to get proper title and cover
+        metadata = fetch_metadata_for_feed(sub.rss_source_feed)
 
         %{
           feed: sub.rss_source_feed,
-          title: title,
+          title: metadata.title || sub.rss_feed_title || "Untitled",
+          cover: metadata.cover,
           privacy: privacy,
           privacy_atom: String.to_atom(privacy)
         }
@@ -51,13 +52,16 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
     render(conn, :index, podcasts: podcasts_with_privacy, grouped: grouped)
   end
 
-  # Fetch title from metadata or fall back to stored title
-  defp fetch_title_for_feed(encoded_feed, stored_title) do
+  # Fetch metadata (title, cover) for a feed
+  defp fetch_metadata_for_feed(encoded_feed) do
     with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
          {:ok, metadata} <- RssCache.get_feed_metadata(feed_url) do
-      metadata.title || stored_title || "Untitled"
+      %{
+        title: metadata.title,
+        cover: metadata.cover
+      }
     else
-      _ -> stored_title || "Untitled"
+      _ -> %{title: nil, cover: nil}
     end
   end
 

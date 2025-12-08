@@ -59,3 +59,6 @@ import { privacyManager } from "./privacy_manager"
 
 // Subscribe flow with privacy checks
 import "./subscribe_flow"
+
+// Privacy manager page (inline edit mode)
+import "./privacy-manager-page"
