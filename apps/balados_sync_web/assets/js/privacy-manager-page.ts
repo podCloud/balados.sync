@@ -12,83 +12,125 @@ interface PodcastItem extends HTMLElement {
   }
 }
 
+function attachPodcastItemListeners(item: PodcastItem): void {
+  const editBtn = item.querySelector<HTMLButtonElement>('.edit-btn')
+  const cancelBtn = item.querySelector<HTMLButtonElement>('.cancel-btn')
+  const changeBtn = item.querySelector<HTMLButtonElement>('.change-btn')
+  const unsubscribeBtn = item.querySelector<HTMLButtonElement>('.unsubscribe-btn')
+  const editControls = item.querySelector<HTMLDivElement>('.edit-controls')
+  const privacySelect = item.querySelector<HTMLSelectElement>('.privacy-select')
+  const feed = item.dataset.feed
+  const currentPrivacy = item.dataset.currentPrivacy
+
+  // Set initial select value
+  if (privacySelect) {
+    privacySelect.value = currentPrivacy
+  }
+
+  // Toggle edit mode on pencil click
+  editBtn?.addEventListener('click', (e) => {
+    e.preventDefault()
+    editControls?.classList.remove('hidden')
+    privacySelect?.focus()
+  })
+
+  // Hide edit mode on cancel click
+  cancelBtn?.addEventListener('click', (e) => {
+    e.preventDefault()
+    editControls?.classList.add('hidden')
+    // Reset select to current value
+    if (privacySelect) {
+      privacySelect.value = currentPrivacy
+    }
+  })
+
+  // Handle unsubscribe/remove
+  unsubscribeBtn?.addEventListener('click', async (e) => {
+    e.preventDefault()
+
+    if (!confirm('Are you sure you want to remove this subscription?')) {
+      return
+    }
+
+    try {
+      unsubscribeBtn.disabled = true
+      unsubscribeBtn.textContent = 'Removing...'
+
+      const response = await fetch(`/podcasts/${feed}/subscribe`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': getCsrfToken(),
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      // Remove the podcast item from the DOM
+      item.remove()
+
+      // Update counts
+      updateCounts()
+    } catch (error) {
+      console.error('Error removing subscription:', error)
+      alert('Error removing subscription. Please try again.')
+      unsubscribeBtn.disabled = false
+      unsubscribeBtn.textContent = 'Remove'
+    }
+  })
+
+  // Handle change button click
+  changeBtn?.addEventListener('click', async (e) => {
+    e.preventDefault()
+
+    const newPrivacy = privacySelect?.value
+
+    if (!newPrivacy || newPrivacy === currentPrivacy) {
+      editControls?.classList.add('hidden')
+      return
+    }
+
+    try {
+      // Show loading state
+      changeBtn.disabled = true
+      changeBtn.textContent = 'Updating...'
+
+      // Send AJAX request
+      const response = await fetch(`/privacy-manager/${feed}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRF-Token': getCsrfToken(),
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: `privacy=${encodeURIComponent(newPrivacy)}`,
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      // Move the podcast item to the correct section
+      movePodcastToSection(item, feed, currentPrivacy, newPrivacy)
+
+      // Hide edit controls
+      editControls?.classList.add('hidden')
+    } catch (error) {
+      console.error('Error updating privacy:', error)
+      alert('Error updating privacy level. Please try again.')
+      changeBtn.disabled = false
+      changeBtn.textContent = 'Change'
+    }
+  })
+}
+
 function initPrivacyManagerPage(): void {
   const podcastItems = document.querySelectorAll('.podcast-item') as NodeListOf<PodcastItem>
 
   podcastItems.forEach((item) => {
-    const editBtn = item.querySelector<HTMLButtonElement>('.edit-btn')
-    const cancelBtn = item.querySelector<HTMLButtonElement>('.cancel-btn')
-    const changeBtn = item.querySelector<HTMLButtonElement>('.change-btn')
-    const editControls = item.querySelector<HTMLDivElement>('.edit-controls')
-    const privacySelect = item.querySelector<HTMLSelectElement>('.privacy-select')
-    const feed = item.dataset.feed
-    const currentPrivacy = item.dataset.currentPrivacy
-
-    // Set initial select value
-    if (privacySelect) {
-      privacySelect.value = currentPrivacy
-    }
-
-    // Toggle edit mode on pencil click
-    editBtn?.addEventListener('click', (e) => {
-      e.preventDefault()
-      editControls?.classList.remove('hidden')
-      privacySelect?.focus()
-    })
-
-    // Hide edit mode on cancel click
-    cancelBtn?.addEventListener('click', (e) => {
-      e.preventDefault()
-      editControls?.classList.add('hidden')
-      // Reset select to current value
-      if (privacySelect) {
-        privacySelect.value = currentPrivacy
-      }
-    })
-
-    // Handle change button click
-    changeBtn?.addEventListener('click', async (e) => {
-      e.preventDefault()
-
-      const newPrivacy = privacySelect?.value
-
-      if (!newPrivacy || newPrivacy === currentPrivacy) {
-        editControls?.classList.add('hidden')
-        return
-      }
-
-      try {
-        // Show loading state
-        changeBtn.disabled = true
-        changeBtn.textContent = 'Updating...'
-
-        // Send AJAX request
-        const response = await fetch(`/privacy-manager/${feed}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-Token': getCsrfToken(),
-            'X-Requested-With': 'XMLHttpRequest',
-          },
-          body: `privacy=${encodeURIComponent(newPrivacy)}`,
-        })
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        // Move the podcast item to the correct section
-        movePodcastToSection(item, feed, currentPrivacy, newPrivacy)
-
-        // Hide edit controls
-        editControls?.classList.add('hidden')
-      } catch (error) {
-        console.error('Error updating privacy:', error)
-        alert('Error updating privacy level. Please try again.')
-        changeBtn.disabled = false
-        changeBtn.textContent = 'Change'
-      }
-    })
+    attachPodcastItemListeners(item)
   })
 }
 
@@ -114,67 +156,11 @@ function movePodcastToSection(
   const clonedItem = item.cloneNode(true) as PodcastItem
   item.remove()
 
-  // Re-attach event listeners to the cloned item
-  const editBtn = clonedItem.querySelector<HTMLButtonElement>('.edit-btn')
-  const cancelBtn = clonedItem.querySelector<HTMLButtonElement>('.cancel-btn')
-  const changeBtn = clonedItem.querySelector<HTMLButtonElement>('.change-btn')
-  const editControls = clonedItem.querySelector<HTMLDivElement>('.edit-controls')
-  const privacySelect = clonedItem.querySelector<HTMLSelectElement>('.privacy-select')
-
   // Reset the item data attribute
   clonedItem.dataset.currentPrivacy = newPrivacy
 
-  // Re-attach all event listeners
-  editBtn?.addEventListener('click', (e) => {
-    e.preventDefault()
-    editControls?.classList.remove('hidden')
-    privacySelect?.focus()
-  })
-
-  cancelBtn?.addEventListener('click', (e) => {
-    e.preventDefault()
-    editControls?.classList.add('hidden')
-    if (privacySelect) {
-      privacySelect.value = newPrivacy
-    }
-  })
-
-  changeBtn?.addEventListener('click', async (e) => {
-    e.preventDefault()
-    const selectedPrivacy = privacySelect?.value
-
-    if (!selectedPrivacy || selectedPrivacy === newPrivacy) {
-      editControls?.classList.add('hidden')
-      return
-    }
-
-    try {
-      changeBtn.disabled = true
-      changeBtn.textContent = 'Updating...'
-
-      const response = await fetch(`/privacy-manager/${feed}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-CSRF-Token': getCsrfToken(),
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-        body: `privacy=${encodeURIComponent(selectedPrivacy)}`,
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      movePodcastToSection(clonedItem, feed, newPrivacy, selectedPrivacy)
-      editControls?.classList.add('hidden')
-    } catch (error) {
-      console.error('Error updating privacy:', error)
-      alert('Error updating privacy level. Please try again.')
-      changeBtn.disabled = false
-      changeBtn.textContent = 'Change'
-    }
-  })
+  // Re-attach event listeners to the cloned item
+  attachPodcastItemListeners(clonedItem)
 
   // Add the cloned item to the target section
   podcastsList.appendChild(clonedItem)
