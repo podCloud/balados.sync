@@ -86,15 +86,20 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
 
   Only creates if a valid token doesn't already exist. If one already exists, returns it.
 
+  Accepts optional expiration_days parameter (defaults to config or 365 days).
+
   Returns {:ok, token_string} on success, {:error, reason} on failure.
   """
-  def create_balados_web_token(user_id) do
+  def create_balados_web_token(user_id, opts \\ []) do
     token = PlayToken.generate_token()
+    expiration_days = get_default_expiration_days(opts)
+    expires_at = if expiration_days > 0, do: PlayToken.calculate_expiration(expiration_days), else: nil
 
     play_token = %PlayToken{
       user_id: user_id,
       token: token,
-      name: "Balados Web"
+      name: "Balados Web",
+      expires_at: expires_at
     }
 
     case SystemRepo.insert(play_token) do
@@ -133,17 +138,22 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
 
   Only creates if a valid token doesn't already exist. If one already exists, returns it.
 
+  Accepts optional expiration_days parameter (defaults to config or 365 days).
+
   Returns {:ok, token_string} on success, {:error, reason} on failure.
   """
-  def create_websocket_token(user_id) do
+  def create_websocket_token(user_id, opts \\ []) do
     require Logger
 
     token = PlayToken.generate_token()
+    expiration_days = get_default_expiration_days(opts)
+    expires_at = if expiration_days > 0, do: PlayToken.calculate_expiration(expiration_days), else: nil
 
     play_token = %PlayToken{
       user_id: user_id,
       token: token,
-      name: "Balados Web Sync"
+      name: "Balados Web Sync",
+      expires_at: expires_at
     }
 
     Logger.debug("[PlayTokenHelper] Inserting WebSocket token for user #{user_id}")
@@ -186,6 +196,20 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
       # Local path mode (default when play_domain is not set)
       nil ->
         "/play/#{token}/#{encoded_feed}/#{item_id_encoded}"
+    end
+  end
+
+  # Private helpers
+
+  @doc false
+  defp get_default_expiration_days(opts) do
+    case Keyword.get(opts, :expiration_days) do
+      nil ->
+        # Check configuration
+        Application.get_env(:balados_sync_projections, :play_token_expiration_days, 365)
+
+      days ->
+        days
     end
   end
 end

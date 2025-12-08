@@ -94,8 +94,22 @@ config :balados_sync_jobs, BaladosSyncJobs.Scheduler,
       schedule: "*/5 * * * *",
       task: {BaladosSyncJobs.SnapshotWorker, :perform, []},
       timezone: "UTC"
+    ],
+    # Run play token cleanup daily at 2 AM UTC
+    play_token_cleanup: [
+      schedule: "0 2 * * *",
+      task: {BaladosSyncJobs.PlayTokenCleanupWorker, :perform, []},
+      timezone: "UTC"
     ]
   ]
+
+# Configure PlayToken expiration
+config :balados_sync_projections,
+  play_token_expiration_days: 365
+
+# Configure PlayToken cleanup retention
+config :balados_sync_jobs,
+  play_token_retention_days: 30
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

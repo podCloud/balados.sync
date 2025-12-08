@@ -60,7 +60,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.Auth do
     query =
       from(t in PlayToken,
         where: t.token == ^token and is_nil(t.revoked_at),
-        select: t.user_id
+        select: {t.user_id, t.expires_at}
       )
 
     case SystemRepo.one(query) do
@@ -68,11 +68,24 @@ defmodule BaladosSyncWeb.LiveWebSocket.Auth do
         Logger.debug("PlayToken validation failed: invalid or revoked token")
         {:error, :invalid_token}
 
-      user_id ->
-        Logger.debug("PlayToken validated for user: #{user_id}")
-        # Update last_used_at asynchronously
-        update_play_token_last_used(token)
-        {:ok, user_id, :play_token}
+      {user_id, expires_at} ->
+        if token_expired?(expires_at) do
+          Logger.debug("PlayToken validation failed: token expired for user #{user_id}")
+          {:error, :token_expired}
+        else
+          Logger.debug("PlayToken validated for user: #{user_id}")
+          # Update last_used_at asynchronously
+          update_play_token_last_used(token)
+          {:ok, user_id, :play_token}
+        end
+    end
+  end
+
+  @doc false
+  defp token_expired?(expires_at) do
+    case expires_at do
+      nil -> false
+      _ -> DateTime.compare(expires_at, DateTime.utc_now()) == :lt
     end
   end
 
