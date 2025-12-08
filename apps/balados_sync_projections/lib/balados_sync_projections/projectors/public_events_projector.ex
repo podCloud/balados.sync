@@ -100,6 +100,13 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
   end)
 
   project(%PrivacyChanged{} = event, _metadata, fn multi ->
+    # Convert privacy string to atom if needed
+    privacy_atom =
+      case event.privacy do
+        atom when is_atom(atom) -> atom
+        string when is_binary(string) -> String.to_atom(string)
+      end
+
     # Mise à jour de la table privacy
     multi =
       Ecto.Multi.insert(
@@ -109,14 +116,14 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
           user_id: event.user_id,
           rss_source_feed: event.rss_source_feed,
           rss_source_item: event.rss_source_item,
-          privacy: to_string(event.privacy)
+          privacy: to_string(privacy_atom)
         },
         on_conflict: {:replace, [:privacy, :updated_at]},
         conflict_target: [:user_id, :rss_source_feed, :rss_source_item]
       )
 
     # Mise à jour des public_events selon la nouvelle privacy
-    case {event.privacy, event.rss_source_feed, event.rss_source_item} do
+    case {privacy_atom, event.rss_source_feed, event.rss_source_item} do
       {:private, nil, nil} ->
         # Privacy globale private : supprimer tous les events
         Ecto.Multi.delete_all(
