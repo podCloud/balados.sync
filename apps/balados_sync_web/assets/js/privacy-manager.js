@@ -1,4 +1,4 @@
-export default function initPrivacyManager() {
+function initPrivacyManager() {
   // Get all podcast items
   const podcastItems = document.querySelectorAll('.podcast-item');
 
@@ -203,4 +203,18 @@ function updateCounts() {
       emptyState.remove();
     }
   });
+}
+
+// Initialize on page load if this is the privacy manager page
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    if (document.querySelector('[data-page="privacy-manager"]')) {
+      initPrivacyManager();
+    }
+  });
+} else {
+  // DOM is already loaded
+  if (document.querySelector('[data-page="privacy-manager"]')) {
+    initPrivacyManager();
+  }
 }

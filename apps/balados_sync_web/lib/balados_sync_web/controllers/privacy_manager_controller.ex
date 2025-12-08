@@ -2,22 +2,18 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
   use BaladosSyncWeb, :controller
 
   alias BaladosSyncProjections.ProjectionsRepo
-  alias BaladosSyncProjections.Schemas.Subscription
   alias BaladosSyncProjections.Schemas.UserPrivacy
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.ChangePrivacy
+  alias BaladosSyncCore.RssCache
+  alias BaladosSyncWeb.Queries
   import Ecto.Query
 
   def index(conn, _params) do
     user_id = conn.assigns.current_user.id
 
-    # Get all user subscriptions
-    subscriptions =
-      ProjectionsRepo.all(
-        from s in Subscription,
-        where: s.user_id == ^user_id and is_nil(s.unsubscribed_at),
-        order_by: [asc: :rss_feed_title]
-      )
+    # Get all user subscriptions using Queries to get consistent formatting
+    subscriptions = Queries.get_user_subscriptions(user_id)
 
     # Get privacy settings for each subscription
     privacy_map =
@@ -30,24 +26,39 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
       )
       |> Map.new()
 
-    # Enrich subscriptions with privacy level
+    # Enrich subscriptions with privacy level and fetch metadata for titles
     podcasts_with_privacy =
       Enum.map(subscriptions, fn sub ->
         privacy = Map.get(privacy_map, sub.rss_source_feed, "public")
+        # Try to fetch metadata to get proper title
+        title = fetch_title_for_feed(sub.rss_source_feed, sub.rss_feed_title)
 
         %{
           feed: sub.rss_source_feed,
-          title: sub.rss_feed_title || "Untitled",
+          title: title,
           privacy: privacy,
           privacy_atom: String.to_atom(privacy)
         }
       end)
+
+    # Sort by title
+    podcasts_with_privacy = Enum.sort_by(podcasts_with_privacy, & &1.title)
 
     # Group by privacy level
     grouped =
       Enum.group_by(podcasts_with_privacy, & &1.privacy_atom)
 
     render(conn, :index, podcasts: podcasts_with_privacy, grouped: grouped)
+  end
+
+  # Fetch title from metadata or fall back to stored title
+  defp fetch_title_for_feed(encoded_feed, stored_title) do
+    with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
+         {:ok, metadata} <- RssCache.get_feed_metadata(feed_url) do
+      metadata.title || stored_title || "Untitled"
+    else
+      _ -> stored_title || "Untitled"
+    end
   end
 
   def update_privacy(conn, %{"feed" => encoded_feed, "privacy" => privacy_str}) do
