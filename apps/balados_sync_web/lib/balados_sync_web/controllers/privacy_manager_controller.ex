@@ -56,19 +56,30 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
   defp fetch_metadata_for_feed(encoded_feed) do
     with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
          {:ok, metadata} <- RssCache.get_feed_metadata(feed_url) do
+      # Log the metadata.cover for debugging
+      require Logger
+      Logger.info("[PrivacyManager] Metadata cover: #{inspect(metadata.cover)}")
+      Logger.info("[PrivacyManager] Full metadata: #{inspect(metadata)}")
+
       # Extract cover URL from metadata.cover (which is a map with src key)
       cover_url =
         case metadata.cover do
           %{src: url} when is_binary(url) -> url
+          url when is_binary(url) -> url
           _ -> nil
         end
+
+      Logger.info("[PrivacyManager] Extracted cover_url: #{inspect(cover_url)}")
 
       %{
         title: metadata.title,
         cover: cover_url
       }
     else
-      _ -> %{title: nil, cover: nil}
+      err ->
+        require Logger
+        Logger.error("[PrivacyManager] Metadata fetch failed: #{inspect(err)}")
+        %{title: nil, cover: nil}
     end
   end
 
