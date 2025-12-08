@@ -87,6 +87,10 @@ defmodule BaladosSyncWeb.Router do
     # Redirect old subscription detail page to public podcast page
     get "/my-subscriptions/:feed", WebSubscriptionsController, :redirect_to_public
 
+    # Privacy Manager (HTML interface for managing podcast privacy levels)
+    get "/privacy-manager", PrivacyManagerController, :index
+    post "/privacy-manager/:feed", PrivacyManagerController, :update_privacy
+
     # App authorization confirmation (requires authentication)
     post "/authorize", AppAuthController, :create_authorization
 

@@ -31,6 +31,12 @@
         >
           Subscriptions
         </.link>
+        <.link
+          navigate={~p"/privacy-manager"}
+          class={if String.starts_with?(@conn.request_path, "/privacy-manager"), do: "text-blue-600 border-b-2 border-blue-600", else: "hover:text-zinc-700"}
+        >
+          Privacy
+        </.link>
         <%= if BaladosSyncWeb.Accounts.admin?(@current_user) do %>
           <.link
             navigate={~p"/admin"}

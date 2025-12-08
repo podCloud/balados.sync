@@ -1,0 +1,202 @@
+<.flash_group flash={@flash} />
+
+<div class="px-4 py-10 sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
+  <div class="mx-auto max-w-3xl">
+    <h1 class="text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl">
+      Privacy Manager
+    </h1>
+    <p class="mt-3 text-lg text-zinc-600">
+      Manage the privacy level of your podcast subscriptions. Choose between public (visible in discovery), anonymous (contributes to stats), or private (no sharing).
+    </p>
+
+    <div class="mt-12 space-y-8">
+      <!-- Public Podcasts -->
+      <div class="bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl overflow-hidden">
+        <div class="px-4 py-6 sm:p-8 bg-gradient-to-r from-blue-50 to-transparent border-b border-blue-200">
+          <div class="flex items-center gap-3">
+            <svg class="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M13 7H7v6h6V7z" />
+              <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2V2a1 1 0 112 0v1h1a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2h1a2 2 0 01-2 2h-1v1a1 1 0 11-2 0v-1h-2v1a1 1 0 11-2 0v-1H7a2 2 0 01-2-2v-1H4a1 1 0 110-2h1V9H4a1 1 0 110-2h1V5a2 2 0 012-2h1V2zM9 5a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+            </svg>
+            <h2 class="text-2xl font-bold text-blue-900">
+              Public
+              <span class="text-base font-normal text-blue-700 ml-2">
+                (<%= length(Map.get(@grouped, :public, [])) %>)
+              </span>
+            </h2>
+          </div>
+          <p class="mt-2 text-sm text-blue-700">
+            Visible in public discovery and trending lists. Your listening activity is attributed to you.
+          </p>
+        </div>
+
+        <div class="divide-y divide-zinc-200">
+          <%= if Enum.empty?(Map.get(@grouped, :public, [])) do %>
+            <div class="px-4 py-8 sm:p-8 text-center text-zinc-500">
+              <p>No public podcasts yet.</p>
+            </div>
+          <% else %>
+            <%= for podcast <- Map.get(@grouped, :public, []) do %>
+              <div class="px-4 py-6 sm:p-8 hover:bg-blue-50 transition">
+                <form action={~p"/privacy-manager/#{podcast.feed}"} method="post">
+                  <div class="flex items-center justify-between gap-4">
+                    <div class="flex-1">
+                      <h3 class="font-semibold text-zinc-900 text-lg"><%= podcast.title %></h3>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <select
+                        name="privacy"
+                        class="rounded-md border-zinc-300 py-2 px-3 text-zinc-900 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      >
+                        <option value="public" selected={podcast.privacy == "public"}>Public</option>
+                        <option value="anonymous" selected={podcast.privacy == "anonymous"}>Anonymous</option>
+                        <option value="private" selected={podcast.privacy == "private"}>Private</option>
+                      </select>
+                      <button
+                        type="submit"
+                        class="rounded-md bg-blue-600 px-4 py-2 text-white text-sm font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Anonymous Podcasts -->
+      <div class="bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl overflow-hidden">
+        <div class="px-4 py-6 sm:p-8 bg-gradient-to-r from-purple-50 to-transparent border-b border-purple-200">
+          <div class="flex items-center gap-3">
+            <svg class="h-6 w-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+            </svg>
+            <h2 class="text-2xl font-bold text-purple-900">
+              Anonymous
+              <span class="text-base font-normal text-purple-700 ml-2">
+                (<%= length(Map.get(@grouped, :anonymous, [])) %>)
+              </span>
+            </h2>
+          </div>
+          <p class="mt-2 text-sm text-purple-700">
+            Contributes to statistics and trending data without revealing your identity.
+          </p>
+        </div>
+
+        <div class="divide-y divide-zinc-200">
+          <%= if Enum.empty?(Map.get(@grouped, :anonymous, [])) do %>
+            <div class="px-4 py-8 sm:p-8 text-center text-zinc-500">
+              <p>No anonymous podcasts yet.</p>
+            </div>
+          <% else %>
+            <%= for podcast <- Map.get(@grouped, :anonymous, []) do %>
+              <div class="px-4 py-6 sm:p-8 hover:bg-purple-50 transition">
+                <form action={~p"/privacy-manager/#{podcast.feed}"} method="post">
+                  <div class="flex items-center justify-between gap-4">
+                    <div class="flex-1">
+                      <h3 class="font-semibold text-zinc-900 text-lg"><%= podcast.title %></h3>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <select
+                        name="privacy"
+                        class="rounded-md border-zinc-300 py-2 px-3 text-zinc-900 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                      >
+                        <option value="public" selected={podcast.privacy == "public"}>Public</option>
+                        <option value="anonymous" selected={podcast.privacy == "anonymous"}>Anonymous</option>
+                        <option value="private" selected={podcast.privacy == "private"}>Private</option>
+                      </select>
+                      <button
+                        type="submit"
+                        class="rounded-md bg-purple-600 px-4 py-2 text-white text-sm font-semibold hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Private Podcasts -->
+      <div class="bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl overflow-hidden">
+        <div class="px-4 py-6 sm:p-8 bg-gradient-to-r from-red-50 to-transparent border-b border-red-200">
+          <div class="flex items-center gap-3">
+            <svg class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+            </svg>
+            <h2 class="text-2xl font-bold text-red-900">
+              Private
+              <span class="text-base font-normal text-red-700 ml-2">
+                (<%= length(Map.get(@grouped, :private, [])) %>)
+              </span>
+            </h2>
+          </div>
+          <p class="mt-2 text-sm text-red-700">
+            Not shared publicly. No contribution to statistics. Completely private.
+          </p>
+        </div>
+
+        <div class="divide-y divide-zinc-200">
+          <%= if Enum.empty?(Map.get(@grouped, :private, [])) do %>
+            <div class="px-4 py-8 sm:p-8 text-center text-zinc-500">
+              <p>No private podcasts yet.</p>
+            </div>
+          <% else %>
+            <%= for podcast <- Map.get(@grouped, :private, []) do %>
+              <div class="px-4 py-6 sm:p-8 hover:bg-red-50 transition">
+                <form action={~p"/privacy-manager/#{podcast.feed}"} method="post">
+                  <div class="flex items-center justify-between gap-4">
+                    <div class="flex-1">
+                      <h3 class="font-semibold text-zinc-900 text-lg"><%= podcast.title %></h3>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <select
+                        name="privacy"
+                        class="rounded-md border-zinc-300 py-2 px-3 text-zinc-900 shadow-sm focus:border-red-500 focus:ring-red-500"
+                      >
+                        <option value="public" selected={podcast.privacy == "public"}>Public</option>
+                        <option value="anonymous" selected={podcast.privacy == "anonymous"}>Anonymous</option>
+                        <option value="private" selected={podcast.privacy == "private"}>Private</option>
+                      </select>
+                      <button
+                        type="submit"
+                        class="rounded-md bg-red-600 px-4 py-2 text-white text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="mt-12 bg-zinc-50 shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8">
+      <h3 class="text-lg font-semibold text-zinc-900 mb-4">Summary</h3>
+      <div class="grid grid-cols-3 gap-4">
+        <div class="text-center">
+          <p class="text-3xl font-bold text-blue-600"><%= length(Map.get(@grouped, :public, [])) %></p>
+          <p class="text-sm text-zinc-600 mt-1">Public</p>
+        </div>
+        <div class="text-center">
+          <p class="text-3xl font-bold text-purple-600"><%= length(Map.get(@grouped, :anonymous, [])) %></p>
+          <p class="text-sm text-zinc-600 mt-1">Anonymous</p>
+        </div>
+        <div class="text-center">
+          <p class="text-3xl font-bold text-red-600"><%= length(Map.get(@grouped, :private, [])) %></p>
+          <p class="text-sm text-zinc-600 mt-1">Private</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

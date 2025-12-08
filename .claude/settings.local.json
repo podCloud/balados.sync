@@ -31,7 +31,8 @@
       "Bash(gh pr comment:*)",
       "Bash(timeout 120 mix deps.get:*)",
       "Bash(gh pr create:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(timeout 30 mix compile:*)"
     ],
     "deny": [],
     "ask": []
