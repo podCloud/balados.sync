@@ -77,14 +77,34 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
 
     case Dispatcher.dispatch(command) do
       :ok ->
-        conn
-        |> put_flash(:info, "Privacy level updated successfully")
-        |> redirect(to: ~p"/privacy-manager")
+        # Check if it's an AJAX request
+        if is_ajax_request?(conn) do
+          json(conn, %{status: "success", privacy: privacy_str})
+        else
+          conn
+          |> put_flash(:info, "Privacy level updated successfully")
+          |> redirect(to: ~p"/privacy-manager")
+        end
 
       {:error, reason} ->
-        conn
-        |> put_flash(:error, "Failed to update privacy: #{inspect(reason)}")
-        |> redirect(to: ~p"/privacy-manager")
+        # Check if it's an AJAX request
+        if is_ajax_request?(conn) do
+          conn
+          |> put_status(:unprocessable_entity)
+          |> json(%{status: "error", error: inspect(reason)})
+        else
+          conn
+          |> put_flash(:error, "Failed to update privacy: #{inspect(reason)}")
+          |> redirect(to: ~p"/privacy-manager")
+        end
+    end
+  end
+
+  # Check if request is AJAX (from fetch API)
+  defp is_ajax_request?(conn) do
+    case Plug.Conn.get_req_header(conn, "x-requested-with") do
+      ["XMLHttpRequest"] -> true
+      _ -> false
     end
   end
 
