@@ -56,9 +56,16 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
   defp fetch_metadata_for_feed(encoded_feed) do
     with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
          {:ok, metadata} <- RssCache.get_feed_metadata(feed_url) do
+      # Extract cover URL from metadata.cover (which is a map with src key)
+      cover_url =
+        case metadata.cover do
+          %{src: url} when is_binary(url) -> url
+          _ -> nil
+        end
+
       %{
         title: metadata.title,
-        cover: metadata.cover
+        cover: cover_url
       }
     else
       _ -> %{title: nil, cover: nil}
