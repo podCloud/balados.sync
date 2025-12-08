@@ -42,7 +42,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   end
 
   @doc """
-  Redirect old /my-subscriptions/:feed URLs to public /podcasts/:feed page.
+  Redirect old /subscriptions/:feed URLs to public /podcasts/:feed page.
   This preserves existing bookmarks while consolidating the UI.
   """
   def redirect_to_public(conn, %{"feed" => encoded_feed}) do
@@ -87,12 +87,12 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
           :ok ->
             conn
             |> put_flash(:info, "Successfully subscribed to #{metadata.title}")
-            |> redirect(to: ~p"/my-subscriptions")
+            |> redirect(to: ~p"/subscriptions")
 
           {:error, :already_subscribed} ->
             conn
             |> put_flash(:warning, "Already subscribed to this podcast")
-            |> redirect(to: ~p"/my-subscriptions")
+            |> redirect(to: ~p"/subscriptions")
 
           {:error, reason} ->
             conn

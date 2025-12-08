@@ -6,7 +6,7 @@
     </.header>
 
     <div class="mt-10 bg-white shadow rounded-lg p-6">
-      <.form for={%{}} action={~p"/my-subscriptions"} method="post">
+      <.form for={%{}} action={~p"/subscriptions"} method="post">
         <div class="space-y-4">
           <div>
             <label for="feed_url" class="block text-sm font-medium text-zinc-900">
@@ -38,7 +38,7 @@
               Subscribe
             </button>
             <.link
-              navigate={~p"/my-subscriptions"}
+              navigate={~p"/subscriptions"}
               class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
             >
               Cancel
