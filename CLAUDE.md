@@ -1093,21 +1093,41 @@ POST /privacy-manager/:feed          # Changer privacy level pour un podcast
 
 - **Groupement côté Server** : Enum.group_by pour organiser par privacy level
 - **Enrichissement** : Map pour associer feed_id aux privacy levels
-- **Form submission** : POST pour chaque changement (simple et clear)
-- **Flash feedback** : Messages de succès/erreur pour user awareness
+- **Edit Mode Inline** : Pencil icon révèle select + Change/Cancel (hidden by default)
+- **AJAX avec DOM Update** : Podcast se déplace immédiatement dans la section appropriée
+- **Detection AJAX** : Controller vérifie header X-Requested-With pour retourner JSON vs HTML redirect
+- **Counts Dynamiques** : Summary et group counts mis à jour en temps réel via JavaScript
+
+#### Fichiers Modifiés (v1.5 Updated)
+
+**Créés** :
+1. `apps/balados_sync_web/assets/js/privacy-manager.js` - Edit mode et AJAX logic
+
+**Modifiés** :
+1. `apps/balados_sync_web/lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex` - Edit controls cachés par défaut
+2. `apps/balados_sync_web/lib/balados_sync_web/controllers/privacy_manager_controller.ex` - Support AJAX requests
 
 #### Utilisation
 
 **Utilisateurs Authentifiés** :
 ```
 GET  /privacy-manager             # Voir tous les podcasts groupés par privacy
-POST /privacy-manager/:feed       # Changer le privacy level
+POST /privacy-manager/:feed       # Changer le privacy level (AJAX ou form)
 ```
 
 **Workflow** :
 1. User clique "Privacy" dans la top bar
 2. Page affiche 3 sections (Public, Anonymous, Private)
-3. User sélectionne nouveau level dans le dropdown
-4. User clique "Save"
-5. Page se recharge avec flash message de confirmation
-6. Podcast moved dans la nouvelle section
+3. User clique le crayon sur un podcast
+4. Edit controls s'affichent (select + "Change" button + "Cancel" link)
+5. User sélectionne nouveau privacy level
+6. User clique "Change"
+7. Bouton affiche "Updating..." (disabled state)
+8. Podcast se déplace immédiatement dans la nouvelle section
+9. Counts (headers et summary) se mettent à jour
+10. Edit controls se masquent automatiquement
+11. Aucun rechargement de page
+
+**Fallback (sans JavaScript)** :
+- Si JavaScript est désactivé, form peut toujours être soumis manuellement
+- Redirection et flash message avec page reload (comportement classique)
