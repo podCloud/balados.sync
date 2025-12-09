@@ -24,7 +24,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
   Returns {:ok, response_json, new_state} or {:error, error_json}
   """
   @spec handle_message(String.t(), State.t()) ::
-    {:ok, String.t(), State.t()} | {:error, String.t()}
+          {:ok, String.t(), State.t()} | {:error, String.t()}
   def handle_message(json_string, %State{} = state) do
     case parse_json(json_string) do
       {:ok, message} ->
@@ -99,36 +99,48 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
   @doc false
   defp handle_record_play_message(message, %State{} = state) do
     opid = Map.get(message, "opid")
+
     case validate_record_play_message(message) do
       {:ok, validated_message} ->
         dispatch_play_command(validated_message, opid, state)
 
       {:error, error_code} ->
-        {:error, error_response_with_opid("Missing or invalid fields for record_play", error_code, opid)}
+        {:error,
+         error_response_with_opid("Missing or invalid fields for record_play", error_code, opid)}
     end
   end
 
   @doc false
   defp validate_record_play_message(message) do
     Logger.debug("[MessageHandler] Validating record_play message: #{inspect(message)}")
-    result = with {:ok, feed} <- extract_required(message, "feed"),
-         {:ok, item} <- extract_required(message, "item"),
-         {:ok, position} <- extract_position(message),
-         {:ok, played} <- extract_played(message),
-         {:ok, privacy} <- extract_privacy(message) do
-      Logger.debug("[MessageHandler] Validation successful: feed=#{feed}, item=#{item}, privacy=#{privacy}")
-      {:ok, %{
-        "feed" => feed,
-        "item" => item,
-        "position" => position,
-        "played" => played,
-        "privacy" => privacy
-      }}
-    else
-      {:error, code} ->
-        Logger.error("[MessageHandler] Validation failed with code: #{code}, message: #{inspect(message)}")
-        {:error, code}
-    end
+
+    result =
+      with {:ok, feed} <- extract_required(message, "feed"),
+           {:ok, item} <- extract_required(message, "item"),
+           {:ok, position} <- extract_position(message),
+           {:ok, played} <- extract_played(message),
+           {:ok, privacy} <- extract_privacy(message) do
+        Logger.debug(
+          "[MessageHandler] Validation successful: feed=#{feed}, item=#{item}, privacy=#{privacy}"
+        )
+
+        {:ok,
+         %{
+           "feed" => feed,
+           "item" => item,
+           "position" => position,
+           "played" => played,
+           "privacy" => privacy
+         }}
+      else
+        {:error, code} ->
+          Logger.error(
+            "[MessageHandler] Validation failed with code: #{code}, message: #{inspect(message)}"
+          )
+
+          {:error, code}
+      end
+
     result
   end
 
@@ -143,7 +155,13 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
 
       {:deny, _limit} ->
         Logger.warning("Rate limit exceeded for user #{state.user_id}")
-        {:error, error_response_with_opid("Too many play events. Rate limited to #{@rate_limit_limit} per second.", "RATE_LIMITED", opid)}
+
+        {:error,
+         error_response_with_opid(
+           "Too many play events. Rate limited to #{@rate_limit_limit} per second.",
+           "RATE_LIMITED",
+           opid
+         )}
     end
   end
 
@@ -266,7 +284,10 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
 
   @doc false
   defp format_auth_error(:invalid_token), do: "Invalid or revoked token"
-  defp format_auth_error(:insufficient_scope), do: "Token does not have required scopes for play recording"
+
+  defp format_auth_error(:insufficient_scope),
+    do: "Token does not have required scopes for play recording"
+
   defp format_auth_error(reason), do: inspect(reason)
 
   @doc false

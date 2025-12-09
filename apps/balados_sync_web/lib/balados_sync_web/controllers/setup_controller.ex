@@ -49,6 +49,7 @@ defmodule BaladosSyncWeb.SetupController do
           Logger.error("  User params: #{inspect(user_params, pretty: true)}")
 
           changeset = Accounts.change_user_registration(%User{})
+
           conn
           |> put_flash(:error, "Database error. Check logs.")
           |> render(:show, changeset: changeset, layout: false)

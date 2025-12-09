@@ -12,7 +12,6 @@
               <%= index %>
             </div>
           </div>
-
           <!-- Content -->
           <div class="flex-1">
             <.link
@@ -22,7 +21,8 @@
               <%= episode.item_title || "Unknown Episode" %>
             </.link>
             <p class="text-sm text-zinc-600 mt-1">
-              From: <span class="font-medium"><%= episode.feed_title || "Unknown Podcast" %></span>
+              From:
+              <span class="font-medium"><%= episode.feed_title || "Unknown Podcast" %></span>
             </p>
 
             <div class="flex gap-6 mt-2 text-sm text-zinc-600">

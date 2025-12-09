@@ -74,7 +74,10 @@ defmodule BaladosSyncWeb.Layouts do
         try do
           case BaladosSyncWeb.PlayTokenHelper.get_or_create_websocket_token(current_user.id) do
             {:ok, token} ->
-              Logger.debug("[Layouts] WebSocket token created for user #{current_user.id}: #{token}")
+              Logger.debug(
+                "[Layouts] WebSocket token created for user #{current_user.id}: #{token}"
+              )
+
               token
 
             error ->

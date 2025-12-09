@@ -30,7 +30,16 @@ defmodule Mix.Tasks.Db.Reset do
   """
 
   def run(args) do
-    {opts, _, _} = OptionParser.parse(args, switches: [system: :boolean, events: :boolean, projections: :boolean, all: :boolean, migrate: :boolean])
+    {opts, _, _} =
+      OptionParser.parse(args,
+        switches: [
+          system: :boolean,
+          events: :boolean,
+          projections: :boolean,
+          all: :boolean,
+          migrate: :boolean
+        ]
+      )
 
     case {opts[:system], opts[:events], opts[:projections], opts[:all]} do
       {nil, nil, nil, nil} ->
@@ -59,8 +68,10 @@ defmodule Mix.Tasks.Db.Reset do
 
   defp maybe_migrate(false, _repo_option), do: nil
   defp maybe_migrate(nil, _repo_option), do: nil
+
   defp maybe_migrate(true, repo_option) do
     Mix.shell().info("\nRunning migrations...")
+
     if repo_option do
       Mix.Tasks.Db.Migrate.run([repo_option])
     else
@@ -187,6 +198,7 @@ defmodule Mix.Tasks.Db.Reset do
 
   defp get_confirmation(prompt) do
     response = Mix.shell().prompt(prompt) |> String.trim()
+
     case response do
       "DELETE" -> :confirmed
       "DELETE ALL EVENTS" -> :confirmed

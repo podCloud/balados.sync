@@ -133,9 +133,12 @@ defmodule BaladosSyncWeb.RssParser do
       else
         description = extract_text(item, ~x"./description/text()") || ""
         author = extract_episode_author(item)
-        pub_date_raw = extract_text(item, ~x"./pubDate/text()") ||
-                      extract_text(item, ~x"./published/text()") ||
-                      extract_text(item, ~x"./updated/text()")
+
+        pub_date_raw =
+          extract_text(item, ~x"./pubDate/text()") ||
+            extract_text(item, ~x"./published/text()") ||
+            extract_text(item, ~x"./updated/text()")
+
         pub_date = parse_pub_date(pub_date_raw)
         duration = parse_duration(extract_text(item, ~x"./itunes:duration/text()"))
         enclosure = extract_enclosure(item)
@@ -204,7 +207,6 @@ defmodule BaladosSyncWeb.RssParser do
   rescue
     _ -> nil
   end
-
 
   defp parse_pub_date(nil), do: nil
 

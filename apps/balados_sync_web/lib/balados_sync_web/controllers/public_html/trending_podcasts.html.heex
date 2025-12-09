@@ -12,7 +12,6 @@
               <%= index %>
             </div>
           </div>
-
           <!-- Cover -->
           <%= if podcast.metadata && podcast.metadata.cover do %>
             <img
@@ -25,14 +24,13 @@
               <span class="text-zinc-400 text-xs">No Cover</span>
             </div>
           <% end %>
-
           <!-- Content -->
           <div class="flex-1">
             <.link
               navigate={~p"/podcasts/#{podcast.rss_source_feed}"}
               class="text-xl font-semibold text-blue-600 hover:text-blue-700"
             >
-              <%= podcast.metadata && podcast.metadata.title || podcast.feed_title || "Unknown" %>
+              <%= (podcast.metadata && podcast.metadata.title) || podcast.feed_title || "Unknown" %>
             </.link>
 
             <div class="flex gap-6 mt-2 text-sm text-zinc-600">

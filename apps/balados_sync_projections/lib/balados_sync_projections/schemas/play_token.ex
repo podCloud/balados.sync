@@ -73,7 +73,8 @@ defmodule BaladosSyncProjections.Schemas.PlayToken do
 
   Defaults to 365 days if not provided.
   """
-  def calculate_expiration(days_from_now \\ 365) when is_integer(days_from_now) and days_from_now > 0 do
+  def calculate_expiration(days_from_now \\ 365)
+      when is_integer(days_from_now) and days_from_now > 0 do
     DateTime.utc_now()
     |> DateTime.add(days_from_now * 86400, :second)
     |> DateTime.truncate(:second)

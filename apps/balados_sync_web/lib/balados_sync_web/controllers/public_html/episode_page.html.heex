@@ -7,7 +7,6 @@
     >
       ← Back to Trending
     </.link>
-
     <!-- Episode Header -->
     <div class="bg-white shadow rounded-lg p-6">
       <h1 class="text-3xl font-bold text-zinc-900"><%= @episode.title %></h1>
@@ -29,7 +28,6 @@
       <p class="text-sm text-zinc-700 mt-4">
         <%= @episode.description %>
       </p>
-
       <!-- Popularity Stats -->
       <%= if @popularity do %>
         <div class="mt-6 p-4 bg-zinc-50 rounded-lg">
@@ -50,7 +48,6 @@
           </div>
         </div>
       <% end %>
-
       <!-- Play Link -->
       <%= if @episode.enclosure do %>
         <div class="mt-6">
@@ -58,7 +55,11 @@
             href={@episode.enclosure.url}
             data-dispatch-event="play"
             data-feed={Base.url_encode64(@feed_url, padding: false)}
-            data-item={Base.url_encode64("#{@feed_url},#{@episode.guid},#{@episode.enclosure.url}", padding: false)}
+            data-item={
+              Base.url_encode64("#{@feed_url},#{@episode.guid},#{@episode.enclosure.url}",
+                padding: false
+              )
+            }
             target="_blank"
             rel="noopener noreferrer"
             class="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"

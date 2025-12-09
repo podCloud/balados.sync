@@ -27,7 +27,9 @@ defmodule BaladosSyncWeb.PublicControllerTest do
     assert length(response_data) <= 5
   end
 
-  test "GET /api/v1/public/trending/episodes returns episodes with correct structure", %{conn: conn} do
+  test "GET /api/v1/public/trending/episodes returns episodes with correct structure", %{
+    conn: conn
+  } do
     conn = get(conn, ~p"/api/v1/public/trending/episodes?limit=1")
 
     response_data = json_response(conn, 200)

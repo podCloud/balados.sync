@@ -19,9 +19,7 @@ defmodule BaladosSyncWeb.PlayTokenHelperExpirationTest do
 
       # Verify token was created with expiration
       token_record =
-        SystemRepo.one(
-          from(t in PlayToken, where: t.token == ^token_string, limit: 1)
-        )
+        SystemRepo.one(from(t in PlayToken, where: t.token == ^token_string, limit: 1))
 
       assert token_record
       assert token_record.expires_at
@@ -33,15 +31,14 @@ defmodule BaladosSyncWeb.PlayTokenHelperExpirationTest do
     test "creates token with custom expiration days", %{user_id: user_id} do
       custom_days = 30
 
-      {:ok, token_string} = PlayTokenHelper.create_balados_web_token(user_id, expiration_days: custom_days)
+      {:ok, token_string} =
+        PlayTokenHelper.create_balados_web_token(user_id, expiration_days: custom_days)
 
       assert is_binary(token_string)
 
       # Verify token was created with custom expiration
       token_record =
-        SystemRepo.one(
-          from(t in PlayToken, where: t.token == ^token_string, limit: 1)
-        )
+        SystemRepo.one(from(t in PlayToken, where: t.token == ^token_string, limit: 1))
 
       assert token_record
       assert token_record.expires_at
@@ -63,9 +60,7 @@ defmodule BaladosSyncWeb.PlayTokenHelperExpirationTest do
 
       # Verify token was created WITHOUT expiration
       token_record =
-        SystemRepo.one(
-          from(t in PlayToken, where: t.token == ^token_string, limit: 1)
-        )
+        SystemRepo.one(from(t in PlayToken, where: t.token == ^token_string, limit: 1))
 
       assert token_record
       assert is_nil(token_record.expires_at)
@@ -80,9 +75,7 @@ defmodule BaladosSyncWeb.PlayTokenHelperExpirationTest do
 
       # Verify token was created with expiration
       token_record =
-        SystemRepo.one(
-          from(t in PlayToken, where: t.token == ^token_string, limit: 1)
-        )
+        SystemRepo.one(from(t in PlayToken, where: t.token == ^token_string, limit: 1))
 
       assert token_record
       assert token_record.expires_at
@@ -94,15 +87,14 @@ defmodule BaladosSyncWeb.PlayTokenHelperExpirationTest do
     test "creates token with custom expiration days", %{user_id: user_id} do
       custom_days = 60
 
-      {:ok, token_string} = PlayTokenHelper.create_websocket_token(user_id, expiration_days: custom_days)
+      {:ok, token_string} =
+        PlayTokenHelper.create_websocket_token(user_id, expiration_days: custom_days)
 
       assert is_binary(token_string)
 
       # Verify token was created with custom expiration
       token_record =
-        SystemRepo.one(
-          from(t in PlayToken, where: t.token == ^token_string, limit: 1)
-        )
+        SystemRepo.one(from(t in PlayToken, where: t.token == ^token_string, limit: 1))
 
       assert token_record
       assert token_record.expires_at

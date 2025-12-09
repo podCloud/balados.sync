@@ -93,7 +93,9 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
   def create_balados_web_token(user_id, opts \\ []) do
     token = PlayToken.generate_token()
     expiration_days = get_default_expiration_days(opts)
-    expires_at = if expiration_days > 0, do: PlayToken.calculate_expiration(expiration_days), else: nil
+
+    expires_at =
+      if expiration_days > 0, do: PlayToken.calculate_expiration(expiration_days), else: nil
 
     play_token = %PlayToken{
       user_id: user_id,
@@ -147,7 +149,9 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
 
     token = PlayToken.generate_token()
     expiration_days = get_default_expiration_days(opts)
-    expires_at = if expiration_days > 0, do: PlayToken.calculate_expiration(expiration_days), else: nil
+
+    expires_at =
+      if expiration_days > 0, do: PlayToken.calculate_expiration(expiration_days), else: nil
 
     play_token = %PlayToken{
       user_id: user_id,
@@ -165,11 +169,17 @@ defmodule BaladosSyncWeb.PlayTokenHelper do
 
       # If token somehow already exists (race condition), fetch it instead
       {:error, %{errors: [token: {"has already been taken", _}]}} ->
-        Logger.debug("[PlayTokenHelper] WebSocket token race condition, fetching existing token for user #{user_id}")
+        Logger.debug(
+          "[PlayTokenHelper] WebSocket token race condition, fetching existing token for user #{user_id}"
+        )
+
         get_websocket_token(user_id)
 
       {:error, reason} ->
-        Logger.error("[PlayTokenHelper] Failed to create WebSocket token for user #{user_id}: #{inspect(reason)}")
+        Logger.error(
+          "[PlayTokenHelper] Failed to create WebSocket token for user #{user_id}: #{inspect(reason)}"
+        )
+
         {:error, reason}
     end
   end
