@@ -392,3 +392,70 @@
     </div>
   </div>
 </div>
+<!-- Privacy Warning Modal -->
+<div
+  id="privacy-warning-modal"
+  class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
+  <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+    <!-- Warning Icon & Title -->
+    <div class="flex items-center gap-3 mb-4">
+      <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-amber-100">
+        <svg class="h-6 w-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4v2m0 4v2m6-12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-zinc-900">Important Notice</h2>
+    </div>
+    <!-- Message -->
+    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+      <p class="text-zinc-800 font-medium mb-3">
+        Changing to
+        <span id="privacy-warning-level" class="font-bold text-amber-700">Anonymous</span>
+        will:
+      </p>
+      <ul class="text-sm text-zinc-700 space-y-2 ml-4">
+        <li class="flex items-start gap-2">
+          <span class="text-red-600 font-bold">✕</span>
+          <span>Hide your past activity from public pages and discovery</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-red-600 font-bold">✕</span>
+          <span>Remove you from trending lists</span>
+        </li>
+        <li class="flex items-start gap-2" id="privacy-warning-stats">
+          <span class="text-green-600 font-bold">✓</span>
+          <span>Still contribute to aggregate statistics</span>
+        </li>
+      </ul>
+    </div>
+    <!-- Checkbox to confirm understanding -->
+    <label class="flex items-center gap-3 mb-6 cursor-pointer hover:bg-gray-50 p-2 rounded">
+      <input type="checkbox" id="privacy-warning-confirm" class="w-4 h-4 text-blue-600 rounded" />
+      <span class="text-sm text-zinc-700">
+        I understand and want to proceed
+      </span>
+    </label>
+    <!-- Buttons -->
+    <div class="flex gap-3">
+      <button
+        id="privacy-warning-cancel-btn"
+        class="flex-1 px-4 py-2 text-zinc-700 border border-zinc-300 rounded-lg hover:bg-zinc-50 font-medium transition"
+      >
+        Cancel
+      </button>
+      <button
+        id="privacy-warning-confirm-btn"
+        class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition"
+        disabled
+      >
+        Yes, Change Privacy
+      </button>
+    </div>
+  </div>
+</div>

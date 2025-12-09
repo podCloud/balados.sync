@@ -2,7 +2,8 @@
  * Privacy Manager Page - Inline edit mode for podcast privacy levels
  *
  * Handles the pencil icon edit mode for quickly changing podcast privacy levels
- * with AJAX updates and DOM manipulation.
+ * with AJAX updates and DOM manipulation. Also handles privacy warning modal for
+ * destructive changes (changing from public to anonymous/private).
  */
 
 interface PodcastItem extends HTMLElement {
@@ -10,6 +11,14 @@ interface PodcastItem extends HTMLElement {
     feed: string
     currentPrivacy: string
   }
+}
+
+interface PendingPrivacyChange {
+  feed: string
+  newPrivacy: string
+  item: PodcastItem
+  oldPrivacy: string
+  changeBtn: HTMLButtonElement
 }
 
 function attachPodcastItemListeners(item: PodcastItem): void {
@@ -93,6 +102,16 @@ function attachPodcastItemListeners(item: PodcastItem): void {
       return
     }
 
+    // Check if this is a destructive change (public -> anonymous/private)
+    if (isDestructiveChange(currentPrivacy, newPrivacy)) {
+      // Show warning modal and wait for confirmation
+      const confirmed = await showPrivacyWarning(newPrivacy)
+      if (!confirmed) {
+        // User cancelled
+        return
+      }
+    }
+
     try {
       // Show loading state
       changeBtn.disabled = true
@@ -163,6 +182,126 @@ function attachPodcastItemListeners(item: PodcastItem): void {
       deleteBtn.disabled = false
       deleteBtn.textContent = '✕ Delete Privacy'
     }
+  })
+}
+
+/**
+ * Check if changing privacy is destructive (losing data/visibility)
+ * Destructive: public -> anonymous or private
+ * Non-destructive: anything else (recovering, same level, etc)
+ */
+function isDestructiveChange(currentPrivacy: string, newPrivacy: string): boolean {
+  // Only destructive if going FROM public TO anonymous/private
+  return currentPrivacy === 'public' && (newPrivacy === 'anonymous' || newPrivacy === 'private')
+}
+
+/**
+ * Show privacy warning modal and wait for user confirmation
+ * Returns Promise<boolean> - true if confirmed, false if cancelled
+ */
+function showPrivacyWarning(newPrivacy: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('privacy-warning-modal')
+    if (!modal) {
+      console.error('[Privacy Warning] Modal not found')
+      resolve(true) // Default to allowing change if modal doesn't exist
+      return
+    }
+
+    const levelEl = document.getElementById('privacy-warning-level')
+    const confirmCheckbox = document.getElementById('privacy-warning-confirm') as HTMLInputElement
+    const confirmBtn = document.getElementById('privacy-warning-confirm-btn') as HTMLButtonElement
+    const cancelBtn = document.getElementById('privacy-warning-cancel-btn') as HTMLButtonElement
+    const statsItem = document.getElementById('privacy-warning-stats')
+
+    // Update modal text
+    if (levelEl) {
+      levelEl.textContent = newPrivacy.charAt(0).toUpperCase() + newPrivacy.slice(1)
+    }
+
+    // Reset checkbox and button state
+    if (confirmCheckbox) {
+      confirmCheckbox.checked = false
+    }
+    if (confirmBtn) {
+      confirmBtn.disabled = true
+    }
+
+    // Update stats message based on privacy level
+    if (statsItem) {
+      if (newPrivacy === 'private') {
+        statsItem.style.display = 'none'
+      } else {
+        statsItem.style.display = 'flex'
+      }
+    }
+
+    // Show modal
+    modal.classList.remove('hidden')
+
+    // Handle checkbox change
+    const onCheckboxChange = () => {
+      if (confirmBtn) {
+        confirmBtn.disabled = !confirmCheckbox.checked
+      }
+    }
+
+    // Handle confirm button
+    const onConfirmClick = (e: Event) => {
+      e.preventDefault()
+      cleanup()
+      modal.classList.add('hidden')
+      resolve(true)
+    }
+
+    // Handle cancel button
+    const onCancelClick = (e: Event) => {
+      e.preventDefault()
+      cleanup()
+      modal.classList.add('hidden')
+      resolve(false)
+    }
+
+    // Handle backdrop click
+    const onBackdropClick = (e: MouseEvent) => {
+      if (e.target === modal) {
+        e.preventDefault()
+        cleanup()
+        modal.classList.add('hidden')
+        resolve(false)
+      }
+    }
+
+    // Handle escape key
+    const onEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        e.preventDefault()
+        cleanup()
+        modal.classList.add('hidden')
+        resolve(false)
+      }
+    }
+
+    // Setup event listeners
+    confirmCheckbox?.addEventListener('change', onCheckboxChange)
+    confirmBtn?.addEventListener('click', onConfirmClick)
+    cancelBtn?.addEventListener('click', onCancelClick)
+    modal.addEventListener('click', onBackdropClick)
+    document.addEventListener('keydown', onEscapeKey)
+
+    // Cleanup function
+    function cleanup() {
+      confirmCheckbox?.removeEventListener('change', onCheckboxChange)
+      confirmBtn?.removeEventListener('click', onConfirmClick)
+      cancelBtn?.removeEventListener('click', onCancelClick)
+      modal.removeEventListener('click', onBackdropClick)
+      document.removeEventListener('keydown', onEscapeKey)
+    }
+
+    // Focus the confirm button
+    setTimeout(() => {
+      cancelBtn?.focus()
+    }, 0)
   })
 }
 
