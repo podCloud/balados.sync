@@ -10,23 +10,20 @@
  * </div>
  */
 
-console.log('[EpisodeSorter] Module loading...')
-
 interface Episode {
-  id?: string
-  title: string
-  description?: string
-  pub_date?: string
-  duration?: number | string
-  link?: string
-  enclosure?: {
-    url: string
-    type?: string
+  rss_source_item: string
+  episode_title: string
+  episode_author?: string
+  episode_description?: string
+  episode_link?: string
+  episode_cover?: {
+    src?: string
+    srcset?: string
   }
   score?: number
   plays?: number
   likes?: number
-  [key: string]: any
+  podcast_title?: string
 }
 
 interface PopularEpisodesResponse {
@@ -55,8 +52,6 @@ class EpisodeSorter {
    * Initialize the sorter by finding elements and attaching listeners
    */
   init(): void {
-    console.log('[EpisodeSorter] Initializing for feed:', this.encodedFeed)
-
     this.container = document.querySelector('[data-episode-sorter]')
     if (!this.container) {
       console.warn('[EpisodeSorter] Container not found')
@@ -66,7 +61,6 @@ class EpisodeSorter {
     // Find or create toggle container
     this.toggleContainer = this.container.querySelector('.episode-sort-toggle')
     if (!this.toggleContainer) {
-      console.log('[EpisodeSorter] Creating toggle container')
       this.createToggleUI()
     } else {
       this.attachToggleListeners()
@@ -144,7 +138,6 @@ class EpisodeSorter {
   private switchToRecent(): void {
     if (this.currentMode === 'recent' || this.isLoading) return
 
-    console.log('[EpisodeSorter] Switching to Recent')
     this.currentMode = 'recent'
     this.updateButtonStates()
 
@@ -159,7 +152,6 @@ class EpisodeSorter {
   private switchToPopular(): void {
     if (this.currentMode === 'popular' || this.isLoading) return
 
-    console.log('[EpisodeSorter] Switching to Popular')
     this.isLoading = true
     this.updateButtonStates()
 
@@ -179,8 +171,6 @@ class EpisodeSorter {
     const url = new URL('/api/v1/public/trending/episodes', window.location.origin)
     url.searchParams.set('feed', this.encodedFeed)
     url.searchParams.set('limit', '20')
-
-    console.log('[EpisodeSorter] Fetching from:', url.toString())
 
     return fetch(url.toString())
       .then(response => {
@@ -218,42 +208,31 @@ class EpisodeSorter {
    * Render a single episode card with popularity stats
    */
   private renderEpisodeCard(episode: Episode): string {
-    const title = this.escapeHtml(episode.title || 'Unknown Episode')
-    const description = this.escapeHtml(episode.description || '')
-
-    // Format date if available
-    let dateStr = ''
-    if (episode.pub_date) {
-      const date = new Date(episode.pub_date)
-      if (!isNaN(date.getTime())) {
-        const now = new Date()
-        const diffMs = now.getTime() - date.getTime()
-        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-        if (diffDays === 0) {
-          dateStr = 'Today'
-        } else if (diffDays === 1) {
-          dateStr = 'Yesterday'
-        } else if (diffDays < 30) {
-          dateStr = `${diffDays} days ago`
-        } else {
-          dateStr = date.toLocaleDateString()
-        }
-      }
-    }
+    const title = this.escapeHtml(episode.episode_title || 'Unknown Episode')
+    const description = this.escapeHtml(episode.episode_description || '')
+    const author = this.escapeHtml(episode.episode_author || '')
 
     // Render stats
     const score = episode.score ?? 0
     const plays = episode.plays ?? 0
     const likes = episode.likes ?? 0
 
+    // Episode cover (if available)
+    const coverHtml = episode.episode_cover?.src ? `
+      <div class="mb-3">
+        <img src="${this.escapeHtml(episode.episode_cover.src)}"
+             alt="${title}"
+             class="w-full h-32 object-cover rounded"
+             ${episode.episode_cover.srcset ? `srcset="${this.escapeHtml(episode.episode_cover.srcset)}"` : ''}
+        />
+      </div>
+    ` : ''
+
     return `
       <div class="bg-white border border-zinc-200 rounded-lg p-4">
+        ${coverHtml}
         <h3 class="font-semibold text-zinc-900">${title}</h3>
-
-        <div class="flex gap-4 text-sm text-zinc-500 mt-2">
-          ${dateStr ? `<span>${dateStr}</span>` : ''}
-          ${episode.duration ? `<span>${this.formatDuration(episode.duration)}</span>` : ''}
-        </div>
+        ${author ? `<p class="text-sm text-zinc-600 mt-1">by ${author}</p>` : ''}
 
         ${description ? `<p class="text-sm text-zinc-700 mt-2 line-clamp-3">${description}</p>` : ''}
 
@@ -264,40 +243,15 @@ class EpisodeSorter {
 
         <!-- Links -->
         <div class="mt-4 flex gap-3">
-          ${episode.link ? `
-            <a href="${this.escapeHtml(episode.link)}" target="_blank" rel="noopener noreferrer"
+          ${episode.episode_link ? `
+            <a href="${this.escapeHtml(episode.episode_link)}" target="_blank" rel="noopener noreferrer"
                class="text-blue-600 hover:underline text-sm">
-              Read Article →
-            </a>
-          ` : ''}
-          ${episode.enclosure ? `
-            <a href="${this.escapeHtml(episode.enclosure.url)}" target="_blank" rel="noopener noreferrer"
-               class="text-blue-600 hover:underline text-sm">
-              Download/Play Episode →
+              Read Episode →
             </a>
           ` : ''}
         </div>
       </div>
     `
-  }
-
-  /**
-   * Format duration in seconds to readable format
-   */
-  private formatDuration(duration: number | string): string {
-    const seconds = typeof duration === 'string' ? parseInt(duration, 10) : duration
-    if (isNaN(seconds)) return ''
-
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`
-    } else if (minutes > 0) {
-      return `${minutes}m`
-    } else {
-      return `${seconds}s`
-    }
   }
 
   /**
@@ -336,7 +290,7 @@ class EpisodeSorter {
    * Handle errors
    */
   private handleError(error: Error): void {
-    console.error('[EpisodeSorter] Error:', error)
+    console.error('[EpisodeSorter] Error fetching popular episodes:', error.message)
     if (this.episodesContainer) {
       this.episodesContainer.innerHTML = `
         <div class="text-center text-red-600 py-8">
@@ -345,7 +299,9 @@ class EpisodeSorter {
         </div>
       `
     }
+    // Reset to recent mode on error
     this.currentMode = 'recent'
+    this.isLoading = false
   }
 
   /**

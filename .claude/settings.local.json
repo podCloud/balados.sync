@@ -35,7 +35,8 @@
       "Bash(timeout 30 mix compile:*)",
       "Bash(gh label create:*)",
       "Bash(gh issue edit:*)",
-      "Bash(gh issue view:*)"
+      "Bash(gh issue view:*)",
+      "Bash(timeout 60 mix test:*)"
     ],
     "deny": [],
     "ask": []
