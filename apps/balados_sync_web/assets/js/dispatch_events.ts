@@ -126,7 +126,7 @@ class WebSocketManager {
    * Send a record_play event
    * Returns promise that resolves when event is confirmed
    */
-  sendRecordPlay(feed: string, item: string): Promise<any> {
+  sendRecordPlay(feed: string, item: string, privacy?: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const messageId = ++this.messageId
 
@@ -138,13 +138,18 @@ class WebSocketManager {
       // Store handler with timeout for cleanup
       this.responseHandlers.set(messageId, { resolve, reject, timeout })
 
-      const message = {
+      const message: Record<string, any> = {
         opid: messageId,
         type: 'record_play',
         feed,
         item,
         position: 0,
-        played: false,
+        played: true,
+      }
+
+      // Only include privacy if provided
+      if (privacy) {
+        message.privacy = privacy
       }
 
       if (this.state === 'connected' && this.ws && this.ws.readyState === WebSocket.OPEN) {
@@ -340,10 +345,10 @@ class DispatchEventHandler {
             return
           }
 
-          // Privacy is anonymous or public - send WebSocket
+          // Privacy is anonymous or public - send WebSocket with privacy context
           if (this.wsManager.token) {
             this.wsManager.connect()
-              .then(() => this.wsManager.sendRecordPlay(feed, item))
+              .then(() => this.wsManager.sendRecordPlay(feed, item, privacy))
               .catch((err) => {
                 console.error('[DispatchEvents] Failed to send play event:', err)
               })

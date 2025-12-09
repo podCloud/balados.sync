@@ -178,6 +178,68 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
         assert is_tuple(result)
       end
     end
+
+    test "accepts valid privacy values", %{authenticated_state: state} do
+      for privacy <- ["public", "anonymous", "private"] do
+        json = Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "base64_feed",
+          "item" => "base64_item",
+          "position" => 0,
+          "played" => true,
+          "privacy" => privacy
+        })
+
+        result = MessageHandler.handle_message(json, state)
+        assert is_tuple(result)
+      end
+    end
+
+    test "accepts missing privacy field for backward compatibility", %{authenticated_state: state} do
+      json = Jason.encode!(%{
+        "type" => "record_play",
+        "feed" => "base64_feed",
+        "item" => "base64_item",
+        "position" => 0,
+        "played" => true
+      })
+
+      result = MessageHandler.handle_message(json, state)
+      assert is_tuple(result)
+    end
+
+    test "rejects invalid privacy value", %{authenticated_state: state} do
+      json = Jason.encode!(%{
+        "type" => "record_play",
+        "feed" => "base64_feed",
+        "item" => "base64_item",
+        "position" => 0,
+        "played" => true,
+        "privacy" => "invalid_value"
+      })
+
+      {:error, response} = MessageHandler.handle_message(json, state)
+      decoded = Jason.decode!(response)
+
+      assert decoded["status"] == "error"
+      assert decoded["error"]["code"] == "INVALID_PRIVACY"
+    end
+
+    test "accepts privacy with true and false played values", %{authenticated_state: state} do
+      for played <- [true, false] do
+        json = Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "base64_feed",
+          "item" => "base64_item",
+          "position" => 0,
+          "played" => played,
+          "privacy" => "public"
+        })
+
+        result = MessageHandler.handle_message(json, state)
+        assert is_tuple(result)
+      end
+    end
   end
 
   describe "message responses" do

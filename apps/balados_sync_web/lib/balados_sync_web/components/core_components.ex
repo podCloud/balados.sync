@@ -693,7 +693,7 @@ defmodule BaladosSyncWeb.CoreComponents do
 
   ## Examples
 
-      <.subscribe_modal id="subscribe-modal" subscribe_url="/my-subscriptions" feed_url="https://example.com/feed.xml">
+      <.subscribe_modal id="subscribe-modal" subscribe_url="/subscriptions" feed_url="https://example.com/feed.xml">
         <p>Add this podcast to your subscriptions.</p>
       </.subscribe_modal>
   """

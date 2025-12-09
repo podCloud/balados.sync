@@ -179,12 +179,96 @@ config :balados_sync_jobs,
 - Mets à jour docs/ après chaque commit
 - Consulte les docs thématiques plutôt que de tout garder dans CLAUDE.md
 
-### Workflow
+### Workflow de Développement (Issue → PR)
 
-1. **Respecter CQRS/ES** : [docs/technical/CQRS_PATTERNS.md](docs/technical/CQRS_PATTERNS.md)
-2. **Events immuables** : toujours émettre nouveaux events
-3. **Tests** : ajouter tests pour nouveaux commands/events/projectors
-4. **Documentation** : mettre à jour docs/ si changements d'architecture
+#### Phase 1: Analyser l'Issue
+```bash
+# Récupérer issues ouvertes
+gh issue list --state open --json number,title,labels,createdAt
+
+# Afficher détails d'une issue
+gh issue view <number>
+
+# Prioriser par: labels (phase-N, priority), age, réactions
+```
+
+#### Phase 2: Créer une Branche Feature
+```bash
+git checkout main
+git pull origin main
+git checkout -b feature/issue-<number>-<slugified-title>
+
+# Exemple: feature/issue-9-add-playtoken-expiration
+```
+
+#### Phase 3: Implémenter avec Tests
+- Respecter CQRS/ES : [docs/technical/CQRS_PATTERNS.md](docs/technical/CQRS_PATTERNS.md)
+- Events immuables : toujours émettre nouveaux events
+- Ajouter tests pour nouveaux commands/events/projectors
+- Mettre à jour docs/ si changements d'architecture
+- Tester localement: `mix test`
+- Appliquer migrations: `mix db.migrate`
+
+#### Phase 4: Committer
+```bash
+# Vérifier changements
+git diff main
+git status
+
+# Committer avec auteur Claude
+git add -A
+git commit --author="Claude <noreply@anthropic.com>" -m "feat: description
+
+- Changement 1
+- Changement 2
+
+Closes #<issue-number>"
+```
+
+#### Phase 5: Créer la PR
+```bash
+# Pousser branche
+git push -u origin feature/issue-<number>-<title-slug>
+
+# Créer PR
+gh pr create --title "feat: description (Closes #<number>)" \
+  --body "## Summary
+
+Brief description
+
+## Test Plan
+- Test 1
+- Test 2"
+```
+
+#### Phase 6: Boucler sur Main
+```bash
+# Retourner à main
+git checkout main
+git pull origin main
+
+# Boucler: revenir à Phase 1 (issues/PRs)
+```
+
+### Points Importants
+
+**Git & Commits:**
+- Auteur: `--author="Claude <noreply@anthropic.com>"`
+- Messages: commits atomiques, clairs, format conventionnel
+- Branches: `feature/issue-<number>-<slug>` (pas de long noms)
+- PR: créer toujours une PR (validation + traçabilité)
+
+**Tests & Database:**
+- Migrations en test: `MIX_ENV=test mix db.migrate`
+- Reset test DB: `echo "DELETE ALL DATA" | MIX_ENV=test mix db.reset --all`
+- Tous les tests doivent passer avant PR
+- DataCase pour tests avec DB (créer si inexistant)
+
+**Code Quality:**
+- Pas de modifications "proactives" au-delà de la tâche
+- CQRS/ES obligatoire pour les commands/events
+- Logging pour audit trail (ex: token expiration)
+- Backward compatibility si possible (champs optionnels)
 
 ---
 
@@ -198,6 +282,7 @@ config :balados_sync_jobs,
 - Subscription Pages Refactoring (v1.3)
 - Privacy Choice Modal (v1.4)
 - Privacy Manager Page (v1.5)
+- PlayToken Expiration & Auto-cleanup (v1.6) ✅ [#30](https://github.com/podCloud/balados.sync/pull/30)
 
 ---
 

@@ -114,13 +114,15 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
     result = with {:ok, feed} <- extract_required(message, "feed"),
          {:ok, item} <- extract_required(message, "item"),
          {:ok, position} <- extract_position(message),
-         {:ok, played} <- extract_played(message) do
-      Logger.debug("[MessageHandler] Validation successful: feed=#{feed}, item=#{item}")
+         {:ok, played} <- extract_played(message),
+         {:ok, privacy} <- extract_privacy(message) do
+      Logger.debug("[MessageHandler] Validation successful: feed=#{feed}, item=#{item}, privacy=#{privacy}")
       {:ok, %{
         "feed" => feed,
         "item" => item,
         "position" => position,
-        "played" => played
+        "played" => played,
+        "privacy" => privacy
       }}
     else
       {:error, code} ->
@@ -148,13 +150,19 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
   @doc false
   defp do_dispatch_play_command(message, opid, %State{} = state) do
     try do
+      event_infos = %{
+        "device_id" => "websocket",
+        "device_name" => "WebSocket Live",
+        "privacy" => message["privacy"]
+      }
+
       command = %RecordPlay{
         user_id: state.user_id,
         rss_source_feed: message["feed"],
         rss_source_item: message["item"],
         position: message["position"],
         played: message["played"],
-        event_infos: %{"device_id" => "websocket", "device_name" => "WebSocket Live"}
+        event_infos: event_infos
       }
 
       case Dispatcher.dispatch(command) do
@@ -200,6 +208,17 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
       nil -> {:ok, false}
       value when is_boolean(value) -> {:ok, value}
       _ -> {:error, "INVALID_PLAYED"}
+    end
+  end
+
+  @doc false
+  defp extract_privacy(message) do
+    case Map.get(message, "privacy") do
+      nil -> {:ok, nil}
+      "public" -> {:ok, "public"}
+      "anonymous" -> {:ok, "anonymous"}
+      "private" -> {:ok, "private"}
+      _ -> {:error, "INVALID_PRIVACY"}
     end
   end
 

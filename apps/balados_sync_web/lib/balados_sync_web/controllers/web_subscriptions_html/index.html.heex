@@ -5,13 +5,13 @@
       <:subtitle><%= length(@subscriptions) %> active subscriptions</:subtitle>
       <:actions>
         <.link
-          navigate={~p"/my-subscriptions/new"}
+          navigate={~p"/subscriptions/new"}
           class="rounded-lg bg-blue-600 px-3 py-2 mr-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
           Add Subscription
         </.link>
         <.link
-          href={~p"/my-subscriptions/export.opml"}
+          href={~p"/subscriptions/export.opml"}
           class="rounded-lg bg-gray-600 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-700"
         >
           Export OPML
@@ -23,7 +23,7 @@
       <div class="text-center py-12">
         <p class="text-zinc-600 mb-4">No subscriptions yet. Add your first podcast!</p>
         <.link
-          navigate={~p"/my-subscriptions/new"}
+          navigate={~p"/subscriptions/new"}
           class="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
           Get Started
