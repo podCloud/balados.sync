@@ -91,7 +91,7 @@ export class PrivacyBadge {
     if (!badge) return
 
     const icons: Record<string, string> = {
-      public: '🔓',
+      public: '🌍',
       anonymous: '👤',
       private: '🔒'
     }
@@ -102,8 +102,9 @@ export class PrivacyBadge {
       private: 'bg-red-100 text-red-900 border-red-300'
     }
 
-    // Update badge classes
-    badge.className = `mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-lg border ${colors[privacy]}`
+    // Update badge classes (base + color)
+    const colorClass = colors[privacy] || 'bg-gray-100 text-gray-900 border-gray-300'
+    badge.className = `mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-lg border ${colorClass}`
 
     // Clear existing content
     badge.innerHTML = ''
@@ -150,6 +151,11 @@ export class PrivacyBadge {
       messageDiv.classList.add('hidden')
       messageDiv.textContent = ''
     }
+  }
+
+  private getCsrfToken(): string {
+    const element = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
+    return element?.getAttribute('content') || ''
   }
 }
 
