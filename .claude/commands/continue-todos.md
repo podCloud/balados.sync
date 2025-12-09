@@ -889,19 +889,6 @@ When you run `/continue-todos`:
 
 ---
 
-## Improvements in This Version (v2)
-
-1. ✅ **Auto-Merge Claude PRs**: Phase 1 now detects Claude authorship and merges automatically
-2. ✅ **Self-Healing Errors**: New Phase 1.5 with `self_healing_exec()` for auto-corrections
-3. ✅ **No User Prompts**: Phase 6 completely rewritten, ZERO `read` commands
-4. ✅ **Auto-Continuation**: Workflow loops automatically between cycles (no "continue?" questions)
-5. ✅ **Default Automation**: Auto-merge becomes default (no `--auto-merge` flag needed)
-6. ✅ **Clear Termination**: Four explicit conditions (max cycles, no work, PR-only, single-issue)
-7. ✅ **Code-Only Questions**: Automation never asks about workflow, only implementation
-8. ✅ **File Self-Improvement**: Command file updates itself when commands fail with known errors
-
----
-
 ## Integration with Claude Code
 
 This command uses:
