@@ -158,52 +158,83 @@
       <% else %>
         <div class="space-y-4" data-episodes-list>
           <%= for episode <- @episodes do %>
-            <div class="bg-white border border-zinc-200 rounded-lg p-4">
-              <h3 class="font-semibold text-zinc-900"><%= episode.title %></h3>
-
-              <div class="flex gap-4 text-sm text-zinc-500 mt-2">
-                <%= if episode.pub_date do %>
-                  <span title={Calendar.strftime(episode.pub_date, "%B %d, %Y at %H:%M")}>
-                    <%= time_ago_in_words(episode.pub_date) %>
-                  </span>
-                <% end %>
-                <%= if episode.duration do %>
-                  <span><%= format_duration(episode.duration) %></span>
+            <div class="bg-white border border-zinc-200 rounded-lg p-4 flex flex-col sm:flex-row gap-4">
+              <!-- Thumbnail (left on desktop, top on mobile) -->
+              <div class="flex-shrink-0">
+                <%= if episode.cover do %>
+                  <img
+                    src={episode.cover}
+                    alt={episode.title}
+                    class="w-20 h-20 rounded-lg object-cover shadow-sm"
+                    loading="lazy"
+                  />
+                <% else %>
+                  <%= if @metadata.cover do %>
+                    <img
+                      src={@metadata.cover.src}
+                      alt={@metadata.title}
+                      class="w-20 h-20 rounded-lg object-cover shadow-sm opacity-60"
+                      loading="lazy"
+                    />
+                  <% else %>
+                    <div class="w-20 h-20 rounded-lg bg-zinc-100 flex items-center justify-center">
+                      <svg class="w-8 h-8 text-zinc-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                  <% end %>
                 <% end %>
               </div>
 
-              <p class="text-sm text-zinc-700 mt-2 line-clamp-3">
-                <%= episode.description %>
-              </p>
-              <!-- Links -->
-              <div class="mt-4 flex gap-3">
-                <%= if episode.link do %>
-                  <a
-                    href={episode.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-blue-600 hover:underline text-sm"
-                  >
-                    Read Article →
-                  </a>
-                <% end %>
-                <%= if episode.enclosure do %>
-                  <a
-                    href={episode.enclosure.url}
-                    data-dispatch-event="play"
-                    data-feed={Base.url_encode64(@feed_url, padding: false)}
-                    data-item={
-                      Base.url_encode64("#{@feed_url},#{episode.guid},#{episode.enclosure.url}",
-                        padding: false
-                      )
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-blue-600 hover:underline text-sm"
-                  >
-                    Download/Play Episode →
-                  </a>
-                <% end %>
+              <!-- Content (right on desktop, bottom on mobile) -->
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-zinc-900"><%= episode.title %></h3>
+
+                <div class="flex gap-4 text-sm text-zinc-500 mt-2">
+                  <%= if episode.pub_date do %>
+                    <span title={Calendar.strftime(episode.pub_date, "%B %d, %Y at %H:%M")}>
+                      <%= time_ago_in_words(episode.pub_date) %>
+                    </span>
+                  <% end %>
+                  <%= if episode.duration do %>
+                    <span><%= format_duration(episode.duration) %></span>
+                  <% end %>
+                </div>
+
+                <p class="text-sm text-zinc-700 mt-2 line-clamp-3">
+                  <%= episode.description %>
+                </p>
+                <!-- Links -->
+                <div class="mt-4 flex gap-3">
+                  <%= if episode.link do %>
+                    <a
+                      href={episode.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-blue-600 hover:underline text-sm"
+                    >
+                      Read Article →
+                    </a>
+                  <% end %>
+                  <%= if episode.enclosure do %>
+                    <a
+                      href={episode.enclosure.url}
+                      data-dispatch-event="play"
+                      data-feed={Base.url_encode64(@feed_url, padding: false)}
+                      data-item={
+                        Base.url_encode64("#{@feed_url},#{episode.guid},#{episode.enclosure.url}",
+                          padding: false
+                        )
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-blue-600 hover:underline text-sm"
+                    >
+                      Download/Play Episode →
+                    </a>
+                  <% end %>
+                </div>
               </div>
             </div>
           <% end %>
