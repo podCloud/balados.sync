@@ -32,7 +32,7 @@ defmodule BaladosSyncWeb.ConnCase do
   end
 
   setup tags do
-    BaladosSyncProjections.DataCase.setup_sandbox(tags)
+    BaladosSyncWeb.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

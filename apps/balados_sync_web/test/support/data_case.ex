@@ -1,4 +1,4 @@
-defmodule BaladosSyncJobs.DataCase do
+defmodule BaladosSyncWeb.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -10,7 +10,7 @@ defmodule BaladosSyncJobs.DataCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use BaladosSyncJobs.DataCase, async: true`, although
+  by setting `use BaladosSyncWeb.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -24,12 +24,12 @@ defmodule BaladosSyncJobs.DataCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import BaladosSyncJobs.DataCase
+      import BaladosSyncWeb.DataCase
     end
   end
 
   setup tags do
-    BaladosSyncJobs.DataCase.setup_sandbox(tags)
+    BaladosSyncWeb.DataCase.setup_sandbox(tags)
     :ok
   end
 

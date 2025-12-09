@@ -37,11 +37,19 @@ defmodule BaladosSyncProjections.DataCase do
   """
   def setup_sandbox(tags) do
     pid =
-      Ecto.Adapters.SQL.Sandbox.start_owner!(BaladosSyncProjections.Repo,
+      Ecto.Adapters.SQL.Sandbox.start_owner!(BaladosSyncCore.SystemRepo,
         shared: not tags[:async]
       )
 
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+    pid2 =
+      Ecto.Adapters.SQL.Sandbox.start_owner!(BaladosSyncProjections.ProjectionsRepo,
+        shared: not tags[:async]
+      )
+
+    on_exit(fn ->
+      Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
+      Ecto.Adapters.SQL.Sandbox.stop_owner(pid2)
+    end)
   end
 
   @doc """
