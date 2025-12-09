@@ -37,6 +37,11 @@ export class PrivacyBadge {
     this.clearMessage()
   }
 
+  private getCsrfToken(): string {
+    const element = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
+    return element?.getAttribute('content') || ''
+  }
+
   private async savePrivacy(): Promise<void> {
     const selected = document.querySelector(
       'input[name="privacy"]:checked'
@@ -57,10 +62,11 @@ export class PrivacyBadge {
       const response = await fetch(`/privacy-manager/${this.encodedFeed}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRF-Token': this.getCsrfToken(),
           'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify({ privacy })
+        body: `privacy=${encodeURIComponent(privacy)}`
       })
 
       if (response.ok) {
@@ -99,26 +105,33 @@ export class PrivacyBadge {
     // Update badge classes
     badge.className = `mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-lg border ${colors[privacy]}`
 
-    // Rebuild badge HTML
-    badge.innerHTML = `
-      <span>${icons[privacy]}</span>
-      <span class="font-medium">
-        Your activities are <strong>${privacy}</strong>
-      </span>
-      <button
-        type="button"
-        id="change-privacy-btn"
-        class="ml-2 text-sm opacity-75 hover:opacity-100 cursor-pointer transition"
-      >
-        ✎ Change
-      </button>
-    `
+    // Clear existing content
+    badge.innerHTML = ''
 
-    // Re-attach event listener
-    const newChangeBtn = document.getElementById('change-privacy-btn')
-    if (newChangeBtn) {
-      newChangeBtn.addEventListener('click', () => this.openModal())
-    }
+    // Create icon span
+    const iconSpan = document.createElement('span')
+    iconSpan.textContent = icons[privacy]
+    badge.appendChild(iconSpan)
+
+    // Create text span
+    const textSpan = document.createElement('span')
+    textSpan.className = 'font-medium'
+    const textContent = document.createElement('span')
+    textContent.appendChild(document.createTextNode('Your activities are '))
+    const strongText = document.createElement('strong')
+    strongText.textContent = privacy
+    textContent.appendChild(strongText)
+    textSpan.appendChild(textContent)
+    badge.appendChild(textSpan)
+
+    // Create change button
+    const changeBtn = document.createElement('button')
+    changeBtn.type = 'button'
+    changeBtn.id = 'change-privacy-btn'
+    changeBtn.className = 'ml-2 text-sm opacity-75 hover:opacity-100 cursor-pointer transition'
+    changeBtn.textContent = '✎ Change'
+    changeBtn.addEventListener('click', () => this.openModal())
+    badge.appendChild(changeBtn)
   }
 
   private showMessage(message: string, type: 'success' | 'error'): void {
