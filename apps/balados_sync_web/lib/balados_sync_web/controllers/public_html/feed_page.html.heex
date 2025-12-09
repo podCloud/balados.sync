@@ -1,4 +1,4 @@
-<div class="px-4 py-10 sm:px-6 lg:px-8">
+<div class="px-4 py-10 sm:px-6 lg:px-8" data-episode-sorter={@encoded_feed}>
   <div class="mx-auto max-w-4xl">
     <!-- Back Button -->
     <.link
@@ -119,7 +119,7 @@
           No episodes found
         </div>
       <% else %>
-        <div class="space-y-4">
+        <div class="space-y-4" data-episodes-list>
           <%= for episode <- @episodes do %>
             <div class="bg-white border border-zinc-200 rounded-lg p-4">
               <h3 class="font-semibold text-zinc-900"><%= episode.title %></h3>
