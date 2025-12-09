@@ -48,10 +48,10 @@ Documentation complète de toutes les fonctionnalités implémentées, organisé
 Interface web complète pour gérer les abonnements podcasts.
 
 **Pages** :
-- `GET /my-subscriptions` - Liste des abonnements authentifiés
-- `GET /my-subscriptions/new` - Formulaire d'ajout
-- `POST /my-subscriptions` - Créer abonnement
-- `GET /my-subscriptions/export.opml` - Télécharger OPML
+- `GET /subscriptions` - Liste des abonnements authentifiés
+- `GET /subscriptions/new` - Formulaire d'ajout
+- `POST /subscriptions` - Créer abonnement
+- `GET /subscriptions/export.opml` - Télécharger OPML
 
 **Métadonnées Asynchrones** :
 - Extraction titre, auteur, description, couverture, language
@@ -84,10 +84,10 @@ Interface web complète pour gérer les abonnements podcasts.
 Consolidation des pages d'abonnement.
 
 **Navigation** :
-- `/my-subscriptions/:feed` → **redirige vers `/podcasts/:feed`** (page publique consolidée)
-- `/my-subscriptions` reste pour lister tous les abonnements
-- `/my-subscriptions/new` reste pour ajouter
-- Export OPML reste à `/my-subscriptions/export.opml`
+- `/subscriptions/:feed` → **redirige vers `/podcasts/:feed`** (page publique consolidée)
+- `/subscriptions` reste pour lister tous les abonnements
+- `/subscriptions/new` reste pour ajouter
+- Export OPML reste à `/subscriptions/export.opml`
 
 **UI Conditionnelle sur Pages Publiques** :
 
@@ -101,12 +101,12 @@ Authentifié + non abonné :
 
 Authentifié + abonné :
 - Bouton "Unsubscribe" : DELETE `/podcasts/:feed/subscribe` avec confirmation
-- "Manage Subscriptions" : lien vers `/my-subscriptions`
+- "Manage Subscriptions" : lien vers `/subscriptions`
 
 **Routes** :
 - `POST /podcasts/:feed/subscribe` - Subscribe rapide
 - `DELETE /podcasts/:feed/subscribe` - Unsubscribe
-- `GET /my-subscriptions/:feed` - Redirige vers `/podcasts/:feed`
+- `GET /subscriptions/:feed` - Redirige vers `/podcasts/:feed`
 
 ---
 
