@@ -86,7 +86,7 @@ export class PrivacyBadge {
     if (!badge) return
 
     const icons: Record<string, string> = {
-      public: '🔓',
+      public: '🌍',
       anonymous: '👤',
       private: '🔒'
     }

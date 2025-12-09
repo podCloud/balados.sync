@@ -46,7 +46,7 @@
             <!-- Icon -->
             <span>
               <%= case @current_privacy do
-                "public" -> "🔓"
+                "public" -> "🌍"
                 "anonymous" -> "👤"
                 "private" -> "🔒"
                 _ -> "?"
@@ -255,7 +255,7 @@
               checked={@current_privacy == "public"}
             />
             <div class="ml-3">
-              <div class="font-semibold text-zinc-900">🔓 Public</div>
+              <div class="font-semibold text-zinc-900">🌍 Public</div>
               <div class="text-sm text-zinc-600">Visible in discovery and trending</div>
             </div>
           </label>
