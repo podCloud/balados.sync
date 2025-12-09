@@ -51,6 +51,9 @@ import "./subscriptions.ts"
 // WebSocket dispatch events for play tracking
 import "./dispatch_events.ts"
 
+// Mark as played handler for episodes
+import "./mark_played"
+
 // Modal management for login and subscription forms
 import "./modals"
 
