@@ -13,6 +13,8 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
           user_id: String.t() | nil,
           token_type: token_type() | nil,
           token_value: String.t() | nil,
+          device_id: String.t(),
+          device_name: String.t(),
           connected_at: DateTime.t(),
           last_activity_at: DateTime.t(),
           message_count: non_neg_integer()
@@ -25,6 +27,8 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
     :connected_at,
     :last_activity_at,
     auth_status: :unauthenticated,
+    device_id: "websocket",
+    device_name: "WebSocket Live",
     message_count: 0
   ]
 
@@ -42,6 +46,8 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
       user_id: nil,
       token_type: nil,
       token_value: nil,
+      device_id: "websocket",
+      device_name: "WebSocket Live",
       connected_at: now,
       last_activity_at: now,
       message_count: 0
@@ -52,15 +58,23 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
   Authenticates the connection with the given user and token information.
 
   Transitions from :unauthenticated to :authenticated state.
+
+  Accepts optional device_id and device_name. If not provided, uses defaults
+  ("websocket" and "WebSocket Live").
   """
-  @spec authenticate(t(), String.t(), token_type(), String.t()) :: t()
-  def authenticate(%__MODULE__{} = state, user_id, token_type, token_value) do
+  @spec authenticate(t(), String.t(), token_type(), String.t(), keyword()) :: t()
+  def authenticate(%__MODULE__{} = state, user_id, token_type, token_value, opts \\ []) do
+    device_id = Keyword.get(opts, :device_id, "websocket")
+    device_name = Keyword.get(opts, :device_name, "WebSocket Live")
+
     %__MODULE__{
       state
       | auth_status: :authenticated,
         user_id: user_id,
         token_type: token_type,
         token_value: token_value,
+        device_id: device_id,
+        device_name: device_name,
         last_activity_at: DateTime.utc_now()
     }
   end

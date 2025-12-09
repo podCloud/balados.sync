@@ -47,8 +47,10 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
   end
 
   @doc false
-  defp handle_parsed_message(%{"type" => "auth", "token" => token}, state) do
-    handle_auth_message(token, state)
+  defp handle_parsed_message(%{"type" => "auth", "token" => token} = message, state) do
+    device_id = Map.get(message, "device_id")
+    device_name = Map.get(message, "device_name")
+    handle_auth_message(token, device_id, device_name, state)
   end
 
   defp handle_parsed_message(%{"type" => type} = message, state) when is_binary(type) do
@@ -67,14 +69,15 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
   end
 
   @doc false
-  defp handle_auth_message(token, %State{} = state) do
+  defp handle_auth_message(token, device_id, device_name, %State{} = state) do
     if State.authenticated?(state) do
       Logger.warning("Attempted to authenticate already authenticated connection")
       {:error, error_response("Already authenticated", "INVALID_STATE")}
     else
       case Auth.authenticate(token) do
         {:ok, user_id, token_type} ->
-          new_state = State.authenticate(state, user_id, token_type, token)
+          opts = build_auth_opts(device_id, device_name)
+          new_state = State.authenticate(state, user_id, token_type, token, opts)
           response = success_response(%{"user_id" => user_id}, "Authenticated successfully")
           {:ok, response, new_state}
 
@@ -85,6 +88,19 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
       end
     end
   end
+
+  @doc false
+  defp build_auth_opts(device_id, device_name) do
+    []
+    |> maybe_add_opt(:device_id, device_id)
+    |> maybe_add_opt(:device_name, device_name)
+  end
+
+  @doc false
+  defp maybe_add_opt(opts, _key, nil), do: opts
+  defp maybe_add_opt(opts, _key, ""), do: opts
+  defp maybe_add_opt(opts, key, value) when is_binary(value), do: Keyword.put(opts, key, value)
+  defp maybe_add_opt(opts, _key, _value), do: opts
 
   @doc false
   defp handle_authenticated_message(%{"type" => "record_play"} = message, state) do
@@ -169,8 +185,8 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
   defp do_dispatch_play_command(message, opid, %State{} = state) do
     try do
       event_infos = %{
-        "device_id" => "websocket",
-        "device_name" => "WebSocket Live",
+        "device_id" => state.device_id,
+        "device_name" => state.device_name,
         "privacy" => message["privacy"]
       }
 
