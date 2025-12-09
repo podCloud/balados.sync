@@ -5,11 +5,13 @@ defmodule BaladosSyncProjections.Schemas.PlaylistItem do
   @primary_key {:id, :binary_id, autogenerate: true}
   @schema_prefix "users"
   schema "playlist_items" do
+    field :user_id, :string
     field :playlist_id, :binary_id
     field :rss_source_feed, :string
     field :rss_source_item, :string
     field :item_title, :string
     field :feed_title, :string
+    field :position, :integer
     field :deleted_at, :utc_datetime
 
     belongs_to :playlist, BaladosSyncProjections.Schemas.Playlist, define_field: false
@@ -20,13 +22,15 @@ defmodule BaladosSyncProjections.Schemas.PlaylistItem do
   def changeset(item, attrs) do
     item
     |> cast(attrs, [
+      :user_id,
       :playlist_id,
       :rss_source_feed,
       :rss_source_item,
       :item_title,
       :feed_title,
+      :position,
       :deleted_at
     ])
-    |> validate_required([:playlist_id, :rss_source_item])
+    |> validate_required([:user_id, :playlist_id, :rss_source_item])
   end
 end

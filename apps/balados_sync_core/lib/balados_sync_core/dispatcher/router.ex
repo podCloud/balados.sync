@@ -9,11 +9,14 @@ defmodule BaladosSyncCore.Dispatcher.Router do
     RecordPlay,
     UpdatePosition,
     SaveEpisode,
+    UnsaveEpisode,
     ShareEpisode,
     ChangePrivacy,
     RemoveEvents,
     SyncUserData,
-    Snapshot
+    Snapshot,
+    UpdatePlaylist,
+    ReorderPlaylist
   }
 
   # Toutes les commandes sont routées vers l'aggregate User
@@ -27,11 +30,14 @@ defmodule BaladosSyncCore.Dispatcher.Router do
       RecordPlay,
       UpdatePosition,
       SaveEpisode,
+      UnsaveEpisode,
       ShareEpisode,
       ChangePrivacy,
       RemoveEvents,
       SyncUserData,
-      Snapshot
+      Snapshot,
+      UpdatePlaylist,
+      ReorderPlaylist
     ],
     to: User
   )
