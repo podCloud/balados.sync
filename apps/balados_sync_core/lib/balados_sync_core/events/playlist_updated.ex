@@ -2,7 +2,7 @@ defmodule BaladosSyncCore.Events.PlaylistUpdated do
   @derive Jason.Encoder
   defstruct [
     :user_id,
-    :playlist_id,
+    :playlist,
     :name,
     :description,
     :timestamp,

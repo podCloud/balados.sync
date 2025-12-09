@@ -8,7 +8,7 @@ defmodule BaladosSyncCore.Commands.ReorderPlaylist do
   ## Fields
 
   - `user_id` - Unique identifier for the user
-  - `playlist_id` - Unique identifier for the playlist
+  - `playlist_slug` - URL-friendly slug for the playlist (e.g., "my-favorites")
   - `items` - List of items with new positions, each item is: `{rss_source_feed, rss_source_item, new_position}`
   - `event_infos` - Map containing device_id and device_name for audit trail
 
@@ -16,7 +16,7 @@ defmodule BaladosSyncCore.Commands.ReorderPlaylist do
 
       %ReorderPlaylist{
         user_id: "user-123",
-        playlist_id: "playlist-456",
+        playlist_slug: "my-favorites",
         items: [
           {"feed1", "item1", 0},
           {"feed2", "item2", 1},
@@ -28,14 +28,14 @@ defmodule BaladosSyncCore.Commands.ReorderPlaylist do
 
   @type t :: %__MODULE__{
           user_id: String.t(),
-          playlist_id: String.t(),
+          playlist: String.t(),
           items: list({String.t(), String.t(), integer()}),
           event_infos: map()
         }
 
   defstruct [
     :user_id,
-    :playlist_id,
+    :playlist,
     :items,
     :event_infos
   ]

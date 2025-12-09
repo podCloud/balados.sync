@@ -9,8 +9,7 @@ defmodule BaladosSyncCore.Commands.SaveEpisode do
   ## Fields
 
   - `user_id` - Unique identifier for the user
-  - `playlist_id` - Unique identifier for the playlist
-  - `playlist_name` - Name of the playlist (used when creating new playlist)
+  - `playlist_name` - Name of the playlist (slug generated from this: "My Favorites" -> "my-favorites")
   - `rss_source_feed` - Base64-encoded RSS feed URL
   - `rss_source_item` - Unique identifier for the episode
   - `item_title` - Title of the episode
@@ -21,7 +20,6 @@ defmodule BaladosSyncCore.Commands.SaveEpisode do
 
       %SaveEpisode{
         user_id: "user-123",
-        playlist_id: "playlist-456",
         playlist_name: "My Favorite Episodes",
         rss_source_feed: "aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0",
         rss_source_item: "episode-789",
@@ -33,8 +31,7 @@ defmodule BaladosSyncCore.Commands.SaveEpisode do
 
   @type t :: %__MODULE__{
           user_id: String.t(),
-          playlist_id: String.t(),
-          playlist_name: String.t(),
+          playlist: String.t(),
           rss_source_feed: String.t(),
           rss_source_item: String.t(),
           item_title: String.t(),
@@ -44,8 +41,7 @@ defmodule BaladosSyncCore.Commands.SaveEpisode do
 
   defstruct [
     :user_id,
-    :playlist_id,
-    :playlist_name,
+    :playlist,
     :rss_source_feed,
     :rss_source_item,
     :item_title,

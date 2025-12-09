@@ -9,7 +9,7 @@ defmodule BaladosSyncCore.Commands.UpdatePlaylist do
   ## Fields
 
   - `user_id` - Unique identifier for the user
-  - `playlist_id` - Unique identifier for the playlist
+  - `playlist_slug` - URL-friendly slug for the playlist (e.g., "my-favorites")
   - `name` - New name for the playlist (optional, only update if provided)
   - `description` - New description for the playlist (optional, only update if provided)
   - `event_infos` - Map containing device_id and device_name for audit trail
@@ -18,7 +18,7 @@ defmodule BaladosSyncCore.Commands.UpdatePlaylist do
 
       %UpdatePlaylist{
         user_id: "user-123",
-        playlist_id: "playlist-456",
+        playlist_slug: "my-favorites",
         name: "Updated Playlist Name",
         description: "Updated description",
         event_infos: %{device_id: "device-000", device_name: "iPhone"}
@@ -27,7 +27,7 @@ defmodule BaladosSyncCore.Commands.UpdatePlaylist do
 
   @type t :: %__MODULE__{
           user_id: String.t(),
-          playlist_id: String.t(),
+          playlist: String.t(),
           name: String.t() | nil,
           description: String.t() | nil,
           event_infos: map()
@@ -35,7 +35,7 @@ defmodule BaladosSyncCore.Commands.UpdatePlaylist do
 
   defstruct [
     :user_id,
-    :playlist_id,
+    :playlist,
     :name,
     :description,
     :event_infos

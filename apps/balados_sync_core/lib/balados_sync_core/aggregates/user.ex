@@ -174,8 +174,7 @@ defmodule BaladosSyncCore.Aggregates.User do
   def execute(%__MODULE__{} = user, %SaveEpisode{} = cmd) do
     %EpisodeSaved{
       user_id: user.user_id,
-      playlist_id: cmd.playlist_id,
-      playlist_name: cmd.playlist_name,
+      playlist: cmd.playlist,
       rss_source_feed: cmd.rss_source_feed,
       rss_source_item: cmd.rss_source_item,
       item_title: cmd.item_title,
@@ -189,7 +188,7 @@ defmodule BaladosSyncCore.Aggregates.User do
   def execute(%__MODULE__{} = user, %UnsaveEpisode{} = cmd) do
     %EpisodeUnsaved{
       user_id: user.user_id,
-      playlist_id: cmd.playlist_id,
+      playlist: cmd.playlist,
       rss_source_feed: cmd.rss_source_feed,
       rss_source_item: cmd.rss_source_item,
       timestamp: DateTime.utc_now(),
@@ -201,7 +200,7 @@ defmodule BaladosSyncCore.Aggregates.User do
   def execute(%__MODULE__{} = user, %UpdatePlaylist{} = cmd) do
     %PlaylistUpdated{
       user_id: user.user_id,
-      playlist_id: cmd.playlist_id,
+      playlist: cmd.playlist,
       name: cmd.name,
       description: cmd.description,
       timestamp: DateTime.utc_now(),
@@ -213,7 +212,7 @@ defmodule BaladosSyncCore.Aggregates.User do
   def execute(%__MODULE__{} = user, %ReorderPlaylist{} = cmd) do
     %PlaylistReordered{
       user_id: user.user_id,
-      playlist_id: cmd.playlist_id,
+      playlist: cmd.playlist,
       items: cmd.items,
       timestamp: DateTime.utc_now(),
       event_infos: cmd.event_infos || %{}
@@ -346,8 +345,8 @@ defmodule BaladosSyncCore.Aggregates.User do
     playlists = user.playlists || %{}
 
     # Get or create playlist
-    playlist = Map.get(playlists, event.playlist_id, %{
-      name: event.playlist_name,
+    playlist = Map.get(playlists, event.playlist, %{
+      name: event.playlist,
       items: []
     })
 
@@ -364,13 +363,13 @@ defmodule BaladosSyncCore.Aggregates.User do
     end
 
     updated_playlist = %{playlist | items: items}
-    %{user | playlists: Map.put(playlists, event.playlist_id, updated_playlist)}
+    %{user | playlists: Map.put(playlists, event.playlist, updated_playlist)}
   end
 
   def apply(%__MODULE__{} = user, %EpisodeUnsaved{} = event) do
     playlists = user.playlists || %{}
 
-    case Map.get(playlists, event.playlist_id) do
+    case Map.get(playlists, event.playlist) do
       nil ->
         user
 
@@ -382,14 +381,14 @@ defmodule BaladosSyncCore.Aggregates.User do
         end)
 
         updated_playlist = %{playlist | items: new_items}
-        %{user | playlists: Map.put(playlists, event.playlist_id, updated_playlist)}
+        %{user | playlists: Map.put(playlists, event.playlist, updated_playlist)}
     end
   end
 
   def apply(%__MODULE__{} = user, %PlaylistUpdated{} = event) do
     playlists = user.playlists || %{}
 
-    case Map.get(playlists, event.playlist_id) do
+    case Map.get(playlists, event.playlist) do
       nil ->
         user
 
@@ -397,21 +396,21 @@ defmodule BaladosSyncCore.Aggregates.User do
         updated_playlist = playlist
         updated_playlist = if event.name, do: %{updated_playlist | name: event.name}, else: updated_playlist
         updated_playlist = if event.description, do: %{updated_playlist | description: event.description}, else: updated_playlist
-        %{user | playlists: Map.put(playlists, event.playlist_id, updated_playlist)}
+        %{user | playlists: Map.put(playlists, event.playlist, updated_playlist)}
     end
   end
 
   def apply(%__MODULE__{} = user, %PlaylistReordered{} = event) do
     playlists = user.playlists || %{}
 
-    case Map.get(playlists, event.playlist_id) do
+    case Map.get(playlists, event.playlist) do
       nil ->
         user
 
       playlist ->
         # Reorder items based on the event's items list
         updated_playlist = %{playlist | items: event.items}
-        %{user | playlists: Map.put(playlists, event.playlist_id, updated_playlist)}
+        %{user | playlists: Map.put(playlists, event.playlist, updated_playlist)}
     end
   end
 

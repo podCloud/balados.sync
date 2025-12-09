@@ -8,7 +8,7 @@ defmodule BaladosSyncCore.Commands.UnsaveEpisode do
   ## Fields
 
   - `user_id` - Unique identifier for the user
-  - `playlist_id` - Unique identifier for the playlist
+  - `playlist` - Name of the playlist
   - `rss_source_feed` - Base64-encoded RSS feed URL
   - `rss_source_item` - Unique identifier for the episode
   - `event_infos` - Map containing device_id and device_name for audit trail
@@ -17,7 +17,7 @@ defmodule BaladosSyncCore.Commands.UnsaveEpisode do
 
       %UnsaveEpisode{
         user_id: "user-123",
-        playlist_id: "playlist-456",
+        playlist: "My Favorites",
         rss_source_feed: "aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0",
         rss_source_item: "episode-789",
         event_infos: %{device_id: "device-000", device_name: "iPhone"}
@@ -26,7 +26,7 @@ defmodule BaladosSyncCore.Commands.UnsaveEpisode do
 
   @type t :: %__MODULE__{
           user_id: String.t(),
-          playlist_id: String.t(),
+          playlist: String.t(),
           rss_source_feed: String.t(),
           rss_source_item: String.t(),
           event_infos: map()
@@ -34,7 +34,7 @@ defmodule BaladosSyncCore.Commands.UnsaveEpisode do
 
   defstruct [
     :user_id,
-    :playlist_id,
+    :playlist,
     :rss_source_feed,
     :rss_source_item,
     :event_infos

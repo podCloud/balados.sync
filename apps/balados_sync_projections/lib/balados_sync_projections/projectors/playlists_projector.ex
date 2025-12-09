@@ -20,9 +20,9 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
   project(%EpisodeSaved{} = event, _metadata, fn multi ->
     # Create or get playlist
     playlist_attrs = %{
-      id: event.playlist_id,
+      id: event.playlist,
       user_id: event.user_id,
-      name: event.playlist_name
+      name: event.playlist
     }
 
     # Upsert playlist
@@ -38,7 +38,7 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
     # Add item to playlist (create new item entry)
     item_attrs = %{
       user_id: event.user_id,
-      playlist_id: event.playlist_id,
+      playlist_id: event.playlist,
       rss_source_feed: event.rss_source_feed,
       rss_source_item: event.rss_source_item,
       item_title: event.item_title,
@@ -62,7 +62,7 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
       from(pi in PlaylistItem,
         where:
           pi.user_id == ^event.user_id and
-            pi.playlist_id == ^event.playlist_id and
+            pi.playlist_id == ^event.playlist and
             pi.rss_source_feed == ^event.rss_source_feed and
             pi.rss_source_item == ^event.rss_source_item
       ),
@@ -80,7 +80,7 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
       multi,
       :playlist,
       from(p in Playlist,
-        where: p.id == ^event.playlist_id and p.user_id == ^event.user_id
+        where: p.id == ^event.playlist and p.user_id == ^event.user_id
       ),
       set: updates
     )
@@ -95,7 +95,7 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
         from(pi in PlaylistItem,
           where:
             pi.user_id == ^event.user_id and
-              pi.playlist_id == ^event.playlist_id and
+              pi.playlist_id == ^event.playlist and
               pi.rss_source_feed == ^feed and
               pi.rss_source_item == ^item
         ),
