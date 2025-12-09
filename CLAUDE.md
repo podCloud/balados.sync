@@ -134,6 +134,43 @@ cd apps/balados_sync_core && mix test  # App spécifique
 
 ---
 
+## 🔄 Background Workers & Cleanup Tasks
+
+### PlayToken Expiration Cleanup
+
+PlayTokens are automatically expired based on configuration (default: 365 days). Expired tokens are periodically cleaned up to maintain database performance.
+
+**Manual Cleanup** (if needed in production):
+```bash
+# Execute cleanup worker manually
+mix run -e "BaladosSyncJobs.PlayTokenCleanupWorker.perform()"
+
+# Or from iex
+iex> BaladosSyncJobs.PlayTokenCleanupWorker.perform()
+```
+
+**Configuration**:
+```elixir
+# config/config.exs
+config :balados_sync_projections,
+  play_token_expiration_days: 365  # Default: 1 year
+
+config :balados_sync_jobs,
+  play_token_cleanup_batch_size: 1000  # Optional: batch deletion size
+```
+
+**Monitoring**:
+- Monitor token accumulation: Check `system.play_tokens` table for expired tokens
+- Set up alerts if expired tokens are not being cleaned up
+- Backup database before first cleanup run in production
+
+**Important Notes**:
+- Cleanup is safe: only removes expired and revoked tokens
+- Partial index on `expires_at` optimizes cleanup queries
+- Cleanup respects transaction boundaries (atomic deletions)
+
+---
+
 ## 📝 Notes pour Claude Code
 
 ### Prérequis
