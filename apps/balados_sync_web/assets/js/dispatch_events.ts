@@ -335,31 +335,92 @@ class DispatchEventHandler {
       return
     }
 
-    // Fire-and-forget: check privacy async, don't block link
     // Import dynamically to avoid circular dependencies
     import('./privacy_manager').then(({ privacyManager }) => {
-      privacyManager.ensurePrivacy(feed, 'play')
-        .then((privacy) => {
-          if (privacy === 'private' || privacy === null) {
-            console.log('[DispatchEvents] Privacy is private or not set, not recording play')
-            return
-          }
-
-          // Privacy is anonymous or public - send WebSocket with privacy context
-          if (this.wsManager.token) {
-            this.wsManager.connect()
-              .then(() => this.wsManager.sendRecordPlay(feed, item, privacy))
-              .catch((err) => {
-                console.error('[DispatchEvents] Failed to send play event:', err)
-              })
-          }
-        })
-        .catch((err) => {
-          console.error('[DispatchEvents] Privacy check failed:', err)
-        })
+      this.handlePlayLinkClick(event, link, privacyManager, feed, item)
     })
+  }
 
-    // Don't prevent default - let link open normally
+  /**
+   * Handle play link click
+   * Privacy controls whether we record the event, NOT whether the link opens
+   * - If privacy is cached: send recordPlay if not private, allow normal link
+   * - If privacy is unknown: prevent default, show modal, send recordPlay if not private, then open link manually
+   */
+  private async handlePlayLinkClick(
+    event: MouseEvent,
+    link: HTMLElement,
+    privacyManager: any,
+    feed: string,
+    item: string
+  ): Promise<void> {
+    // Check if privacy is cached
+    const cachedPrivacy = privacyManager.privacyCache?.get(feed) || null
+
+    if (cachedPrivacy !== null) {
+      // Privacy is known - send recordPlay if not private, then allow normal link behavior
+      console.log('[DispatchEvents] Privacy cached as', cachedPrivacy)
+
+      if (cachedPrivacy !== 'private' && this.wsManager.token) {
+        // Send recordPlay async (don't block the link)
+        this.sendPlayEventAsync(feed, item, cachedPrivacy)
+      }
+
+      // Always let the link open normally
+      return
+    }
+
+    // Privacy is unknown - need to show modal before we can decide about recordPlay
+    console.log('[DispatchEvents] Privacy unknown, showing modal')
+    event.preventDefault()
+
+    const originalText = link.textContent || ''
+    const originalOpacity = (link as any).style.opacity || '1'
+    const href = (link as HTMLAnchorElement).href
+
+    try {
+      // Show loading state
+      link.style.opacity = '0.5'
+      link.textContent = 'Checking privacy...'
+
+      // Request privacy choice (shows modal)
+      const privacy = await privacyManager.ensurePrivacy(feed, 'play')
+
+      console.log('[DispatchEvents] Privacy choice result:', privacy)
+      link.textContent = 'Opening...'
+
+      // Send recordPlay if privacy is not private
+      if (privacy !== 'private' && this.wsManager.token) {
+        try {
+          await this.wsManager.connect()
+          await this.wsManager.sendRecordPlay(feed, item, privacy)
+          console.log('[DispatchEvents] Play event sent successfully')
+        } catch (err) {
+          console.error('[DispatchEvents] Failed to send play event:', err)
+          // Still open the link even if event sending failed
+        }
+      }
+
+      // Always open the link (whether user chose private, public, anonymous, or cancelled)
+      window.open(href, '_blank')
+    } catch (error) {
+      console.error('[DispatchEvents] Error during play link handling:', error)
+      link.style.opacity = originalOpacity
+      link.textContent = originalText
+    }
+  }
+
+  /**
+   * Send play event asynchronously without blocking
+   */
+  private sendPlayEventAsync(feed: string, item: string, privacy: string): void {
+    if (this.wsManager.token) {
+      this.wsManager.connect()
+        .then(() => this.wsManager.sendRecordPlay(feed, item, privacy))
+        .catch((err) => {
+          console.error('[DispatchEvents] Failed to send play event:', err)
+        })
+    }
   }
 }
 
