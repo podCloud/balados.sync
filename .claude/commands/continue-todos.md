@@ -35,13 +35,13 @@ Automated workflow to manage pull requests, issues, and development cycles.
 
 1. **Fetch all open issues** that are NOT assigned:
    ```bash
-   gh issue list --state open --assignee none --json number,title,labels,reactions --limit 50
+   gh issue list --state open --assignee none --json number,title,labels,createdAt --limit 50
    ```
 
 2. **Prioritize by**:
    - Labels (check for `priority:high`, `priority:critical`, `bug`)
-   - Reaction count (👍 indicates community interest)
    - Age (older issues first, unless explicitly marked otherwise)
+   - Severity (bug fixes before features)
 
 3. **If an issue number was provided as $ARGUMENTS**:
    - Focus on that specific issue
