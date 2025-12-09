@@ -124,7 +124,9 @@ defmodule BaladosSyncWeb.LiveWebSocket.Auth do
     Task.start(fn ->
       try do
         from(t in PlayToken, where: t.token == ^token)
-        |> SystemRepo.update_all(set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)])
+        |> SystemRepo.update_all(
+          set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)]
+        )
 
         Logger.debug("PlayToken last_used_at updated successfully for token")
       rescue

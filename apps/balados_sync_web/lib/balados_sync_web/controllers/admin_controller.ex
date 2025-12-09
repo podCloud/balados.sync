@@ -180,7 +180,8 @@ defmodule BaladosSyncWeb.AdminController do
       # Use the enriched title from DB if available, otherwise try RSS
       title = episode.title || fetch_episode_metadata_from_rss(feed_url, guid, :title)
       # Use the enriched episode_link from DB if available, otherwise try RSS
-      episode_link = episode.episode_link || fetch_episode_metadata_from_rss(feed_url, guid, :link)
+      episode_link =
+        episode.episode_link || fetch_episode_metadata_from_rss(feed_url, guid, :link)
 
       episode
       |> Map.put(:title, title)
@@ -203,9 +204,15 @@ defmodule BaladosSyncWeb.AdminController do
       found_episode = Enum.find(episodes, fn ep -> ep.guid == guid end)
 
       case field do
-        :title -> found_episode && found_episode.title
-        :link -> found_episode && (found_episode.link || found_episode.enclosure && found_episode.enclosure.url)
-        _ -> nil
+        :title ->
+          found_episode && found_episode.title
+
+        :link ->
+          found_episode &&
+            (found_episode.link || (found_episode.enclosure && found_episode.enclosure.url))
+
+        _ ->
+          nil
       end
     else
       _ -> nil

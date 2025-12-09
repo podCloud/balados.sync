@@ -210,9 +210,11 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
   # Parse ISO8601 datetime string to DateTime struct
   # Truncate microseconds to :second (Ecto :utc_datetime expects 0 microseconds)
   defp parse_datetime(nil), do: nil
+
   defp parse_datetime(dt) when is_struct(dt, DateTime) do
     DateTime.truncate(dt, :second)
   end
+
   defp parse_datetime(dt_string) when is_binary(dt_string) do
     case DateTime.from_iso8601(dt_string) do
       {:ok, datetime, _offset} -> DateTime.truncate(datetime, :second)

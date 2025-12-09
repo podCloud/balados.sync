@@ -179,18 +179,21 @@ defmodule BaladosSyncWeb.PublicController do
 
       # Check if user is authenticated and subscribed
       current_user = conn.assigns[:current_user]
-      is_subscribed = if current_user do
-        BaladosSyncWeb.Queries.is_user_subscribed?(current_user.id, encoded_feed)
-      else
-        false
-      end
+
+      is_subscribed =
+        if current_user do
+          BaladosSyncWeb.Queries.is_user_subscribed?(current_user.id, encoded_feed)
+        else
+          false
+        end
 
       # Get subscription details if subscribed (for source_id in unsubscribe)
-      subscription = if is_subscribed do
-        BaladosSyncWeb.Queries.get_user_subscription(current_user.id, encoded_feed)
-      else
-        nil
-      end
+      subscription =
+        if is_subscribed do
+          BaladosSyncWeb.Queries.get_user_subscription(current_user.id, encoded_feed)
+        else
+          nil
+        end
 
       render(conn, :feed_page,
         encoded_feed: encoded_feed,

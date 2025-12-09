@@ -18,12 +18,13 @@ defmodule BaladosSyncWeb.WebPrivacyController do
       # Query for feed-level privacy (rss_source_item = "")
       privacy =
         ProjectionsRepo.one(
-          from p in UserPrivacy,
-          where:
-            p.user_id == ^user_id and
-              p.rss_source_feed == ^encoded_feed and
-              p.rss_source_item == "",
-          select: p.privacy
+          from(p in UserPrivacy,
+            where:
+              p.user_id == ^user_id and
+                p.rss_source_feed == ^encoded_feed and
+                p.rss_source_item == "",
+            select: p.privacy
+          )
         )
 
       json(conn, %{

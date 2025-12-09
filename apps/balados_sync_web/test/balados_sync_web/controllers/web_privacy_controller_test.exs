@@ -11,9 +11,9 @@ defmodule BaladosSyncWeb.WebPrivacyControllerTest do
       conn = get(conn, ~p"/privacy/check/#{encoded_feed}")
 
       assert json_response(conn, 200) == %{
-        "has_privacy" => false,
-        "privacy" => nil
-      }
+               "has_privacy" => false,
+               "privacy" => nil
+             }
     end
 
     test "returns has_privacy: false when privacy not set", %{conn: conn} do
@@ -26,9 +26,9 @@ defmodule BaladosSyncWeb.WebPrivacyControllerTest do
       conn = get(conn, ~p"/privacy/check/#{encoded_feed}")
 
       assert json_response(conn, 200) == %{
-        "has_privacy" => false,
-        "privacy" => nil
-      }
+               "has_privacy" => false,
+               "privacy" => nil
+             }
     end
 
     test "returns privacy level when set", %{conn: conn} do
@@ -49,9 +49,9 @@ defmodule BaladosSyncWeb.WebPrivacyControllerTest do
       conn = get(conn, ~p"/privacy/check/#{encoded_feed}")
 
       assert json_response(conn, 200) == %{
-        "has_privacy" => true,
-        "privacy" => "public"
-      }
+               "has_privacy" => true,
+               "privacy" => "public"
+             }
     end
   end
 
@@ -93,10 +93,12 @@ defmodule BaladosSyncWeb.WebPrivacyControllerTest do
         |> put_req_header("x-csrf-token", get_csrf_token_from_conn(conn))
 
       # Verify it was stored
-      privacy = ProjectionsRepo.one(
-        from p in UserPrivacy,
-        where: p.user_id == ^user.id and p.rss_source_feed == ^encoded_feed
-      )
+      privacy =
+        ProjectionsRepo.one(
+          from(p in UserPrivacy,
+            where: p.user_id == ^user.id and p.rss_source_feed == ^encoded_feed
+          )
+        )
 
       assert privacy != nil
       assert privacy.privacy == "anonymous"

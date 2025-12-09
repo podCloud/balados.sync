@@ -7,7 +7,6 @@
     >
       ← Back to Trending
     </.link>
-
     <!-- Feed Header -->
     <div class="mt-6 flex gap-6 bg-white shadow rounded-lg p-6">
       <div class="flex-shrink-0">
@@ -28,7 +27,6 @@
         <h1 class="text-3xl font-bold text-zinc-900"><%= @metadata.title %></h1>
         <p class="text-zinc-600 mt-1">by <%= @metadata.author %></p>
         <p class="text-sm text-zinc-700 mt-4"><%= @metadata.description %></p>
-
         <!-- Popularity Stats -->
         <%= if @popularity do %>
           <div class="mt-6 p-4 bg-zinc-50 rounded-lg">
@@ -107,7 +105,6 @@
         </div>
       </div>
     </div>
-
     <!-- Episodes List -->
     <div class="mt-10">
       <h2 class="text-2xl font-semibold text-zinc-900 mb-4">
@@ -138,7 +135,6 @@
               <p class="text-sm text-zinc-700 mt-2 line-clamp-3">
                 <%= episode.description %>
               </p>
-
               <!-- Links -->
               <div class="mt-4 flex gap-3">
                 <%= if episode.link do %>
@@ -156,7 +152,11 @@
                     href={episode.enclosure.url}
                     data-dispatch-event="play"
                     data-feed={Base.url_encode64(@feed_url, padding: false)}
-                    data-item={Base.url_encode64("#{@feed_url},#{episode.guid},#{episode.enclosure.url}", padding: false)}
+                    data-item={
+                      Base.url_encode64("#{@feed_url},#{episode.guid},#{episode.enclosure.url}",
+                        padding: false
+                      )
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     class="text-blue-600 hover:underline text-sm"
@@ -171,7 +171,6 @@
       <% end %>
     </div>
   </div>
-
   <!-- Login Modal (for unauthenticated users) -->
   <%= unless @current_user do %>
     <.login_modal
@@ -184,14 +183,9 @@
       </p>
     </.login_modal>
   <% end %>
-
   <!-- Subscribe Modal (for authenticated users) -->
   <%= if @current_user && !@is_subscribed do %>
-    <.subscribe_modal
-      id="subscribe-modal"
-      subscribe_url={~p"/subscriptions"}
-      feed_url={@feed_url}
-    >
+    <.subscribe_modal id="subscribe-modal" subscribe_url={~p"/subscriptions"} feed_url={@feed_url}>
       <p class="text-zinc-700 mb-4">
         You can subscribe to this podcast or enter a different RSS feed URL.
       </p>

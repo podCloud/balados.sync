@@ -9,7 +9,15 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
 
   describe "handle_message/2 - Authentication" do
     test "rejects non-auth messages when unauthenticated", %{state: state} do
-      json = Jason.encode!(%{"type" => "record_play", "feed" => "feed", "item" => "item", "position" => 0, "played" => false})
+      json =
+        Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "feed",
+          "item" => "item",
+          "position" => 0,
+          "played" => false
+        })
+
       {:error, response} = MessageHandler.handle_message(json, state)
       decoded = Jason.decode!(response)
 
@@ -67,7 +75,14 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
     end
 
     test "rejects record_play with missing feed", %{authenticated_state: state} do
-      json = Jason.encode!(%{"type" => "record_play", "item" => "item", "position" => 0, "played" => false})
+      json =
+        Jason.encode!(%{
+          "type" => "record_play",
+          "item" => "item",
+          "position" => 0,
+          "played" => false
+        })
+
       {:error, response} = MessageHandler.handle_message(json, state)
       decoded = Jason.decode!(response)
 
@@ -76,7 +91,14 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
     end
 
     test "rejects record_play with missing item", %{authenticated_state: state} do
-      json = Jason.encode!(%{"type" => "record_play", "feed" => "feed", "position" => 0, "played" => false})
+      json =
+        Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "feed",
+          "position" => 0,
+          "played" => false
+        })
+
       {:error, response} = MessageHandler.handle_message(json, state)
       decoded = Jason.decode!(response)
 
@@ -85,7 +107,14 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
     end
 
     test "rejects record_play with missing position", %{authenticated_state: state} do
-      json = Jason.encode!(%{"type" => "record_play", "feed" => "feed", "item" => "item", "played" => false})
+      json =
+        Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "feed",
+          "item" => "item",
+          "played" => false
+        })
+
       {:error, response} = MessageHandler.handle_message(json, state)
       decoded = Jason.decode!(response)
 
@@ -94,7 +123,14 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
     end
 
     test "rejects record_play with missing played", %{authenticated_state: state} do
-      json = Jason.encode!(%{"type" => "record_play", "feed" => "feed", "item" => "item", "position" => 0})
+      json =
+        Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "feed",
+          "item" => "item",
+          "position" => 0
+        })
+
       {:error, response} = MessageHandler.handle_message(json, state)
       decoded = Jason.decode!(response)
 
@@ -103,7 +139,15 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
     end
 
     test "rejects record_play with invalid position type", %{authenticated_state: state} do
-      json = Jason.encode!(%{"type" => "record_play", "feed" => "feed", "item" => "item", "position" => "not_a_number", "played" => false})
+      json =
+        Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "feed",
+          "item" => "item",
+          "position" => "not_a_number",
+          "played" => false
+        })
+
       {:error, response} = MessageHandler.handle_message(json, state)
       decoded = Jason.decode!(response)
 
@@ -112,7 +156,15 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
     end
 
     test "rejects record_play with invalid played type", %{authenticated_state: state} do
-      json = Jason.encode!(%{"type" => "record_play", "feed" => "feed", "item" => "item", "position" => 0, "played" => "not_a_boolean"})
+      json =
+        Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "feed",
+          "item" => "item",
+          "position" => 0,
+          "played" => "not_a_boolean"
+        })
+
       {:error, response} = MessageHandler.handle_message(json, state)
       decoded = Jason.decode!(response)
 
@@ -121,7 +173,15 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
     end
 
     test "rejects record_play with negative position", %{authenticated_state: state} do
-      json = Jason.encode!(%{"type" => "record_play", "feed" => "feed", "item" => "item", "position" => -1, "played" => false})
+      json =
+        Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "feed",
+          "item" => "item",
+          "position" => -1,
+          "played" => false
+        })
+
       {:error, response} = MessageHandler.handle_message(json, state)
       decoded = Jason.decode!(response)
 
@@ -137,13 +197,14 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
     end
 
     test "validates correct message format", %{authenticated_state: state} do
-      json = Jason.encode!(%{
-        "type" => "record_play",
-        "feed" => "base64_feed",
-        "item" => "base64_item",
-        "position" => 123,
-        "played" => false
-      })
+      json =
+        Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "base64_feed",
+          "item" => "base64_item",
+          "position" => 123,
+          "played" => false
+        })
 
       # This will try to dispatch but will fail because Dispatcher.dispatch is not mocked
       # We just test the validation passes here
@@ -152,13 +213,14 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
     end
 
     test "accepts position 0", %{authenticated_state: state} do
-      json = Jason.encode!(%{
-        "type" => "record_play",
-        "feed" => "base64_feed",
-        "item" => "base64_item",
-        "position" => 0,
-        "played" => false
-      })
+      json =
+        Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "base64_feed",
+          "item" => "base64_item",
+          "position" => 0,
+          "played" => false
+        })
 
       result = MessageHandler.handle_message(json, state)
       assert is_tuple(result)
@@ -166,13 +228,14 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
 
     test "accepts both played values", %{authenticated_state: state} do
       for played <- [true, false] do
-        json = Jason.encode!(%{
-          "type" => "record_play",
-          "feed" => "base64_feed",
-          "item" => "base64_item",
-          "position" => 100,
-          "played" => played
-        })
+        json =
+          Jason.encode!(%{
+            "type" => "record_play",
+            "feed" => "base64_feed",
+            "item" => "base64_item",
+            "position" => 100,
+            "played" => played
+          })
 
         result = MessageHandler.handle_message(json, state)
         assert is_tuple(result)
@@ -181,14 +244,15 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
 
     test "accepts valid privacy values", %{authenticated_state: state} do
       for privacy <- ["public", "anonymous", "private"] do
-        json = Jason.encode!(%{
-          "type" => "record_play",
-          "feed" => "base64_feed",
-          "item" => "base64_item",
-          "position" => 0,
-          "played" => true,
-          "privacy" => privacy
-        })
+        json =
+          Jason.encode!(%{
+            "type" => "record_play",
+            "feed" => "base64_feed",
+            "item" => "base64_item",
+            "position" => 0,
+            "played" => true,
+            "privacy" => privacy
+          })
 
         result = MessageHandler.handle_message(json, state)
         assert is_tuple(result)
@@ -196,27 +260,29 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
     end
 
     test "accepts missing privacy field for backward compatibility", %{authenticated_state: state} do
-      json = Jason.encode!(%{
-        "type" => "record_play",
-        "feed" => "base64_feed",
-        "item" => "base64_item",
-        "position" => 0,
-        "played" => true
-      })
+      json =
+        Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "base64_feed",
+          "item" => "base64_item",
+          "position" => 0,
+          "played" => true
+        })
 
       result = MessageHandler.handle_message(json, state)
       assert is_tuple(result)
     end
 
     test "rejects invalid privacy value", %{authenticated_state: state} do
-      json = Jason.encode!(%{
-        "type" => "record_play",
-        "feed" => "base64_feed",
-        "item" => "base64_item",
-        "position" => 0,
-        "played" => true,
-        "privacy" => "invalid_value"
-      })
+      json =
+        Jason.encode!(%{
+          "type" => "record_play",
+          "feed" => "base64_feed",
+          "item" => "base64_item",
+          "position" => 0,
+          "played" => true,
+          "privacy" => "invalid_value"
+        })
 
       {:error, response} = MessageHandler.handle_message(json, state)
       decoded = Jason.decode!(response)
@@ -227,14 +293,15 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
 
     test "accepts privacy with true and false played values", %{authenticated_state: state} do
       for played <- [true, false] do
-        json = Jason.encode!(%{
-          "type" => "record_play",
-          "feed" => "base64_feed",
-          "item" => "base64_item",
-          "position" => 0,
-          "played" => played,
-          "privacy" => "public"
-        })
+        json =
+          Jason.encode!(%{
+            "type" => "record_play",
+            "feed" => "base64_feed",
+            "item" => "base64_item",
+            "position" => 0,
+            "played" => played,
+            "privacy" => "public"
+          })
 
         result = MessageHandler.handle_message(json, state)
         assert is_tuple(result)

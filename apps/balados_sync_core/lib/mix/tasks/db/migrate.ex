@@ -28,7 +28,10 @@ defmodule Mix.Tasks.Db.Migrate do
   """
 
   def run(args) do
-    {opts, _, _} = OptionParser.parse(args, switches: [system: :boolean, events: :boolean, projections: :boolean])
+    {opts, _, _} =
+      OptionParser.parse(args,
+        switches: [system: :boolean, events: :boolean, projections: :boolean]
+      )
 
     case {opts[:system], opts[:events], opts[:projections]} do
       # No options: run all
@@ -55,7 +58,9 @@ defmodule Mix.Tasks.Db.Migrate do
 
       # Multiple options not allowed
       _ ->
-        Mix.raise("Only one option (--system, --projections, or --events) can be specified at a time")
+        Mix.raise(
+          "Only one option (--system, --projections, or --events) can be specified at a time"
+        )
     end
   end
 

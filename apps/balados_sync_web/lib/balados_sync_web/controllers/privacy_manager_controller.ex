@@ -18,11 +18,12 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
     # Get privacy settings for each subscription
     privacy_map =
       ProjectionsRepo.all(
-        from p in UserPrivacy,
-        where:
-          p.user_id == ^user_id and
-            p.rss_source_item == "",
-        select: {p.rss_source_feed, p.privacy}
+        from(p in UserPrivacy,
+          where:
+            p.user_id == ^user_id and
+              p.rss_source_item == "",
+          select: {p.rss_source_feed, p.privacy}
+        )
       )
       |> Map.new()
 
@@ -50,7 +51,10 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
     with_covers = Enum.count(podcasts_with_privacy, & &1.cover)
     total = Enum.count(podcasts_with_privacy)
     Logger.info("[PrivacyManager] Podcasts with covers: #{with_covers}/#{total}")
-    Logger.info("[PrivacyManager] First 3 podcasts: #{inspect(Enum.take(podcasts_with_privacy, 3))}")
+
+    Logger.info(
+      "[PrivacyManager] First 3 podcasts: #{inspect(Enum.take(podcasts_with_privacy, 3))}"
+    )
 
     # Group by privacy level
     grouped =

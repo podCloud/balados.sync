@@ -174,8 +174,8 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
           # Try to use metadata title first, then rss_feed_title, then default
           title =
             (sub.metadata && sub.metadata.title) ||
-            sub.rss_feed_title ||
-            "Unknown Podcast"
+              sub.rss_feed_title ||
+              "Unknown Podcast"
 
           ~s(<outline type="rss" text="#{escape_xml(title)}" xmlUrl="#{escape_xml(feed_url)}" />)
         else

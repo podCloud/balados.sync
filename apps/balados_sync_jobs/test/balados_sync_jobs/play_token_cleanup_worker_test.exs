@@ -57,19 +57,13 @@ defmodule BaladosSyncJobs.PlayTokenCleanupWorkerTest do
 
       # Verify old token was deleted
       assert nil ==
-               SystemRepo.one(
-                 from(t in PlayToken, where: t.token == ^old_token.token, limit: 1)
-               )
+               SystemRepo.one(from(t in PlayToken, where: t.token == ^old_token.token, limit: 1))
 
       # Verify recent token still exists
-      assert SystemRepo.one(
-               from(t in PlayToken, where: t.token == ^recent_token.token, limit: 1)
-             )
+      assert SystemRepo.one(from(t in PlayToken, where: t.token == ^recent_token.token, limit: 1))
 
       # Verify future token still exists
-      assert SystemRepo.one(
-               from(t in PlayToken, where: t.token == ^future_token.token, limit: 1)
-             )
+      assert SystemRepo.one(from(t in PlayToken, where: t.token == ^future_token.token, limit: 1))
     end
 
     test "does not delete revoked tokens" do

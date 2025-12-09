@@ -264,7 +264,9 @@ defmodule BaladosSyncWeb.AppAuth do
   defp update_last_used(app_token) do
     Task.start(fn ->
       from(t in AppToken, where: t.id == ^app_token.id)
-      |> SystemRepo.update_all(set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)])
+      |> SystemRepo.update_all(
+        set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)]
+      )
     end)
   end
 end

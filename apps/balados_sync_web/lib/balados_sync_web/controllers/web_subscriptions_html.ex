@@ -45,10 +45,10 @@ defmodule BaladosSyncWeb.WebSubscriptionsHTML do
       seconds_diff < 60 -> "just now"
       seconds_diff < 3600 -> "#{div(seconds_diff, 60)}m ago"
       seconds_diff < 86400 -> "#{div(seconds_diff, 3600)}h ago"
-      seconds_diff < 604800 -> "#{div(seconds_diff, 86400)}d ago"
-      seconds_diff < 2592000 -> "#{div(seconds_diff, 604800)}w ago"
-      seconds_diff < 31536000 -> "#{div(seconds_diff, 2592000)}mo ago"
-      true -> "#{div(seconds_diff, 31536000)}y ago"
+      seconds_diff < 604_800 -> "#{div(seconds_diff, 86400)}d ago"
+      seconds_diff < 2_592_000 -> "#{div(seconds_diff, 604_800)}w ago"
+      seconds_diff < 31_536_000 -> "#{div(seconds_diff, 2_592_000)}mo ago"
+      true -> "#{div(seconds_diff, 31_536_000)}y ago"
     end
   end
 

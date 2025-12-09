@@ -24,10 +24,14 @@ defmodule BaladosSyncJobs.PlayTokenCleanupWorker do
 
     case delete_expired_tokens(cleanup_threshold) do
       {:ok, count} ->
-        Logger.info("[PlayTokenCleanupWorker] Cleaned up #{count} expired tokens (older than #{retention_days} days)")
+        Logger.info(
+          "[PlayTokenCleanupWorker] Cleaned up #{count} expired tokens (older than #{retention_days} days)"
+        )
 
       {:error, reason} ->
-        Logger.error("[PlayTokenCleanupWorker] Failed to cleanup expired tokens: #{inspect(reason)}")
+        Logger.error(
+          "[PlayTokenCleanupWorker] Failed to cleanup expired tokens: #{inspect(reason)}"
+        )
     end
   end
 

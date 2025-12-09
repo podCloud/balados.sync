@@ -9,14 +9,14 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
   @type token_type :: :play_token | :jwt_token
 
   @type t :: %__MODULE__{
-    auth_status: auth_status(),
-    user_id: String.t() | nil,
-    token_type: token_type() | nil,
-    token_value: String.t() | nil,
-    connected_at: DateTime.t(),
-    last_activity_at: DateTime.t(),
-    message_count: non_neg_integer()
-  }
+          auth_status: auth_status(),
+          user_id: String.t() | nil,
+          token_type: token_type() | nil,
+          token_value: String.t() | nil,
+          connected_at: DateTime.t(),
+          last_activity_at: DateTime.t(),
+          message_count: non_neg_integer()
+        }
 
   defstruct [
     :user_id,
@@ -36,6 +36,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
   @spec new() :: t()
   def new do
     now = DateTime.utc_now()
+
     %__MODULE__{
       auth_status: :unauthenticated,
       user_id: nil,
@@ -54,12 +55,13 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
   """
   @spec authenticate(t(), String.t(), token_type(), String.t()) :: t()
   def authenticate(%__MODULE__{} = state, user_id, token_type, token_value) do
-    %__MODULE__{state |
-      auth_status: :authenticated,
-      user_id: user_id,
-      token_type: token_type,
-      token_value: token_value,
-      last_activity_at: DateTime.utc_now()
+    %__MODULE__{
+      state
+      | auth_status: :authenticated,
+        user_id: user_id,
+        token_type: token_type,
+        token_value: token_value,
+        last_activity_at: DateTime.utc_now()
     }
   end
 
@@ -68,9 +70,10 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
   """
   @spec touch(t()) :: t()
   def touch(%__MODULE__{} = state) do
-    %__MODULE__{state |
-      last_activity_at: DateTime.utc_now(),
-      message_count: state.message_count + 1
+    %__MODULE__{
+      state
+      | last_activity_at: DateTime.utc_now(),
+        message_count: state.message_count + 1
     }
   end
 
