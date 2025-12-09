@@ -16,7 +16,7 @@ function attachPodcastItemListeners(item: PodcastItem): void {
   const editBtn = item.querySelector<HTMLButtonElement>('.edit-btn')
   const cancelBtn = item.querySelector<HTMLButtonElement>('.cancel-btn')
   const changeBtn = item.querySelector<HTMLButtonElement>('.change-btn')
-  const resetBtn = item.querySelector<HTMLButtonElement>('.reset-privacy-btn')
+  const deleteBtn = item.querySelector<HTMLButtonElement>('.delete-privacy-btn')
   const unsubscribeBtn = item.querySelector<HTMLButtonElement>('.unsubscribe-btn')
   const editControls = item.querySelector<HTMLDivElement>('.edit-controls')
   const privacySelect = item.querySelector<HTMLSelectElement>('.privacy-select')
@@ -126,44 +126,42 @@ function attachPodcastItemListeners(item: PodcastItem): void {
     }
   })
 
-  // Handle reset privacy button click
-  resetBtn?.addEventListener('click', async (e) => {
+  // Handle delete privacy button click
+  deleteBtn?.addEventListener('click', async (e) => {
     e.preventDefault()
 
-    if (!confirm('Reset privacy to public default? This will make your activities on this podcast visible in discovery.')) {
+    if (!confirm('Delete privacy setting? This will remove your custom privacy setting and revert to the default public level.')) {
       return
     }
 
     try {
       // Show loading state
-      resetBtn.disabled = true
-      resetBtn.textContent = 'Resetting...'
+      deleteBtn.disabled = true
+      deleteBtn.textContent = 'Deleting...'
 
-      // Send AJAX request to reset to public
+      // Send AJAX DELETE request to remove privacy setting
       const response = await fetch(`/privacy-manager/${feed}`, {
-        method: 'POST',
+        method: 'DELETE',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
           'X-CSRF-Token': getCsrfToken(),
           'X-Requested-With': 'XMLHttpRequest',
         },
-        body: 'privacy=public',
       })
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      // Move the podcast item to the public section
+      // Move the podcast item to the public section (default when privacy is deleted)
       movePodcastToSection(item, feed, currentPrivacy, 'public')
 
       // Hide edit controls
       editControls?.classList.add('hidden')
     } catch (error) {
-      console.error('Error resetting privacy:', error)
-      alert('Error resetting privacy. Please try again.')
-      resetBtn.disabled = false
-      resetBtn.textContent = '↺ Reset to Public'
+      console.error('Error deleting privacy:', error)
+      alert('Error deleting privacy setting. Please try again.')
+      deleteBtn.disabled = false
+      deleteBtn.textContent = '✕ Delete Privacy'
     }
   })
 }
