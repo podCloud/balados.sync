@@ -16,6 +16,7 @@ function attachPodcastItemListeners(item: PodcastItem): void {
   const editBtn = item.querySelector<HTMLButtonElement>('.edit-btn')
   const cancelBtn = item.querySelector<HTMLButtonElement>('.cancel-btn')
   const changeBtn = item.querySelector<HTMLButtonElement>('.change-btn')
+  const deleteBtn = item.querySelector<HTMLButtonElement>('.delete-privacy-btn')
   const unsubscribeBtn = item.querySelector<HTMLButtonElement>('.unsubscribe-btn')
   const editControls = item.querySelector<HTMLDivElement>('.edit-controls')
   const privacySelect = item.querySelector<HTMLSelectElement>('.privacy-select')
@@ -122,6 +123,45 @@ function attachPodcastItemListeners(item: PodcastItem): void {
       alert('Error updating privacy level. Please try again.')
       changeBtn.disabled = false
       changeBtn.textContent = 'Change'
+    }
+  })
+
+  // Handle delete privacy button click
+  deleteBtn?.addEventListener('click', async (e) => {
+    e.preventDefault()
+
+    if (!confirm('Delete privacy setting? This will remove your custom privacy setting and revert to the default public level.')) {
+      return
+    }
+
+    try {
+      // Show loading state
+      deleteBtn.disabled = true
+      deleteBtn.textContent = 'Deleting...'
+
+      // Send AJAX DELETE request to remove privacy setting
+      const response = await fetch(`/privacy-manager/${feed}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': getCsrfToken(),
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      // Move the podcast item to the public section (default when privacy is deleted)
+      movePodcastToSection(item, feed, currentPrivacy, 'public')
+
+      // Hide edit controls
+      editControls?.classList.add('hidden')
+    } catch (error) {
+      console.error('Error deleting privacy:', error)
+      alert('Error deleting privacy setting. Please try again.')
+      deleteBtn.disabled = false
+      deleteBtn.textContent = '✕ Delete Privacy'
     }
   })
 }

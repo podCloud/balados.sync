@@ -5,6 +5,7 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
   alias BaladosSyncProjections.Schemas.UserPrivacy
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.ChangePrivacy
+  alias BaladosSyncCore.Commands.RemoveEvents
   alias BaladosSyncCore.RssCache
   alias BaladosSyncWeb.Queries
   import Ecto.Query
@@ -139,6 +140,46 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
         else
           conn
           |> put_flash(:error, "Failed to update privacy: #{inspect(reason)}")
+          |> redirect(to: ~p"/privacy-manager")
+        end
+    end
+  end
+
+  def delete_privacy(conn, %{"feed" => encoded_feed}) do
+    user_id = conn.assigns.current_user.id
+    device_id = generate_device_id(conn)
+
+    # Dispatch RemoveEvents command to delete privacy setting
+    command = %RemoveEvents{
+      user_id: user_id,
+      rss_source_feed: encoded_feed,
+      rss_source_item: "",
+      event_infos: %{
+        device_id: device_id,
+        device_name: "Web Browser"
+      }
+    }
+
+    case Dispatcher.dispatch(command) do
+      :ok ->
+        # Check if it's an AJAX request
+        if is_ajax_request?(conn) do
+          json(conn, %{status: "success"})
+        else
+          conn
+          |> put_flash(:info, "Privacy setting removed successfully")
+          |> redirect(to: ~p"/privacy-manager")
+        end
+
+      {:error, reason} ->
+        # Check if it's an AJAX request
+        if is_ajax_request?(conn) do
+          conn
+          |> put_status(:unprocessable_entity)
+          |> json(%{status: "error", error: inspect(reason)})
+        else
+          conn
+          |> put_flash(:error, "Failed to remove privacy setting: #{inspect(reason)}")
           |> redirect(to: ~p"/privacy-manager")
         end
     end

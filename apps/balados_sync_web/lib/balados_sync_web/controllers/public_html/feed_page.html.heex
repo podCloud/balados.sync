@@ -27,6 +27,46 @@
         <h1 class="text-3xl font-bold text-zinc-900"><%= @metadata.title %></h1>
         <p class="text-zinc-600 mt-1">by <%= @metadata.author %></p>
         <p class="text-sm text-zinc-700 mt-4"><%= @metadata.description %></p>
+
+        <!-- Privacy Badge -->
+        <%= if @current_user && @current_privacy do %>
+          <div
+            class="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-lg border"
+            id="privacy-badge"
+            data-feed={@encoded_feed}
+            class={case @current_privacy do
+              "public" -> "bg-blue-100 text-blue-900 border-blue-300"
+              "anonymous" -> "bg-purple-100 text-purple-900 border-purple-300"
+              "private" -> "bg-red-100 text-red-900 border-red-300"
+              _ -> "bg-gray-100 text-gray-900 border-gray-300"
+            end}
+          >
+            <!-- Icon -->
+            <span>
+              <%= case @current_privacy do
+                "public" -> "🔓"
+                "anonymous" -> "👤"
+                "private" -> "🔒"
+                _ -> "?"
+              end %>
+            </span>
+
+            <!-- Text -->
+            <span class="font-medium">
+              Your activities are <strong><%= @current_privacy %></strong>
+            </span>
+
+            <!-- Edit button -->
+            <button
+              type="button"
+              id="change-privacy-btn"
+              class="ml-2 text-sm opacity-75 hover:opacity-100 cursor-pointer transition"
+            >
+              ✎ Change
+            </button>
+          </div>
+        <% end %>
+
         <!-- Popularity Stats -->
         <%= if @popularity do %>
           <div class="mt-6 p-4 bg-zinc-50 rounded-lg">
@@ -190,5 +230,84 @@
         You can subscribe to this podcast or enter a different RSS feed URL.
       </p>
     </.subscribe_modal>
+  <% end %>
+
+  <!-- Privacy Change Modal -->
+  <%= if @current_user do %>
+    <div id="privacy-change-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+        <h2 class="text-2xl font-bold text-zinc-900 mb-4">Change Privacy Level</h2>
+
+        <p class="text-zinc-600 mb-6">
+          Choose how your activities on this podcast are shared:
+        </p>
+
+        <!-- Privacy Options -->
+        <div class="space-y-3">
+          <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
+            <input
+              type="radio"
+              name="privacy"
+              value="public"
+              class="w-4 h-4 text-blue-600"
+              checked={@current_privacy == "public"}
+            />
+            <div class="ml-3">
+              <div class="font-semibold text-zinc-900">🔓 Public</div>
+              <div class="text-sm text-zinc-600">Visible in discovery and trending</div>
+            </div>
+          </label>
+
+          <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-purple-50 transition">
+            <input
+              type="radio"
+              name="privacy"
+              value="anonymous"
+              class="w-4 h-4 text-purple-600"
+              checked={@current_privacy == "anonymous"}
+            />
+            <div class="ml-3">
+              <div class="font-semibold text-zinc-900">👤 Anonymous</div>
+              <div class="text-sm text-zinc-600">Counts stats, no attribution</div>
+            </div>
+          </label>
+
+          <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-red-50 transition">
+            <input
+              type="radio"
+              name="privacy"
+              value="private"
+              class="w-4 h-4 text-red-600"
+              checked={@current_privacy == "private"}
+            />
+            <div class="ml-3">
+              <div class="font-semibold text-zinc-900">🔒 Private</div>
+              <div class="text-sm text-zinc-600">Not shared anywhere</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Buttons -->
+        <div class="mt-6 flex gap-3">
+          <button
+            id="privacy-cancel-btn"
+            type="button"
+            class="flex-1 px-4 py-2 text-zinc-700 border border-zinc-300 rounded-lg hover:bg-zinc-50"
+          >
+            Cancel
+          </button>
+          <button
+            id="privacy-save-btn"
+            type="button"
+            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Save Changes
+          </button>
+        </div>
+
+        <!-- Loading/Error State -->
+        <div id="privacy-modal-message" class="mt-4 text-sm hidden"></div>
+      </div>
+    </div>
   <% end %>
 </div>
