@@ -1,13 +1,10 @@
-defmodule BaladosSyncCore.Events.EpisodeSaved do
+defmodule BaladosSyncCore.Events.EpisodeUnsaved do
   @derive Jason.Encoder
   defstruct [
     :user_id,
     :playlist_id,
-    :playlist_name,
     :rss_source_feed,
     :rss_source_item,
-    :item_title,
-    :feed_title,
     :timestamp,
     :event_infos
   ]
