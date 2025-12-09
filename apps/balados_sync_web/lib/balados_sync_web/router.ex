@@ -79,13 +79,13 @@ defmodule BaladosSyncWeb.Router do
     delete "/users/log_out", UserSessionController, :delete
 
     # Web Subscriptions (HTML interface for managing subscriptions)
-    get "/my-subscriptions", WebSubscriptionsController, :index
-    get "/my-subscriptions/new", WebSubscriptionsController, :new
-    post "/my-subscriptions", WebSubscriptionsController, :create
-    get "/my-subscriptions/export.opml", WebSubscriptionsController, :export_opml
+    get "/subscriptions", WebSubscriptionsController, :index
+    get "/subscriptions/new", WebSubscriptionsController, :new
+    post "/subscriptions", WebSubscriptionsController, :create
+    get "/subscriptions/export.opml", WebSubscriptionsController, :export_opml
 
     # Redirect old subscription detail page to public podcast page
-    get "/my-subscriptions/:feed", WebSubscriptionsController, :redirect_to_public
+    get "/subscriptions/:feed", WebSubscriptionsController, :redirect_to_public
 
     # Privacy Manager (HTML interface for managing podcast privacy levels)
     get "/privacy-manager", PrivacyManagerController, :index

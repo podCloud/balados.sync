@@ -26,8 +26,8 @@
           Dashboard
         </.link>
         <.link
-          navigate={~p"/my-subscriptions"}
-          class={if String.starts_with?(@conn.request_path, "/my-subscriptions"), do: "text-blue-600 border-b-2 border-blue-600", else: "hover:text-zinc-700"}
+          navigate={~p"/subscriptions"}
+          class={if String.starts_with?(@conn.request_path, "/subscriptions"), do: "text-blue-600 border-b-2 border-blue-600", else: "hover:text-zinc-700"}
         >
           Subscriptions
         </.link>
