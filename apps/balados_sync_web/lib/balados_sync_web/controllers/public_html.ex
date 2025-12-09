@@ -44,4 +44,35 @@ defmodule BaladosSyncWeb.PublicHTML do
   end
 
   def time_ago_in_words(_), do: "Unknown"
+
+  @doc """
+  Get event type color for border styling.
+  """
+  def event_border_color("subscribe"), do: "border-green-400"
+  def event_border_color("play"), do: "border-blue-400"
+  def event_border_color("unsubscribe"), do: "border-red-400"
+  def event_border_color(_), do: "border-zinc-300"
+
+  @doc """
+  Display username or "Anonymous" based on privacy level.
+  """
+  def display_username(%{"privacy" => "anonymous"}), do: "Anonymous"
+  def display_username(%{"username" => nil}), do: "Anonymous"
+  def display_username(%{"username" => username}), do: "@#{username}"
+  def display_username(_), do: "Anonymous"
+
+  @doc """
+  Get event action text based on event type.
+  """
+  def event_action_text("subscribe"), do: " subscribed to "
+  def event_action_text("play"), do: " listened to "
+  def event_action_text("unsubscribe"), do: " unsubscribed from "
+  def event_action_text(_), do: " interacted with "
+
+  @doc """
+  Get podcast title from event with fallback.
+  """
+  def podcast_title(%{"feed_metadata" => %{"title" => title}}) when is_binary(title), do: title
+  def podcast_title(%{"event_data" => %{"feed_title" => title}}) when is_binary(title), do: title
+  def podcast_title(_), do: "Unknown Podcast"
 end
