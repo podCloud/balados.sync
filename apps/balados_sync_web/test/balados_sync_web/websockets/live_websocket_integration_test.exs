@@ -79,7 +79,7 @@ defmodule BaladosSyncWeb.LiveWebSocketIntegrationTest do
       assert response["error"]["code"] == "UNAUTHENTICATED"
     end
 
-    test "validates message JSON format", %{token: token} do
+    test "validates message JSON format", %{token: _token} do
       invalid_json = "{invalid json"
 
       response =

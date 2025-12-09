@@ -4,6 +4,8 @@ defmodule BaladosSyncWeb.WebPrivacyControllerTest do
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.UserPrivacy
 
+  import Ecto.Query
+
   describe "check_privacy" do
     test "returns has_privacy: false for unauthenticated user", %{conn: conn} do
       encoded_feed = "dGVzdC1mZWVk"
@@ -124,7 +126,7 @@ defmodule BaladosSyncWeb.WebPrivacyControllerTest do
 
   # Helper functions
 
-  defp create_test_user(conn) do
+  defp create_test_user(_conn) do
     # Import and use existing user creation helper if available
     # For now, create a minimal user struct that matches what the controller expects
     %{

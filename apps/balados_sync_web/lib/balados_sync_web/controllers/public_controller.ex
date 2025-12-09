@@ -12,7 +12,8 @@ defmodule BaladosSyncWeb.PublicController do
   alias BaladosSyncProjections.Schemas.{
     PodcastPopularity,
     EpisodePopularity,
-    PublicEvent
+    PublicEvent,
+    UserPrivacy
   }
 
   import Ecto.Query
@@ -195,6 +196,21 @@ defmodule BaladosSyncWeb.PublicController do
           nil
         end
 
+      # Fetch current privacy level if user authenticated
+      current_privacy =
+        if current_user do
+          case ProjectionsRepo.get_by(UserPrivacy, [
+            user_id: current_user.id,
+            rss_source_feed: encoded_feed,
+            rss_source_item: ""
+          ]) do
+            nil -> "public"
+            privacy -> privacy.privacy
+          end
+        else
+          nil
+        end
+
       render(conn, :feed_page,
         encoded_feed: encoded_feed,
         feed_url: feed_url,
@@ -203,7 +219,8 @@ defmodule BaladosSyncWeb.PublicController do
         popularity: popularity,
         is_subscribed: is_subscribed,
         subscription: subscription,
-        current_user: current_user
+        current_user: current_user,
+        current_privacy: current_privacy
       )
     else
       _ ->

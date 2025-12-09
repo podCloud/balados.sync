@@ -63,5 +63,8 @@ import "./subscribe_flow"
 // Privacy manager page (inline edit mode)
 import "./privacy-manager-page"
 
+// Privacy badge on feed page
+import "./privacy_badge"
+
 // Episode sorting and popularity display
 import "./episode_sorter"
