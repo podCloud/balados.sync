@@ -8,7 +8,8 @@ defmodule BaladosSyncProjections.Application do
       BaladosSyncProjections.Projectors.SubscriptionsProjector,
       BaladosSyncProjections.Projectors.PlayStatusesProjector,
       BaladosSyncProjections.Projectors.PublicEventsProjector,
-      BaladosSyncProjections.Projectors.PopularityProjector
+      BaladosSyncProjections.Projectors.PopularityProjector,
+      BaladosSyncProjections.Projectors.CollectionsProjector
     ]
 
     opts = [strategy: :one_for_one, name: BaladosSyncProjections.Supervisor]
