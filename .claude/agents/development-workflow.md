@@ -30,6 +30,7 @@ Automatically manage the complete development cycle:
 - **Test DB migrations** - Always run `MIX_ENV=test mix db.migrate` before tests
 - **Merge commits** - Use `--no-ff` for clean history
 - **Post-merge follow-ups** - Create issues for work identified in code reviews (tests, logging, optimizations)
+- **Never commit to main directly** - Always use feature branches for issue work, verify branch exists before committing
 
 ---
 
@@ -231,13 +232,42 @@ PR #X introduced <feature> but identified follow-up work:
    gh issue comment <issue-number> --body "🚀 Starting implementation"
    ```
 
-2. **Create feature branch**:
+2. **Create feature branch** (CRITICAL):
    ```bash
+   # NEVER commit directly to main
+   # Always use a feature branch for issue work
+
+   # Step 1: Ensure main is up to date
    git checkout main
    git pull origin main
-   git checkout -b feature/issue-<number>-<slug>
+
+   # Step 2: Check if branch exists on origin or local
+   BRANCH="feature/issue-<number>-<slug>"
+
+   # Fetch latest from remote
+   git fetch origin
+
+   # Check if branch exists on origin
+   if git show-ref --verify --quiet refs/remotes/origin/$BRANCH; then
+     # Branch exists on origin, checkout and update
+     git checkout $BRANCH
+     git pull origin $BRANCH
+   else
+     # Branch doesn't exist, create new one from main
+     git checkout -b $BRANCH
+   fi
+
+   # Step 3: Verify you're on the correct branch
+   echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
+   # Should show: feature/issue-<number>-<slug>
    ```
+
    Example: `feature/issue-42-add-dark-mode`
+
+   **SAFETY CHECKS**:
+   - Never commit to main directly
+   - Always verify branch name before committing: `git branch --show-current`
+   - Verify main is clean before creating branch: `git status`
 
 3. **Read relevant documentation**:
    - Review `docs/technical/CQRS_PATTERNS.md` first
