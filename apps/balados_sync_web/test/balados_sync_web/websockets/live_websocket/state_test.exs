@@ -11,6 +11,8 @@ defmodule BaladosSyncWeb.LiveWebSocket.StateTest do
       assert state.user_id == nil
       assert state.token_type == nil
       assert state.token_value == nil
+      assert state.device_id == "websocket"
+      assert state.device_name == "WebSocket Live"
       assert state.message_count == 0
       assert is_struct(state.connected_at, DateTime)
       assert is_struct(state.last_activity_at, DateTime)
@@ -65,6 +67,49 @@ defmodule BaladosSyncWeb.LiveWebSocket.StateTest do
 
       assert new_state.message_count == 5
     end
+
+    test "uses default device_id and device_name when not provided" do
+      state = State.new()
+      new_state = State.authenticate(state, "user_123", :play_token, "token_abc")
+
+      assert new_state.device_id == "websocket"
+      assert new_state.device_name == "WebSocket Live"
+    end
+
+    test "accepts custom device_id and device_name" do
+      state = State.new()
+
+      new_state =
+        State.authenticate(state, "user_123", :play_token, "token_abc",
+          device_id: "mobile-ios",
+          device_name: "iPhone 15 Pro"
+        )
+
+      assert new_state.device_id == "mobile-ios"
+      assert new_state.device_name == "iPhone 15 Pro"
+    end
+
+    test "accepts only device_id without device_name" do
+      state = State.new()
+
+      new_state =
+        State.authenticate(state, "user_123", :play_token, "token_abc",
+          device_id: "custom-device"
+        )
+
+      assert new_state.device_id == "custom-device"
+      assert new_state.device_name == "WebSocket Live"
+    end
+
+    test "accepts only device_name without device_id" do
+      state = State.new()
+
+      new_state =
+        State.authenticate(state, "user_123", :play_token, "token_abc", device_name: "Custom App")
+
+      assert new_state.device_id == "websocket"
+      assert new_state.device_name == "Custom App"
+    end
   end
 
   describe "touch/1" do
@@ -96,6 +141,19 @@ defmodule BaladosSyncWeb.LiveWebSocket.StateTest do
       assert new_state.user_id == "user_123"
       assert new_state.token_type == :play_token
       assert new_state.token_value == "token_abc"
+    end
+
+    test "preserves device info" do
+      state =
+        State.authenticate(State.new(), "user_123", :play_token, "token_abc",
+          device_id: "ios-app",
+          device_name: "iOS App"
+        )
+
+      new_state = State.touch(state)
+
+      assert new_state.device_id == "ios-app"
+      assert new_state.device_name == "iOS App"
     end
   end
 

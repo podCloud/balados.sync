@@ -1,6 +1,7 @@
 defmodule BaladosSyncWeb.WebPrivacyControllerTest do
   use BaladosSyncWeb.ConnCase
 
+  import Ecto.Query
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.UserPrivacy
 
