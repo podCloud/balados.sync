@@ -293,6 +293,8 @@ defmodule BaladosSyncCore.Aggregates.User do
 
   # CreateCollection
   def execute(%__MODULE__{} = user, %CreateCollection{} = cmd) do
+    collections = user.collections || %{}
+
     cond do
       not cmd.title || String.trim(cmd.title) == "" ->
         {:error, :title_required}
@@ -300,10 +302,16 @@ defmodule BaladosSyncCore.Aggregates.User do
       not cmd.slug || String.trim(cmd.slug) == "" ->
         {:error, :slug_required}
 
+      Enum.any?(collections, fn {_id, col} -> col.slug == cmd.slug end) ->
+        {:error, :slug_already_exists}
+
       true ->
+        # Use provided collection_id if given, otherwise generate
+        collection_id = cmd.collection_id || Ecto.UUID.generate()
+
         %CollectionCreated{
           user_id: user.user_id,
-          collection_id: Ecto.UUID.generate(),
+          collection_id: collection_id,
           title: cmd.title,
           slug: cmd.slug,
           timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
