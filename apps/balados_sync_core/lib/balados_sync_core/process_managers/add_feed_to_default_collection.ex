@@ -48,7 +48,7 @@ defmodule BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollection do
       user_id: user_id,
       collection_id: collection_id,
       title: "All Subscriptions",
-      slug: "all",
+      is_default: true,
       event_infos: event_infos || %{}
     }
 
@@ -57,7 +57,7 @@ defmodule BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollection do
         # Collection created successfully
         :ok
 
-      {:error, :slug_already_exists} ->
+      {:error, :default_collection_already_exists} ->
         # Collection already exists (already created in previous subscription)
         # This is expected and not an error
         :ok

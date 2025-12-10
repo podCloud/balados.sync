@@ -299,11 +299,8 @@ defmodule BaladosSyncCore.Aggregates.User do
       not cmd.title || String.trim(cmd.title) == "" ->
         {:error, :title_required}
 
-      not cmd.slug || String.trim(cmd.slug) == "" ->
-        {:error, :slug_required}
-
-      Enum.any?(collections, fn {_id, col} -> col.slug == cmd.slug end) ->
-        {:error, :slug_already_exists}
+      cmd.is_default && Enum.any?(collections, fn {_id, col} -> col.is_default end) ->
+        {:error, :default_collection_already_exists}
 
       true ->
         # Use provided collection_id if given, otherwise generate
@@ -313,7 +310,7 @@ defmodule BaladosSyncCore.Aggregates.User do
           user_id: user.user_id,
           collection_id: collection_id,
           title: cmd.title,
-          slug: cmd.slug,
+          is_default: cmd.is_default,
           timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
           event_infos: cmd.event_infos || %{}
         }
@@ -391,7 +388,7 @@ defmodule BaladosSyncCore.Aggregates.User do
         {:error, :collection_not_found}
 
       collection ->
-        if collection.slug == "all" do
+        if collection.is_default do
           {:error, :cannot_delete_default_collection}
         else
           %CollectionDeleted{
@@ -417,7 +414,7 @@ defmodule BaladosSyncCore.Aggregates.User do
 
     # Check if default collection exists, if not create it
     {_default_collection_id, updated_collections} =
-      case Enum.find(collections, fn {_id, col} -> col.slug == "all" end) do
+      case Enum.find(collections, fn {_id, col} -> col.is_default end) do
         {id, collection} ->
           # Default collection exists, add feed to it
           updated_feed_ids = MapSet.put(collection.feed_ids, event.rss_source_feed)
@@ -429,7 +426,7 @@ defmodule BaladosSyncCore.Aggregates.User do
           new_id = Ecto.UUID.generate()
           new_collection = %{
             title: "All Subscriptions",
-            slug: "all",
+            is_default: true,
             feed_ids: MapSet.new([event.rss_source_feed])
           }
           {new_id, Map.put(collections, new_id, new_collection)}
