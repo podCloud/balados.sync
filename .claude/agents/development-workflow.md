@@ -55,30 +55,33 @@ When a PR is approved but has follow-up work mentioned in reviews:
 
 ---
 
-## Phase 0: Pre-flight Checks & User Intent
+## Phase 0: Pre-flight Checks (ALWAYS EXECUTE - NO EXCEPTIONS)
 
-Before starting, determine the user's intent and verify system readiness:
+**⚠️ MANDATORY: Execute ALL checks before any other phase. Always be autonomous.**
 
-1. **Understand the request** - Is the user asking to:
-   - Process all PRs and pick the next issue?
-   - Focus on a specific issue number?
-   - Only handle PRs (merge + audit)?
-   - Check workflow status?
+### 0.1: Execute Pre-flight Checks
 
-2. **Verify clean state**:
-   ```bash
-   git status --porcelain
-   git branch --show-current
-   gh auth status
-   ```
+Run these immediately:
 
-3. **If dirty working directory** - Ask the user to commit or stash changes
+```bash
+git status --porcelain
+git branch --show-current
+gh auth status
+```
 
-4. **If not on main** - Switch to main and pull latest:
-   ```bash
-   git checkout main
-   git pull origin main
-   ```
+### 0.2: Handle Issues Automatically
+
+- **Dirty working directory** → Abort with error message
+- **Not on main** → Auto-execute: `git checkout main && git pull origin main`
+- **Not authenticated** → Abort with error message
+
+### 0.3: Proceed Autonomously
+
+Once Phase 0 passes, automatically proceed based on original user request:
+- If user said "continue le workflow habituel" → Execute Phases 1-6 in sequence
+- If user said "handle issue X" → Skip to Phase 4 with issue X
+- If user said "just merge PRs" → Execute Phase 1, then Phase 3 and beyond
+- **Never ask for confirmation. Be fully autonomous.**
 
 ---
 
@@ -98,16 +101,24 @@ Before starting, determine the user's intent and verify system readiness:
    - `mergeable == "MERGEABLE"`
    - Status checks all SUCCESS or empty
 
-3. **For each mergeable PR**:
-   - Ask user confirmation (natural language): "I found PR #X ready to merge. Should I merge it?"
-   - If yes, merge with merge commit:
+3. **For each mergeable PR (AUTONOMOUSLY - no confirmation)**:
+   - Automatically merge all ready PRs without asking
+   - Fetch and checkout the branch:
      ```bash
-     gh pr merge <number> --merge --no-ff --delete-branch
+     git fetch origin
+     git checkout <branch-name>
      ```
-   - Update local main:
+   - Merge with --no-ff to main:
      ```bash
+     git merge main --no-ff -m "Merge pull request #<number> from <branch>"
      git checkout main
-     git pull origin main
+     git merge <branch-name> --no-ff -m "Merge pull request #<number> from <branch>"
+     ```
+   - Delete local and remote branch:
+     ```bash
+     git branch -d <branch-name>
+     git push origin --delete <branch-name>
+     git push origin main
      ```
    - Add success comment:
      ```bash
