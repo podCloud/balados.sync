@@ -27,6 +27,8 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
       user_id: event.user_id,
       title: event.title,
       is_default: event.is_default,
+      description: event.description,
+      color: event.color,
       inserted_at: truncate_timestamp(event.timestamp),
       updated_at: truncate_timestamp(event.timestamp)
     })
@@ -35,7 +37,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
       multi,
       :collection,
       changeset,
-      on_conflict: {:replace, [:title, :is_default, :updated_at]},
+      on_conflict: {:replace, [:title, :is_default, :description, :color, :updated_at]},
       conflict_target: [:id]
     )
   end)
@@ -92,6 +94,11 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
   project(%BaladosSyncCore.Events.CollectionUpdated{} = event, _metadata, fn multi ->
     Logger.debug("Projecting CollectionUpdated for collection_id=#{event.collection_id}")
 
+    updates = [updated_at: truncate_timestamp(event.timestamp)]
+    updates = if event.title, do: Keyword.put(updates, :title, event.title), else: updates
+    updates = if event.description, do: Keyword.put(updates, :description, event.description), else: updates
+    updates = if event.color, do: Keyword.put(updates, :color, event.color), else: updates
+
     Ecto.Multi.update_all(
       multi,
       :update_collection,
@@ -100,10 +107,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
           where: c.id == ^event.collection_id
         )
       end,
-      set: [
-        title: event.title,
-        updated_at: truncate_timestamp(event.timestamp)
-      ]
+      set: updates
     )
   end)
 

@@ -18,6 +18,8 @@ defmodule BaladosSyncProjections.Schemas.Collection do
     field :user_id, :string
     field :title, :string
     field :is_default, :boolean, default: false
+    field :description, :string
+    field :color, :string
     field :deleted_at, :utc_datetime
 
     has_many :collection_subscriptions, CollectionSubscription,
@@ -30,7 +32,7 @@ defmodule BaladosSyncProjections.Schemas.Collection do
   @doc false
   def changeset(collection, attrs) do
     collection
-    |> cast(attrs, [:id, :user_id, :title, :is_default, :deleted_at, :inserted_at, :updated_at])
+    |> cast(attrs, [:id, :user_id, :title, :is_default, :description, :color, :deleted_at, :inserted_at, :updated_at])
     |> validate_required([:user_id, :title, :is_default])
   end
 end
