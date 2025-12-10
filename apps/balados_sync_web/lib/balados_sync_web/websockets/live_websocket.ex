@@ -23,12 +23,15 @@ defmodule BaladosSyncWeb.LiveWebSocket do
   Initializes the WebSocket connection.
 
   Creates an unauthenticated connection state and sends a welcome message.
+  Schedules periodic ping messages to keep the connection alive.
   """
   @impl WebSock
   def init(_conn_params) do
     state = State.new()
     welcome_msg = welcome_message()
     Logger.info("New WebSocket connection from client")
+    # Schedule ping every 30 seconds to keep connection alive
+    Process.send_after(self(), :ping, 30_000)
     {:push, {:text, welcome_msg}, state}
   end
 
@@ -64,9 +67,25 @@ defmodule BaladosSyncWeb.LiveWebSocket do
   end
 
   @doc """
-  Handles unexpected info messages.
+  Handles info messages, including keep-alive pings.
+
+  Sends periodic ping frames to keep the connection alive.
+  Reschedules the next ping after sending the current one.
   """
   @impl WebSock
+  def handle_info(:ping, state) do
+    Logger.debug("Sending ping to keep connection alive")
+    # Schedule next ping in 30 seconds
+    Process.send_after(self(), :ping, 30_000)
+    # Send ping control frame
+    {:push, :ping, state}
+  end
+
+  def handle_info({:pong, _data}, state) do
+    Logger.debug("Received pong from client")
+    {:ok, state}
+  end
+
   def handle_info(msg, state) do
     Logger.debug("Received unexpected info message: #{inspect(msg)}")
     {:ok, state}
