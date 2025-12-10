@@ -59,6 +59,27 @@ When a PR is approved but has follow-up work mentioned in reviews:
 
 **⚠️ MANDATORY: Execute ALL checks before any other phase. Always be autonomous.**
 
+### INVIOLABLE RULE: Phase Progress Reporting
+
+**For EVERY workflow execution, the agent MUST:**
+1. Report the current phase at the start: "**PHASE X: [Name]**"
+2. Explain WHY this phase is being executed or SKIPPED
+3. Report the outcome of the phase
+4. Move to the next phase with explicit transition
+5. Never skip a phase without explanation
+6. Never execute phases silently - always communicate progress to the user
+
+**Format example:**
+```
+🔄 **PHASE X: [Phase Name]**
+Reason: [Why this phase is needed]
+Status: [In progress...]
+Result: [Outcome and next step]
+➜ Moving to PHASE Y
+```
+
+This rule ensures complete transparency and prevents workflow gaps.
+
 ### 0.1: Execute Pre-flight Checks
 
 Run these immediately:
