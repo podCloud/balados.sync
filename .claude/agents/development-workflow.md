@@ -1,24 +1,27 @@
 ---
 name: development-workflow
-description: Manage complete development cycles. Merges approved PRs with merge commits, audits PRs with review feedback, assesses and prioritizes issues, implements solutions following CQRS/Event Sourcing patterns, and creates pull requests. Use PROACTIVELY when Pof asks to continue with workflow, handle next issue, or check what needs to be done.
+description: This is a GUIDE for Claude's manual workflow execution. Claude Code DOES NOT use agents for development workflow - Claude executes the workflow directly from CLAUDE.md instructions and this guide. Only use this file for reference when executing `continue le workflow`.
 tools: Bash, Read, Write, Grep, Glob, Edit, WebFetch
 model: inherit
 ---
 
-# Development Workflow Agent
+# Development Workflow Guide
 
-You are an expert development workflow coordinator specializing in CQRS/Event Sourcing architectures.
+**IMPORTANT**: This is a reference guide for Claude's manual workflow execution. When Pof says "continue le workflow", Claude executes this workflow DIRECTLY—NOT by spawning an agent. Claude reads these instructions and follows them autonomously as the main conversation.
 
 ## Your Role
 
-Automatically manage the complete development cycle:
+Automatically manage the complete development cycle by executing these phases directly:
 
-1. **Phase 1**: Merge approved PRs using merge commits (--no-ff)
-2. **Phase 2**: Audit and fix PRs with review feedback
-3. **Phase 3**: Assess and prioritize open issues
-4. **Phase 4**: Implement solutions following CQRS/ES patterns
-5. **Phase 5**: Create and submit pull requests
-6. **Phase 6**: Loop intelligently based on completion criteria
+1. **Phase 0**: Pre-flight checks (mandatory)
+2. **Phase 1**: Merge approved PRs using merge commits (--no-ff)
+3. **Phase 2**: Audit and fix PRs with review feedback
+4. **Phase 3**: Assess and prioritize open issues
+5. **Phase 3.5**: CRITICAL - Check for existing PRs/branches (MANDATORY!)
+6. **Phase 4**: Implement solutions following CQRS/ES patterns
+7. **Phase 5**: Create and submit pull requests
+8. **Phase 6**: Loop intelligently based on completion criteria
+9. **Phase 7**: Self-healing improvements to this workflow
 
 ## Key Constraints
 
@@ -250,6 +253,40 @@ PR #X introduced <feature> but identified follow-up work:
    - "I found 3 open issues. Here's what's most important..."
    - If user specifies an issue number, focus directly on that
    - Otherwise, select and confirm the highest priority
+
+---
+
+## Phase 3.5: CRITICAL - Check for Existing PR or Branch
+
+**Purpose**: PREVENT re-implementing issues that already have branches or open PRs
+
+**⚠️ MANDATORY CHECK BEFORE CREATING NEW BRANCH**
+
+1. **For the selected issue**, check if a PR or branch already exists:
+   ```bash
+   # Check for open PRs that close this issue
+   gh issue view <issue-number> --json closedByPullRequestsReferences
+
+   # Also manually check open PRs
+   gh pr list --state open --json number,title,body --limit 50 | grep -i "Closes #<issue-number>"
+   ```
+
+2. **Check for existing branches**:
+   ```bash
+   git fetch origin
+   git branch -r | grep -i "issue-<number>"
+   ```
+
+3. **Decision tree**:
+   - **If PR exists (open)**: SKIP this issue entirely
+     - Reason: Someone (possibly the agent in previous run) already started on it
+     - Action: Move to next issue in Phase 3
+   - **If branch exists on origin**: Checkout and continue work on that branch
+     - Reason: The work started but PR not created yet
+     - Action: Proceed with Phase 4 on existing branch
+   - **If nothing exists**: Safe to create new feature branch in Phase 4
+
+**Example**: Issue #49 had branch `feature/issue-49-emit-feedaddedtocollection-events` created but PR #54 already existed on it. Claude would have SKIPPED this and moved to issue #46 instead.
 
 ---
 
