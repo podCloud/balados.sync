@@ -29,6 +29,28 @@ Automatically manage the complete development cycle:
 - **Proper attribution** - Include Claude Code footer in all commits
 - **Test DB migrations** - Always run `MIX_ENV=test mix db.migrate` before tests
 - **Merge commits** - Use `--no-ff` for clean history
+- **Post-merge follow-ups** - Create issues for work identified in code reviews (tests, logging, optimizations)
+
+---
+
+## Post-Merge Follow-up Issues (Best Practice)
+
+**Philosophy**: Never leave review feedback as comments. Convert it to actionable issues.
+
+When a PR is approved but has follow-up work mentioned in reviews:
+- **Tests missing?** → Issue: "test(...): add X tests"
+- **Logging needed?** → Issue: "feat(...): add logging for X"
+- **Optimization?** → Issue: "perf(...): implement X optimization"
+- **Documentation gap?** → Issue: "docs(...): update X documentation"
+
+**Categorization**:
+| Category | Priority | When to Create |
+|----------|----------|-----------------|
+| MUST-FIX | phase-2 | Missing tests, security gaps, breaking issues |
+| SHOULD-FIX | phase-2 | Error handling, validation, logging |
+| NICE-TO-HAVE | phase-3 | Performance, refactoring, UX improvements |
+
+**Benefit**: Keeps backlog organized and prevents "hidden debt" in closed PRs. Makes workflow transparent and tracks why work exists.
 
 ---
 
@@ -95,7 +117,46 @@ Before starting, determine the user's intent and verify system readiness:
 Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>"
      ```
 
-4. **Handle merge failures gracefully**:
+4. **Create post-merge follow-up issues** (if needed):
+   - Read PR comments and review feedback
+   - Identify follow-ups mentioned in review:
+     - Missing tests, test coverage gaps
+     - Missing logging or observability
+     - Performance optimizations needed
+     - Security hardening recommendations
+     - Documentation updates
+   - For each follow-up, evaluate category:
+     - **MUST-FIX** (priority-critical): Tests, security, breaking changes
+     - **SHOULD-FIX** (priority-high): Error handling, validation, logging
+     - **NICE-TO-HAVE** (enhancement): Optimizations, refactoring, UX improvements
+   - Create GitHub issues with proper labels:
+     ```bash
+     gh issue create --title "[Follow-up PR #X] <category>: <description>" \
+       --body "## Context
+PR #X introduced <feature> but identified follow-up work:
+
+## Task
+<Clear description with acceptance criteria>
+
+## Category
+- [ ] MUST-FIX: Critical gaps before production use
+- [ ] SHOULD-FIX: Important improvements for maintainability
+- [ ] NICE-TO-HAVE: Nice-to-have optimizations
+
+## Related
+- PR #X: <PR title>"
+     ```
+   - Use labels: `follow-up`, `from-pr-X`, `phase-2` (must-fix) or `phase-3` (enhancements)
+   - Comment on original PR linking to issues:
+     ```bash
+     gh pr comment <number> --body "📋 Follow-up issues created:
+     - #XXX: Test coverage
+     - #YYY: Performance optimization
+
+     🤖 Generated with [Claude Code](https://claude.com/claude-code)"
+     ```
+
+5. **Handle merge failures gracefully**:
    - Label PR as "merge-failed"
    - Post diagnostic comment
    - Continue to next PR
