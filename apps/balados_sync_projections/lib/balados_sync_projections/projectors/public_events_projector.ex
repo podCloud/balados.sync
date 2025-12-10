@@ -17,45 +17,49 @@ defmodule BaladosSyncProjections.Projectors.PublicEventsProjector do
 
   # Helper pour récupérer la privacy actuelle pour un user/feed/item
   defp get_privacy(repo, user_id, feed, item) do
-    # Privacy la plus spécifique : item > feed > user
-    # Check with Elixir is_nil to avoid type inference issues with fragments
-    item_condition = if is_nil(item), do: true, else: false
-    feed_condition = if is_nil(feed), do: true, else: false
+    # Return default privacy if user_id is nil (shouldn't happen in normal flow)
+    if is_nil(user_id) do
+      :public
+    else
+      # Privacy la plus spécifique : item > feed > user
+      item_condition = if is_nil(item), do: true, else: false
+      feed_condition = if is_nil(feed), do: true, else: false
 
-    query =
-      from(p in UserPrivacy,
-        where: p.user_id == ^user_id
-      )
+      query =
+        from(p in UserPrivacy,
+          where: p.user_id == ^user_id
+        )
 
-    query =
-      if item_condition do
-        from(p in query, where: is_nil(p.rss_source_item))
-      else
-        from(p in query, where: p.rss_source_item == ^item or is_nil(p.rss_source_item))
-      end
+      query =
+        if item_condition do
+          from(p in query, where: is_nil(p.rss_source_item))
+        else
+          from(p in query, where: p.rss_source_item == ^item or is_nil(p.rss_source_item))
+        end
 
-    query =
-      if feed_condition do
-        from(p in query, where: is_nil(p.rss_source_feed))
-      else
-        from(p in query, where: p.rss_source_feed == ^feed or is_nil(p.rss_source_feed))
-      end
+      query =
+        if feed_condition do
+          from(p in query, where: is_nil(p.rss_source_feed))
+        else
+          from(p in query, where: p.rss_source_feed == ^feed or is_nil(p.rss_source_feed))
+        end
 
-    query =
-      from(p in query,
-        order_by: [
-          desc:
-            fragment(
-              "CASE WHEN ? IS NOT NULL THEN 3 WHEN ? IS NOT NULL THEN 2 ELSE 1 END",
-              p.rss_source_item,
-              p.rss_source_feed
-            )
-        ],
-        limit: 1,
-        select: p.privacy
-      )
+      query =
+        from(p in query,
+          order_by: [
+            desc:
+              fragment(
+                "CASE WHEN ? IS NOT NULL THEN 3 WHEN ? IS NOT NULL THEN 2 ELSE 1 END",
+                p.rss_source_item,
+                p.rss_source_feed
+              )
+          ],
+          limit: 1,
+          select: p.privacy
+        )
 
-    repo.one(query) || :public
+      repo.one(query) || :public
+    end
   end
 
   project(%UserSubscribed{} = event, _metadata, fn multi ->
