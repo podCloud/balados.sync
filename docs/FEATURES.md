@@ -79,6 +79,53 @@ Interface web complète pour gérer les abonnements podcasts.
 - Feeds : Base64 URL-encoded sans padding
 - Episodes : Base64("feed_url,guid,enclosure_url")
 
+### Collections & Organization (v1.8)
+
+Système CQRS/Event Sourcing pour organiser les abonnements en collections.
+
+**Commandes CQRS** :
+- `CreateCollection` - Créer une collection avec titre
+- `DeleteCollection` - Supprimer une collection (soft-delete avec `deleted_at`)
+- `UpdateCollection` - Mettre à jour le titre
+- `AddFeedToCollection` - Ajouter un podcast à une collection
+- `RemoveFeedFromCollection` - Retirer un podcast d'une collection
+
+**Événements CQRS** :
+- `CollectionCreated` - Collection créée
+- `CollectionDeleted` - Collection supprimée (soft-delete)
+- `CollectionUpdated` - Titre mis à jour
+- `FeedAddedToCollection` - Podcast ajouté
+- `FeedRemovedFromCollection` - Podcast retiré
+
+**Agrégat** :
+- `User` aggregate - Gère l'état des collections utilisateur
+- Validation : empêcher suppression collections avec podcasts
+
+**Projections** :
+- `collections` - Liste des collections (id, user_id, title, deleted_at, timestamps)
+- `collection_subscriptions` - Jointure collections ↔ podcasts
+
+**Base de Données** :
+- Table `collections` : id, user_id, title, deleted_at, inserted_at, updated_at
+- Table `collection_subscriptions` : collection_id, rss_source_feed
+- Indexes : user_id, unique (collection_id, rss_source_feed)
+- Soft-delete avec `deleted_at` nullable
+
+**Modules** :
+- Commands: `CreateCollection`, `DeleteCollection`, `UpdateCollection`, `AddFeedToCollection`, `RemoveFeedFromCollection`
+- Events: `CollectionCreated`, `CollectionDeleted`, `CollectionUpdated`, `FeedAddedToCollection`, `FeedRemovedFromCollection`
+- Schemas: `Collection`, `CollectionSubscription`
+- Projector: `CollectionsProjector`
+
+**Dispatcher** :
+- Tous les commands routés via `Dispatcher.dispatch/1`
+- Routage centralisé dans `dispatcher/router.ex`
+
+**Migration** :
+- `20251209000003_create_collections.exs` - Création tables collections et collection_subscriptions
+
+---
+
 ### Subscription Pages Refactoring (v1.3)
 
 Consolidation des pages d'abonnement.
@@ -301,6 +348,66 @@ Play :
 - Responsive Tailwind
 - Support clavier (Escape, Tab, focus)
 - Intégration dans `dispatch_events.ts` pour WebSocket
+
+### Public Timeline Page with Activity Feed (v1.7)
+
+Page publique affichant un flux d'activité en temps réel de la communauté.
+
+**Page** :
+- Route : `GET /timeline` (public, pas d'authentification)
+- Affiche flux des 50 derniers événements (subscribe/unsubscribe/play)
+- Pagination avec Previous/Next buttons (limit/offset parameters)
+
+**Événements Affichés** :
+- **Subscription** : "X subscribed to Podcast Name" (bordure verte)
+- **Play** : "X listened to Podcast Name" (bordure bleue)
+- **Unsubscribe** : "X unsubscribed from Podcast Name" (bordure rouge)
+
+**Enrichissement** :
+- Métadonnées RSS en temps réel (titre, couverture)
+- Cache 5 min pour éviter N+1 fetches
+- Fallback "Unknown Podcast" si fetch échoue
+- Couvertures manquantes : placeholder image
+
+**Privacy Respecting** :
+- Utilisateurs anonymes : affichent "Anonymous"
+- LEFT JOIN pour masquer les utilisateurs privés
+- Aucune exposition d'identifiants
+
+**Routes & API** :
+- `GET /timeline` - Afficher flux avec pagination
+- `GET /timeline?limit=50&offset=0` - Pagination parameters
+
+**Modules** :
+- `PublicController.timeline_html/2` - Query + pagination
+- `PublicHTML.event_border_color/1` - Couleur bordure par type
+- `PublicHTML.display_username/1` - Masquage anonyme
+- `PublicHTML.event_action_text/1` - Verbe action
+- `PublicHTML.podcast_title/1` - Titre fallback
+
+**CQRS** :
+- Read-only feature (pas de commands/events)
+- Utilise projection existante : `PublicEvent`
+- Aucune mutation sur event store
+
+**Frontend (v1.7.1)** :
+- Client-side filtering par type d'événement
+- Toast notifications au chargement
+- Buttons "All Events", "Subscriptions", "Plays", "Unsubscribes"
+- Auto-dismiss toasts après 5 secondes
+- Filtrage en temps réel sans rechargement serveur
+
+**Modules Frontend** :
+- `timeline_filter.ts` - Gestion du filtrage client
+- `toast_notifications.ts` - Système de notifications toast
+- `app.ts` - Import des modules
+
+**Fichiers** :
+- `controllers/public_html/timeline.html.heex` - Template timeline
+- `assets/js/timeline_filter.ts` - Filtrage par type
+- `assets/js/toast_notifications.ts` - Toast notifications
+
+---
 
 ### Privacy Manager Page (v1.5)
 
