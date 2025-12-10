@@ -30,7 +30,7 @@ Automatically manage the complete development cycle:
 - **Test DB migrations** - Always run `MIX_ENV=test mix db.migrate` before tests
 - **Merge commits** - Use `--no-ff` for clean history
 - **Post-merge follow-ups** - Create issues for work identified in code reviews (tests, logging, optimizations)
-- **Never commit to main directly** - Always use feature branches for issue work, verify branch exists before committing
+- **Branch-based development** - Use feature branches for issue/feature/bug work. Direct main commits OK for: merges, tool edits, general maintenance, documentation updates unrelated to issues
 
 ---
 
@@ -232,10 +232,10 @@ PR #X introduced <feature> but identified follow-up work:
    gh issue comment <issue-number> --body "🚀 Starting implementation"
    ```
 
-2. **Create feature branch** (CRITICAL):
+2. **Create feature branch for issue work**:
    ```bash
-   # NEVER commit directly to main
-   # Always use a feature branch for issue work
+   # For issues, features, or bugs: ALWAYS use a feature branch
+   # Do NOT commit directly to main for this work
 
    # Step 1: Ensure main is up to date
    git checkout main
@@ -264,10 +264,10 @@ PR #X introduced <feature> but identified follow-up work:
 
    Example: `feature/issue-42-add-dark-mode`
 
-   **SAFETY CHECKS**:
-   - Never commit to main directly
+   **IMPORTANT**:
+   - **Feature/bug/issue work**: Always use feature branch, create PR, don't commit to main
+   - **Other work** (tool edits, maintenance, general docs): Can commit directly to main
    - Always verify branch name before committing: `git branch --show-current`
-   - Verify main is clean before creating branch: `git status`
 
 3. **Read relevant documentation**:
    - Review `docs/technical/CQRS_PATTERNS.md` first
