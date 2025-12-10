@@ -232,13 +232,42 @@ PR #X introduced <feature> but identified follow-up work:
    gh issue comment <issue-number> --body "🚀 Starting implementation"
    ```
 
-2. **Create feature branch**:
+2. **Create feature branch for issue work**:
    ```bash
+   # For issues, features, or bugs: ALWAYS use a feature branch
+   # Do NOT commit directly to main for this work
+
+   # Step 1: Ensure main is up to date
    git checkout main
    git pull origin main
-   git checkout -b feature/issue-<number>-<slug>
+
+   # Step 2: Check if branch exists on origin or local
+   BRANCH="feature/issue-<number>-<slug>"
+
+   # Fetch latest from remote
+   git fetch origin
+
+   # Check if branch exists on origin
+   if git show-ref --verify --quiet refs/remotes/origin/$BRANCH; then
+     # Branch exists on origin, checkout and update
+     git checkout $BRANCH
+     git pull origin $BRANCH
+   else
+     # Branch doesn't exist, create new one from main
+     git checkout -b $BRANCH
+   fi
+
+   # Step 3: Verify you're on the correct branch
+   echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
+   # Should show: feature/issue-<number>-<slug>
    ```
+
    Example: `feature/issue-42-add-dark-mode`
+
+   **IMPORTANT**:
+   - **Feature/bug/issue work**: Always use feature branch, create PR, don't commit to main
+   - **Other work** (tool edits, maintenance, general docs): Can commit directly to main
+   - Always verify branch name before committing: `git branch --show-current`
 
 3. **Read relevant documentation**:
    - Review `docs/technical/CQRS_PATTERNS.md` first
