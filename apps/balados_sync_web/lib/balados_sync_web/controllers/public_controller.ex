@@ -13,7 +13,8 @@ defmodule BaladosSyncWeb.PublicController do
     PodcastPopularity,
     EpisodePopularity,
     PublicEvent,
-    UserPrivacy
+    UserPrivacy,
+    PlayStatus
   }
 
   import Ecto.Query
@@ -211,6 +212,19 @@ defmodule BaladosSyncWeb.PublicController do
           nil
         end
 
+      # Fetch played items for authenticated users on this feed only
+      played_items =
+        if current_user do
+          from(p in PlayStatus,
+            where: p.user_id == ^current_user.id and p.played == true and p.rss_source_feed == ^encoded_feed,
+            select: p.rss_source_item
+          )
+          |> ProjectionsRepo.all()
+          |> MapSet.new()
+        else
+          MapSet.new()
+        end
+
       render(conn, :feed_page,
         encoded_feed: encoded_feed,
         feed_url: feed_url,
@@ -220,7 +234,8 @@ defmodule BaladosSyncWeb.PublicController do
         is_subscribed: is_subscribed,
         subscription: subscription,
         current_user: current_user,
-        current_privacy: current_privacy
+        current_privacy: current_privacy,
+        played_items: played_items
       )
     else
       _ ->
