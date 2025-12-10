@@ -18,16 +18,18 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreateCollections do
 
     # Unique constraint: slug must be unique per user (not deleted)
     create unique_index(:collections, [:user_id, :slug],
-      prefix: "users",
-      where: "deleted_at IS NULL",
-      name: :collections_user_id_slug_unique
-    )
+             prefix: "users",
+             where: "deleted_at IS NULL",
+             name: :collections_user_id_slug_unique
+           )
 
     # Create collection_subscriptions join table
     create table(:collection_subscriptions, primary_key: false, prefix: "users") do
       add :id, :binary_id, primary_key: true
+
       add :collection_id, references(:collections, type: :binary_id, on_delete: :delete_all),
         null: false
+
       add :rss_source_feed, :text, null: false
 
       timestamps(type: :utc_datetime)
@@ -38,7 +40,7 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreateCollections do
 
     # Unique constraint: feed can only be in a collection once
     create unique_index(:collection_subscriptions, [:collection_id, :rss_source_feed],
-      prefix: "users"
-    )
+             prefix: "users"
+           )
   end
 end

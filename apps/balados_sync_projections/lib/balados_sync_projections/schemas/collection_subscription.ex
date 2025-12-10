@@ -9,7 +9,7 @@ defmodule BaladosSyncProjections.Schemas.CollectionSubscription do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias BaladosSyncProjections.Schemas.Collection
+  alias BaladosSyncProjections.Schemas.{Collection, Subscription}
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @schema_prefix "users"
@@ -23,6 +23,10 @@ defmodule BaladosSyncProjections.Schemas.CollectionSubscription do
       foreign_key: :collection_id,
       references: :id,
       type: :binary_id
+
+    has_one :subscription, Subscription,
+      foreign_key: :rss_source_feed,
+      references: :rss_source_feed
 
     timestamps(type: :utc_datetime)
   end
