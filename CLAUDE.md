@@ -50,6 +50,7 @@ mix phx.server    # http://localhost:4000
 | [**docs/technical/AUTH_SYSTEM.md**](docs/technical/AUTH_SYSTEM.md) | Autorisation JWT |
 | [**docs/technical/CQRS_PATTERNS.md**](docs/technical/CQRS_PATTERNS.md) | Patterns CQRS/ES |
 | [**docs/technical/DATABASE_SCHEMA.md**](docs/technical/DATABASE_SCHEMA.md) | Architecture BD |
+| [**docs/technical/POST_MERGE_FOLLOWUPS.md**](docs/technical/POST_MERGE_FOLLOWUPS.md) | Issues de suivi post-merge |
 
 ---
 
@@ -241,14 +242,59 @@ Brief description
 - Test 2"
 ```
 
-#### Phase 6: Boucler sur Main
+#### Phase 6: Post-Merge Follow-up (si PR mergee avec comments)
 ```bash
-# Retourner à main
+# Verifier si la PR a des follow-ups necessaires
+gh pr view <number> --comments
+
+# Criteres pour creer des issues de suivi:
+# - MUST-FIX: tests manquants, logging absent, docs non a jour
+# - SHOULD-FIX: error handling incomplet, TODOs dans le code
+# - NICE-TO-HAVE: optimisations, refactoring suggere
+
+# Creer les issues de suivi
+gh issue create \
+  --title "[Follow-up #<PR>] <description>" \
+  --label "follow-up,from-pr-<PR>,<priority-label>" \
+  --body "## Context
+Follow-up from PR #<PR>: <title>
+
+## Original Finding
+> <quote du commentaire>
+
+## Acceptance Criteria
+- [ ] Critere 1
+- [ ] Critere 2
+- [ ] Tests ajoutes"
+```
+
+#### Phase 7: Boucler sur Main
+```bash
+# Retourner a main
 git checkout main
 git pull origin main
 
-# Boucler: revenir à Phase 1 (issues/PRs)
+# Boucler: revenir a Phase 1 (issues/PRs)
 ```
+
+### Post-Merge Follow-up Issues
+
+**Quand creer des issues de suivi:**
+| Categorie | Labels | Exemples |
+|-----------|--------|----------|
+| **must-fix** | `priority-critical` | Tests manquants, logging absent, security |
+| **should-fix** | `priority-high` | Error handling, validation, TODOs |
+| **nice-to-have** | `enhancement` | Optimisations, refactoring, UX |
+
+**Labels obligatoires:** `follow-up`, `from-pr-<N>`
+
+**Triggers automatiques:**
+- Commentaires avec "TODO", "FIXME", "later", "follow-up"
+- Tests coverage < 80% sur nouveau code
+- Threads non resolus dans la review
+- PR mergee avec "approved with comments"
+
+**Format titre:** `[Follow-up #<PR>] <type>: <description>`
 
 ### Points Importants
 
