@@ -27,7 +27,6 @@
         <h1 class="text-3xl font-bold text-zinc-900"><%= @metadata.title %></h1>
         <p class="text-zinc-600 mt-1">by <%= @metadata.author %></p>
         <p class="text-sm text-zinc-700 mt-4"><%= @metadata.description %></p>
-
         <!-- Privacy Badge -->
         <%= if @current_user && @current_privacy do %>
           <div
@@ -52,12 +51,10 @@
                 _ -> "?"
               end %>
             </span>
-
             <!-- Text -->
             <span class="font-medium">
               Your activities are <strong><%= @current_privacy %></strong>
             </span>
-
             <!-- Edit button -->
             <button
               type="button"
@@ -68,7 +65,6 @@
             </button>
           </div>
         <% end %>
-
         <!-- Popularity Stats -->
         <%= if @popularity do %>
           <div class="mt-6 p-4 bg-zinc-50 rounded-lg">
@@ -160,7 +156,10 @@
       <% else %>
         <div class="space-y-4" data-episodes-list>
           <%= for episode <- @episodes do %>
-            <% encoded_item = Base.url_encode64("#{@feed_url},#{episode.guid},#{episode.enclosure.url}", padding: false) %>
+            <% encoded_item =
+              Base.url_encode64("#{@feed_url},#{episode.guid},#{episode.enclosure.url}",
+                padding: false
+              ) %>
             <div class="bg-white border border-zinc-200 rounded-lg p-4 relative">
               <!-- Mark as Played Button (top-right) -->
               <button
@@ -175,16 +174,29 @@
                 <%= if MapSet.member?(@played_items, encoded_item) do %>
                   <!-- Filled checkmark -->
                   <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
                 <% else %>
                   <!-- Empty circle -->
-                  <svg class="w-5 h-5 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m7 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    class="w-5 h-5 text-gray-400 hover:text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m7 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 <% end %>
               </button>
-
               <!-- Flex container for thumbnail and content -->
               <div class="flex flex-col sm:flex-row gap-4">
                 <!-- Thumbnail (left on desktop, top on mobile) -->
@@ -208,13 +220,16 @@
                       <div class="w-20 h-20 rounded-lg bg-zinc-100 flex items-center justify-center">
                         <svg class="w-8 h-8 text-zinc-400" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                          <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                          <path
+                            fill-rule="evenodd"
+                            d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                            clip-rule="evenodd"
+                          />
                         </svg>
                       </div>
                     <% end %>
                   <% end %>
                 </div>
-
                 <!-- Content (right on desktop, bottom on mobile) -->
                 <div class="flex-1 min-w-0 pr-12 sm:pr-0">
                   <h3 class="font-semibold text-zinc-900"><%= episode.title %></h3>
@@ -230,39 +245,40 @@
                     <% end %>
                   </div>
 
-                <p class="text-sm text-zinc-700 mt-2 line-clamp-3">
-                  <%= episode.description %>
-                </p>
-                <!-- Links -->
-                <div class="mt-4 flex gap-3">
-                  <%= if episode.link do %>
-                    <a
-                      href={episode.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-blue-600 hover:underline text-sm"
-                    >
-                      Read Article →
-                    </a>
-                  <% end %>
-                  <%= if episode.enclosure do %>
-                    <a
-                      href={episode.enclosure.url}
-                      data-dispatch-event="play"
-                      data-feed={Base.url_encode64(@feed_url, padding: false)}
-                      data-item={
-                        Base.url_encode64("#{@feed_url},#{episode.guid},#{episode.enclosure.url}",
-                          padding: false
-                        )
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-blue-600 hover:underline text-sm"
-                    >
-                      Download/Play Episode →
-                    </a>
-                  <% end %>
-                </div>
+                  <p class="text-sm text-zinc-700 mt-2 line-clamp-3">
+                    <%= episode.description %>
+                  </p>
+                  <!-- Links -->
+                  <div class="mt-4 flex gap-3">
+                    <%= if episode.link do %>
+                      <a
+                        href={episode.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-blue-600 hover:underline text-sm"
+                      >
+                        Read Article →
+                      </a>
+                    <% end %>
+                    <%= if episode.enclosure do %>
+                      <a
+                        href={episode.enclosure.url}
+                        data-dispatch-event="play"
+                        data-feed={Base.url_encode64(@feed_url, padding: false)}
+                        data-item={
+                          Base.url_encode64(
+                            "#{@feed_url},#{episode.guid},#{episode.enclosure.url}",
+                            padding: false
+                          )
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-blue-600 hover:underline text-sm"
+                      >
+                        Download/Play Episode →
+                      </a>
+                    <% end %>
+                  </div>
                 </div>
               </div>
             </div>
@@ -291,17 +307,18 @@
       </p>
     </.subscribe_modal>
   <% end %>
-
   <!-- Privacy Change Modal -->
   <%= if @current_user do %>
-    <div id="privacy-change-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div
+      id="privacy-change-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
         <h2 class="text-2xl font-bold text-zinc-900 mb-4">Change Privacy Level</h2>
 
         <p class="text-zinc-600 mb-6">
           Choose how your activities on this podcast are shared:
         </p>
-
         <!-- Privacy Options -->
         <div class="space-y-3">
           <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-blue-50 transition">
@@ -346,7 +363,6 @@
             </div>
           </label>
         </div>
-
         <!-- Buttons -->
         <div class="mt-6 flex gap-3">
           <button
@@ -364,7 +380,6 @@
             Save Changes
           </button>
         </div>
-
         <!-- Loading/Error State -->
         <div id="privacy-modal-message" class="mt-4 text-sm hidden"></div>
       </div>
