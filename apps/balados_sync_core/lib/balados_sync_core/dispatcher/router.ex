@@ -16,12 +16,7 @@ defmodule BaladosSyncCore.Dispatcher.Router do
     SyncUserData,
     Snapshot,
     UpdatePlaylist,
-    ReorderPlaylist,
-    CreateCollection,
-    AddFeedToCollection,
-    RemoveFeedFromCollection,
-    UpdateCollection,
-    DeleteCollection
+    ReorderPlaylist
   }
 
   # Toutes les commandes sont routées vers l'aggregate User
@@ -42,12 +37,7 @@ defmodule BaladosSyncCore.Dispatcher.Router do
       SyncUserData,
       Snapshot,
       UpdatePlaylist,
-      ReorderPlaylist,
-      CreateCollection,
-      AddFeedToCollection,
-      RemoveFeedFromCollection,
-      UpdateCollection,
-      DeleteCollection
+      ReorderPlaylist
     ],
     to: User
   )
