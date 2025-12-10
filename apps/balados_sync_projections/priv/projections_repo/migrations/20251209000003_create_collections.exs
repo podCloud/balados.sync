@@ -7,7 +7,7 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreateCollections do
       add :id, :binary_id, primary_key: true
       add :user_id, :text, null: false
       add :title, :text, null: false
-      add :is_default, :boolean, null: false, default: false
+      add :slug, :text, null: false
       add :deleted_at, :utc_datetime
 
       timestamps(type: :utc_datetime)
@@ -16,11 +16,11 @@ defmodule BaladosSyncProjections.Repo.Migrations.CreateCollections do
     # Index for user lookups
     create index(:collections, [:user_id], prefix: "users")
 
-    # Unique constraint: only one default collection per user (not deleted)
-    create unique_index(:collections, [:user_id],
+    # Unique constraint: slug must be unique per user (not deleted)
+    create unique_index(:collections, [:user_id, :slug],
       prefix: "users",
-      where: "is_default = true AND deleted_at IS NULL",
-      name: :collections_user_id_default_unique
+      where: "deleted_at IS NULL",
+      name: :collections_user_id_slug_unique
     )
 
     # Create collection_subscriptions join table

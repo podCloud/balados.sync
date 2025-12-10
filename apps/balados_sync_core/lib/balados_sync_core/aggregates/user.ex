@@ -76,7 +76,7 @@ defmodule BaladosSyncCore.Aggregates.User do
     :play_statuses,
     # %{playlist_id => %{name, items}}
     :playlists,
-    # %{collection_id => %{title, feed_ids (MapSet), is_default}}
+    # %{collection_id => %{title, slug, feed_ids (MapSet)}}
     :collections
   ]
 
@@ -293,17 +293,22 @@ defmodule BaladosSyncCore.Aggregates.User do
 
   # CreateCollection
   def execute(%__MODULE__{} = user, %CreateCollection{} = cmd) do
-    if cmd.title && String.trim(cmd.title) != "" do
-      %CollectionCreated{
-        user_id: user.user_id,
-        collection_id: Ecto.UUID.generate(),
-        title: cmd.title,
-        is_default: cmd.is_default,
-        timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-        event_infos: cmd.event_infos || %{}
-      }
-    else
-      {:error, :title_required}
+    cond do
+      not cmd.title || String.trim(cmd.title) == "" ->
+        {:error, :title_required}
+
+      not cmd.slug || String.trim(cmd.slug) == "" ->
+        {:error, :slug_required}
+
+      true ->
+        %CollectionCreated{
+          user_id: user.user_id,
+          collection_id: Ecto.UUID.generate(),
+          title: cmd.title,
+          slug: cmd.slug,
+          timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
+          event_infos: cmd.event_infos || %{}
+        }
     end
   end
 
@@ -378,7 +383,7 @@ defmodule BaladosSyncCore.Aggregates.User do
         {:error, :collection_not_found}
 
       collection ->
-        if collection.is_default do
+        if collection.slug == "all" do
           {:error, :cannot_delete_default_collection}
         else
           %CollectionDeleted{
@@ -404,7 +409,7 @@ defmodule BaladosSyncCore.Aggregates.User do
 
     # Check if default collection exists, if not create it
     {_default_collection_id, updated_collections} =
-      case Enum.find(collections, fn {_id, col} -> col.is_default end) do
+      case Enum.find(collections, fn {_id, col} -> col.slug == "all" end) do
         {id, collection} ->
           # Default collection exists, add feed to it
           updated_feed_ids = MapSet.put(collection.feed_ids, event.rss_source_feed)
@@ -415,9 +420,9 @@ defmodule BaladosSyncCore.Aggregates.User do
           # Create default collection and add feed
           new_id = Ecto.UUID.generate()
           new_collection = %{
-            title: "Default",
-            feed_ids: MapSet.new([event.rss_source_feed]),
-            is_default: true
+            title: "All Subscriptions",
+            slug: "all",
+            feed_ids: MapSet.new([event.rss_source_feed])
           }
           {new_id, Map.put(collections, new_id, new_collection)}
       end
@@ -562,8 +567,8 @@ defmodule BaladosSyncCore.Aggregates.User do
 
     new_collection = %{
       title: event.title,
-      feed_ids: MapSet.new(),
-      is_default: event.is_default
+      slug: event.slug,
+      feed_ids: MapSet.new()
     }
 
     %{user | collections: Map.put(collections, event.collection_id, new_collection)}

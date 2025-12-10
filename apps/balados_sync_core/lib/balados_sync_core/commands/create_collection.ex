@@ -3,19 +3,20 @@ defmodule BaladosSyncCore.Commands.CreateCollection do
   Creates a new collection for organizing subscriptions.
 
   Collections allow users to group podcast feeds together.
+  The default collection uses slug "all".
   """
 
   @type t :: %__MODULE__{
     user_id: String.t(),
     title: String.t(),
-    is_default: boolean(),
+    slug: String.t(),
     event_infos: map()
   }
 
   defstruct [
     :user_id,
     :title,
-    is_default: false,
+    :slug,
     event_infos: %{}
   ]
 end

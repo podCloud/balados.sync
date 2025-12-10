@@ -26,7 +26,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
       id: event.collection_id,
       user_id: event.user_id,
       title: event.title,
-      is_default: event.is_default,
+      slug: event.slug,
       inserted_at: truncate_timestamp(event.timestamp),
       updated_at: truncate_timestamp(event.timestamp)
     })
@@ -35,7 +35,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
       multi,
       :collection,
       changeset,
-      on_conflict: {:replace, [:title, :is_default, :updated_at]},
+      on_conflict: {:replace, [:title, :slug, :updated_at]},
       conflict_target: [:id]
     )
   end)

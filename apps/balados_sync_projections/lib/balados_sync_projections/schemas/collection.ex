@@ -3,7 +3,7 @@ defmodule BaladosSyncProjections.Schemas.Collection do
   Projection schema for user collections.
 
   Collections allow users to organize their podcast subscriptions.
-  Each user has a default collection that automatically includes new subscriptions.
+  Each user has a default collection (slug: "all") that automatically includes new subscriptions.
   """
 
   use Ecto.Schema
@@ -17,7 +17,7 @@ defmodule BaladosSyncProjections.Schemas.Collection do
   schema "collections" do
     field :user_id, :string
     field :title, :string
-    field :is_default, :boolean, default: false
+    field :slug, :string
     field :deleted_at, :utc_datetime
 
     has_many :collection_subscriptions, CollectionSubscription,
@@ -30,7 +30,7 @@ defmodule BaladosSyncProjections.Schemas.Collection do
   @doc false
   def changeset(collection, attrs) do
     collection
-    |> cast(attrs, [:user_id, :title, :is_default, :deleted_at])
-    |> validate_required([:user_id, :title])
+    |> cast(attrs, [:id, :user_id, :title, :slug, :deleted_at, :inserted_at, :updated_at])
+    |> validate_required([:user_id, :title, :slug])
   end
 end

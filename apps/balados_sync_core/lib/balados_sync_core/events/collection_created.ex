@@ -8,7 +8,7 @@ defmodule BaladosSyncCore.Events.CollectionCreated do
     :user_id,
     :collection_id,
     :title,
-    :is_default,
+    :slug,
     :timestamp,
     :event_infos
   ]
