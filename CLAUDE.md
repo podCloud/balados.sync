@@ -283,6 +283,7 @@ git pull origin main
 - Privacy Choice Modal (v1.4)
 - Privacy Manager Page (v1.5)
 - PlayToken Expiration & Auto-cleanup (v1.6) ✅ [#30](https://github.com/podCloud/balados.sync/pull/30)
+- Public Timeline Page with Activity Feed (v1.7) ✅ [#40](https://github.com/podCloud/balados.sync/pull/40)
 
 ---
 
