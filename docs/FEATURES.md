@@ -378,17 +378,12 @@ Page publique affichant un flux d'activité en temps réel de la communauté.
 - `GET /timeline` - Afficher flux avec pagination
 - `GET /timeline?limit=50&offset=0` - Pagination parameters
 
-**Modules** :
+**Backend Modules** :
 - `PublicController.timeline_html/2` - Query + pagination
 - `PublicHTML.event_border_color/1` - Couleur bordure par type
 - `PublicHTML.display_username/1` - Masquage anonyme
 - `PublicHTML.event_action_text/1` - Verbe action
 - `PublicHTML.podcast_title/1` - Titre fallback
-
-**CQRS** :
-- Read-only feature (pas de commands/events)
-- Utilise projection existante : `PublicEvent`
-- Aucune mutation sur event store
 
 **Frontend (v1.7.1)** :
 - Client-side filtering par type d'événement
@@ -397,7 +392,7 @@ Page publique affichant un flux d'activité en temps réel de la communauté.
 - Auto-dismiss toasts après 5 secondes
 - Filtrage en temps réel sans rechargement serveur
 
-**Modules Frontend** :
+**Frontend Modules** :
 - `timeline_filter.ts` - Gestion du filtrage client
 - `toast_notifications.ts` - Système de notifications toast
 - `app.ts` - Import des modules
@@ -407,52 +402,16 @@ Page publique affichant un flux d'activité en temps réel de la communauté.
 - `assets/js/timeline_filter.ts` - Filtrage par type
 - `assets/js/toast_notifications.ts` - Toast notifications
 
----
-
-### Privacy Manager Page (v1.5)
-
-Page dédiée pour gérer les niveaux de confidentialité de tous les podcasts.
-
-### Public Timeline Page with Activity Feed (v1.7)
-
-Page publique affichant un flux d'activité en temps réel de la communauté.
-
-**Page** :
-- Route : `GET /timeline` (public, pas d'authentification)
-- Affiche flux des 50 derniers événements (subscribe/unsubscribe/play)
-- Pagination avec Previous/Next buttons (limit/offset parameters)
-
-**Événements Affichés** :
-- **Subscription** : "X subscribed to Podcast Name" (bordure verte)
-- **Play** : "X listened to Podcast Name" (bordure bleue)
-- **Unsubscribe** : "X unsubscribed from Podcast Name" (bordure rouge)
-
-**Enrichissement** :
-- Métadonnées RSS en temps réel (titre, couverture)
-- Cache 5 min pour éviter N+1 fetches
-- Fallback "Unknown Podcast" si fetch échoue
-- Couvertures manquantes : placeholder image
-
-**Privacy Respecting** :
-- Utilisateurs anonymes : affichent "Anonymous"
-- LEFT JOIN pour masquer les utilisateurs privés
-- Aucune exposition d'identifiants
-
-**Routes & API** :
-- `GET /timeline` - Afficher flux avec pagination
-- `GET /timeline?limit=50&offset=0` - Pagination parameters
-
-**Modules** :
-- `PublicController.timeline_html/2` - Query + pagination
-- `PublicHTML.event_border_color/1` - Couleur bordure par type
-- `PublicHTML.display_username/1` - Masquage anonyme
-- `PublicHTML.event_action_text/1` - Verbe action
-- `PublicHTML.podcast_title/1` - Titre fallback
-
 **CQRS** :
 - Read-only feature (pas de commands/events)
 - Utilise projection existante : `PublicEvent`
 - Aucune mutation sur event store
+
+**Avantages** :
+- Découverte communautaire : voir quels podcasts populaires les gens écoutent
+- Privacy-respecting : anonymes masquées, utilisateurs privés non affichés
+- Real-time enrichment : titres et couvertures fraîches via RssCache (5 min TTL)
+- Scalable : pagination simple et requête optimisée avec indices DB
 
 ---
 
