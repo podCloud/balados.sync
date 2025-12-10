@@ -14,7 +14,8 @@ defmodule BaladosSyncWeb.PublicController do
     EpisodePopularity,
     PublicEvent,
     UserPrivacy,
-    PlayStatus
+    PlayStatus,
+    User
   }
 
   import Ecto.Query
@@ -270,6 +271,55 @@ defmodule BaladosSyncWeb.PublicController do
   end
 
   @doc """
+  Display public timeline of podcast activity in HTML.
+  Shows subscriptions and plays from all users (respecting privacy settings).
+  """
+  def timeline_html(conn, params) do
+    limit = min(String.to_integer(params["limit"] || "50"), 100)
+    offset = String.to_integer(params["offset"] || "0")
+
+    # Query events with username resolution
+    events =
+      from(pe in PublicEvent,
+        left_join: u in User,
+        on: pe.user_id == u.id,
+        order_by: [desc: :event_timestamp],
+        limit: ^limit,
+        offset: ^offset,
+        select: %{
+          event: pe,
+          username: u.username
+        }
+      )
+      |> ProjectionsRepo.all()
+      |> Enum.map(&format_timeline_event/1)
+
+    # Batch fetch feed metadata
+    feed_urls =
+      events
+      |> Enum.map(& &1.rss_source_feed)
+      |> Enum.uniq()
+      |> Enum.reject(&is_nil/1)
+
+    feed_metadata = build_feed_metadata_map(feed_urls)
+
+    # Enrich events with metadata
+    enriched_events =
+      Enum.map(events, fn event ->
+        Map.put(event, :feed_metadata, Map.get(feed_metadata, event.rss_source_feed))
+      end)
+
+    render(conn, :timeline,
+      events: enriched_events,
+      limit: limit,
+      offset: offset,
+      current_page: div(offset, limit) + 1,
+      has_previous: offset > 0,
+      has_next: length(events) == limit
+    )
+  end
+
+  @doc """
   Quick subscribe from public feed page.
   Requires authentication.
   """
@@ -413,5 +463,36 @@ defmodule BaladosSyncWeb.PublicController do
     :crypto.hash(:sha256, feed_url)
     |> Base.encode16(case: :lower)
     |> String.slice(0, 16)
+  end
+
+  # ===== Timeline Helpers =====
+
+  defp format_timeline_event(%{event: event, username: username}) do
+    %{
+      id: event.id,
+      event_type: event.event_type,
+      user_id: event.user_id,
+      username: if(event.privacy == "anonymous", do: nil, else: username),
+      privacy: event.privacy,
+      rss_source_feed: event.rss_source_feed,
+      rss_source_item: event.rss_source_item,
+      event_data: event.event_data,
+      event_timestamp: event.event_timestamp
+    }
+  end
+
+  defp build_feed_metadata_map(encoded_feeds) do
+    Enum.reduce(encoded_feeds, %{}, fn encoded_feed, acc ->
+      case Base.url_decode64(encoded_feed, padding: false) do
+        {:ok, feed_url} ->
+          case RssCache.get_feed_metadata(feed_url) do
+            {:ok, metadata} -> Map.put(acc, encoded_feed, metadata)
+            _ -> acc
+          end
+
+        :error ->
+          acc
+      end
+    end)
   end
 end

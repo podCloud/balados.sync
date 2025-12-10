@@ -1,0 +1,103 @@
+<div class="px-4 py-10 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-3xl">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold text-zinc-900">Public Timeline</h1>
+      <p class="text-zinc-600 mt-2">
+        See what the Balados community is listening to right now
+      </p>
+    </div>
+    <!-- Timeline Feed -->
+    <div class="space-y-4">
+      <%= if Enum.empty?(@events) do %>
+        <div class="bg-white shadow rounded-lg p-8 text-center text-zinc-500">
+          <p>No activity yet. Be the first to subscribe to a podcast!</p>
+        </div>
+      <% else %>
+        <%= for event <- @events do %>
+          <div class={[
+            "bg-white border-l-4 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow",
+            event_border_color(event["event_type"])
+          ]}>
+            <div class="flex gap-4">
+              <!-- Podcast Cover -->
+              <%= if event["feed_metadata"] && event["feed_metadata"]["cover"] do %>
+                <div class="flex-shrink-0">
+                  <img
+                    src={event["feed_metadata"]["cover"]["src"]}
+                    alt={event["feed_metadata"]["title"]}
+                    class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover shadow"
+                  />
+                </div>
+              <% else %>
+                <div class="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-zinc-200 flex items-center justify-center">
+                  <span class="text-zinc-400 text-xs">No Cover</span>
+                </div>
+              <% end %>
+              <!-- Event Content -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex-1 min-w-0">
+                    <!-- Username -->
+                    <span class="font-semibold text-zinc-900">
+                      <%= display_username(event) %>
+                    </span>
+                    <!-- Event Action -->
+                    <span class="text-zinc-700">
+                      <%= event_action_text(event["event_type"]) %>
+                    </span>
+                    <!-- Podcast Title -->
+                    <.link
+                      navigate={~p"/podcasts/#{event["rss_source_feed"]}"}
+                      class="font-semibold text-blue-600 hover:underline"
+                    >
+                      <%= podcast_title(event) %>
+                    </.link>
+                    <!-- Episode Title (for plays) -->
+                    <%= if event["event_type"] == "play" && event["event_data"]["item_title"] do %>
+                      <div class="text-sm text-zinc-600 mt-1">
+                        Episode: <%= event["event_data"]["item_title"] %>
+                      </div>
+                    <% end %>
+                  </div>
+                  <!-- Timestamp -->
+                  <time class="text-sm text-zinc-500 whitespace-nowrap">
+                    <%= time_ago_in_words(event["event_timestamp"]) %>
+                  </time>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+    <!-- Pagination -->
+    <%= if @has_previous or @has_next do %>
+      <div class="mt-8 flex justify-between items-center">
+        <%= if @has_previous do %>
+          <.link
+            navigate={~p"/timeline?limit=#{@limit}&offset=#{max(@offset - @limit, 0)}"}
+            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
+          >
+            ← Previous
+          </.link>
+        <% else %>
+          <div></div>
+        <% end %>
+
+        <span class="text-sm text-zinc-600">Page <%= @current_page %></span>
+
+        <%= if @has_next do %>
+          <.link
+            navigate={~p"/timeline?limit=#{@limit}&offset=#{@offset + @limit}"}
+            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
+          >
+            Next →
+          </.link>
+        <% else %>
+          <div></div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

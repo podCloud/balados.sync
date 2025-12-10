@@ -45,6 +45,7 @@ defmodule BaladosSyncWeb.Router do
     # Public discovery pages
     get "/trending/podcasts", PublicController, :trending_podcasts_html
     get "/trending/episodes", PublicController, :trending_episodes_html
+    get "/timeline", PublicController, :timeline_html
     get "/podcasts/:feed", PublicController, :feed_page
     get "/episodes/:item", PublicController, :episode_page
 
