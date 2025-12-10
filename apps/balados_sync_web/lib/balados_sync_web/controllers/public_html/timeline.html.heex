@@ -7,18 +7,66 @@
         See what the Balados community is listening to right now
       </p>
     </div>
+
+    <!-- Filter Controls -->
+    <div class="mb-6 space-y-4">
+      <!-- Mode Filter -->
+      <div class="flex flex-wrap gap-2">
+        <button
+          data-filter-mode="all"
+          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition active"
+        >
+          All Activity
+        </button>
+        <button
+          data-filter-mode="public"
+          class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-zinc-700 border border-zinc-200 hover:bg-zinc-50 transition"
+        >
+          Public Only
+        </button>
+      </div>
+
+      <!-- Event Type Filter -->
+      <div class="flex flex-wrap gap-3 p-3 bg-white rounded-lg border border-zinc-200">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            data-filter-event-type="play"
+            checked
+            class="w-4 h-4 rounded border-zinc-300"
+          />
+          <span class="text-sm text-zinc-700">Plays</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            data-filter-event-type="subscribe"
+            checked
+            class="w-4 h-4 rounded border-zinc-300"
+          />
+          <span class="text-sm text-zinc-700">Subscriptions</span>
+        </label>
+      </div>
+    </div>
+
     <!-- Timeline Feed -->
-    <div class="space-y-4">
+    <div class="space-y-4" id="timeline-feed">
       <%= if Enum.empty?(@events) do %>
         <div class="bg-white shadow rounded-lg p-8 text-center text-zinc-500">
           <p>No activity yet. Be the first to subscribe to a podcast!</p>
         </div>
       <% else %>
         <%= for event <- @events do %>
-          <div class={[
-            "bg-white border-l-4 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow",
-            event_border_color(event["event_type"])
-          ]}>
+          <div
+            data-event-id={event["id"]}
+            data-event-type={event["event_type"]}
+            data-user-id={event["user_id"]}
+            data-privacy={event["event_data"]["privacy"] || "unknown"}
+            class={[
+              "bg-white border-l-4 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow",
+              event_border_color(event["event_type"])
+            ]}
+          >
             <div class="flex gap-4">
               <!-- Podcast Cover -->
               <%= if event["feed_metadata"] && event["feed_metadata"]["cover"] do %>
@@ -39,7 +87,7 @@
                 <div class="flex items-start justify-between gap-2">
                   <div class="flex-1 min-w-0">
                     <!-- Username -->
-                    <span class="font-semibold text-zinc-900">
+                    <span class="font-semibold text-zinc-900" data-username>
                       <%= display_username(event) %>
                     </span>
                     <!-- Event Action -->
@@ -50,6 +98,7 @@
                     <.link
                       navigate={~p"/podcasts/#{event["rss_source_feed"]}"}
                       class="font-semibold text-blue-600 hover:underline"
+                      data-title
                     >
                       <%= podcast_title(event) %>
                     </.link>
