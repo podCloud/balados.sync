@@ -5,15 +5,7 @@
  * Sends RecordPlay command via WebSocket with toggled played value.
  */
 
-import { Dispatcher } from './dispatch_events'
-
 export class MarkPlayedHandler {
-  private dispatcher: Dispatcher
-
-  constructor() {
-    this.dispatcher = new Dispatcher()
-  }
-
   init(): void {
     document.addEventListener('click', (e: MouseEvent) => {
       const btn = (e.target as HTMLElement).closest('.mark-played-btn')
@@ -23,7 +15,7 @@ export class MarkPlayedHandler {
     })
   }
 
-  private async handleMarkPlayedClick(btn: HTMLButtonElement): Promise<void> {
+  private handleMarkPlayedClick(btn: HTMLButtonElement): void {
     const feed = btn.dataset.feed
     const item = btn.dataset.item
     const isCurrentlyPlayed = btn.dataset.played === 'true'
@@ -34,8 +26,17 @@ export class MarkPlayedHandler {
     this.toggleIcon(btn, !isCurrentlyPlayed)
 
     try {
-      // Dispatch RecordPlay with toggled played value
-      await this.dispatcher.recordPlay(feed, item, !isCurrentlyPlayed)
+      // Get the WebSocket manager from dispatch_events
+      const wsManager = (window as any).__dispatchEventsManager
+      if (!wsManager) {
+        console.warn('[MarkPlayed] WebSocket manager not available')
+        // Rollback on error
+        this.toggleIcon(btn, isCurrentlyPlayed)
+        return
+      }
+
+      // Send RecordPlay event (played is always true for mark-as-played action)
+      wsManager.sendRecordPlay(feed, item)
     } catch (error) {
       console.error('[MarkPlayed] Error:', error)
       // Rollback UI on error

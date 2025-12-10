@@ -212,11 +212,11 @@ defmodule BaladosSyncWeb.PublicController do
           nil
         end
 
-      # Fetch played items for authenticated users
+      # Fetch played items for authenticated users on this feed only
       played_items =
         if current_user do
           from(p in PlayStatus,
-            where: p.user_id == ^current_user.id and p.played == true,
+            where: p.user_id == ^current_user.id and p.played == true and p.rss_source_feed == ^encoded_feed,
             select: p.rss_source_item
           )
           |> ProjectionsRepo.all()
