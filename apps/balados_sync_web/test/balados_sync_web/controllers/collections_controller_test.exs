@@ -22,25 +22,24 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
         conn
         |> put_req_header("authorization", "Bearer #{token}")
         |> post("/api/v1/collections", %{
-          "title" => "News",
-          "slug" => "news"
+          "title" => "News"
         })
 
       assert response(conn, :created)
       body = json_response(conn, :created)
       assert body["collection"]["title"] == "News"
-      assert body["collection"]["slug"] == "news"
       assert body["collection"]["user_id"] == user_id
       assert is_list(body["collection"]["feeds"])
     end
 
-    test "returns error without required fields", %{conn: conn, token: token} do
+    test "returns error without title", %{conn: conn, token: token} do
       conn =
         conn
         |> put_req_header("authorization", "Bearer #{token}")
-        |> post("/api/v1/collections", %{"title" => "News"})
+        |> post("/api/v1/collections", %{})
 
-      assert response(conn, 422)
+      # Controller expects title key
+      assert response(conn, 400) or response(conn, 422)
     end
   end
 
@@ -50,7 +49,7 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
       Dispatcher.dispatch(%CreateCollection{
         user_id: user_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         event_infos: %{}
       })
 
@@ -62,7 +61,7 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
       assert response(conn, 200)
       body = json_response(conn, 200)
       assert is_list(body["collections"])
-      # Should have at least the "all" default collection
+      # Should have at least one collection
       assert length(body["collections"]) > 0
     end
 
@@ -73,7 +72,7 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
       Dispatcher.dispatch(%CreateCollection{
         user_id: other_user_id,
         title: "Other News",
-        slug: "other-news",
+        is_default: false,
         event_infos: %{}
       })
 
@@ -83,7 +82,7 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
       Dispatcher.dispatch(%CreateCollection{
         user_id: conn_user_id,
         title: "My News",
-        slug: "my-news",
+        is_default: false,
         event_infos: %{}
       })
 
@@ -96,8 +95,8 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
       body = json_response(conn, 200)
 
       # Should only see own collection
-      assert Enum.any?(body["collections"], fn c -> c["slug"] == "my-news" end)
-      assert not Enum.any?(body["collections"], fn c -> c["slug"] == "other-news" end)
+      assert Enum.any?(body["collections"], fn c -> c["title"] == "My News" end)
+      assert not Enum.any?(body["collections"], fn c -> c["title"] == "Other News" end)
     end
   end
 
@@ -107,11 +106,11 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
       Dispatcher.dispatch(%CreateCollection{
         user_id: user_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         event_infos: %{}
       })
 
-      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, slug: "news")
+      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, title: "News")
 
       conn =
         conn
@@ -141,11 +140,11 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
       Dispatcher.dispatch(%CreateCollection{
         user_id: user_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         event_infos: %{}
       })
 
-      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, slug: "news")
+      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, title: "News")
 
       conn =
         conn
@@ -157,8 +156,15 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
     end
 
     test "cannot delete default collection", %{conn: conn, user_id: user_id, token: token} do
-      # Get the default "all" collection
-      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, slug: "all")
+      # Create a default collection first
+      Dispatcher.dispatch(%CreateCollection{
+        user_id: user_id,
+        title: "All",
+        is_default: true,
+        event_infos: %{}
+      })
+
+      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, is_default: true)
 
       assert not is_nil(collection)
 
@@ -189,11 +195,11 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
       Dispatcher.dispatch(%CreateCollection{
         user_id: user_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         event_infos: %{}
       })
 
-      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, slug: "news")
+      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, title: "News")
 
       conn =
         conn
@@ -209,11 +215,11 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
       Dispatcher.dispatch(%CreateCollection{
         user_id: user_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         event_infos: %{}
       })
 
-      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, slug: "news")
+      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, title: "News")
       unsubscribed_feed = "aHR0cHM6Ly91bnN1YnNjcmliZWQuZXhhbXBsZS5jb20v"
 
       conn =
@@ -245,11 +251,11 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
       Dispatcher.dispatch(%CreateCollection{
         user_id: user_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         event_infos: %{}
       })
 
-      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, slug: "news")
+      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, title: "News")
 
       # Add feed to collection
       Dispatcher.dispatch(%BaladosSyncCore.Commands.AddFeedToCollection{

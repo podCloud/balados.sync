@@ -85,6 +85,15 @@ defmodule BaladosSyncWeb.Router do
     post "/subscriptions", WebSubscriptionsController, :create
     get "/subscriptions/export.opml", WebSubscriptionsController, :export_opml
 
+    # Web Collections (HTML interface for managing collections)
+    get "/subscriptions/collections", WebCollectionsController, :index
+    get "/subscriptions/collections/new", WebCollectionsController, :new
+    post "/subscriptions/collections", WebCollectionsController, :create
+    get "/subscriptions/collections/:id", WebCollectionsController, :show
+    get "/subscriptions/collections/:id/edit", WebCollectionsController, :edit
+    put "/subscriptions/collections/:id", WebCollectionsController, :update
+    delete "/subscriptions/collections/:id", WebCollectionsController, :delete
+
     # Redirect old subscription detail page to public podcast page
     get "/subscriptions/:feed", WebSubscriptionsController, :redirect_to_public
 
