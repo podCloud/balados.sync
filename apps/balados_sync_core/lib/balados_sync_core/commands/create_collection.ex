@@ -15,6 +15,8 @@ defmodule BaladosSyncCore.Commands.CreateCollection do
     title: String.t(),
     is_default: boolean(),
     collection_id: String.t() | nil,
+    description: String.t() | nil,
+    color: String.t() | nil,
     event_infos: map()
   }
 
@@ -22,6 +24,8 @@ defmodule BaladosSyncCore.Commands.CreateCollection do
     :user_id,
     :title,
     :collection_id,
+    :description,
+    :color,
     is_default: false,
     event_infos: %{}
   ]

@@ -310,7 +310,13 @@ defmodule BaladosSyncCore.Aggregates.User do
           user_id: user.user_id,
           collection_id: collection_id,
           title: cmd.title,
+<<<<<<< HEAD
           is_default: cmd.is_default,
+=======
+          slug: cmd.slug,
+          description: cmd.description,
+          color: cmd.color,
+>>>>>>> f573f47 (feat(collections): add description and color metadata fields)
           timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
           event_infos: cmd.event_infos || %{}
         }
@@ -365,7 +371,10 @@ defmodule BaladosSyncCore.Aggregates.User do
       not Map.has_key?(collections, cmd.collection_id) ->
         {:error, :collection_not_found}
 
-      not cmd.title || String.trim(cmd.title) == "" ->
+      not cmd.title && not cmd.description && not cmd.color ->
+        {:error, :no_changes}
+
+      cmd.title && String.trim(cmd.title) == "" ->
         {:error, :title_required}
 
       true ->
@@ -373,6 +382,8 @@ defmodule BaladosSyncCore.Aggregates.User do
           user_id: user.user_id,
           collection_id: cmd.collection_id,
           title: cmd.title,
+          description: cmd.description,
+          color: cmd.color,
           timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
           event_infos: cmd.event_infos || %{}
         }
@@ -586,6 +597,8 @@ defmodule BaladosSyncCore.Aggregates.User do
     new_collection = %{
       title: event.title,
       is_default: event.is_default,
+      description: event.description,
+      color: event.color,
       feed_ids: MapSet.new()
     }
 
@@ -628,7 +641,10 @@ defmodule BaladosSyncCore.Aggregates.User do
         user
 
       collection ->
-        updated_collection = %{collection | title: event.title}
+        updated_collection = collection
+        updated_collection = if event.title, do: %{updated_collection | title: event.title}, else: updated_collection
+        updated_collection = if event.description, do: %{updated_collection | description: event.description}, else: updated_collection
+        updated_collection = if event.color, do: %{updated_collection | color: event.color}, else: updated_collection
         %{user | collections: Map.put(collections, event.collection_id, updated_collection)}
     end
   end

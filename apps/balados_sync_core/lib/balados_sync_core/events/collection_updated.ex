@@ -8,6 +8,8 @@ defmodule BaladosSyncCore.Events.CollectionUpdated do
     :user_id,
     :collection_id,
     :title,
+    :description,
+    :color,
     :timestamp,
     :event_infos
   ]
