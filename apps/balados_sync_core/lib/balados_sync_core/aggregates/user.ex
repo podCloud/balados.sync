@@ -585,7 +585,7 @@ defmodule BaladosSyncCore.Aggregates.User do
 
     new_collection = %{
       title: event.title,
-      slug: event.slug,
+      is_default: event.is_default,
       feed_ids: MapSet.new()
     }
 

@@ -198,21 +198,30 @@ defmodule BaladosSyncWeb.CollectionsController do
         "error": "slug_already_exists"
       }
   """
-  def create(conn, %{"title" => title, "slug" => slug}) do
+  def create(conn, %{"title" => title} = params) do
     user_id = conn.assigns.current_user_id
+    is_default = Map.get(params, "is_default", false)
 
     command = %CreateCollection{
       user_id: user_id,
       title: title,
-      slug: slug,
+      is_default: is_default,
       event_infos: %{}
     }
 
     case Dispatcher.dispatch(command) do
       :ok ->
         # Query the created collection from projections
+        # Note: we need to query by user_id and title since we just dispatched
         collection =
-          ProjectionsRepo.get_by(Collection, user_id: user_id, slug: slug, deleted_at: nil)
+          ProjectionsRepo.get_by(Collection, user_id: user_id, title: title, deleted_at: nil) ||
+          ProjectionsRepo.one(
+            from(c in Collection,
+              where: c.user_id == ^user_id and c.deleted_at is nil,
+              order_by: [desc: :inserted_at],
+              limit: 1
+            )
+          )
 
         if collection do
           conn
@@ -355,7 +364,7 @@ defmodule BaladosSyncWeb.CollectionsController do
 
       collection ->
         if collection.user_id == user_id && is_nil(collection.deleted_at) do
-          if collection.slug == "all" do
+          if collection.is_default do
             conn
             |> put_status(:forbidden)
             |> json(%{error: "cannot_delete_default_collection"})
@@ -552,7 +561,7 @@ defmodule BaladosSyncWeb.CollectionsController do
       id: collection.id,
       user_id: collection.user_id,
       title: collection.title,
-      slug: collection.slug,
+      is_default: collection.is_default,
       feeds: feeds,
       inserted_at: collection.inserted_at,
       updated_at: collection.updated_at
