@@ -6,10 +6,10 @@ defmodule BaladosSyncCore.Commands.DeleteCollection do
   """
 
   @type t :: %__MODULE__{
-    user_id: String.t(),
-    collection_id: String.t(),
-    event_infos: map()
-  }
+          user_id: String.t(),
+          collection_id: String.t(),
+          event_infos: map()
+        }
 
   defstruct [
     :user_id,

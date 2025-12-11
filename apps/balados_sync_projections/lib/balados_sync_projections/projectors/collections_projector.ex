@@ -44,14 +44,17 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
   Projects FeedAddedToCollection event to insert a collection-feed association.
   """
   project(%BaladosSyncCore.Events.FeedAddedToCollection{} = event, _metadata, fn multi ->
-    Logger.debug("Projecting FeedAddedToCollection for collection_id=#{event.collection_id}, feed=#{event.rss_source_feed}")
+    Logger.debug(
+      "Projecting FeedAddedToCollection for collection_id=#{event.collection_id}, feed=#{event.rss_source_feed}"
+    )
 
-    changeset = CollectionSubscription.changeset(%CollectionSubscription{}, %{
-      collection_id: event.collection_id,
-      rss_source_feed: event.rss_source_feed,
-      inserted_at: truncate_timestamp(event.timestamp),
-      updated_at: truncate_timestamp(event.timestamp)
-    })
+    changeset =
+      CollectionSubscription.changeset(%CollectionSubscription{}, %{
+        collection_id: event.collection_id,
+        rss_source_feed: event.rss_source_feed,
+        inserted_at: truncate_timestamp(event.timestamp),
+        updated_at: truncate_timestamp(event.timestamp)
+      })
 
     Ecto.Multi.insert(
       multi,
@@ -66,14 +69,18 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
   Projects FeedRemovedFromCollection event to delete a collection-feed association.
   """
   project(%BaladosSyncCore.Events.FeedRemovedFromCollection{} = event, _metadata, fn multi ->
-    Logger.debug("Projecting FeedRemovedFromCollection for collection_id=#{event.collection_id}, feed=#{event.rss_source_feed}")
+    Logger.debug(
+      "Projecting FeedRemovedFromCollection for collection_id=#{event.collection_id}, feed=#{event.rss_source_feed}"
+    )
 
     Ecto.Multi.delete_all(
       multi,
       :remove_collection_subscription,
       fn _ ->
         from(cs in CollectionSubscription,
-          where: cs.collection_id == ^event.collection_id and cs.rss_source_feed == ^event.rss_source_feed
+          where:
+            cs.collection_id == ^event.collection_id and
+              cs.rss_source_feed == ^event.rss_source_feed
         )
       end
     )

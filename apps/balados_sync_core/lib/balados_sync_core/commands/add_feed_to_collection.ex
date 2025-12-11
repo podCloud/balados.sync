@@ -6,11 +6,11 @@ defmodule BaladosSyncCore.Commands.AddFeedToCollection do
   """
 
   @type t :: %__MODULE__{
-    user_id: String.t(),
-    collection_id: String.t(),
-    rss_source_feed: String.t(),
-    event_infos: map()
-  }
+          user_id: String.t(),
+          collection_id: String.t(),
+          rss_source_feed: String.t(),
+          event_infos: map()
+        }
 
   defstruct [
     :user_id,

@@ -424,11 +424,13 @@ defmodule BaladosSyncCore.Aggregates.User do
         nil ->
           # Create default collection and add feed
           new_id = Ecto.UUID.generate()
+
           new_collection = %{
             title: "All Subscriptions",
             is_default: true,
             feed_ids: MapSet.new([event.rss_source_feed])
           }
+
           {new_id, Map.put(collections, new_id, new_collection)}
       end
 
@@ -489,22 +491,24 @@ defmodule BaladosSyncCore.Aggregates.User do
     playlists = user.playlists || %{}
 
     # Get or create playlist
-    playlist = Map.get(playlists, event.playlist, %{
-      name: event.playlist,
-      items: []
-    })
+    playlist =
+      Map.get(playlists, event.playlist, %{
+        name: event.playlist,
+        items: []
+      })
 
     # Add item to playlist if not already present
     items = playlist.items || []
     new_item = {event.rss_source_feed, event.rss_source_item}
 
-    items = if Enum.any?(items, fn {feed, item} ->
-      feed == event.rss_source_feed and item == event.rss_source_item
-    end) do
-      items
-    else
-      items ++ [new_item]
-    end
+    items =
+      if Enum.any?(items, fn {feed, item} ->
+           feed == event.rss_source_feed and item == event.rss_source_item
+         end) do
+        items
+      else
+        items ++ [new_item]
+      end
 
     updated_playlist = %{playlist | items: items}
     %{user | playlists: Map.put(playlists, event.playlist, updated_playlist)}
@@ -520,9 +524,11 @@ defmodule BaladosSyncCore.Aggregates.User do
       playlist ->
         # Remove item from playlist
         items = playlist.items || []
-        new_items = Enum.filter(items, fn {feed, item} ->
-          not (feed == event.rss_source_feed and item == event.rss_source_item)
-        end)
+
+        new_items =
+          Enum.filter(items, fn {feed, item} ->
+            not (feed == event.rss_source_feed and item == event.rss_source_item)
+          end)
 
         updated_playlist = %{playlist | items: new_items}
         %{user | playlists: Map.put(playlists, event.playlist, updated_playlist)}
@@ -538,8 +544,15 @@ defmodule BaladosSyncCore.Aggregates.User do
 
       playlist ->
         updated_playlist = playlist
-        updated_playlist = if event.name, do: %{updated_playlist | name: event.name}, else: updated_playlist
-        updated_playlist = if event.description, do: %{updated_playlist | description: event.description}, else: updated_playlist
+
+        updated_playlist =
+          if event.name, do: %{updated_playlist | name: event.name}, else: updated_playlist
+
+        updated_playlist =
+          if event.description,
+            do: %{updated_playlist | description: event.description},
+            else: updated_playlist
+
         %{user | playlists: Map.put(playlists, event.playlist, updated_playlist)}
     end
   end
@@ -572,7 +585,7 @@ defmodule BaladosSyncCore.Aggregates.User do
 
     new_collection = %{
       title: event.title,
-      slug: event.slug,
+      is_default: event.is_default,
       feed_ids: MapSet.new()
     }
 

@@ -201,11 +201,11 @@ defmodule BaladosSyncWeb.PublicController do
       # Fetch current privacy level if user authenticated
       current_privacy =
         if current_user do
-          case ProjectionsRepo.get_by(UserPrivacy, [
-            user_id: current_user.id,
-            rss_source_feed: encoded_feed,
-            rss_source_item: ""
-          ]) do
+          case ProjectionsRepo.get_by(UserPrivacy,
+                 user_id: current_user.id,
+                 rss_source_feed: encoded_feed,
+                 rss_source_item: ""
+               ) do
             nil -> "public"
             privacy -> privacy.privacy
           end
@@ -217,7 +217,9 @@ defmodule BaladosSyncWeb.PublicController do
       played_items =
         if current_user do
           from(p in PlayStatus,
-            where: p.user_id == ^current_user.id and p.played == true and p.rss_source_feed == ^encoded_feed,
+            where:
+              p.user_id == ^current_user.id and p.played == true and
+                p.rss_source_feed == ^encoded_feed,
             select: p.rss_source_item
           )
           |> ProjectionsRepo.all()
