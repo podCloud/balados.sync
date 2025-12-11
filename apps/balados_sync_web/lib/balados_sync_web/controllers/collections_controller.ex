@@ -216,11 +216,10 @@ defmodule BaladosSyncWeb.CollectionsController do
         collection =
           ProjectionsRepo.get_by(Collection, user_id: user_id, title: title, deleted_at: nil) ||
           ProjectionsRepo.one(
-            from(c in Collection,
-              where: c.user_id == ^user_id and c.deleted_at is nil,
-              order_by: [desc: :inserted_at],
-              limit: 1
-            )
+            from(c in Collection)
+            |> where([c], c.user_id == ^user_id and is_nil(c.deleted_at))
+            |> order_by([c], [desc: c.inserted_at])
+            |> limit(1)
           )
 
         if collection do

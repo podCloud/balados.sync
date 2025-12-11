@@ -19,7 +19,7 @@ defmodule BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollection do
   """
 
   use Commanded.Event.Handler,
-    application: BaladosSyncCore.Application,
+    application: BaladosSyncCore.Dispatcher,
     name: __MODULE__,
     start_from: :origin
 

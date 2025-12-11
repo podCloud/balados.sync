@@ -63,7 +63,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       assert map_size(updated_user.collections) > 0
 
       assert Enum.any?(updated_user.collections, fn {_id, coll} ->
-               coll.slug == "all"
+               coll.is_default == true
              end)
     end
 
@@ -88,7 +88,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       # Find default collection
       {_default_id, default_collection} =
         Enum.find(updated_user.collections, fn {_id, coll} ->
-          coll.slug == "all"
+          coll.is_default == true
         end)
 
       # Verify feed is in default collection
@@ -102,7 +102,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          "default-1" => %{title: "All Subscriptions", slug: "all", feed_ids: []}
+          "default-1" => %{title: "All Subscriptions", is_default: true, feed_ids: []}
         }
       }
 
@@ -110,17 +110,14 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       cmd = %CreateCollection{
         user_id: user_id,
         title: "All Podcasts",
-        slug: "all",
+        is_default: true,
         event_infos: %{}
       }
 
       result = User.execute(user, cmd)
 
-      # Should either return error or prevent duplicate
-      case result do
-        {:error, reason} -> assert reason in [:slug_already_exists, :default_collection_exists]
-        event -> assert match?(%CollectionCreated{}, event)
-      end
+      # Should return error for duplicate default collection
+      assert match?({:error, :default_collection_already_exists}, result)
     end
   end
 
@@ -132,7 +129,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       cmd = %CreateCollection{
         user_id: user_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         event_infos: %{}
       }
 
@@ -141,7 +138,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       assert match?(%CollectionCreated{}, event)
       assert event.user_id == user_id
       assert event.title == "News"
-      assert event.slug == "news"
+      assert event.is_default == false
       # UUID length
       assert byte_size(event.collection_id) == 36
     end
@@ -153,7 +150,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       cmd = %CreateCollection{
         user_id: user_id,
         title: "",
-        slug: "invalid",
+        is_default: false,
         event_infos: %{}
       }
 
@@ -162,27 +159,27 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       assert match?({:error, _}, result)
     end
 
-    test "duplicate slug returns error" do
+    test "non-default collections don't conflict" do
       user_id = "user-123"
       collection_id = Ecto.UUID.generate()
 
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", slug: "news", feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
         }
       }
 
       cmd = %CreateCollection{
         user_id: user_id,
         title: "More News",
-        slug: "news",
+        is_default: false,
         event_infos: %{}
       }
 
       result = User.execute(user, cmd)
 
-      assert match?({:error, _}, result)
+      assert match?(%CollectionCreated{}, result)
     end
   end
 
@@ -198,7 +195,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
           feed => %{subscribed_at: DateTime.utc_now(), unsubscribed_at: nil}
         },
         collections: %{
-          collection_id => %{title: "News", slug: "news", feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
         }
       }
 
@@ -248,7 +245,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
         user_id: user_id,
         subscriptions: %{},
         collections: %{
-          collection_id => %{title: "News", slug: "news", feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
         }
       }
 
@@ -274,7 +271,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", slug: "news", feed_ids: MapSet.new([feed])}
+          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new([feed])}
         }
       }
 
@@ -321,7 +318,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", slug: "news", feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
         }
       }
 
@@ -345,7 +342,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", slug: "news", feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
         }
       }
 
@@ -370,7 +367,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", slug: "news", feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
         }
       }
 
@@ -393,7 +390,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "All Subscriptions", slug: "all", feed_ids: MapSet.new()}
+          collection_id => %{title: "All Subscriptions", is_default: true, feed_ids: MapSet.new()}
         }
       }
 
@@ -434,7 +431,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
         user_id: user_id,
         collection_id: collection_id,
         title: "News",
-        slug: "news"
+        is_default: false
       }
 
       updated_user = User.apply(user, event)
@@ -442,7 +439,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       assert collection_id in Map.keys(updated_user.collections)
       collection = updated_user.collections[collection_id]
       assert collection.title == "News"
-      assert collection.slug == "news"
+      assert collection.is_default == false
     end
 
     test "apply FeedAddedToCollection adds feed to collection" do
@@ -453,7 +450,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", slug: "news", feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
         }
       }
 
@@ -469,28 +466,30 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       assert feed in (collection.feed_ids || [])
     end
 
-    test "apply CollectionDeleted marks collection as deleted" do
+    test "apply CollectionDeleted removes collection from aggregate" do
       user_id = "user-123"
       collection_id = Ecto.UUID.generate()
 
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", slug: "news", feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
         }
       }
 
       event = %CollectionDeleted{
         user_id: user_id,
         collection_id: collection_id,
-        deleted_at: DateTime.utc_now()
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
       }
 
       updated_user = User.apply(user, event)
 
-      # In CQRS/ES, we typically keep the collection but mark it as deleted
-      # Check that the collection is still in the map (soft delete)
-      assert collection_id in Map.keys(updated_user.collections)
+      # CollectionDeleted removes the collection from the aggregate's collections map
+      # The projection layer will handle the soft delete marker if needed
+      assert collection_id not in Map.keys(updated_user.collections)
+      assert map_size(updated_user.collections) == 0
     end
   end
 end

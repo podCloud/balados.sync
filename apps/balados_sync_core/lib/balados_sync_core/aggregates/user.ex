@@ -296,7 +296,7 @@ defmodule BaladosSyncCore.Aggregates.User do
     collections = user.collections || %{}
 
     cond do
-      not cmd.title || String.trim(cmd.title) == "" ->
+      is_nil(cmd.title) || String.trim(cmd.title) == "" ->
         {:error, :title_required}
 
       cmd.is_default && Enum.any?(collections, fn {_id, col} -> col.is_default end) ->
@@ -310,13 +310,9 @@ defmodule BaladosSyncCore.Aggregates.User do
           user_id: user.user_id,
           collection_id: collection_id,
           title: cmd.title,
-<<<<<<< HEAD
           is_default: cmd.is_default,
-=======
-          slug: cmd.slug,
           description: cmd.description,
           color: cmd.color,
->>>>>>> f573f47 (feat(collections): add description and color metadata fields)
           timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
           event_infos: cmd.event_infos || %{}
         }
@@ -371,10 +367,10 @@ defmodule BaladosSyncCore.Aggregates.User do
       not Map.has_key?(collections, cmd.collection_id) ->
         {:error, :collection_not_found}
 
-      not cmd.title && not cmd.description && not cmd.color ->
+      is_nil(cmd.title) && is_nil(cmd.description) && is_nil(cmd.color) ->
         {:error, :no_changes}
 
-      cmd.title && String.trim(cmd.title) == "" ->
+      not is_nil(cmd.title) && String.trim(cmd.title) == "" ->
         {:error, :title_required}
 
       true ->
