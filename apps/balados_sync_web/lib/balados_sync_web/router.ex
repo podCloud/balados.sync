@@ -169,6 +169,15 @@ defmodule BaladosSyncWeb.Router do
     get "/subscriptions", SubscriptionController, :index
     get "/subscriptions/:feed/metadata", SubscriptionController, :metadata
 
+    # Collections management
+    get "/collections", CollectionsController, :index
+    get "/collections/:id", CollectionsController, :show
+    post "/collections", CollectionsController, :create
+    patch "/collections/:id", CollectionsController, :update
+    delete "/collections/:id", CollectionsController, :delete
+    post "/collections/:id/feeds", CollectionsController, :add_feed
+    delete "/collections/:id/feeds/:feed_id", CollectionsController, :remove_feed
+
     # Play status
     post "/play", PlayController, :record
     put "/play/:item/position", PlayController, :update_position
