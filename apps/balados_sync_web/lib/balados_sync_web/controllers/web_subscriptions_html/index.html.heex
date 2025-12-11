@@ -19,6 +19,50 @@
       </:actions>
     </.header>
 
+    <!-- Collections Filter -->
+    <%= if length(@collections) > 0 do %>
+      <div class="mt-6 mb-4">
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-sm text-zinc-500 mr-2">Filter by collection:</span>
+          <.link
+            navigate={~p"/subscriptions"}
+            class={"rounded-full px-4 py-1.5 text-sm font-medium transition-colors " <>
+              if @current_collection_id == nil do
+                "bg-blue-600 text-white"
+              else
+                "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+              end}
+          >
+            All
+          </.link>
+          <%= for collection <- @collections do %>
+            <%
+              is_active = @current_collection_id == collection.id
+              bg_color = if is_active do
+                collection.color || "#2563eb"
+              else
+                if collection.color, do: collection.color <> "20", else: "#f4f4f5"
+              end
+              text_class = if is_active, do: "text-white", else: "text-zinc-700 hover:opacity-80"
+            %>
+            <.link
+              navigate={~p"/subscriptions?collection=#{collection.id}"}
+              class={"rounded-full px-4 py-1.5 text-sm font-medium transition-colors " <> text_class}
+              style={"background-color: " <> bg_color}
+            >
+              <%= collection.title %>
+              <span class="ml-1 text-xs opacity-70">
+                (<%= length(collection.collection_subscriptions) %>)
+              </span>
+              <%= if collection.is_default do %>
+                <span class="ml-1 text-xs">*</span>
+              <% end %>
+            </.link>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
     <%= if Enum.empty?(@subscriptions) do %>
       <div class="text-center py-12">
         <p class="text-zinc-600 mb-4">No subscriptions yet. Add your first podcast!</p>

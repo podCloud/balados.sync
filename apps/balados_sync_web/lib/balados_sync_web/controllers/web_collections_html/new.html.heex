@@ -1,0 +1,65 @@
+<div class="px-4 py-10 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-2xl">
+    <.header>
+      New Collection
+      <:subtitle>Create a new collection to organize your podcasts</:subtitle>
+    </.header>
+
+    <.simple_form :let={f} for={@changeset} action={~p"/subscriptions/collections"} class="mt-8">
+      <.input field={f[:title]} type="text" label="Title" placeholder="e.g., News, Comedy, Tech..." required />
+      <.input field={f[:description]} type="textarea" label="Description (optional)" placeholder="What's this collection about?" />
+      <.input field={f[:color]} type="color" label="Color" value="#3b82f6" />
+
+      <div class="mt-6">
+        <label class="block text-sm font-semibold text-zinc-700 mb-3">
+          Select podcasts to include
+        </label>
+        <%= if Enum.empty?(@subscriptions) do %>
+          <p class="text-sm text-zinc-500">
+            No subscriptions yet.
+            <.link navigate={~p"/subscriptions/new"} class="text-blue-600 hover:underline">
+              Add some podcasts
+            </.link>
+            first.
+          </p>
+        <% else %>
+          <div class="space-y-2 max-h-96 overflow-y-auto border rounded-lg p-3">
+            <%= for sub <- @subscriptions do %>
+              <label class="flex items-center gap-3 p-2 rounded hover:bg-zinc-50 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="collection[feeds][]"
+                  value={sub.rss_source_feed}
+                  class="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
+                />
+                <%= if sub.metadata && sub.metadata.cover do %>
+                  <img
+                    src={sub.metadata.cover.src}
+                    alt=""
+                    class="w-10 h-10 rounded object-cover"
+                  />
+                <% else %>
+                  <div class="w-10 h-10 rounded bg-zinc-200 flex items-center justify-center">
+                    <span class="text-zinc-400 text-xs">?</span>
+                  </div>
+                <% end %>
+                <span class="text-sm text-zinc-900">
+                  <%= (sub.metadata && sub.metadata.title) || sub.rss_feed_title || "Unknown" %>
+                </span>
+              </label>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <:actions>
+        <.link navigate={~p"/subscriptions/collections"} class="text-sm text-zinc-500 hover:text-zinc-700">
+          Cancel
+        </.link>
+        <.button type="submit" phx-disable-with="Creating...">
+          Create Collection
+        </.button>
+      </:actions>
+    </.simple_form>
+  </div>
+</div>
