@@ -2,7 +2,7 @@
 name: development-workflow
 description: This is a GUIDE for Claude's manual workflow execution. Claude Code DOES NOT use agents for development workflow - Claude executes the workflow directly from CLAUDE.md instructions and this guide. Only use this file for reference when executing `continue le workflow`.
 tools: Bash, Read, Write, Grep, Glob, Edit, WebFetch
-model: inherit
+model: sonnet
 ---
 
 # Development Workflow Guide
