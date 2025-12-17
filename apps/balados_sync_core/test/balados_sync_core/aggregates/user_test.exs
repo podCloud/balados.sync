@@ -43,13 +43,13 @@ defmodule BaladosSyncCore.Aggregates.UserTest do
       # Verify default collection is created
       assert updated_user.collections != nil
       default_collection =
-        Enum.find(updated_user.collections, fn {_id, col} -> col.slug == "all" end)
+        Enum.find(updated_user.collections, fn {_id, col} -> col.is_default == true end)
 
       assert default_collection != nil
 
       {_col_id, default_col} = default_collection
       assert default_col.title == "All Subscriptions"
-      assert default_col.slug == "all"
+      assert default_col.is_default == true
       assert MapSet.member?(default_col.feed_ids, "feed-1")
     end
   end

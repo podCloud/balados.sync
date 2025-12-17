@@ -3,6 +3,9 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
 
   alias BaladosSyncWeb.LiveWebSocket.{MessageHandler, State}
 
+  # Use a real UUID for the user_id to avoid projection issues
+  @test_user_id "550e8400-e29b-41d4-a716-446655440000"
+
   setup do
     {:ok, state: State.new()}
   end
@@ -45,7 +48,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
 
   describe "handle_message/2 - Authenticated state" do
     setup do
-      authenticated_state = State.authenticate(State.new(), "user_123", :play_token, "token_abc")
+      authenticated_state = State.authenticate(State.new(), @test_user_id, :play_token, "token_abc")
       {:ok, authenticated_state: authenticated_state}
     end
 
@@ -70,7 +73,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
 
   describe "handle_message/2 - Record play validation" do
     setup do
-      authenticated_state = State.authenticate(State.new(), "user_123", :play_token, "token_abc")
+      authenticated_state = State.authenticate(State.new(), @test_user_id, :play_token, "token_abc")
       {:ok, authenticated_state: authenticated_state}
     end
 
@@ -192,7 +195,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
 
   describe "handle_message/2 - Valid message structure" do
     setup do
-      authenticated_state = State.authenticate(State.new(), "user_123", :play_token, "token_abc")
+      authenticated_state = State.authenticate(State.new(), @test_user_id, :play_token, "token_abc")
       {:ok, authenticated_state: authenticated_state}
     end
 

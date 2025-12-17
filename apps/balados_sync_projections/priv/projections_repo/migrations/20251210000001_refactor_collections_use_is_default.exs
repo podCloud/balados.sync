@@ -16,6 +16,7 @@ defmodule BaladosSyncProjections.Repo.Migrations.RefactorCollectionsUseIsDefault
     end
 
     # Step 4: Add unique constraint - only one default collection per user
+    # Note: Default collections (is_default=true) cannot be deleted
     create unique_index(:collections, [:user_id, :is_default],
       prefix: "users",
       where: "is_default = true",

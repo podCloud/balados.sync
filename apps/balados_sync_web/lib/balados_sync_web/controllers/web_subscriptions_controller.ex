@@ -6,6 +6,9 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   and export subscriptions to OPML format. This is separate from the JSON API
   controller to keep concerns separated.
 
+  Note: The main subscriptions listing is handled by SubscriptionsLive.
+  This controller handles non-live actions: new, create, export_opml.
+
   All actions require authenticated users.
   """
 
@@ -18,42 +21,9 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   alias BaladosSyncCore.RssCache
   alias BaladosSyncCore.RssParser
   alias BaladosSyncWeb.Queries
-  alias BaladosSyncProjections.ProjectionsRepo
-  alias BaladosSyncProjections.Schemas.Collection
-  import Ecto.Query
 
   # All actions require authenticated user
   plug :require_authenticated_user
-
-  @doc """
-  List all subscriptions for the current user.
-
-  Loads metadata for each subscription asynchronously (via AJAX).
-  Supports filtering by collection via `collection` query param.
-  """
-  def index(conn, params) do
-    user_id = conn.assigns.current_user.id
-    collection_id = Map.get(params, "collection")
-
-    # Load user's collections
-    collections = get_user_collections(user_id)
-
-    # Get subscriptions (filtered by collection if specified)
-    subscriptions = get_filtered_subscriptions(user_id, collection_id, collections)
-
-    # Enrich subscriptions with cached metadata if available
-    enriched_subscriptions =
-      Enum.map(subscriptions, fn sub ->
-        metadata = fetch_metadata_safe(sub.rss_source_feed)
-        Map.put(sub, :metadata, metadata)
-      end)
-
-    render(conn, :index,
-      subscriptions: enriched_subscriptions,
-      collections: collections,
-      current_collection_id: collection_id
-    )
-  end
 
   @doc """
   Redirect subscription detail URLs to consolidated public podcast page.
@@ -185,7 +155,6 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
       subscriptions
       |> Enum.map(fn sub ->
         with {:ok, feed_url} <- Base.url_decode64(sub.rss_source_feed, padding: false) do
-          # Try to use metadata title first, then rss_feed_title, then default
           title =
             (sub.metadata && sub.metadata.title) ||
               sub.rss_feed_title ||
@@ -234,41 +203,6 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
       |> put_flash(:error, "You must be logged in to access subscriptions")
       |> redirect(to: ~p"/users/log_in")
       |> halt()
-    end
-  end
-
-  defp get_user_collections(user_id) do
-    from(c in Collection,
-      where: c.user_id == ^user_id,
-      where: is_nil(c.deleted_at),
-      order_by: [desc: c.is_default, asc: c.title],
-      preload: [collection_subscriptions: :subscription]
-    )
-    |> ProjectionsRepo.all()
-  end
-
-  defp get_filtered_subscriptions(user_id, nil, _collections) do
-    # No filter - show all subscriptions
-    Queries.get_user_subscriptions(user_id)
-  end
-
-  defp get_filtered_subscriptions(user_id, collection_id, collections) do
-    # Find the collection and get its feeds
-    case Enum.find(collections, &(&1.id == collection_id)) do
-      nil ->
-        # Collection not found, show all
-        Queries.get_user_subscriptions(user_id)
-
-      collection ->
-        # Get feed URLs from collection
-        feed_urls =
-          collection.collection_subscriptions
-          |> Enum.map(& &1.rss_source_feed)
-          |> MapSet.new()
-
-        # Filter subscriptions to only those in the collection
-        Queries.get_user_subscriptions(user_id)
-        |> Enum.filter(&MapSet.member?(feed_urls, &1.rss_source_feed))
     end
   end
 end

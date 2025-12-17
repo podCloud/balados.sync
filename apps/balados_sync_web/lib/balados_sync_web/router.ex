@@ -79,20 +79,10 @@ defmodule BaladosSyncWeb.Router do
     get "/dashboard", DashboardController, :index
     delete "/users/log_out", UserSessionController, :delete
 
-    # Web Subscriptions (HTML interface for managing subscriptions)
-    get "/subscriptions", WebSubscriptionsController, :index
+    # Web Subscriptions (non-live actions)
     get "/subscriptions/new", WebSubscriptionsController, :new
     post "/subscriptions", WebSubscriptionsController, :create
     get "/subscriptions/export.opml", WebSubscriptionsController, :export_opml
-
-    # Web Collections (HTML interface for managing collections)
-    get "/subscriptions/collections", WebCollectionsController, :index
-    get "/subscriptions/collections/new", WebCollectionsController, :new
-    post "/subscriptions/collections", WebCollectionsController, :create
-    get "/subscriptions/collections/:id", WebCollectionsController, :show
-    get "/subscriptions/collections/:id/edit", WebCollectionsController, :edit
-    put "/subscriptions/collections/:id", WebCollectionsController, :update
-    delete "/subscriptions/collections/:id", WebCollectionsController, :delete
 
     # Redirect old subscription detail page to public podcast page
     get "/subscriptions/:feed", WebSubscriptionsController, :redirect_to_public
@@ -107,6 +97,16 @@ defmodule BaladosSyncWeb.Router do
 
     # App management (HTML interface)
     get "/apps", AppAuthController, :manage_apps
+  end
+
+  # LiveView routes for authenticated users
+  scope "/", BaladosSyncWeb do
+    pipe_through [:browser]
+
+    live_session :authenticated,
+      on_mount: [{BaladosSyncWeb.Plugs.UserAuth, :ensure_authenticated}] do
+      live "/subscriptions", SubscriptionsLive
+    end
   end
 
   # Admin routes (requires authenticated user with admin role)
