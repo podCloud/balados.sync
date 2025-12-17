@@ -76,23 +76,20 @@ git push
 
 Add tasks here. Claude will create GitHub issues for them.
 
-- [ ] Ajouter la possibilité de charger des agrégats RSS des collections d'abonnements ou bien des playlists en utilisant RSS proxy pour récupérer tous les flux et créer le nouveau. Les agrégats RSS ont besoin du play_token dans l'URL pour fonctionner. Utiliser plutôt une partie de l'url qu'un paramètre get.
-- [ ] Ajouter la possibilité pour les admins d'ajouter une liste de flux "enrichis" enriched_podcasts, dans lequel on peut choisir un alias slug qui s'affichera dans la barre d'adresse, la couleur de fond de la page du podcast et ajouter une liste de liens qui pourront être soir un lien personnalisé soit choisir dans la liste un réseau social pour en afficher les icônes.
-
-  Un admin peut depuis une page de flux ou en rentrant un flux RSS dans une page de l'admin accéder à la gestion de l'émission sur l'admin. Cette page affichera les dernières stats scopé au podcast lui même, et permettra de modifier des infos, comme présenté ci dessus.
-
-  Un utilisateur lambda pourra donc accéder au flux en utilisant son alias slug au lieu du base 64. Il faudra le prendre en compte dans le controller
-
-- [ ] Ajouter une page publique de profil utilisateur. Ajouter dans les paramètres de profil de l'utilisateur la possibilité de désactiver le profil public. Afficher la timeline publique de l'utilisateur. Ajouter la notion de nom public, ajouter la possibilité de changer son avatar.
-- [ ] Ajouter la possibilité de rendre public ses playlists et ses collections. Préciser qu'elles seront visibles sur le profil public d'utilisateur. Et pourront être accédés avec un lien
-- [ ] Ajouter la possibilité pour les utilisateur de récupérer l'administration d'un podcast pour gérer ses enriched metadata. Plusieurs utilisateurs peuvent avoir l'admin donc utiliser un tableau de user id dans la table enriched podcasts. Pour cela il doit inclure un code à l'intérieur du flux de podcast qui sera vérifié sans cache et raw pour voir si le code est trouvé quelque part dans la source.
-- [ ] Dans un deuxième temps on peut aussi choisir d'envoyer un code de vérification dans l'autre sens par email à un email présent dans le podcast. Quand l'utilisateur ajoute l'émission à son compte il peut le faire de façon privée ou publique. Si c'est privé ça reste uniquement dans son interface. Si c'est public ça s'affiche dans son profil public.
+(empty)
 
 ---
 
 ## In Progress
 
 Format: `- [ ] Description - [#N](url) - STATUS`
+
+- [ ] RSS aggregate feeds for collections/playlists - [#64](https://github.com/podCloud/balados.sync/issues/64) - OPEN
+- [ ] Enriched podcasts with slugs, branding, social links - [#65](https://github.com/podCloud/balados.sync/issues/65) - OPEN
+- [ ] Public user profile page - [#66](https://github.com/podCloud/balados.sync/issues/66) - OPEN
+- [ ] Public visibility for playlists and collections - [#67](https://github.com/podCloud/balados.sync/issues/67) - OPEN
+- [ ] Podcast ownership via RSS verification code - [#68](https://github.com/podCloud/balados.sync/issues/68) - OPEN
+- [ ] Email verification for podcast ownership - [#69](https://github.com/podCloud/balados.sync/issues/69) - OPEN
 
 ---
 
