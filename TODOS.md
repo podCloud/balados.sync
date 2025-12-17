@@ -1,82 +1,55 @@
-# TODOS.md - Task Queue for Claude Code
+# Task Queue
 
-## Instructions for Claude Code
+Sync tasks between this file and GitHub issues/PRs.
 
-When reading this file, execute the following workflow:
+## Workflow
 
-### 1. Sync Tasks with GitHub
+1. **Sync**: Fetch open issues and PRs from GitHub
+2. **Process TODO**: For each task below, find or create a GitHub issue
+3. **Update statuses**: Refresh In Progress section with current state
+4. **Commit**: Push changes to TODOS.md
 
-```bash
-gh issue list --state open --json number,title,labels
-gh pr list --state open --json number,title,headRefName
+## Issue Template
+
+When creating issues, use this prompt-optimized format:
+
 ```
-
-### 2. Process Each Task in TODO Section
-
-For each task:
-- Search for existing issue/PR matching the task description
-- If found: Move to "In Progress" with link and status
-- If NOT found: Create issue with `gh issue create`
-
-### 3. Issue Creation Template
-
-Use this format - the body IS the prompt for Claude Code:
-
-```bash
-gh issue create \
-  --title "<type>: <concise description>" \
-  --label "<labels>" \
-  --body "## Objective
-<One sentence: what needs to be done>
+## Objective
+<what needs to be done>
 
 ## Context
-<Why this matters, relevant files/modules>
+<why it matters, relevant files>
 
 ## Implementation
-1. <Step 1>
-2. <Step 2>
-3. <Step 3>
+1. Step 1
+2. Step 2
 
 ## Acceptance Criteria
-- [ ] <Testable criterion 1>
-- [ ] <Testable criterion 2>
-- [ ] Tests pass: \`mix test\`
-
-## References
-- Docs: [ARCHITECTURE.md](docs/technical/ARCHITECTURE.md)
-- Related: #<issue-number>"
+- [ ] Criterion 1
+- [ ] Tests pass
 ```
 
-### 4. Update In Progress Section
+## Status Codes
 
-Status codes:
-- `OPEN` - Issue created, not started
-- `WIP` - PR exists, in development
-- `REVIEW` - PR awaiting review
-- `MERGED` - Complete, move to Done
-
-### 5. Commit and Push
-
-```bash
-git add TODOS.md
-git commit --author="Claude <noreply@anthropic.com>" -m "chore: sync TODOS.md with GitHub"
-git push origin main
-```
+| Status | Meaning |
+|--------|---------|
+| `OPEN` | Issue created |
+| `WIP` | PR in development |
+| `REVIEW` | PR awaiting review |
+| `MERGED` | Done |
 
 ---
 
 ## TODO
 
-Format: `- [ ] <description>`
-
+- [ ] Example task description here
 
 
 ---
 
 ## In Progress
 
-Format: `- [ ] <description> - [#N](link) - STATUS`
-
+<!-- Format: - [ ] Description - [#N](url) - STATUS -->
 
 
 ---
