@@ -1,26 +1,26 @@
 # TODOS.md - Task Queue for Claude Code
 
-<!-- INSTRUCTIONS FOR CLAUDE CODE
+## Instructions for Claude Code
+
 When reading this file, execute the following workflow:
 
-## 1. Sync Tasks with GitHub
+### 1. Sync Tasks with GitHub
 
 ```bash
-# Get current state
 gh issue list --state open --json number,title,labels
 gh pr list --state open --json number,title,headRefName
 ```
 
-## 2. Process Each Task in TODO Section
+### 2. Process Each Task in TODO Section
 
 For each task:
 - Search for existing issue/PR matching the task description
 - If found: Move to "In Progress" with link and status
 - If NOT found: Create issue with `gh issue create`
 
-## 3. Issue Creation Template
+### 3. Issue Creation Template
 
-Use this format when creating issues - the body IS the prompt for Claude Code:
+Use this format - the body IS the prompt for Claude Code:
 
 ```bash
 gh issue create \
@@ -47,15 +47,15 @@ gh issue create \
 - Related: #<issue-number>"
 ```
 
-## 4. Update In Progress Section
+### 4. Update In Progress Section
 
-For tasks with issues/PRs, update status:
+Status codes:
 - `OPEN` - Issue created, not started
 - `WIP` - PR exists, in development
 - `REVIEW` - PR awaiting review
 - `MERGED` - Complete, move to Done
 
-## 5. Commit and Push
+### 5. Commit and Push
 
 ```bash
 git add TODOS.md
@@ -63,14 +63,11 @@ git commit --author="Claude <noreply@anthropic.com>" -m "chore: sync TODOS.md wi
 git push origin main
 ```
 
-END INSTRUCTIONS -->
-
 ---
 
 ## TODO
 
-<!-- Add tasks here. Format: `- [ ] <description>` -->
-<!-- Claude Code will create GitHub issues for these -->
+Format: `- [ ] <description>`
 
 
 
@@ -78,14 +75,11 @@ END INSTRUCTIONS -->
 
 ## In Progress
 
-<!-- Claude Code maintains this section automatically -->
-<!-- Format: `- [ ] <description> - [#N](link) - STATUS` -->
+Format: `- [ ] <description> - [#N](link) - STATUS`
 
 
 
 ---
 
 ## Done
-
-<!-- Move completed items here for reference, then periodically clean up -->
 
