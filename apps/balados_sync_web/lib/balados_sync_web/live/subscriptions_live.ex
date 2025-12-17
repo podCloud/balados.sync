@@ -91,42 +91,53 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
 
   @impl true
   def handle_info(:load_metadata, socket) do
-    # Fetch metadata concurrently for all subscriptions
-    subscriptions_with_metadata =
-      socket.assigns.all_subscriptions
-      |> Task.async_stream(
-        fn sub ->
-          metadata = fetch_metadata_safe(sub.rss_source_feed)
-          Map.put(sub, :metadata, metadata)
-        end,
-        max_concurrency: 10,
-        timeout: 5_000,
-        on_timeout: :kill_task
-      )
-      |> Enum.map(fn
-        {:ok, sub} -> sub
-        {:exit, _} -> nil
-      end)
-      |> Enum.reject(&is_nil/1)
+    # Guard against race condition: if user navigated away or loading was cancelled
+    if not socket.assigns.loading_metadata do
+      {:noreply, socket}
+    else
+      # Fetch metadata concurrently for all subscriptions
+      # Use ordered: true to maintain list order and zip with originals for timeout handling
+      original_subs = socket.assigns.all_subscriptions
 
-    # Re-apply current filter if any
-    filtered =
-      if socket.assigns.current_collection do
-        feed_urls =
-          socket.assigns.current_collection.collection_subscriptions
-          |> Enum.map(& &1.rss_source_feed)
-          |> MapSet.new()
+      subscriptions_with_metadata =
+        original_subs
+        |> Task.async_stream(
+          fn sub ->
+            metadata = fetch_metadata_safe(sub.rss_source_feed)
+            Map.put(sub, :metadata, metadata)
+          end,
+          max_concurrency: 10,
+          timeout: 5_000,
+          on_timeout: :kill_task,
+          ordered: true
+        )
+        |> Enum.zip(original_subs)
+        |> Enum.map(fn
+          {{:ok, sub}, _original} -> sub
+          {{:exit, _reason}, original} ->
+            # Keep original subscription with error marker instead of dropping it
+            Map.put(original, :metadata, :error)
+        end)
 
-        Enum.filter(subscriptions_with_metadata, &MapSet.member?(feed_urls, &1.rss_source_feed))
-      else
-        subscriptions_with_metadata
-      end
+      # Re-apply current filter if any
+      filtered =
+        if socket.assigns.current_collection do
+          feed_urls =
+            socket.assigns.current_collection.collection_subscriptions
+            |> Enum.map(& &1.rss_source_feed)
+            |> MapSet.new()
 
-    {:noreply,
-     socket
-     |> assign(:all_subscriptions, subscriptions_with_metadata)
-     |> assign(:subscriptions, filtered)
-     |> assign(:loading_metadata, false)}
+          Enum.filter(subscriptions_with_metadata, &MapSet.member?(feed_urls, &1.rss_source_feed))
+        else
+          subscriptions_with_metadata
+        end
+
+      {:noreply,
+       socket
+       |> assign(:all_subscriptions, subscriptions_with_metadata)
+       |> assign(:subscriptions, filtered)
+       |> assign(:loading_metadata, false)}
+    end
   end
 
   @impl true
