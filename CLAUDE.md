@@ -180,7 +180,23 @@ config :balados_sync_jobs,
 - Mets à jour docs/ après chaque commit
 - Consulte les docs thématiques plutôt que de tout garder dans CLAUDE.md
 
-### Workflow de Développement (Issue → PR)
+### Workflow de Développement
+
+**⚠️ IMPORTANT**: Le workflow de développement complet est défini dans [.claude/agents/development-workflow.md](.claude/agents/development-workflow.md). Ce fichier doit être suivi à la lettre pour toute tâche de développement.
+
+### Task Queue (TODOS.md)
+
+Le fichier [TODOS.md](TODOS.md) sert de file d'attente pour les tâches :
+- **TODO** : Tâches ajoutées par les humains
+- **In Progress** : Tâches avec issue/PR associée (maintenu par Claude)
+- **Done** : Tâches terminées
+
+Lors du workflow, toujours vérifier TODOS.md pour :
+1. Synchroniser les tâches avec GitHub (issues/PRs)
+2. Créer des issues pour les nouvelles tâches
+3. Mettre à jour les statuts
+
+### Résumé du Workflow (Issue → PR)
 
 #### Phase 1: Analyser l'Issue
 ```bash

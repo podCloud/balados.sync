@@ -62,6 +62,26 @@ When a PR is approved but has follow-up work mentioned in reviews:
 
 **⚠️ MANDATORY: Execute ALL checks before any other phase. Always be autonomous.**
 
+### 0.0: Sync TODOS.md with GitHub
+
+**Before anything else**, check and sync the task queue:
+
+1. **Read TODOS.md** to find pending tasks
+2. **For each task in TODO section**:
+   - Search for existing issue/PR: `gh issue list --search "<keywords>"`
+   - If found: Move to "In Progress" with link and status
+   - If NOT found: Create issue with `gh issue create` (see template in TODOS.md)
+3. **Update statuses** for tasks in "In Progress":
+   - Check issue/PR state: `gh issue view <N>` or `gh pr view <N>`
+   - Update status (OPEN → WIP → REVIEW → MERGED)
+   - Move completed tasks to "Done"
+4. **Commit changes** if TODOS.md was modified:
+   ```bash
+   git add TODOS.md
+   git commit --author="Claude <noreply@anthropic.com>" -m "chore: sync TODOS.md with GitHub"
+   git push origin main
+   ```
+
 ### INVIOLABLE RULE: Phase Progress Reporting
 
 **For EVERY workflow execution, the agent MUST:**
