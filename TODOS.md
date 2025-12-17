@@ -2,47 +2,82 @@
 
 Sync tasks between this file and GitHub issues/PRs.
 
-## Workflow
+---
 
-1. **Sync**: Fetch open issues and PRs from GitHub
-2. **Process TODO**: For each task below, find or create a GitHub issue
-3. **Update statuses**: Refresh In Progress section with current state
-4. **Commit**: Push changes to TODOS.md
+## Workflow for Claude Code
 
-## Issue Template
+### Step 1: Fetch Current State
 
-When creating issues, use this prompt-optimized format:
+```bash
+# List open issues
+gh issue list --state open --json number,title,labels,state
 
+# List open PRs
+gh pr list --state open --json number,title,state,isDraft
 ```
-## Objective
-<what needs to be done>
+
+### Step 2: Process TODO Section
+
+For each task in TODO below:
+
+1. Check if issue exists: `gh issue list --search "TASK_KEYWORDS"`
+2. If not found, create it:
+
+```bash
+gh issue create \
+  --title "feat: TITLE" \
+  --body "## Objective
+DESCRIPTION
 
 ## Context
-<why it matters, relevant files>
-
-## Implementation
-1. Step 1
-2. Step 2
+WHY_IT_MATTERS
 
 ## Acceptance Criteria
-- [ ] Criterion 1
-- [ ] Tests pass
+- [ ] Implementation complete
+- [ ] Tests pass"
 ```
+
+3. Move task to "In Progress" with issue link
+
+### Step 3: Update In Progress
+
+For each item in "In Progress":
+
+```bash
+# Check issue/PR status
+gh issue view NUMBER --json state,title
+gh pr view NUMBER --json state,title,mergeable
+```
+
+Update status codes. Move merged PRs to "Done".
+
+### Step 4: Commit Changes
+
+```bash
+git add TODOS.md
+git commit --author="Claude <noreply@anthropic.com>" -m "chore: sync TODOS.md with GitHub"
+git push
+```
+
+---
 
 ## Status Codes
 
-| Status | Meaning |
-|--------|---------|
-| `OPEN` | Issue created |
+| Code | Meaning |
+|------|---------|
+| `OPEN` | Issue created, not started |
 | `WIP` | PR in development |
 | `REVIEW` | PR awaiting review |
-| `MERGED` | Done |
+| `MERGED` | Completed |
 
 ---
 
 ## TODO
 
-- [ ] Example task description here
+Add tasks here. Claude will create GitHub issues for them.
+
+- [ ] Example: Add rate limiting to API endpoints
+
 
 
 ---
@@ -52,7 +87,11 @@ When creating issues, use this prompt-optimized format:
 Format: `- [ ] Description - [#N](url) - STATUS`
 
 
+
 ---
 
 ## Done
+
+Format: `- [x] Description - [#N](url)`
+
 
