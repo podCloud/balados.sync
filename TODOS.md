@@ -49,7 +49,7 @@ When creating issues, use this prompt-optimized format:
 
 ## In Progress
 
-<!-- Format: - [ ] Description - [#N](url) - STATUS -->
+Format: `- [ ] Description - [#N](url) - STATUS`
 
 
 ---
