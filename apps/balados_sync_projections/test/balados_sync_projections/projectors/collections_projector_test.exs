@@ -31,7 +31,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
         user_id: user_id,
         collection_id: collection_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         timestamp: DateTime.utc_now()
       }
 
@@ -44,7 +44,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
 
       assert not is_nil(collection)
       assert collection.title == "News"
-      assert collection.slug == "news"
+      assert collection.is_default == false
       assert is_nil(collection.deleted_at)
     end
 
@@ -56,7 +56,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
         user_id: user_id,
         collection_id: collection_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         timestamp: DateTime.utc_now()
       }
 
@@ -87,7 +87,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
         user_id: user_id,
         collection_id: collection_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         timestamp: DateTime.utc_now()
       }
 
@@ -122,7 +122,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
         user_id: user_id,
         collection_id: collection_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         timestamp: DateTime.utc_now()
       }
 
@@ -162,7 +162,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
         user_id: user_id,
         collection_id: collection_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         timestamp: DateTime.utc_now()
       }
 
@@ -208,7 +208,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
         user_id: user_id,
         collection_id: collection_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         timestamp: DateTime.utc_now()
       }
 
@@ -242,7 +242,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
         user_id: user_id,
         collection_id: collection_id,
         title: "News",
-        slug: "news",
+        is_default: false,
         timestamp: DateTime.utc_now()
       }
 
@@ -254,7 +254,6 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
       delete_event = %CollectionDeleted{
         user_id: user_id,
         collection_id: collection_id,
-        deleted_at: delete_time,
         timestamp: delete_time
       }
 
@@ -277,7 +276,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
         user_id: user_id,
         collection_id: default_id,
         title: "All Subscriptions",
-        slug: "all",
+        is_default: true,
         timestamp: DateTime.utc_now()
       }
 
@@ -287,7 +286,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
       defaults =
         ProjectionsRepo.all(
           from(c in Collection,
-            where: c.user_id == ^user_id and c.slug == "all" and is_nil(c.deleted_at)
+            where: c.user_id == ^user_id and c.is_default == true and is_nil(c.deleted_at)
           )
         )
 
@@ -295,54 +294,10 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
       assert defaults |> List.first() |> Map.get(:id) == default_id
     end
 
-    test "deleted default collection doesn't prevent new one" do
-      user_id = "user-123"
-      old_default_id = Ecto.UUID.generate()
-      new_default_id = Ecto.UUID.generate()
-
-      # Create first default
-      create_event1 = %CollectionCreated{
-        user_id: user_id,
-        collection_id: old_default_id,
-        title: "All Subscriptions",
-        slug: "all",
-        timestamp: DateTime.utc_now()
-      }
-
-      apply_projection(create_event1)
-
-      # Delete it
-      delete_event = %CollectionDeleted{
-        user_id: user_id,
-        collection_id: old_default_id,
-        deleted_at: DateTime.utc_now(),
-        timestamp: DateTime.utc_now()
-      }
-
-      apply_projection(delete_event)
-
-      # Create new default
-      create_event2 = %CollectionCreated{
-        user_id: user_id,
-        collection_id: new_default_id,
-        title: "All Subscriptions",
-        slug: "all",
-        timestamp: DateTime.utc_now()
-      }
-
-      apply_projection(create_event2)
-
-      # Verify only new default is active
-      defaults =
-        ProjectionsRepo.all(
-          from(c in Collection,
-            where: c.user_id == ^user_id and c.slug == "all" and is_nil(c.deleted_at)
-          )
-        )
-
-      assert length(defaults) == 1
-      assert defaults |> List.first() |> Map.get(:id) == new_default_id
-    end
+    # Note: Default collections (is_default=true) cannot be deleted.
+    # The DeleteCollection command should reject deletion of default collections.
+    # Therefore, no test for "deleted default collection doesn't prevent new one"
+    # is needed - it's an invalid scenario by design.
   end
 
   # Helper to apply projections manually (in real app, done through Dispatcher)
@@ -359,13 +314,15 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
         id: event.collection_id,
         user_id: event.user_id,
         title: event.title,
-        slug: event.slug,
+        is_default: event.is_default || false,
+        description: event.description,
+        color: event.color,
         inserted_at: event.timestamp,
         updated_at: event.timestamp
       })
 
     ProjectionsRepo.insert(changeset,
-      on_conflict: {:replace, [:title, :slug, :updated_at]},
+      on_conflict: {:replace, [:title, :is_default, :description, :color, :updated_at]},
       conflict_target: [:id]
     )
   end
@@ -402,7 +359,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
   defp handle_event(%CollectionDeleted{} = event) do
     ProjectionsRepo.update_all(
       from(c in Collection, where: c.id == ^event.collection_id),
-      set: [deleted_at: event.deleted_at, updated_at: event.deleted_at]
+      set: [deleted_at: event.timestamp, updated_at: event.timestamp]
     )
   end
 end

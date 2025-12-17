@@ -6,6 +6,9 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   and export subscriptions to OPML format. This is separate from the JSON API
   controller to keep concerns separated.
 
+  Note: The main subscriptions listing is handled by SubscriptionsLive.
+  This controller handles non-live actions: new, create, export_opml.
+
   All actions require authenticated users.
   """
 
@@ -21,25 +24,6 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
 
   # All actions require authenticated user
   plug :require_authenticated_user
-
-  @doc """
-  List all subscriptions for the current user.
-
-  Loads metadata for each subscription asynchronously (via AJAX).
-  """
-  def index(conn, _params) do
-    user_id = conn.assigns.current_user.id
-    subscriptions = Queries.get_user_subscriptions(user_id)
-
-    # Enrich subscriptions with cached metadata if available
-    enriched_subscriptions =
-      Enum.map(subscriptions, fn sub ->
-        metadata = fetch_metadata_safe(sub.rss_source_feed)
-        Map.put(sub, :metadata, metadata)
-      end)
-
-    render(conn, :index, subscriptions: enriched_subscriptions)
-  end
 
   @doc """
   Redirect subscription detail URLs to consolidated public podcast page.
@@ -171,7 +155,6 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
       subscriptions
       |> Enum.map(fn sub ->
         with {:ok, feed_url} <- Base.url_decode64(sub.rss_source_feed, padding: false) do
-          # Try to use metadata title first, then rss_feed_title, then default
           title =
             (sub.metadata && sub.metadata.title) ||
               sub.rss_feed_title ||
