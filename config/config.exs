@@ -72,6 +72,13 @@ config :phoenix, :json_library, Jason
 
 config :balados_sync_core, event_stores: [BaladosSyncCore.EventStore]
 
+# Configure Dispatcher event store adapter (dev/prod uses PostgreSQL EventStore)
+config :balados_sync_core, BaladosSyncCore.Dispatcher,
+  event_store: [
+    adapter: Commanded.EventStore.Adapters.EventStore,
+    event_store: BaladosSyncCore.EventStore
+  ]
+
 config :balados_sync_core, BaladosSyncCore.EventStore,
   serializer: Commanded.Serialization.JsonSerializer,
   username: "postgres",
