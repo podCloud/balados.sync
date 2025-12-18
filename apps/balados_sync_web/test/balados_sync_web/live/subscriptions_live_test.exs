@@ -23,6 +23,9 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
   @feed_url_3 "https://example.com/podcast3.xml"
 
   setup do
+    # Clear cache before each test to ensure isolation
+    Cachex.clear(:rss_feed_cache)
+
     # Create a test user
     user_id = Ecto.UUID.generate()
 
@@ -41,6 +44,10 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
     conn =
       build_conn()
       |> init_test_session(%{"user_token" => user.id})
+
+    on_exit(fn ->
+      Cachex.clear(:rss_feed_cache)
+    end)
 
     {:ok, conn: conn, user: user}
   end
@@ -96,11 +103,7 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
       # Wait for async metadata to load
-      # The handle_info(:load_metadata, ...) should be processed
-      :timer.sleep(100)
-
-      # Re-render to get updated state
-      html = render(view)
+      html = wait_for_metadata(view)
 
       # Should now show metadata title
       assert html =~ "Async Loaded Title"
@@ -119,8 +122,7 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
 
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
-      :timer.sleep(200)
-      html = render(view)
+      html = wait_for_metadata(view)
 
       assert html =~ "Podcast Alpha"
       assert html =~ "Podcast Beta"
@@ -139,8 +141,7 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
 
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
-      :timer.sleep(200)
-      html = render(view)
+      html = wait_for_metadata(view)
 
       # Should fall back to RSS title when metadata fetch fails
       # Since fetch_metadata_safe returns nil for invalid metadata,
@@ -158,11 +159,12 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
 
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
-      :timer.sleep(200)
-      html = render(view)
-
-      # Without metadata title or rss_feed_title, should show Loading...
-      assert html =~ "Loading..."
+      # Use assert_eventually since metadata loading will timeout,
+      # but we want to verify the fallback behavior
+      assert_eventually(fn ->
+        html = render(view)
+        assert html =~ "Loading..."
+      end)
     end
 
     test "preserves subscription order on partial metadata failure", %{conn: conn, user: user} do
@@ -178,8 +180,7 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
 
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
-      :timer.sleep(200)
-      html = render(view)
+      html = wait_for_metadata(view)
 
       # Should still show 3 subscriptions
       assert html =~ "3 subscriptions"
@@ -207,8 +208,7 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
 
       {:ok, view, _html} = live(conn, ~p"/subscriptions?collection=#{collection.id}")
 
-      :timer.sleep(200)
-      html = render(view)
+      html = wait_for_metadata(view)
 
       # Should show filtered count
       assert html =~ "2 subscriptions"
@@ -228,8 +228,7 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
 
       {:ok, view, _html} = live(conn, ~p"/subscriptions?collection=#{collection.id}")
 
-      :timer.sleep(200)
-      html = render(view)
+      html = wait_for_metadata(view)
 
       # Should only show subscription in collection
       assert html =~ "In Collection"
@@ -245,8 +244,7 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
 
       {:ok, view, _html} = live(conn, ~p"/subscriptions?collection=#{collection.id}")
 
-      :timer.sleep(100)
-      html = render(view)
+      html = wait_for_metadata(view)
 
       assert html =~ "No subscriptions in this collection"
     end
@@ -272,8 +270,7 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       view |> element("button", "Test Collection") |> render_click()
 
       # Wait for everything to settle
-      :timer.sleep(200)
-      html = render(view)
+      html = wait_for_metadata(view)
 
       # Should show filtered view with metadata
       assert html =~ "1 subscription"
@@ -302,8 +299,7 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       # Then to collection B
       view |> element("button", "Collection B") |> render_click()
 
-      :timer.sleep(200)
-      html = render(view)
+      html = wait_for_metadata(view)
 
       # Should be in Collection B with correct subscription
       assert html =~ "Collection B"
@@ -320,13 +316,13 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
       # Wait for initial load
-      :timer.sleep(100)
+      _html = wait_for_metadata(view)
 
       # Manually send load_metadata message (simulating race)
       # This should be ignored due to loading_metadata being false
       send(view.pid, :load_metadata)
 
-      :timer.sleep(50)
+      # Re-render and verify state is still correct
       html = render(view)
 
       # Should still work correctly
@@ -381,5 +377,60 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
 
     cache_key = {:metadata, feed_url}
     Cachex.put(:rss_feed_cache, cache_key, complete_metadata)
+  end
+
+  # Wait for async metadata to load by polling until the condition is met.
+  # This replaces hardcoded timer.sleep calls with active polling that:
+  # - Returns immediately when condition is met (faster tests)
+  # - Has configurable timeout for CI environments
+  # - Documents what we're waiting for explicitly
+  defp wait_for_metadata(view, opts \\ []) do
+    timeout = Keyword.get(opts, :timeout, 500)
+    interval = Keyword.get(opts, :interval, 10)
+
+    deadline = System.monotonic_time(:millisecond) + timeout
+    do_wait_for_metadata(view, deadline, interval)
+  end
+
+  defp do_wait_for_metadata(view, deadline, interval) do
+    html = render(view)
+
+    # Metadata is loaded when "Loading details..." disappears
+    if not String.contains?(html, "Loading details...") do
+      html
+    else
+      if System.monotonic_time(:millisecond) >= deadline do
+        # Return current HTML even if timeout - let assertions fail with actual content
+        html
+      else
+        Process.sleep(interval)
+        do_wait_for_metadata(view, deadline, interval)
+      end
+    end
+  end
+
+  # Assert a condition eventually becomes true, with retries.
+  # Useful for async operations where timing is non-deterministic.
+  defp assert_eventually(fun, opts \\ []) do
+    timeout = Keyword.get(opts, :timeout, 500)
+    interval = Keyword.get(opts, :interval, 10)
+
+    deadline = System.monotonic_time(:millisecond) + timeout
+    do_assert_eventually(fun, deadline, interval)
+  end
+
+  defp do_assert_eventually(fun, deadline, interval) do
+    try do
+      fun.()
+    rescue
+      ExUnit.AssertionError ->
+        if System.monotonic_time(:millisecond) >= deadline do
+          # Final attempt - let it raise
+          fun.()
+        else
+          Process.sleep(interval)
+          do_assert_eventually(fun, deadline, interval)
+        end
+    end
   end
 end
