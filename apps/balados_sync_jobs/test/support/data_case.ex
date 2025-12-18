@@ -37,6 +37,10 @@ defmodule BaladosSyncJobs.DataCase do
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
+    # Ensure dependent apps are started before sandbox setup
+    {:ok, _} = Application.ensure_all_started(:balados_sync_core)
+    {:ok, _} = Application.ensure_all_started(:balados_sync_projections)
+
     pid =
       Ecto.Adapters.SQL.Sandbox.start_owner!(BaladosSyncCore.SystemRepo,
         shared: not tags[:async]

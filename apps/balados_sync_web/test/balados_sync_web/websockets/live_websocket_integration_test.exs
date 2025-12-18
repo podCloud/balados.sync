@@ -7,20 +7,21 @@ defmodule BaladosSyncWeb.LiveWebSocketIntegrationTest do
   setup do
     # Create a test PlayToken for integration testing
     token = PlayToken.generate_token()
+    user_id = Ecto.UUID.generate()
 
     play_token = %PlayToken{
-      user_id: "test_user_123",
+      user_id: user_id,
       token: token,
       name: "Integration Test Token"
     }
 
     {:ok, _} = SystemRepo.insert(play_token)
 
-    {:ok, token: token, user_id: "test_user_123"}
+    {:ok, token: token, user_id: user_id}
   end
 
   describe "WebSocket connection and authentication" do
-    test "successfully authenticates with valid PlayToken", %{token: token} do
+    test "successfully authenticates with valid PlayToken", %{token: token, user_id: user_id} do
       # Send auth message
       auth_msg = Jason.encode!(%{"type" => "auth", "token" => token})
 
@@ -35,7 +36,7 @@ defmodule BaladosSyncWeb.LiveWebSocketIntegrationTest do
         )
 
       assert response["status"] == "ok"
-      assert response["data"]["user_id"] == "test_user_123"
+      assert response["data"]["user_id"] == user_id
     end
 
     test "rejects invalid PlayToken", %{} do
@@ -265,7 +266,7 @@ defmodule BaladosSyncWeb.LiveWebSocketIntegrationTest do
   end
 
   describe "state transitions" do
-    setup %{token: token} do
+    setup %{token: token, user_id: user_id} do
       auth_msg = Jason.encode!(%{"type" => "auth", "token" => token})
 
       {:ok, _response, state} =
@@ -274,12 +275,12 @@ defmodule BaladosSyncWeb.LiveWebSocketIntegrationTest do
           BaladosSyncWeb.LiveWebSocket.State.new()
         )
 
-      {:ok, authenticated_state: state}
+      {:ok, authenticated_state: state, user_id: user_id}
     end
 
-    test "state is authenticated after successful auth", %{authenticated_state: state} do
+    test "state is authenticated after successful auth", %{authenticated_state: state, user_id: user_id} do
       assert BaladosSyncWeb.LiveWebSocket.State.authenticated?(state)
-      assert state.user_id == "test_user_123"
+      assert state.user_id == user_id
       assert state.token_type == :play_token
     end
 

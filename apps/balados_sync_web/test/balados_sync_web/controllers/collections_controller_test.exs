@@ -8,8 +8,8 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
 
   setup do
     # Create a test user and JWT token
-    user_id = "test-user-123"
-    device_id = "device-456"
+    user_id = Ecto.UUID.generate()
+    device_id = Ecto.UUID.generate()
 
     token = generate_jwt_token(user_id, device_id)
 
@@ -66,7 +66,7 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
     end
 
     test "does not list other users' collections", %{conn: conn, token: token} do
-      other_user_id = "other-user-789"
+      other_user_id = Ecto.UUID.generate()
 
       # Create collection for other user
       Dispatcher.dispatch(%CreateCollection{
