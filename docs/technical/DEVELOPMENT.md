@@ -123,6 +123,45 @@ mix test --only integration
 mix test --exclude slow
 ```
 
+### Infrastructure de Tests
+
+Les tests utilisent un **In-Memory EventStore** pour l'isolation parfaite entre tests.
+
+#### Test Cases Disponibles
+
+| Case Template | Usage | Caractéristiques |
+|---------------|-------|------------------|
+| `ExUnit.Case` | Tests unitaires purs | Pas de DB, async: true |
+| `DataCase` | Tests avec projections/repos | Ecto sandbox |
+| `ConnCase` | Tests controllers/LiveView | Phoenix + Ecto sandbox |
+| `CommandedCase` | Tests avec dispatch de commands | In-Memory EventStore + Ecto sandbox |
+
+#### CommandedCase (nouveau)
+
+Pour les tests qui dispatchent des commands via le CQRS/ES :
+
+```elixir
+defmodule MyTest do
+  use BaladosSyncCore.CommandedCase, async: true
+
+  test "dispatches command successfully" do
+    user_id = Ecto.UUID.generate()
+
+    command = %Subscribe{
+      user_id: user_id,
+      rss_source_feed: Base.encode64("https://example.com/feed.xml")
+    }
+
+    assert :ok = Dispatcher.dispatch(command)
+  end
+end
+```
+
+**Important** :
+- L'EventStore In-Memory est reset avant chaque test
+- Toujours utiliser `Ecto.UUID.generate()` pour les IDs
+- Supporte `async: true` grâce à l'isolation complète
+
 ### Écrire des Tests
 
 #### Test d'un Command/Event
@@ -741,4 +780,4 @@ mix test apps/balados_sync_web/test/controllers/my_controller_test.exs
 
 ---
 
-**Dernière mise à jour** : 2025-11-24
+**Dernière mise à jour** : 2025-12-18
