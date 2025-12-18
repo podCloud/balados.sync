@@ -30,6 +30,6 @@ defmodule BaladosSyncCore.DataCase do
   @doc """
   Sets up the sandbox based on the test tags.
   """
-  def setup_sandbox(tags) do
+  def setup_sandbox(_tags) do
   end
 end

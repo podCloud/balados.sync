@@ -638,9 +638,18 @@ defmodule BaladosSyncCore.Aggregates.User do
 
       collection ->
         updated_collection = collection
-        updated_collection = if event.title, do: %{updated_collection | title: event.title}, else: updated_collection
-        updated_collection = if event.description, do: %{updated_collection | description: event.description}, else: updated_collection
-        updated_collection = if event.color, do: %{updated_collection | color: event.color}, else: updated_collection
+
+        updated_collection =
+          if event.title, do: %{updated_collection | title: event.title}, else: updated_collection
+
+        updated_collection =
+          if event.description,
+            do: %{updated_collection | description: event.description},
+            else: updated_collection
+
+        updated_collection =
+          if event.color, do: %{updated_collection | color: event.color}, else: updated_collection
+
         %{user | collections: Map.put(collections, event.collection_id, updated_collection)}
     end
   end

@@ -22,16 +22,17 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
   project(%BaladosSyncCore.Events.CollectionCreated{} = event, _metadata, fn multi ->
     Logger.debug("Projecting CollectionCreated for collection_id=#{event.collection_id}")
 
-    changeset = Collection.changeset(%Collection{}, %{
-      id: event.collection_id,
-      user_id: event.user_id,
-      title: event.title,
-      is_default: event.is_default,
-      description: event.description,
-      color: event.color,
-      inserted_at: truncate_timestamp(event.timestamp),
-      updated_at: truncate_timestamp(event.timestamp)
-    })
+    changeset =
+      Collection.changeset(%Collection{}, %{
+        id: event.collection_id,
+        user_id: event.user_id,
+        title: event.title,
+        is_default: event.is_default,
+        description: event.description,
+        color: event.color,
+        inserted_at: truncate_timestamp(event.timestamp),
+        updated_at: truncate_timestamp(event.timestamp)
+      })
 
     Ecto.Multi.insert(
       multi,
@@ -96,7 +97,12 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
 
     updates = [updated_at: truncate_timestamp(event.timestamp)]
     updates = if event.title, do: Keyword.put(updates, :title, event.title), else: updates
-    updates = if event.description, do: Keyword.put(updates, :description, event.description), else: updates
+
+    updates =
+      if event.description,
+        do: Keyword.put(updates, :description, event.description),
+        else: updates
+
     updates = if event.color, do: Keyword.put(updates, :color, event.color), else: updates
 
     Ecto.Multi.update_all(

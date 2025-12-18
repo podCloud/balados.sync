@@ -113,7 +113,9 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
         )
         |> Enum.zip(original_subs)
         |> Enum.map(fn
-          {{:ok, sub}, _original} -> sub
+          {{:ok, sub}, _original} ->
+            sub
+
           {{:exit, _reason}, original} ->
             # Keep original subscription with error marker instead of dropping it
             Map.put(original, :metadata, :error)
@@ -163,12 +165,32 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
               <% end %>
             </h1>
             <p class="text-sm text-zinc-500 mt-1">
-              <%= length(@subscriptions) %> <%= if length(@subscriptions) == 1, do: "subscription", else: "subscriptions" %>
+              <%= length(@subscriptions) %> <%= if length(@subscriptions) == 1,
+                do: "subscription",
+                else: "subscriptions" %>
               <%= if @loading_metadata do %>
                 <span class="ml-2 inline-flex items-center">
-                  <svg class="animate-spin h-4 w-4 text-zinc-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    class="animate-spin h-4 w-4 text-zinc-400"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    >
+                    </circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    >
+                    </path>
                   </svg>
                   <span class="ml-1">Loading details...</span>
                 </span>
@@ -194,7 +216,6 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
             </.link>
           </div>
         </div>
-
         <!-- Collection Badges -->
         <%= if length(@collections) > 0 do %>
           <div class="mb-6">
@@ -210,10 +231,8 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                     "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                   end}
               >
-                All
-                <span class="ml-1 text-xs opacity-70">(<%= length(@all_subscriptions) %>)</span>
+                All <span class="ml-1 text-xs opacity-70">(<%= length(@all_subscriptions) %>)</span>
               </button>
-
               <!-- Collection badges -->
               <%= for collection <- @collections do %>
                 <% is_active = @current_collection && @current_collection.id == collection.id %>
@@ -249,17 +268,12 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
             </div>
           </div>
         <% end %>
-
         <!-- Subscriptions Grid -->
         <%= if Enum.empty?(@subscriptions) do %>
           <div class="text-center py-12">
             <%= if @current_collection do %>
               <p class="text-zinc-600 mb-4">No subscriptions in this collection.</p>
-              <button
-                phx-click="filter"
-                phx-value-collection=""
-                class="text-blue-600 hover:underline"
-              >
+              <button phx-click="filter" phx-value-collection="" class="text-blue-600 hover:underline">
                 View all subscriptions
               </button>
             <% else %>
@@ -281,7 +295,7 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
               >
                 <!-- Cover Image -->
                 <div class="aspect-square bg-zinc-100 flex items-center justify-center">
-                  <%= if sub.metadata && sub.metadata.cover do %>
+                  <%= if is_map(sub.metadata) && sub.metadata.cover do %>
                     <img
                       src={sub.metadata.cover.src}
                       alt={sub.metadata.title}
@@ -290,7 +304,7 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                   <% else %>
                     <div class="text-zinc-400">
                       <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                       </svg>
                     </div>
                   <% end %>
@@ -298,9 +312,10 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                 <!-- Content -->
                 <div class="p-4">
                   <h3 class="font-semibold text-zinc-900 line-clamp-2">
-                    <%= (sub.metadata && sub.metadata.title) || sub.rss_feed_title || "Loading..." %>
+                    <%= (is_map(sub.metadata) && sub.metadata.title) || sub.rss_feed_title ||
+                      "Loading..." %>
                   </h3>
-                  <%= if sub.metadata && sub.metadata.description do %>
+                  <%= if is_map(sub.metadata) && sub.metadata.description do %>
                     <p class="text-sm text-zinc-600 mt-2 line-clamp-2">
                       <%= sub.metadata.description %>
                     </p>

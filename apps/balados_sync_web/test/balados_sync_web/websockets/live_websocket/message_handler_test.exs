@@ -48,7 +48,9 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
 
   describe "handle_message/2 - Authenticated state" do
     setup do
-      authenticated_state = State.authenticate(State.new(), @test_user_id, :play_token, "token_abc")
+      authenticated_state =
+        State.authenticate(State.new(), @test_user_id, :play_token, "token_abc")
+
       {:ok, authenticated_state: authenticated_state}
     end
 
@@ -73,7 +75,9 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
 
   describe "handle_message/2 - Record play validation" do
     setup do
-      authenticated_state = State.authenticate(State.new(), @test_user_id, :play_token, "token_abc")
+      authenticated_state =
+        State.authenticate(State.new(), @test_user_id, :play_token, "token_abc")
+
       {:ok, authenticated_state: authenticated_state}
     end
 
@@ -195,7 +199,9 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
 
   describe "handle_message/2 - Valid message structure" do
     setup do
-      authenticated_state = State.authenticate(State.new(), @test_user_id, :play_token, "token_abc")
+      authenticated_state =
+        State.authenticate(State.new(), @test_user_id, :play_token, "token_abc")
+
       {:ok, authenticated_state: authenticated_state}
     end
 
