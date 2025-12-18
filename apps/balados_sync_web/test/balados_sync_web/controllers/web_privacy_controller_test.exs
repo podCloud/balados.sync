@@ -131,7 +131,7 @@ defmodule BaladosSyncWeb.WebPrivacyControllerTest do
     # Import and use existing user creation helper if available
     # For now, create a minimal user struct that matches what the controller expects
     %{
-      id: "test-user-#{System.unique_integer()}"
+      id: Ecto.UUID.generate()
     }
   end
 

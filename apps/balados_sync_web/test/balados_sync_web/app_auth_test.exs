@@ -81,7 +81,7 @@ defmodule BaladosSyncWeb.AppAuthTest do
       {private_pem, public_pem} = generate_test_keypair()
       {_token, claims} = create_test_jwt(private_pem, public_pem)
 
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       assert {:ok, api_token} = AppAuth.authorize_app(user_id, claims)
       assert api_token.user_id == user_id
@@ -98,7 +98,7 @@ defmodule BaladosSyncWeb.AppAuthTest do
       {private_pem, public_pem} = generate_test_keypair()
       {_token, claims} = create_test_jwt(private_pem, public_pem)
 
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       {:ok, first_token} = AppAuth.authorize_app(user_id, claims)
       {:ok, second_token} = AppAuth.authorize_app(user_id, claims)
@@ -110,7 +110,7 @@ defmodule BaladosSyncWeb.AppAuthTest do
       {private_pem, public_pem} = generate_test_keypair()
       {_token, claims} = create_test_jwt(private_pem, public_pem)
 
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       # Create and revoke
       {:ok, token} = AppAuth.authorize_app(user_id, claims)
@@ -125,7 +125,7 @@ defmodule BaladosSyncWeb.AppAuthTest do
 
   describe "get_authorized_apps/1" do
     test "returns all non-revoked apps for a user" do
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       # Create two apps
       {private_pem1, public_pem1} = generate_test_keypair()
@@ -147,7 +147,7 @@ defmodule BaladosSyncWeb.AppAuthTest do
     end
 
     test "returns empty list for user with no apps" do
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
       apps = AppAuth.get_authorized_apps(user_id)
       assert apps == []
     end
@@ -158,7 +158,7 @@ defmodule BaladosSyncWeb.AppAuthTest do
       {private_pem, public_pem} = generate_test_keypair()
       {_token, claims} = create_test_jwt(private_pem, public_pem)
 
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       {:ok, token} = AppAuth.authorize_app(user_id, claims)
 
@@ -168,7 +168,7 @@ defmodule BaladosSyncWeb.AppAuthTest do
     end
 
     test "returns error for non-existent token" do
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
       assert {:error, :not_found} = AppAuth.revoke_app(user_id, "non-existent-jti")
     end
 
@@ -176,7 +176,7 @@ defmodule BaladosSyncWeb.AppAuthTest do
       {private_pem, public_pem} = generate_test_keypair()
       {_token, claims} = create_test_jwt(private_pem, public_pem)
 
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       {:ok, token} = AppAuth.authorize_app(user_id, claims)
       {:ok, _revoked} = AppAuth.revoke_app(user_id, token.token_jti)
@@ -197,7 +197,7 @@ defmodule BaladosSyncWeb.AppAuthTest do
         "sub" => "user-123"
       }
 
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       # Authorize the app first
       {:ok, _token} = AppAuth.authorize_app(user_id, claims)
@@ -221,7 +221,7 @@ defmodule BaladosSyncWeb.AppAuthTest do
         "jti" => jti
       }
 
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       # Authorize and then revoke
       {:ok, token} = AppAuth.authorize_app(user_id, claims)

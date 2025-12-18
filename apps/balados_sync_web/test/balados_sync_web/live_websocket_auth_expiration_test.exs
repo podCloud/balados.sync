@@ -9,7 +9,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.AuthExpirationTest do
     setup do
       # Create a token
       token_string = PlayToken.generate_token()
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       past_time = DateTime.add(DateTime.utc_now(), -3600, :second) |> DateTime.truncate(:second)
 
@@ -34,7 +34,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.AuthExpirationTest do
     setup do
       # Create a token
       token_string = PlayToken.generate_token()
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       future_time =
         DateTime.add(DateTime.utc_now(), 86400, :second) |> DateTime.truncate(:second)
@@ -64,7 +64,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.AuthExpirationTest do
     setup do
       # Create a token without expiration (backward compatibility)
       token_string = PlayToken.generate_token()
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       play_token = %PlayToken{
         user_id: user_id,
@@ -91,7 +91,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.AuthExpirationTest do
     setup do
       # Create a token
       token_string = PlayToken.generate_token()
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       future_time =
         DateTime.add(DateTime.utc_now(), 86400, :second) |> DateTime.truncate(:second)
