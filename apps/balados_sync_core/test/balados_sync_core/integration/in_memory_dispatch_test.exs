@@ -7,19 +7,18 @@ defmodule BaladosSyncCore.Integration.InMemoryDispatchTest do
   1. Commands can be dispatched through the In-Memory EventStore
   2. Events are stored in-memory (not PostgreSQL)
   3. The EventStore reset provides test isolation
+
+  Uses CommandedCase which automatically:
+  - Resets the In-Memory EventStore before each test
+  - Sets up Ecto sandboxes for proper isolation
+  - Provides common aliases (Dispatcher, SystemRepo, ProjectionsRepo)
   """
 
-  use ExUnit.Case, async: true
+  use BaladosSyncCore.CommandedCase, async: true
 
   alias BaladosSyncCore.Commands.Subscribe
-  alias BaladosSyncCore.Dispatcher
 
   describe "In-Memory EventStore integration" do
-    setup do
-      # Reset In-Memory EventStore before each test
-      :ok = Commanded.EventStore.Adapters.InMemory.reset!(Dispatcher)
-      :ok
-    end
 
     test "dispatching Subscribe command succeeds" do
       user_id = Ecto.UUID.generate()

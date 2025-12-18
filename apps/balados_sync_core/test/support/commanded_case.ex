@@ -59,22 +59,29 @@ defmodule BaladosSyncCore.CommandedCase do
 
   @doc """
   Sets up the Ecto sandboxes based on the test tags.
+
+  This function gracefully handles cases where repos may not be started
+  (e.g., when running balados_sync_core tests in isolation).
   """
   def setup_sandbox(tags) do
-    pid =
-      Ecto.Adapters.SQL.Sandbox.start_owner!(BaladosSyncCore.SystemRepo,
-        shared: not tags[:async]
-      )
-
-    pid2 =
-      Ecto.Adapters.SQL.Sandbox.start_owner!(BaladosSyncProjections.ProjectionsRepo,
-        shared: not tags[:async]
-      )
+    pids =
+      for repo <- [BaladosSyncCore.SystemRepo, BaladosSyncProjections.ProjectionsRepo],
+          repo_started?(repo) do
+        Ecto.Adapters.SQL.Sandbox.start_owner!(repo, shared: not tags[:async])
+      end
 
     on_exit(fn ->
-      Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
-      Ecto.Adapters.SQL.Sandbox.stop_owner(pid2)
+      for pid <- pids do
+        Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
+      end
     end)
+  end
+
+  defp repo_started?(repo) do
+    case Process.whereis(repo) do
+      nil -> false
+      _pid -> true
+    end
   end
 
   @doc """
