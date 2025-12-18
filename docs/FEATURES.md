@@ -225,6 +225,57 @@ Développement (local path, défaut) :
 - `PlayToken` schema (system repo)
 - Routes `/play/:token/:feed/:item` (path mode)
 
+### RSS Aggregate Feeds (v1.9)
+
+Génération de flux RSS agrégés pour abonnements, collections et playlists.
+
+**Routes** :
+- `GET /rss/:play_token/subscriptions.xml` - Flux agrégé de tous les abonnements
+- `GET /rss/:play_token/collections/:collection_id.xml` - Flux agrégé d'une collection
+- `GET /rss/:play_token/playlists/:playlist_id.xml` - Flux agrégé d'une playlist
+
+**Authentification** :
+- PlayToken dans le path (pas en query param pour meilleure compatibilité)
+- Validation de propriété (user_id du token = user_id de la ressource)
+- Update automatique de `last_used_at` à chaque accès
+
+**Fonctionnalités** :
+- Fetch parallèle des feeds source via `Task.async_stream`
+- Merge chronologique des épisodes (plus récent en premier)
+- Limite de 100 épisodes par flux agrégé
+- Transformation des URLs d'enclosure vers play gateway
+- Titres enrichis : "Podcast Name - Episode Title"
+- Cache HTTP : `private, max-age=60`
+
+**Gestion d'Erreurs** :
+- 401 Unauthorized : Token invalide ou révoqué
+- 403 Forbidden : Accès à ressource d'un autre utilisateur
+- 404 Not Found : Collection/playlist inexistante
+- Feeds sources inaccessibles : skip silencieux avec logging
+
+**Format RSS** :
+- RSS 2.0 avec namespaces iTunes et Atom
+- Métadonnées channel : titre, description, language, pubDate
+- Items complets avec guid, title, description, enclosure, pubDate
+- Échappement XML sécurisé
+
+**Collections** :
+- Titre du feed = titre de la collection
+- Description du feed = description de la collection (ou titre par défaut)
+- Fetch uniquement des subscriptions actives (non-unsubscribed)
+- Join entre `collection_subscriptions` et `subscriptions`
+
+**Playlists** :
+- Titre du feed = nom de la playlist
+- Description du feed = description de la playlist
+- Fetch uniquement des items non-deleted
+- Filtrage des épisodes par guid depuis les feeds source
+
+**Modules** :
+- `RssAggregateController` - Génération et routing
+- `RssCache` - Cache des feeds source (5 min TTL)
+- `PlayTokenHelper` - Validation et construction URLs
+
 ### Live WebSocket Gateway (v1.2)
 
 WebSocket standard pour communication temps réel.
