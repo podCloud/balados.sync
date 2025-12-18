@@ -7,7 +7,7 @@ defmodule BaladosSyncWeb.PlayTokenHelperExpirationTest do
   import Ecto.Query
 
   setup do
-    user_id = "user-#{System.unique_integer()}"
+    user_id = Ecto.UUID.generate()
     {:ok, user_id: user_id}
   end
 

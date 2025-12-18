@@ -8,7 +8,7 @@ defmodule BaladosSyncJobs.PlayTokenCleanupWorkerTest do
 
   describe "perform/0" do
     test "deletes tokens that expired more than 30 days ago" do
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       # Token expired 31 days ago (should be deleted)
       old_expired_time =
@@ -67,7 +67,7 @@ defmodule BaladosSyncJobs.PlayTokenCleanupWorkerTest do
     end
 
     test "does not delete revoked tokens" do
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       # Token expired 31 days ago but also revoked
       old_expired_time =
@@ -97,7 +97,7 @@ defmodule BaladosSyncJobs.PlayTokenCleanupWorkerTest do
     end
 
     test "does not delete tokens without expiration" do
-      user_id = "user-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
 
       # Token with no expiration (backward compatibility)
       no_expiration_token = %PlayToken{
