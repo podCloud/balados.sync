@@ -278,7 +278,10 @@ defmodule BaladosSyncWeb.LiveWebSocketIntegrationTest do
       {:ok, authenticated_state: state, user_id: user_id}
     end
 
-    test "state is authenticated after successful auth", %{authenticated_state: state, user_id: user_id} do
+    test "state is authenticated after successful auth", %{
+      authenticated_state: state,
+      user_id: user_id
+    } do
       assert BaladosSyncWeb.LiveWebSocket.State.authenticated?(state)
       assert state.user_id == user_id
       assert state.token_type == :play_token

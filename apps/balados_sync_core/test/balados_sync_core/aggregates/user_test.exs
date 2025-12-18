@@ -42,6 +42,7 @@ defmodule BaladosSyncCore.Aggregates.UserTest do
 
       # Verify default collection is created
       assert updated_user.collections != nil
+
       default_collection =
         Enum.find(updated_user.collections, fn {_id, col} -> col.is_default == true end)
 

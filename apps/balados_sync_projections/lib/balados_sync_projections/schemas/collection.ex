@@ -32,7 +32,17 @@ defmodule BaladosSyncProjections.Schemas.Collection do
   @doc false
   def changeset(collection, attrs) do
     collection
-    |> cast(attrs, [:id, :user_id, :title, :is_default, :description, :color, :deleted_at, :inserted_at, :updated_at])
+    |> cast(attrs, [
+      :id,
+      :user_id,
+      :title,
+      :is_default,
+      :description,
+      :color,
+      :deleted_at,
+      :inserted_at,
+      :updated_at
+    ])
     |> validate_required([:user_id, :title, :is_default])
   end
 end

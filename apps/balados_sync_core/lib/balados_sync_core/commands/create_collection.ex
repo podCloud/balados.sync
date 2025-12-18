@@ -11,14 +11,14 @@ defmodule BaladosSyncCore.Commands.CreateCollection do
   """
 
   @type t :: %__MODULE__{
-    user_id: String.t(),
-    title: String.t(),
-    is_default: boolean(),
-    collection_id: String.t() | nil,
-    description: String.t() | nil,
-    color: String.t() | nil,
-    event_infos: map()
-  }
+          user_id: String.t(),
+          title: String.t(),
+          is_default: boolean(),
+          collection_id: String.t() | nil,
+          description: String.t() | nil,
+          color: String.t() | nil,
+          event_infos: map()
+        }
 
   defstruct [
     :user_id,
