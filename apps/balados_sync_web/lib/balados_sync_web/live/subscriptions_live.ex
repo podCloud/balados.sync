@@ -20,15 +20,24 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
     user = socket.assigns.current_user
 
     collections = get_user_collections(user.id)
-    subscriptions = get_subscriptions_with_metadata(user.id)
+    # Load subscriptions without metadata first for fast initial render
+    subscriptions = get_subscriptions_without_metadata(user.id)
 
-    {:ok,
-     socket
-     |> assign(:collections, collections)
-     |> assign(:all_subscriptions, subscriptions)
-     |> assign(:subscriptions, subscriptions)
-     |> assign(:current_collection, nil)
-     |> assign(:page_title, "My Subscriptions")}
+    socket =
+      socket
+      |> assign(:collections, collections)
+      |> assign(:all_subscriptions, subscriptions)
+      |> assign(:subscriptions, subscriptions)
+      |> assign(:current_collection, nil)
+      |> assign(:page_title, "My Subscriptions")
+      |> assign(:loading_metadata, true)
+
+    # Load metadata asynchronously after connected
+    if connected?(socket) do
+      send(self(), :load_metadata)
+    end
+
+    {:ok, socket}
   end
 
   @impl true
@@ -81,6 +90,57 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
   end
 
   @impl true
+  def handle_info(:load_metadata, socket) do
+    # Guard against race condition: if user navigated away or loading was cancelled
+    if not socket.assigns.loading_metadata do
+      {:noreply, socket}
+    else
+      # Fetch metadata concurrently for all subscriptions
+      # Use ordered: true to maintain list order and zip with originals for timeout handling
+      original_subs = socket.assigns.all_subscriptions
+
+      subscriptions_with_metadata =
+        original_subs
+        |> Task.async_stream(
+          fn sub ->
+            metadata = fetch_metadata_safe(sub.rss_source_feed)
+            Map.put(sub, :metadata, metadata)
+          end,
+          max_concurrency: 10,
+          timeout: 5_000,
+          on_timeout: :kill_task,
+          ordered: true
+        )
+        |> Enum.zip(original_subs)
+        |> Enum.map(fn
+          {{:ok, sub}, _original} -> sub
+          {{:exit, _reason}, original} ->
+            # Keep original subscription with error marker instead of dropping it
+            Map.put(original, :metadata, :error)
+        end)
+
+      # Re-apply current filter if any
+      filtered =
+        if socket.assigns.current_collection do
+          feed_urls =
+            socket.assigns.current_collection.collection_subscriptions
+            |> Enum.map(& &1.rss_source_feed)
+            |> MapSet.new()
+
+          Enum.filter(subscriptions_with_metadata, &MapSet.member?(feed_urls, &1.rss_source_feed))
+        else
+          subscriptions_with_metadata
+        end
+
+      {:noreply,
+       socket
+       |> assign(:all_subscriptions, subscriptions_with_metadata)
+       |> assign(:subscriptions, filtered)
+       |> assign(:loading_metadata, false)}
+    end
+  end
+
+  @impl true
   def render(assigns) do
     ~H"""
     <div class="px-4 py-10 sm:px-6 lg:px-8">
@@ -104,6 +164,15 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
             </h1>
             <p class="text-sm text-zinc-500 mt-1">
               <%= length(@subscriptions) %> <%= if length(@subscriptions) == 1, do: "subscription", else: "subscriptions" %>
+              <%= if @loading_metadata do %>
+                <span class="ml-2 inline-flex items-center">
+                  <svg class="animate-spin h-4 w-4 text-zinc-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span class="ml-1">Loading details...</span>
+                </span>
+              <% end %>
               <%= if @current_collection && @current_collection.description do %>
                 <span class="mx-2">&middot;</span>
                 <%= @current_collection.description %>
@@ -262,16 +331,15 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
       where: c.user_id == ^user_id,
       where: is_nil(c.deleted_at),
       order_by: [desc: c.is_default, asc: c.title],
-      preload: [collection_subscriptions: :subscription]
+      preload: [:collection_subscriptions]
     )
     |> ProjectionsRepo.all()
   end
 
-  defp get_subscriptions_with_metadata(user_id) do
+  defp get_subscriptions_without_metadata(user_id) do
     Queries.get_user_subscriptions(user_id)
     |> Enum.map(fn sub ->
-      metadata = fetch_metadata_safe(sub.rss_source_feed)
-      Map.put(sub, :metadata, metadata)
+      Map.put(sub, :metadata, nil)
     end)
   end
 
