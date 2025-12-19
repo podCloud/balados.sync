@@ -45,27 +45,41 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
 
   @doc """
   Projects FeedAddedToCollection event to insert a collection-feed association.
+  Automatically assigns the next available position.
   """
   project(%BaladosSyncCore.Events.FeedAddedToCollection{} = event, _metadata, fn multi ->
     Logger.debug(
       "Projecting FeedAddedToCollection for collection_id=#{event.collection_id}, feed=#{event.rss_source_feed}"
     )
 
-    changeset =
-      CollectionSubscription.changeset(%CollectionSubscription{}, %{
-        collection_id: event.collection_id,
-        rss_source_feed: event.rss_source_feed,
-        inserted_at: truncate_timestamp(event.timestamp),
-        updated_at: truncate_timestamp(event.timestamp)
-      })
+    # Calculate next position
+    multi =
+      Ecto.Multi.run(multi, :next_position, fn repo, _changes ->
+        max_position =
+          from(cs in CollectionSubscription,
+            where: cs.collection_id == ^event.collection_id,
+            select: max(cs.position)
+          )
+          |> repo.one() || -1
 
-    Ecto.Multi.insert(
-      multi,
-      :collection_subscription,
-      changeset,
-      on_conflict: :nothing,
-      conflict_target: [:collection_id, :rss_source_feed]
-    )
+        {:ok, max_position + 1}
+      end)
+
+    Ecto.Multi.run(multi, :collection_subscription, fn repo, %{next_position: position} ->
+      changeset =
+        CollectionSubscription.changeset(%CollectionSubscription{}, %{
+          collection_id: event.collection_id,
+          rss_source_feed: event.rss_source_feed,
+          position: position,
+          inserted_at: truncate_timestamp(event.timestamp),
+          updated_at: truncate_timestamp(event.timestamp)
+        })
+
+      case repo.insert(changeset, on_conflict: :nothing, conflict_target: [:collection_id, :rss_source_feed]) do
+        {:ok, record} -> {:ok, record}
+        {:error, changeset} -> {:error, changeset}
+      end
+    end)
   end)
 
   @doc """
@@ -136,6 +150,32 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
         updated_at: truncate_timestamp(event.timestamp)
       ]
     )
+  end)
+
+  @doc """
+  Projects CollectionFeedReordered event to update feed positions within a collection.
+  """
+  project(%BaladosSyncCore.Events.CollectionFeedReordered{} = event, _metadata, fn multi ->
+    Logger.debug(
+      "Projecting CollectionFeedReordered for collection_id=#{event.collection_id}"
+    )
+
+    # Update positions for all feeds in the collection based on feed_order
+    Enum.with_index(event.feed_order)
+    |> Enum.reduce(multi, fn {feed, position}, acc_multi ->
+      Ecto.Multi.update_all(
+        acc_multi,
+        {:update_position, feed},
+        fn _ ->
+          from(cs in CollectionSubscription,
+            where:
+              cs.collection_id == ^event.collection_id and
+                cs.rss_source_feed == ^feed
+          )
+        end,
+        set: [position: position, updated_at: truncate_timestamp(event.timestamp)]
+      )
+    end)
   end)
 
   # Private functions

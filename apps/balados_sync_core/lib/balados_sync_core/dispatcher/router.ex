@@ -21,7 +21,8 @@ defmodule BaladosSyncCore.Dispatcher.Router do
     AddFeedToCollection,
     RemoveFeedFromCollection,
     UpdateCollection,
-    DeleteCollection
+    DeleteCollection,
+    ReorderCollectionFeed
   }
 
   # Toutes les commandes sont routées vers l'aggregate User
@@ -47,7 +48,8 @@ defmodule BaladosSyncCore.Dispatcher.Router do
       AddFeedToCollection,
       RemoveFeedFromCollection,
       UpdateCollection,
-      DeleteCollection
+      DeleteCollection,
+      ReorderCollectionFeed
     ],
     to: User
   )
