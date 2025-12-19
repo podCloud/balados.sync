@@ -1,6 +1,12 @@
 /**
  * Toast Notification System
  * Displays temporary notifications with auto-dismiss functionality
+ *
+ * Accessibility features:
+ * - aria-live region for screen reader announcements
+ * - role="alert" for urgent messages (error), role="status" for others
+ * - Escape key to dismiss notifications
+ * - Focus management for keyboard users
  */
 
 interface Toast {
@@ -8,6 +14,14 @@ interface Toast {
   message: string
   type: 'info' | 'success' | 'error' | 'warning'
   duration?: number
+}
+
+// Human-readable labels for screen readers
+const TYPE_LABELS: Record<Toast['type'], string> = {
+  info: 'Information',
+  success: 'Success',
+  error: 'Error',
+  warning: 'Warning'
 }
 
 class ToastManager {
@@ -18,6 +32,7 @@ class ToastManager {
 
   constructor() {
     this.initializeContainer()
+    this.setupKeyboardHandlers()
   }
 
   private initializeContainer(): void {
@@ -27,9 +42,29 @@ class ToastManager {
       container = document.createElement('div')
       container.id = 'toast-container'
       container.className = 'fixed top-4 left-4 z-50 space-y-2 max-w-sm pointer-events-none'
+
+      // Accessibility: aria-live region for screen reader announcements
+      container.setAttribute('role', 'region')
+      container.setAttribute('aria-label', 'Notifications')
+      container.setAttribute('aria-live', 'polite')
+      container.setAttribute('aria-relevant', 'additions removals')
+
       document.body.appendChild(container)
     }
     this.container = container
+  }
+
+  /**
+   * Setup keyboard event handlers for accessibility
+   */
+  private setupKeyboardHandlers(): void {
+    document.addEventListener('keydown', (e) => {
+      // Escape key dismisses the most recent toast
+      if (e.key === 'Escape' && this.toasts.length > 0) {
+        const latestToast = this.toasts[this.toasts.length - 1]
+        this.dismiss(latestToast.id)
+      }
+    })
   }
 
   /**
@@ -88,12 +123,17 @@ class ToastManager {
   }
 
   /**
-   * Create a toast DOM element
+   * Create a toast DOM element with accessibility support
    */
   private createToastElement(toast: Toast): HTMLDivElement {
     const toastEl = document.createElement('div')
     toastEl.id = toast.id
     toastEl.className = this.getToastClasses(toast.type)
+
+    // Accessibility: Use role="alert" for errors (urgent), role="status" for others
+    const role = toast.type === 'error' ? 'alert' : 'status'
+    toastEl.setAttribute('role', role)
+    toastEl.setAttribute('aria-atomic', 'true')
 
     const bgColors = {
       info: 'bg-blue-50 border-blue-200',
@@ -109,6 +149,14 @@ class ToastManager {
       warning: 'text-yellow-800'
     }
 
+    // Focus ring colors for dismiss button
+    const focusColors = {
+      info: 'focus:ring-blue-500',
+      success: 'focus:ring-green-500',
+      error: 'focus:ring-red-500',
+      warning: 'focus:ring-yellow-500'
+    }
+
     const icons = {
       info: '✓',
       success: '✓',
@@ -116,21 +164,32 @@ class ToastManager {
       warning: '⚠'
     }
 
+    const typeLabel = TYPE_LABELS[toast.type]
+    const dismissLabel = `Dismiss ${typeLabel.toLowerCase()} notification: ${toast.message}`
+
     toastEl.innerHTML = `
       <div class="pointer-events-auto rounded-lg border ${bgColors[toast.type]} p-4 shadow-lg animate-slide-in">
         <div class="flex items-start gap-3">
-          <span class="text-lg font-bold ${textColors[toast.type]}">${icons[toast.type]}</span>
+          <span class="text-lg font-bold ${textColors[toast.type]}" aria-hidden="true">${icons[toast.type]}</span>
+          <span class="sr-only">${typeLabel}:</span>
           <p class="${textColors[toast.type]} text-sm font-medium">${this.escapeHtml(toast.message)}</p>
           <button
-            onclick="document.getElementById('${toast.id}')?.remove()"
-            class="${textColors[toast.type]} ml-auto hover:opacity-70 transition-opacity"
-            aria-label="Close notification"
+            type="button"
+            data-toast-dismiss="${toast.id}"
+            class="${textColors[toast.type]} ml-auto hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 ${focusColors[toast.type]} focus:ring-offset-2 rounded"
+            aria-label="${this.escapeHtml(dismissLabel)}"
           >
-            ✕
+            <span aria-hidden="true">✕</span>
           </button>
         </div>
       </div>
     `
+
+    // Add click handler for dismiss button (instead of inline onclick)
+    const dismissBtn = toastEl.querySelector(`[data-toast-dismiss="${toast.id}"]`)
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', () => this.dismiss(toast.id))
+    }
 
     return toastEl
   }
