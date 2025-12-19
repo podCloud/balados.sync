@@ -56,13 +56,19 @@ class ToastManager {
 
   /**
    * Setup keyboard event handlers for accessibility
+   * Note: This is a singleton instance, so the event listener is intentionally
+   * never removed. The ToastManager is created once and lives for the page lifetime.
    */
   private setupKeyboardHandlers(): void {
     document.addEventListener('keydown', (e) => {
-      // Escape key dismisses the most recent toast
+      // Escape key dismisses the most recent VISIBLE toast
+      // Only the first maxVisible toasts are rendered, so we must dismiss from those
       if (e.key === 'Escape' && this.toasts.length > 0) {
-        const latestToast = this.toasts[this.toasts.length - 1]
-        this.dismiss(latestToast.id)
+        const visibleToasts = this.toasts.slice(0, this.maxVisible)
+        if (visibleToasts.length > 0) {
+          const latestVisibleToast = visibleToasts[visibleToasts.length - 1]
+          this.dismiss(latestVisibleToast.id)
+        }
       }
     })
   }
