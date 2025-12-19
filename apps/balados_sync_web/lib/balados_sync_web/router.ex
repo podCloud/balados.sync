@@ -223,12 +223,15 @@ defmodule BaladosSyncWeb.Router do
     get "/proxy/:encoded_feed_id/:encoded_episode_id", RssProxyController, :proxy_episode
   end
 
-  # RSS agrégé par user (abonnements et playlists)
-  scope "/api/v1/rss/user", BaladosSyncWeb do
+  # RSS agrégé par user (abonnements, collections et playlists)
+  # Note: .xml extension is not supported in dynamic paths by Phoenix,
+  # so we use paths without extension. The format is determined by Accept header.
+  scope "/rss", BaladosSyncWeb do
     pipe_through :rss_xml
 
     get "/:user_token/subscriptions", RssAggregateController, :subscriptions
-    get "/:user_token/playlist/:playlist_id", RssAggregateController, :playlist
+    get "/:user_token/collections/:collection_id", RssAggregateController, :collection
+    get "/:user_token/playlists/:playlist_id", RssAggregateController, :playlist
   end
 
   # Play gateway (subdomain play.balados.sync)

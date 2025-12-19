@@ -4,8 +4,9 @@ defmodule BaladosSyncWeb.RssAggregateController do
 
   alias BaladosSyncCore.RssCache
   alias BaladosSyncWeb.PlayTokenHelper
+  alias BaladosSyncCore.SystemRepo
   alias BaladosSyncProjections.ProjectionsRepo
-  alias BaladosSyncProjections.Schemas.{PlayToken, Subscription, Playlist, PlaylistItem}
+  alias BaladosSyncProjections.Schemas.{PlayToken, Subscription, Playlist, PlaylistItem, Collection, CollectionSubscription}
   import Ecto.Query
 
   def subscriptions(conn, %{"user_token" => token}) do
@@ -26,6 +27,37 @@ defmodule BaladosSyncWeb.RssAggregateController do
 
       {:error, reason} ->
         Logger.error("RSS aggregate error: #{inspect(reason)}")
+
+        conn
+        |> put_status(:internal_server_error)
+        |> json(%{error: "Internal server error"})
+    end
+  end
+
+  def collection(conn, %{"user_token" => token, "collection_id" => collection_id}) do
+    with {:ok, user_id} <- verify_user_token(token),
+         {:ok, collection} <- get_user_collection(user_id, collection_id),
+         {:ok, subscriptions} <- get_collection_subscriptions(collection.id),
+         {:ok, aggregated_feed} <- aggregate_collection_feeds(user_id, token, collection, subscriptions) do
+      update_token_last_used(token)
+
+      conn
+      |> put_resp_header("content-type", "application/xml; charset=utf-8")
+      |> put_resp_header("cache-control", "private, max-age=60")
+      |> send_resp(200, aggregated_feed)
+    else
+      {:error, :invalid_token} ->
+        conn
+        |> put_status(:unauthorized)
+        |> json(%{error: "Invalid or revoked token"})
+
+      {:error, :not_found} ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{error: "Collection not found"})
+
+      {:error, reason} ->
+        Logger.error("RSS collection error: #{inspect(reason)}")
 
         conn
         |> put_status(:internal_server_error)
@@ -70,7 +102,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
         select: t.user_id
       )
 
-    case ProjectionsRepo.one(query) do
+    case SystemRepo.one(query) do
       nil -> {:error, :invalid_token}
       user_id -> {:ok, user_id}
     end
@@ -80,6 +112,33 @@ defmodule BaladosSyncWeb.RssAggregateController do
     subscriptions =
       from(s in Subscription,
         where: s.user_id == ^user_id,
+        where: is_nil(s.unsubscribed_at) or s.subscribed_at > s.unsubscribed_at,
+        select: %{feed: s.rss_source_feed, title: s.rss_feed_title}
+      )
+      |> ProjectionsRepo.all()
+
+    {:ok, subscriptions}
+  end
+
+  defp get_user_collection(user_id, collection_id) do
+    collection =
+      from(c in Collection,
+        where: c.user_id == ^user_id and c.id == ^collection_id and is_nil(c.deleted_at)
+      )
+      |> ProjectionsRepo.one()
+
+    case collection do
+      nil -> {:error, :not_found}
+      collection -> {:ok, collection}
+    end
+  end
+
+  defp get_collection_subscriptions(collection_id) do
+    subscriptions =
+      from(cs in CollectionSubscription,
+        join: s in Subscription,
+        on: cs.rss_source_feed == s.rss_source_feed,
+        where: cs.collection_id == ^collection_id,
         where: is_nil(s.unsubscribed_at) or s.subscribed_at > s.unsubscribed_at,
         select: %{feed: s.rss_source_feed, title: s.rss_feed_title}
       )
@@ -106,16 +165,20 @@ defmodule BaladosSyncWeb.RssAggregateController do
     tasks =
       Enum.map(subscriptions, fn sub ->
         Task.async(fn ->
-          # Décoder le feed URL (URL-safe encoding)
-          {:ok, feed_url} = Base.url_decode64(sub.feed, padding: false)
+          case decode_feed_url(sub.feed) do
+            {:ok, feed_url} ->
+              case RssCache.fetch_feed(feed_url) do
+                {:ok, xml} ->
+                  parse_and_transform_items(xml, sub.feed, sub.title || "Unknown Podcast", user_token)
 
-          case RssCache.fetch_feed(feed_url) do
-            {:ok, xml} ->
-              parse_and_transform_items(xml, sub.feed, sub.title || "Unknown Podcast", user_token)
+                error ->
+                  Logger.error("Failed to fetch feed #{sub.title}: #{inspect(error)}")
+                  {:error, :fetch_failed}
+              end
 
-            error ->
-              Logger.error("Failed to fetch feed #{sub.title}: #{inspect(error)}")
-              {:error, :fetch_failed}
+            {:error, :invalid_encoding} ->
+              Logger.error("Invalid base64 feed encoding for #{sub.title}: #{sub.feed}")
+              {:error, :invalid_encoding}
           end
         end)
       end)
@@ -143,23 +206,74 @@ defmodule BaladosSyncWeb.RssAggregateController do
     {:ok, feed_xml}
   end
 
+  defp aggregate_collection_feeds(_user_id, user_token, collection, subscriptions) do
+    tasks =
+      Enum.map(subscriptions, fn sub ->
+        Task.async(fn ->
+          case decode_feed_url(sub.feed) do
+            {:ok, feed_url} ->
+              case RssCache.fetch_feed(feed_url) do
+                {:ok, xml} ->
+                  parse_and_transform_items(xml, sub.feed, sub.title || "Unknown Podcast", user_token)
+
+                error ->
+                  Logger.error("Failed to fetch feed #{sub.title}: #{inspect(error)}")
+                  {:error, :fetch_failed}
+              end
+
+            {:error, :invalid_encoding} ->
+              Logger.error("Invalid base64 feed encoding for #{sub.title}: #{sub.feed}")
+              {:error, :invalid_encoding}
+          end
+        end)
+      end)
+
+    results = Task.await_many(tasks, :timer.seconds(30))
+
+    # Collecter tous les items transformés
+    all_items =
+      results
+      |> Enum.filter(fn
+        {:ok, _} -> true
+        _ -> false
+      end)
+      |> Enum.flat_map(fn {:ok, items} -> items end)
+      |> Enum.sort_by(& &1.pub_date_parsed, {:desc, DateTime})
+      |> Enum.take(100)
+
+    feed_xml =
+      build_aggregated_feed(
+        collection.title,
+        collection.description || "Aggregated feed from collection: #{collection.title}",
+        all_items
+      )
+
+    {:ok, feed_xml}
+  end
+
   defp aggregate_playlist_feed(_user_id, user_token, playlist) do
     items_by_feed = Enum.group_by(playlist.items, & &1.rss_source_feed)
 
     tasks =
       Enum.map(items_by_feed, fn {feed, items} ->
         Task.async(fn ->
-          {:ok, feed_url} = Base.url_decode64(feed, padding: false)
           feed_title = List.first(items).feed_title || "Unknown Podcast"
           item_ids = Enum.map(items, & &1.rss_source_item)
 
-          case RssCache.fetch_feed(feed_url) do
-            {:ok, xml} ->
-              parse_and_transform_items(xml, feed, feed_title, user_token, item_ids)
+          case decode_feed_url(feed) do
+            {:ok, feed_url} ->
+              case RssCache.fetch_feed(feed_url) do
+                {:ok, xml} ->
+                  parse_and_transform_items(xml, feed, feed_title, user_token, item_ids)
 
-            error ->
-              Logger.error("Failed to fetch playlist feed: #{inspect(error)}")
-              {:error, :fetch_failed}
+                error ->
+                  Logger.error("Failed to fetch playlist feed: #{inspect(error)}")
+                  {:error, :fetch_failed}
+              end
+
+            {:error, :invalid_encoding} ->
+              Logger.error("Invalid base64 feed encoding for playlist: #{feed}")
+              {:error, :invalid_encoding}
           end
         end)
       end)
@@ -311,10 +425,17 @@ defmodule BaladosSyncWeb.RssAggregateController do
     Timex.format!(datetime, "{RFC1123}")
   end
 
+  defp decode_feed_url(encoded_feed) do
+    case Base.url_decode64(encoded_feed, padding: false) do
+      {:ok, feed_url} -> {:ok, feed_url}
+      :error -> {:error, :invalid_encoding}
+    end
+  end
+
   defp update_token_last_used(token) do
     Task.start(fn ->
       from(t in PlayToken, where: t.token == ^token)
-      |> ProjectionsRepo.update_all(set: [last_used_at: DateTime.utc_now()])
+      |> SystemRepo.update_all(set: [last_used_at: DateTime.utc_now()])
     end)
   end
 end

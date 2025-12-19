@@ -353,6 +353,7 @@ git pull origin main
 - PlayToken Expiration & Auto-cleanup (v1.6) ✅ [#30](https://github.com/podCloud/balados.sync/pull/30)
 - Public Timeline Page with Activity Feed (v1.7) ✅ [#40](https://github.com/podCloud/balados.sync/pull/40)
 - Collections & Organization (v1.8) ✅ [#45](https://github.com/podCloud/balados.sync/pull/45)
+- RSS Aggregate Feeds (v1.9) ✅ [#64](https://github.com/podCloud/balados.sync/issues/64)
 
 ---
 
