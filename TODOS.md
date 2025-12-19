@@ -84,9 +84,6 @@ Add tasks here. Claude will create GitHub issues for them.
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
-- [ ] Timeline actions 3-dot menu - [#22](https://github.com/podCloud/balados.sync/issues/22) - REVIEW [PR #90](https://github.com/podCloud/balados.sync/pull/90)
-- [ ] Toast notifications accessibility - [#52](https://github.com/podCloud/balados.sync/issues/52) - REVIEW [PR #93](https://github.com/podCloud/balados.sync/pull/93)
-- [ ] Collections: reorder feeds - [#51](https://github.com/podCloud/balados.sync/issues/51) - REVIEW [PR #95](https://github.com/podCloud/balados.sync/pull/95)
 - [ ] Enriched podcasts with slugs, branding, social links - [#65](https://github.com/podCloud/balados.sync/issues/65) - OPEN
 - [ ] Public user profile page - [#66](https://github.com/podCloud/balados.sync/issues/66) - OPEN
 - [ ] Public visibility for playlists and collections - [#67](https://github.com/podCloud/balados.sync/issues/67) - OPEN
@@ -99,6 +96,9 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] Timeline actions 3-dot menu - [#22](https://github.com/podCloud/balados.sync/issues/22) - PR #90
+- [x] Toast notifications accessibility - [#52](https://github.com/podCloud/balados.sync/issues/52) - PR #93
+- [x] Collections: reorder feeds - [#51](https://github.com/podCloud/balados.sync/issues/51) - PR #95
 - [x] Playlists UI and CRUD - [#28](https://github.com/podCloud/balados.sync/issues/28) - PR #91
 - [x] Persist timeline filter preferences - [#53](https://github.com/podCloud/balados.sync/issues/53) - PR #92
 - [x] RSS aggregate feeds for collections/playlists - [#64](https://github.com/podCloud/balados.sync/issues/64) - PR #84
