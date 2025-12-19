@@ -170,12 +170,12 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
         do_dispatch_play_command(message, opid, state)
 
       {:deny, _limit} ->
-        Logger.warning("Rate limit exceeded for user #{state.user_id}")
+        Logger.warning("Play command rate limit exceeded for user #{state.user_id}")
 
         {:error,
          error_response_with_opid(
-           "Too many play events. Rate limited to #{@rate_limit_limit} per second.",
-           "RATE_LIMITED",
+           "Too many play events. Limited to #{@rate_limit_limit} per second.",
+           "PLAY_RATE_LIMITED",
            opid
          )}
     end

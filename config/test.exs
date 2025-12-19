@@ -52,3 +52,8 @@ config :phoenix, :plug_init_mode, :runtime
 config :phoenix_live_view,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
+
+# Higher rate limits for tests to avoid flakiness
+config :balados_sync_web, :rate_limiter,
+  bucket_capacity: 100,
+  refill_rate: 50

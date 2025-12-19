@@ -35,19 +35,30 @@ defmodule BaladosSyncWeb.LiveWebSocket do
   @doc """
   Handles incoming messages.
 
-  Parses JSON messages and delegates to MessageHandler for processing.
-  Rejects binary messages (only JSON over text frames).
+  First checks rate limit, then parses JSON messages and delegates to
+  MessageHandler for processing. Rejects binary messages (only JSON over text frames).
   """
   @impl WebSock
   def handle_in({message, opcode: :text}, state) do
     Logger.debug("Received text message: #{inspect(message)}")
 
-    case MessageHandler.handle_message(message, state) do
-      {:ok, response, new_state} ->
-        {:push, {:text, response}, new_state}
+    # Check rate limit first
+    case State.check_rate_limit(state) do
+      {:ok, rate_limited_state} ->
+        # Rate limit OK, process message
+        case MessageHandler.handle_message(message, rate_limited_state) do
+          {:ok, response, new_state} ->
+            {:push, {:text, response}, new_state}
 
-      {:error, error_response} ->
-        {:push, {:text, error_response}, state}
+          {:error, error_response} ->
+            {:push, {:text, error_response}, rate_limited_state}
+        end
+
+      {:error, :rate_limited, rate_limited_state} ->
+        # Connection-level rate limit exceeded (too many messages of any type)
+        Logger.warning("Connection rate limit exceeded")
+        error = error_response("Too many messages. Please slow down.", "CONNECTION_RATE_LIMITED")
+        {:push, {:text, error}, rate_limited_state}
     end
   rescue
     e ->

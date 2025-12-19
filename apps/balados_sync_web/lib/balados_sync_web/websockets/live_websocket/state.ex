@@ -2,8 +2,11 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
   @moduledoc """
   Connection state for the LiveWebSocket handler.
 
-  Tracks authentication status, user identity, token information, and connection metadata.
+  Tracks authentication status, user identity, token information, rate limiting,
+  and connection metadata.
   """
+
+  alias BaladosSyncWeb.LiveWebSocket.RateLimiter
 
   @type auth_status :: :unauthenticated | :authenticated
   @type token_type :: :play_token | :jwt_token
@@ -17,7 +20,8 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
           device_name: String.t(),
           connected_at: DateTime.t(),
           last_activity_at: DateTime.t(),
-          message_count: non_neg_integer()
+          message_count: non_neg_integer(),
+          rate_limit_bucket: RateLimiter.bucket()
         }
 
   defstruct [
@@ -26,6 +30,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
     :token_value,
     :connected_at,
     :last_activity_at,
+    :rate_limit_bucket,
     auth_status: :unauthenticated,
     device_id: "websocket",
     device_name: "WebSocket Live",
@@ -36,6 +41,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
   Creates a new connection state.
 
   The connection starts in the unauthenticated state, ready to receive an auth message.
+  Initializes a rate limiting token bucket for this connection.
   """
   @spec new() :: t()
   def new do
@@ -50,7 +56,8 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
       device_name: "WebSocket Live",
       connected_at: now,
       last_activity_at: now,
-      message_count: 0
+      message_count: 0,
+      rate_limit_bucket: RateLimiter.new_bucket()
     }
   end
 
@@ -97,5 +104,22 @@ defmodule BaladosSyncWeb.LiveWebSocket.State do
   @spec authenticated?(t()) :: boolean()
   def authenticated?(%__MODULE__{} = state) do
     state.auth_status == :authenticated
+  end
+
+  @doc """
+  Checks rate limit and consumes a token if available.
+
+  Returns {:ok, updated_state} if the request is allowed,
+  or {:error, :rate_limited, updated_state} if rate limit exceeded.
+  """
+  @spec check_rate_limit(t()) :: {:ok, t()} | {:error, :rate_limited, t()}
+  def check_rate_limit(%__MODULE__{} = state) do
+    case RateLimiter.consume(state.rate_limit_bucket) do
+      {:ok, new_bucket} ->
+        {:ok, %__MODULE__{state | rate_limit_bucket: new_bucket}}
+
+      {:error, :rate_limited, new_bucket} ->
+        {:error, :rate_limited, %__MODULE__{state | rate_limit_bucket: new_bucket}}
+    end
   end
 end
