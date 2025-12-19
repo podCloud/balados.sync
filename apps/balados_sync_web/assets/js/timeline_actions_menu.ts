@@ -136,14 +136,14 @@ class TimelineActionsMenu {
 
     if (!id || !eventType) return null
 
-    // Extract feed from the podcast link
+    // Extract feed from the podcast link (stops at ?, #, or / to avoid capturing query params)
     const podcastLink = element.querySelector('a[href^="/podcasts/"]')
-    const feedMatch = podcastLink?.getAttribute('href')?.match(/\/podcasts\/(.+)/)
+    const feedMatch = podcastLink?.getAttribute('href')?.match(/\/podcasts\/([^/?#]+)/)
     const feed = feedMatch?.[1] || null
 
-    // Extract item for play events (from episode link if exists)
+    // Extract item for play events (from episode link if exists, stops at ?, #, or /)
     const episodeLink = element.querySelector('a[href^="/episodes/"]')
-    const itemMatch = episodeLink?.getAttribute('href')?.match(/\/episodes\/(.+)/)
+    const itemMatch = episodeLink?.getAttribute('href')?.match(/\/episodes\/([^/?#]+)/)
     const item = itemMatch?.[1] || null
 
     if (!feed) return null
