@@ -84,6 +84,10 @@ Add tasks here. Claude will create GitHub issues for them.
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
+- [ ] Timeline actions 3-dot menu - [#22](https://github.com/podCloud/balados.sync/issues/22) - REVIEW [PR #90](https://github.com/podCloud/balados.sync/pull/90)
+- [ ] Playlists UI and CRUD - [#28](https://github.com/podCloud/balados.sync/issues/28) - REVIEW [PR #91](https://github.com/podCloud/balados.sync/pull/91)
+- [ ] Toast notifications accessibility - [#52](https://github.com/podCloud/balados.sync/issues/52) - REVIEW [PR #93](https://github.com/podCloud/balados.sync/pull/93)
+- [ ] Persist timeline filter preferences - [#53](https://github.com/podCloud/balados.sync/issues/53) - REVIEW [PR #92](https://github.com/podCloud/balados.sync/pull/92)
 - [ ] Enriched podcasts with slugs, branding, social links - [#65](https://github.com/podCloud/balados.sync/issues/65) - OPEN
 - [ ] Public user profile page - [#66](https://github.com/podCloud/balados.sync/issues/66) - OPEN
 - [ ] Public visibility for playlists and collections - [#67](https://github.com/podCloud/balados.sync/issues/67) - OPEN
