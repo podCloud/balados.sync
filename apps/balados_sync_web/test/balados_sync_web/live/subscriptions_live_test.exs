@@ -149,22 +149,22 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       assert html =~ "Fallback Title"
     end
 
-    test "shows Loading... when no rss_feed_title and metadata is nil", %{conn: conn, user: user} do
+    test "shows error state when no rss_feed_title and metadata fetch fails", %{
+      conn: conn,
+      user: user
+    } do
       # Create subscription without RSS title
       create_subscription(user.id, @feed_url_1, nil)
 
-      # Don't cache any metadata - will attempt HTTP fetch
-      # Pre-populate with fetch error to prevent actual HTTP call
+      # Pre-populate with invalid (non-map) value to simulate fetch failure
       Cachex.put(:rss_feed_cache, {:metadata, @feed_url_1}, :fetch_failed)
 
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
-      # Use assert_eventually since metadata loading will timeout,
-      # but we want to verify the fallback behavior
-      assert_eventually(fn ->
-        html = render(view)
-        assert html =~ "Loading..."
-      end)
+      html = wait_for_metadata(view)
+
+      # Should show error state when fetch fails and no fallback title
+      assert html =~ "Unable to load" or html =~ "Failed to load"
     end
 
     test "preserves subscription order on partial metadata failure", %{conn: conn, user: user} do
@@ -328,6 +328,67 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       # Should still work correctly
       assert html =~ "Test Metadata"
       refute html =~ "Loading details..."
+    end
+  end
+
+  describe "error state UX" do
+    test "shows error indicator when metadata fetch fails", %{conn: conn, user: user} do
+      create_subscription(user.id, @feed_url_1, nil)
+
+      # Force an error by caching an invalid (non-map) value
+      # This triggers the {:ok, _invalid} clause in fetch_metadata_with_telemetry
+      Cachex.put(:rss_feed_cache, {:metadata, @feed_url_1}, :fetch_failed)
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      html = wait_for_metadata(view)
+
+      # Should show error state UI elements
+      assert html =~ "Failed to load" or html =~ "Unable to load"
+      assert html =~ "Retry"
+      assert html =~ "Could not fetch podcast details"
+    end
+
+    test "retry button is present for failed metadata", %{conn: conn, user: user} do
+      create_subscription(user.id, @feed_url_1, nil)
+
+      # Force error state with non-map value
+      Cachex.put(:rss_feed_cache, {:metadata, @feed_url_1}, :fetch_failed)
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      html = wait_for_metadata(view)
+
+      # Should have retry button with correct phx-click
+      assert html =~ "phx-click=\"retry_metadata\""
+    end
+
+    test "retry_metadata event triggers metadata reload", %{conn: conn, user: user} do
+      _sub = create_subscription(user.id, @feed_url_1, nil)
+
+      # First: fail the metadata fetch with non-map value
+      Cachex.put(:rss_feed_cache, {:metadata, @feed_url_1}, :fetch_failed)
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      html = wait_for_metadata(view)
+      assert html =~ "Failed to load" or html =~ "Unable to load"
+
+      # Now: fix the cache with valid metadata
+      cache_metadata(@feed_url_1, %{title: "Recovered Podcast", description: "Now it works!"})
+
+      # Trigger retry
+      view
+      |> element("button[phx-click=\"retry_metadata\"]")
+      |> render_click()
+
+      # Wait a bit for async processing
+      Process.sleep(100)
+      html = render(view)
+
+      # Should now show the recovered metadata
+      assert html =~ "Recovered Podcast"
+      refute html =~ "Failed to load"
     end
   end
 

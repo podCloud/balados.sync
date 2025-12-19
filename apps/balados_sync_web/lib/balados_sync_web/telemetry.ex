@@ -74,6 +74,29 @@ defmodule BaladosSyncWeb.Telemetry do
           "The time the connection spent waiting before being checked out for the query"
       ),
 
+      # Subscriptions Metadata Metrics
+      counter("balados_sync.subscriptions.metadata.start.count",
+        description: "Number of metadata batch fetch operations started"
+      ),
+      summary("balados_sync.subscriptions.metadata.stop.duration",
+        unit: {:native, :millisecond},
+        description: "Duration of metadata batch fetch operations"
+      ),
+      sum("balados_sync.subscriptions.metadata.stop.success",
+        description: "Number of successful metadata fetches"
+      ),
+      sum("balados_sync.subscriptions.metadata.stop.error",
+        description: "Number of failed metadata fetches"
+      ),
+      summary("balados_sync.subscriptions.metadata.fetch.duration",
+        unit: {:native, :millisecond},
+        description: "Duration of individual feed metadata fetches"
+      ),
+      counter("balados_sync.subscriptions.metadata.fetch.count",
+        tags: [:success],
+        description: "Count of individual feed metadata fetch attempts"
+      ),
+
       # VM Metrics
       summary("vm.memory.total", unit: {:byte, :kilobyte}),
       summary("vm.total_run_queue_lengths.total"),
