@@ -81,6 +81,10 @@ Thumbs.db
 .claude/cache/
 .claude/plans/
 
+# Node.js (for TypeScript tests)
+node_modules/
+package-lock.json
+
 # Crash dumps
 *.dump
 core
