@@ -24,12 +24,25 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
         expires_at: nil
       })
 
+    # Initialize the User aggregate by subscribing to a dummy feed
+    # This is required because the aggregate uses user_id from state
+    Dispatcher.dispatch(%Subscribe{
+      user_id: user_id,
+      rss_source_feed: "aHR0cHM6Ly9kdW1teS5pbml0aWFsaXplci5jb20vZmVlZA",
+      rss_source_id: "init-feed",
+      subscribed_at: DateTime.utc_now(),
+      event_infos: %{}
+    })
+
+    # Wait for projection
+    Process.sleep(50)
+
     {:ok, user_id: user_id, token: token}
   end
 
-  describe "GET /rss/:user_token/subscriptions.xml" do
+  describe "GET /rss/:user_token/subscriptions" do
     test "returns 401 for invalid token", %{conn: conn} do
-      conn = get(conn, "/rss/invalid_token/subscriptions.xml")
+      conn = get(conn, "/rss/invalid_token/subscriptions")
 
       assert response(conn, 401)
       assert json_response(conn, 401)["error"] == "Invalid or revoked token"
@@ -54,7 +67,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
       # Wait for projection
       Process.sleep(100)
 
-      conn = get(conn, "/rss/#{token}/subscriptions.xml")
+      conn = get(conn, "/rss/#{token}/subscriptions")
 
       assert response(conn, 200)
       assert get_resp_header(conn, "content-type") |> Enum.at(0) =~ "application/xml"
@@ -87,7 +100,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
         from(t in PlayToken, where: t.token == ^token, select: t.last_used_at)
         |> SystemRepo.one()
 
-      conn = get(conn, "/rss/#{token}/subscriptions.xml")
+      conn = get(conn, "/rss/#{token}/subscriptions")
       assert response(conn, 200)
 
       # Wait for async update
@@ -103,10 +116,10 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
     end
   end
 
-  describe "GET /rss/:user_token/collections/:collection_id.xml" do
+  describe "GET /rss/:user_token/collections/:collection_id" do
     test "returns 401 for invalid token", %{conn: conn} do
       collection_id = Ecto.UUID.generate()
-      conn = get(conn, "/rss/invalid_token/collections/#{collection_id}.xml")
+      conn = get(conn, "/rss/invalid_token/collections/#{collection_id}")
 
       assert response(conn, 401)
       assert json_response(conn, 401)["error"] == "Invalid or revoked token"
@@ -114,7 +127,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
 
     test "returns 404 for non-existent collection", %{conn: conn, token: token} do
       collection_id = Ecto.UUID.generate()
-      conn = get(conn, "/rss/#{token}/collections/#{collection_id}.xml")
+      conn = get(conn, "/rss/#{token}/collections/#{collection_id}")
 
       assert response(conn, 404)
       assert json_response(conn, 404)["error"] == "Collection not found"
@@ -122,6 +135,15 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
 
     test "returns 404 for another user's collection", %{conn: conn, token: token} do
       other_user_id = Ecto.UUID.generate()
+
+      # First subscribe to initialize the aggregate for other user
+      Dispatcher.dispatch(%Subscribe{
+        user_id: other_user_id,
+        rss_source_feed: "aHR0cHM6Ly9vdGhlci5leGFtcGxlLmNvbS9mZWVk",
+        rss_source_id: "other-podcast",
+        subscribed_at: DateTime.utc_now(),
+        event_infos: %{}
+      })
 
       # Create collection for another user
       Dispatcher.dispatch(%CreateCollection{
@@ -137,7 +159,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
       collection =
         ProjectionsRepo.get_by(Collection, user_id: other_user_id, title: "Other User Collection")
 
-      conn = get(conn, "/rss/#{token}/collections/#{collection.id}.xml")
+      conn = get(conn, "/rss/#{token}/collections/#{collection.id}")
 
       assert response(conn, 404)
       assert json_response(conn, 404)["error"] == "Collection not found"
@@ -183,7 +205,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
       # Wait for projection
       Process.sleep(100)
 
-      conn = get(conn, "/rss/#{token}/collections/#{collection.id}.xml")
+      conn = get(conn, "/rss/#{token}/collections/#{collection.id}")
 
       assert response(conn, 200)
       assert get_resp_header(conn, "content-type") |> Enum.at(0) =~ "application/xml"
@@ -215,7 +237,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
 
       collection = ProjectionsRepo.get_by(Collection, user_id: user_id, title: "Tech News")
 
-      conn = get(conn, "/rss/#{token}/collections/#{collection.id}.xml")
+      conn = get(conn, "/rss/#{token}/collections/#{collection.id}")
 
       assert response(conn, 200)
 
@@ -242,7 +264,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
         from(t in PlayToken, where: t.token == ^token, select: t.last_used_at)
         |> SystemRepo.one()
 
-      conn = get(conn, "/rss/#{token}/collections/#{collection.id}.xml")
+      conn = get(conn, "/rss/#{token}/collections/#{collection.id}")
       assert response(conn, 200)
 
       # Wait for async update
@@ -258,10 +280,10 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
     end
   end
 
-  describe "GET /rss/:user_token/playlists/:playlist_id.xml" do
+  describe "GET /rss/:user_token/playlists/:playlist_id" do
     test "returns 401 for invalid token", %{conn: conn} do
       playlist_id = Ecto.UUID.generate()
-      conn = get(conn, "/rss/invalid_token/playlists/#{playlist_id}.xml")
+      conn = get(conn, "/rss/invalid_token/playlists/#{playlist_id}")
 
       assert response(conn, 401)
       assert json_response(conn, 401)["error"] == "Invalid or revoked token"
@@ -269,7 +291,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
 
     test "returns 404 for non-existent playlist", %{conn: conn, token: token} do
       playlist_id = Ecto.UUID.generate()
-      conn = get(conn, "/rss/#{token}/playlists/#{playlist_id}.xml")
+      conn = get(conn, "/rss/#{token}/playlists/#{playlist_id}")
 
       assert response(conn, 404)
       assert json_response(conn, 404)["error"] == "Playlist not found"

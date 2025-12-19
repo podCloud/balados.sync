@@ -8,7 +8,6 @@ defmodule BaladosSyncProjections.Schemas.Playlist do
     field :user_id, :string
     field :name, :string
     field :description, :string
-    field :slug, :string
 
     has_many :items, BaladosSyncProjections.Schemas.PlaylistItem
 
@@ -17,7 +16,7 @@ defmodule BaladosSyncProjections.Schemas.Playlist do
 
   def changeset(playlist, attrs) do
     playlist
-    |> cast(attrs, [:user_id, :name, :description, :slug])
+    |> cast(attrs, [:user_id, :name, :description])
     |> validate_required([:user_id, :name])
   end
 end

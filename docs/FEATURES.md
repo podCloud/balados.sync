@@ -230,9 +230,12 @@ Développement (local path, défaut) :
 Génération de flux RSS agrégés pour abonnements, collections et playlists.
 
 **Routes** :
-- `GET /rss/:play_token/subscriptions.xml` - Flux agrégé de tous les abonnements
-- `GET /rss/:play_token/collections/:collection_id.xml` - Flux agrégé d'une collection
-- `GET /rss/:play_token/playlists/:playlist_id.xml` - Flux agrégé d'une playlist
+- `GET /rss/:play_token/subscriptions` - Flux agrégé de tous les abonnements
+- `GET /rss/:play_token/collections/:collection_id` - Flux agrégé d'une collection
+- `GET /rss/:play_token/playlists/:playlist_id` - Flux agrégé d'une playlist
+
+> Note: L'extension `.xml` n'est pas supportée dans les paths dynamiques Phoenix.
+> Le format est déterminé par le header `Accept`.
 
 **Authentification** :
 - PlayToken dans le path (pas en query param pour meilleure compatibilité)
