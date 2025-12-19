@@ -14,14 +14,17 @@ defmodule BaladosSyncProjections.Schemas.AppToken do
   @schema_prefix "system"
   schema "app_tokens" do
     field :user_id, :string
-    field :app_name, :string
-    field :app_image, :string
-    field :app_url, :string
+    # Use :source to map Elixir field name to DB column name
+    field :app_name, :string, source: :token_name
     field :public_key, :string
     field :app_id, :string
-    field :scopes, {:array, :string}, default: []
+    field :scopes, {:array, :string}, default: [], source: :token_scopes
     field :last_used_at, :utc_datetime
     field :revoked_at, :utc_datetime
+
+    # Virtual fields for display (not in DB)
+    field :app_image, :string, virtual: true
+    field :app_url, :string, virtual: true
 
     timestamps(type: :utc_datetime)
   end
@@ -34,13 +37,14 @@ defmodule BaladosSyncProjections.Schemas.AppToken do
     |> cast(attrs, [
       :user_id,
       :app_name,
-      :app_image,
-      :app_url,
       :public_key,
       :app_id,
       :scopes,
       :last_used_at,
-      :revoked_at
+      :revoked_at,
+      # Virtual fields - populated from JWT, not persisted
+      :app_image,
+      :app_url
     ])
     |> validate_required([:user_id, :app_name, :public_key, :app_id])
     |> unique_constraint([:user_id, :app_id], name: :app_tokens_user_id_app_id_index)

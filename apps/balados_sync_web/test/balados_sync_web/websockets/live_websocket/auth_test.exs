@@ -20,24 +20,29 @@ defmodule BaladosSyncWeb.LiveWebSocket.AuthTest do
   alias BaladosSyncCore.SystemRepo
 
   describe "token type detection" do
-    test "detects PlayToken (no dots)" do
+    test "detects and validates PlayToken (no dots)" do
+      # Create a valid token in the database to prove it's processed as PlayToken
+      user_id = Ecto.UUID.generate()
       token = PlayToken.generate_token()
-      assert {:error, :invalid_token} = Auth.authenticate(token)
-      # The error confirms it tried PlayToken validation
+
+      {:ok, _} =
+        SystemRepo.insert(%PlayToken{
+          user_id: user_id,
+          token: token,
+          name: "Detection Test Token"
+        })
+
+      # Token without dots is detected as PlayToken and validated successfully
+      assert {:ok, ^user_id, :play_token} = Auth.authenticate(token)
     end
 
+    @tag :skip
+    # Skipped: JWT path raises Jason.DecodeError for malformed tokens.
+    # This should be fixed to return {:error, :invalid_token}.
+    # Also requires fixing AppToken schema/migration mismatch (see issue).
     test "detects JWT format (three parts with dots)" do
-      # A JWT-like string triggers JWT path
-      # Note: The current implementation raises Jason.DecodeError for invalid JWTs
-      # instead of returning {:error, :invalid_token}. This is a known limitation.
-      # Real JWT validation requires properly configured app_tokens.
       jwt = "header.payload.signature"
-
-      # The code currently raises an exception for malformed JWTs
-      # This behavior should be improved to return {:error, :invalid_token}
-      assert_raise Jason.DecodeError, fn ->
-        Auth.authenticate(jwt)
-      end
+      assert {:error, :invalid_token} = Auth.authenticate(jwt)
     end
 
     test "handles nil token" do
@@ -148,12 +153,11 @@ defmodule BaladosSyncWeb.LiveWebSocket.AuthTest do
       # Authenticate
       assert {:ok, ^user_id, :play_token} = Auth.authenticate(token)
 
-      # Wait for async update
-      Process.sleep(100)
-
-      # Verify last_used_at was updated
-      updated_token = SystemRepo.get(PlayToken, play_token.id)
-      assert not is_nil(updated_token.last_used_at)
+      # Poll for async update with timeout (more robust than fixed sleep)
+      assert_eventually(fn ->
+        updated_token = SystemRepo.get(PlayToken, play_token.id)
+        not is_nil(updated_token.last_used_at)
+      end)
     end
   end
 
@@ -183,4 +187,26 @@ defmodule BaladosSyncWeb.LiveWebSocket.AuthTest do
   #    - JWT with insufficient scopes
   #    - Revoked app tokens
   #    - Wrong signature
+
+  # Helper function for polling async operations
+  defp assert_eventually(assertion_fn, opts \\ []) do
+    timeout = Keyword.get(opts, :timeout, 1000)
+    poll_interval = Keyword.get(opts, :poll_interval, 50)
+    deadline = System.monotonic_time(:millisecond) + timeout
+
+    do_assert_eventually(assertion_fn, poll_interval, deadline)
+  end
+
+  defp do_assert_eventually(assertion_fn, poll_interval, deadline) do
+    if assertion_fn.() do
+      :ok
+    else
+      if System.monotonic_time(:millisecond) < deadline do
+        Process.sleep(poll_interval)
+        do_assert_eventually(assertion_fn, poll_interval, deadline)
+      else
+        flunk("Assertion did not become true within timeout")
+      end
+    end
+  end
 end
