@@ -10,6 +10,9 @@ defmodule BaladosSyncProjections.Schemas.Playlist do
     field :description, :string
     field :deleted_at, :utc_datetime
 
+    # Virtual field for optimized item counting (avoids N+1 queries)
+    field :items_count, :integer, virtual: true
+
     has_many :items, BaladosSyncProjections.Schemas.PlaylistItem
 
     timestamps(type: :utc_datetime)
