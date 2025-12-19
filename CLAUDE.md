@@ -312,6 +312,12 @@ git pull origin main
 
 **Format titre:** `[Follow-up #<PR>] <type>: <description>`
 
+**⚠️ RÈGLE IMPORTANTE: Pas de follow-up de follow-up !**
+- Si tu travailles sur une issue de suivi (follow-up), tu dois la résoudre complètement
+- Ne jamais créer une issue de suivi pour une issue qui est déjà un follow-up
+- Si le problème est trop complexe, demander de l'aide ou simplifier l'approche
+- Les issues de suivi doivent être terminées, pas reportées
+
 ### Points Importants
 
 **Git & Commits:**

@@ -60,21 +60,52 @@ defmodule BaladosSyncCore.CommandedCase do
   @doc """
   Sets up the Ecto sandboxes based on the test tags.
 
-  This function gracefully handles cases where repos may not be started
-  (e.g., when running balados_sync_core tests in isolation).
+  This function ensures dependent applications are started and sets up
+  sandboxes for both repos.
   """
   def setup_sandbox(tags) do
-    pids =
-      for repo <- [BaladosSyncCore.SystemRepo, BaladosSyncProjections.ProjectionsRepo],
-          repo_started?(repo) do
-        Ecto.Adapters.SQL.Sandbox.start_owner!(repo, shared: not tags[:async])
-      end
+    # Ensure all dependent applications are started
+    ensure_apps_started()
 
-    on_exit(fn ->
-      for pid <- pids do
-        Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
+    repos = [BaladosSyncCore.SystemRepo, BaladosSyncProjections.ProjectionsRepo]
+
+    # Use checkout mode for sync tests to avoid issues with stop_owner
+    if tags[:async] do
+      # For async tests, use start_owner with proper cleanup
+      pids =
+        for repo <- repos,
+            repo_started?(repo) do
+          Ecto.Adapters.SQL.Sandbox.start_owner!(repo, shared: false)
+        end
+
+      on_exit(fn ->
+        for pid <- pids do
+          Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
+        end
+      end)
+    else
+      # For sync tests, use checkout mode which is simpler.
+      # No explicit cleanup is needed because ExUnit's sandbox mode
+      # automatically rolls back transactions at the end of each test.
+      for repo <- repos, repo_started?(repo) do
+        :ok = Ecto.Adapters.SQL.Sandbox.checkout(repo)
       end
-    end)
+    end
+  end
+
+  defp ensure_apps_started do
+    # Start apps if not already running
+    Application.ensure_all_started(:ecto_sql)
+    Application.ensure_all_started(:postgrex)
+    Application.ensure_all_started(:balados_sync_core)
+    Application.ensure_all_started(:balados_sync_projections)
+
+    # Brief pause to allow Repo GenServers to fully initialize after application start.
+    # This addresses a known race condition where Application.ensure_all_started/1 returns
+    # before the Repo processes are ready to accept checkout requests. Without this,
+    # tests may fail with "could not lookup Ecto repo" errors on slow CI systems.
+    # The 10ms delay is minimal but sufficient for process registration to complete.
+    Process.sleep(10)
   end
 
   defp repo_started?(repo) do
