@@ -9,14 +9,18 @@ defmodule BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollectionTest do
   4. Process manager dispatches AddFeedToCollection command
   5. Command creates FeedAddedToCollection event
   6. Event is persisted to event store
+
+  NOTE: These tests are currently skipped because:
+  - Process managers in Commanded run as separate GenServer processes
+  - They require specific configuration to work with In-Memory EventStore
+  - Testing process managers requires additional setup beyond CommandedCase
+
+  TODO: Enable these tests when process manager testing infrastructure is in place.
   """
 
-  use BaladosSyncCore.DataCase
+  use BaladosSyncCore.CommandedCase, async: false
 
-  alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.Subscribe
-  alias BaladosSyncCore.Aggregates.User
-  alias BaladosSyncCore.EventStore
 
   describe "AddFeedToDefaultCollection process manager" do
     @tag :skip
