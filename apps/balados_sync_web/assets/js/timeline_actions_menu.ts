@@ -29,6 +29,7 @@ class TimelineActionsMenu {
   private activeButton: HTMLElement | null = null
   private currentUserId: string | null = null
   private csrfToken: string
+  private initialized: boolean = false
 
   constructor() {
     this.csrfToken = this.getCSRFToken()
@@ -49,19 +50,24 @@ class TimelineActionsMenu {
     // Inject action buttons into each event card
     this.injectActionButtons(container)
 
-    // Setup global click listener to close menus
-    document.addEventListener('click', (e) => {
-      if (this.activeMenu && !this.activeMenu.contains(e.target as Node)) {
-        this.closeActiveMenu()
-      }
-    })
+    // Setup global event listeners only once to prevent memory leaks
+    if (!this.initialized) {
+      // Setup global click listener to close menus
+      document.addEventListener('click', (e) => {
+        if (this.activeMenu && !this.activeMenu.contains(e.target as Node)) {
+          this.closeActiveMenu()
+        }
+      })
 
-    // Close on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.activeMenu) {
-        this.closeActiveMenu()
-      }
-    })
+      // Close on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.activeMenu) {
+          this.closeActiveMenu()
+        }
+      })
+
+      this.initialized = true
+    }
 
     console.log('[TimelineActions] Initialized for container:', containerId)
   }
@@ -73,6 +79,9 @@ class TimelineActionsMenu {
     const eventCards = container.querySelectorAll('[data-event-id]')
 
     eventCards.forEach((card) => {
+      // Skip if action menu already exists (prevent duplicate injection)
+      if (card.querySelector('.timeline-action-menu')) return
+
       const eventData = this.extractEventData(card as HTMLElement)
       if (!eventData) return
 
@@ -314,12 +323,36 @@ class TimelineActionsMenu {
         // Show success message
         this.showToast('Successfully unsubscribed', 'success')
       } else {
-        const data = await response.json().catch(() => ({}))
-        this.showToast(data.error || 'Failed to unsubscribe', 'error')
+        // Use predefined error messages to prevent XSS from server responses
+        const errorMessage = this.getUnsubscribeErrorMessage(response.status)
+        this.showToast(errorMessage, 'error')
       }
     } catch (error) {
       console.error('[TimelineActions] Unsubscribe error:', error)
       this.showToast('Failed to unsubscribe', 'error')
+    }
+  }
+
+  /**
+   * Get predefined error message for unsubscribe failures
+   * Uses predefined messages to prevent XSS from untrusted server responses
+   */
+  private getUnsubscribeErrorMessage(statusCode: number): string {
+    switch (statusCode) {
+      case 401:
+        return 'You must be logged in to unsubscribe'
+      case 403:
+        return 'You do not have permission to unsubscribe'
+      case 404:
+        return 'Subscription not found'
+      case 422:
+        return 'Unable to process unsubscribe request'
+      case 500:
+      case 502:
+      case 503:
+        return 'Server error, please try again later'
+      default:
+        return 'Failed to unsubscribe'
     }
   }
 
