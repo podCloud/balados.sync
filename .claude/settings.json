@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -n \"$CLAUDE_ENV_FILE\" ] && [ -f ~/.config/podclaude/get-token.py ]; then echo \"export GH_TOKEN=$(python3 ~/.config/podclaude/get-token.py 2>/dev/null)\" >> \"$CLAUDE_ENV_FILE\"; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
