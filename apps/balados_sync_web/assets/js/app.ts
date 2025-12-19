@@ -75,6 +75,7 @@ import "./episode_sorter"
 // Timeline filtering and toasts for public timeline
 import { timelineFilter } from "./timeline_filter"
 import { toastManager } from "./toast_notifications"
+import { timelineActionsMenu } from "./timeline_actions_menu"
 
 // Initialize timeline features on page load
 if (document.readyState === 'loading') {
@@ -90,6 +91,7 @@ function initializeTimelineFeatures(): void {
   const timelineContainer = document.getElementById('timeline-feed')
   if (timelineContainer) {
     timelineFilter.initialize('timeline-feed')
+    timelineActionsMenu.initialize('timeline-feed')
 
     // Show recent events as toasts on page load
     const recentEvents = timelineContainer.querySelectorAll('[data-event-id]')
