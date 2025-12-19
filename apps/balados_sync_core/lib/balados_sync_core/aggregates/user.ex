@@ -92,8 +92,10 @@ defmodule BaladosSyncCore.Aggregates.User do
     RemoveEvents,
     SyncUserData,
     Snapshot,
+    CreatePlaylist,
     UpdatePlaylist,
     ReorderPlaylist,
+    DeletePlaylist,
     CreateCollection,
     AddFeedToCollection,
     RemoveFeedFromCollection,
@@ -112,8 +114,10 @@ defmodule BaladosSyncCore.Aggregates.User do
     PrivacyChanged,
     EventsRemoved,
     UserCheckpoint,
+    PlaylistCreated,
     PlaylistUpdated,
     PlaylistReordered,
+    PlaylistDeleted,
     CollectionCreated,
     FeedAddedToCollection,
     FeedRemovedFromCollection,
@@ -206,6 +210,50 @@ defmodule BaladosSyncCore.Aggregates.User do
       timestamp: DateTime.utc_now(),
       event_infos: cmd.event_infos || %{}
     }
+  end
+
+  # CreatePlaylist
+  def execute(%__MODULE__{} = user, %CreatePlaylist{} = cmd) do
+    playlists = user.playlists || %{}
+
+    cond do
+      is_nil(cmd.name) || String.trim(cmd.name) == "" ->
+        {:error, :name_required}
+
+      true ->
+        # Use provided playlist_id if given, otherwise generate UUID
+        playlist_id = cmd.playlist_id || Ecto.UUID.generate()
+
+        # Check if playlist already exists
+        if Map.has_key?(playlists, playlist_id) do
+          {:error, :playlist_already_exists}
+        else
+          %PlaylistCreated{
+            user_id: user.user_id,
+            playlist_id: playlist_id,
+            name: cmd.name,
+            description: cmd.description,
+            timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
+            event_infos: cmd.event_infos || %{}
+          }
+        end
+    end
+  end
+
+  # DeletePlaylist
+  def execute(%__MODULE__{} = user, %DeletePlaylist{} = cmd) do
+    playlists = user.playlists || %{}
+
+    if Map.has_key?(playlists, cmd.playlist_id) do
+      %PlaylistDeleted{
+        user_id: user.user_id,
+        playlist_id: cmd.playlist_id,
+        timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
+        event_infos: cmd.event_infos || %{}
+      }
+    else
+      {:error, :playlist_not_found}
+    end
   end
 
   # UpdatePlaylist
@@ -494,6 +542,18 @@ defmodule BaladosSyncCore.Aggregates.User do
     %{user | privacy: event.privacy}
   end
 
+  def apply(%__MODULE__{} = user, %PlaylistCreated{} = event) do
+    playlists = user.playlists || %{}
+
+    new_playlist = %{
+      name: event.name,
+      description: event.description,
+      items: []
+    }
+
+    %{user | playlists: Map.put(playlists, event.playlist_id, new_playlist)}
+  end
+
   def apply(%__MODULE__{} = user, %EpisodeSaved{} = event) do
     playlists = user.playlists || %{}
 
@@ -576,6 +636,11 @@ defmodule BaladosSyncCore.Aggregates.User do
         updated_playlist = %{playlist | items: event.items}
         %{user | playlists: Map.put(playlists, event.playlist, updated_playlist)}
     end
+  end
+
+  def apply(%__MODULE__{} = user, %PlaylistDeleted{} = event) do
+    playlists = user.playlists || %{}
+    %{user | playlists: Map.delete(playlists, event.playlist_id)}
   end
 
   def apply(%__MODULE__{} = user, %UserCheckpoint{} = event) do

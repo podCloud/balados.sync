@@ -8,6 +8,7 @@ defmodule BaladosSyncProjections.Schemas.Playlist do
     field :user_id, :string
     field :name, :string
     field :description, :string
+    field :deleted_at, :utc_datetime
 
     has_many :items, BaladosSyncProjections.Schemas.PlaylistItem
 

@@ -10,12 +10,54 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
   alias BaladosSyncCore.Events.{
     EpisodeSaved,
     EpisodeUnsaved,
+    PlaylistCreated,
     PlaylistUpdated,
     PlaylistReordered,
+    PlaylistDeleted,
     UserCheckpoint
   }
 
   alias BaladosSyncProjections.Schemas.{Playlist, PlaylistItem}
+
+  project(%PlaylistCreated{} = event, _metadata, fn multi ->
+    playlist_attrs = %{
+      id: event.playlist_id,
+      user_id: event.user_id,
+      name: event.name,
+      description: event.description
+    }
+
+    Ecto.Multi.insert(
+      multi,
+      :playlist,
+      %Playlist{} |> Ecto.Changeset.change(playlist_attrs),
+      on_conflict: {:replace, [:name, :description, :updated_at]},
+      conflict_target: [:id, :user_id]
+    )
+  end)
+
+  project(%PlaylistDeleted{} = event, _metadata, fn multi ->
+    # Soft delete playlist and all its items
+    multi =
+      Ecto.Multi.update_all(
+        multi,
+        :playlist,
+        from(p in Playlist,
+          where: p.id == ^event.playlist_id and p.user_id == ^event.user_id
+        ),
+        set: [deleted_at: DateTime.utc_now(), updated_at: DateTime.utc_now()]
+      )
+
+    # Also soft delete all items in the playlist
+    Ecto.Multi.update_all(
+      multi,
+      :playlist_items,
+      from(pi in PlaylistItem,
+        where: pi.playlist_id == ^event.playlist_id and pi.user_id == ^event.user_id
+      ),
+      set: [deleted_at: DateTime.utc_now(), updated_at: DateTime.utc_now()]
+    )
+  end)
 
   project(%EpisodeSaved{} = event, _metadata, fn multi ->
     # Create or get playlist
