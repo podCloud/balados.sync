@@ -5,6 +5,7 @@
  */
 
 import { privacyManager } from './privacy_manager'
+import { toastManager } from './toast_notifications'
 
 interface TimelineEventData {
   id: string
@@ -251,7 +252,7 @@ class TimelineActionsMenu {
       label: 'View Podcast',
       icon: this.icons.podcast,
       action: (data) => {
-        window.location.href = `/podcasts/${data.feed}`
+        window.location.href = `/podcasts/${encodeURIComponent(data.feed)}`
       }
     })
 
@@ -261,7 +262,7 @@ class TimelineActionsMenu {
         label: 'View Episode',
         icon: this.icons.episode,
         action: (data) => {
-          window.location.href = `/episodes/${data.item}`
+          window.location.href = `/episodes/${encodeURIComponent(data.item!)}`
         }
       })
     }
@@ -304,8 +305,11 @@ class TimelineActionsMenu {
     )
     if (!confirmed) return
 
+    // Store original opacity for error recovery
+    const originalOpacity = cardElement.style.opacity || '1'
+
     try {
-      const response = await fetch(`/podcasts/${eventData.feed}/subscribe`, {
+      const response = await fetch(`/podcasts/${encodeURIComponent(eventData.feed)}/subscribe`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -323,11 +327,15 @@ class TimelineActionsMenu {
         // Show success message
         this.showToast('Successfully unsubscribed', 'success')
       } else {
+        // Restore original opacity on failure
+        cardElement.style.opacity = originalOpacity
         // Use predefined error messages to prevent XSS from server responses
         const errorMessage = this.getUnsubscribeErrorMessage(response.status)
         this.showToast(errorMessage, 'error')
       }
     } catch (error) {
+      // Restore original opacity on error
+      cardElement.style.opacity = originalOpacity
       console.error('[TimelineActions] Unsubscribe error:', error)
       this.showToast('Failed to unsubscribe', 'error')
     }
@@ -374,19 +382,7 @@ class TimelineActionsMenu {
    * Show a toast notification
    */
   private showToast(message: string, type: 'success' | 'error' | 'info'): void {
-    // Use existing toast system if available
-    const toastManager = (window as any).__toastManager
-    if (toastManager) {
-      toastManager.show(message, type)
-      return
-    }
-
-    // Fallback: simple alert
-    if (type === 'error') {
-      console.error('[TimelineActions]', message)
-    } else {
-      console.log('[TimelineActions]', message)
-    }
+    toastManager.show(message, type)
   }
 
   /**

@@ -325,6 +325,98 @@ mix credo --format json
 
 ---
 
+## 🎨 Assets Frontend (TypeScript/JS/CSS)
+
+Le projet utilise **esbuild** pour le bundling TypeScript/JavaScript et **Tailwind** pour le CSS.
+
+### Structure des Assets
+
+```
+apps/balados_sync_web/assets/
+├── css/             # Styles Tailwind
+├── js/              # TypeScript/JavaScript modules
+│   ├── app.ts       # Point d'entrée principal
+│   ├── timeline_filter.ts
+│   ├── timeline_actions_menu.ts
+│   ├── privacy_manager.ts
+│   └── toast_notifications.ts
+├── vendor/          # Dépendances externes
+├── tailwind.config.js
+└── tsconfig.json
+```
+
+### Compilation des Assets
+
+```bash
+# Compilation manuelle TypeScript/JS
+mix esbuild balados_sync_web
+
+# Compilation manuelle CSS (Tailwind)
+mix tailwind balados_sync_web
+
+# Compilation avec watch (auto-rebuild)
+# Les watchers sont déjà configurés dans config/dev.exs
+# Ils démarrent automatiquement avec mix phx.server
+
+# Build de production (minifié)
+MIX_ENV=prod mix esbuild balados_sync_web --minify
+MIX_ENV=prod mix tailwind balados_sync_web --minify
+
+# Génération des digests (production)
+MIX_ENV=prod mix phx.digest
+```
+
+### Configuration esbuild
+
+```elixir
+# config/config.exs
+config :esbuild,
+  version: "0.17.11",
+  balados_sync_web: [
+    args: ~w(js/app.ts --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+    cd: Path.expand("../apps/balados_sync_web/assets", __DIR__),
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ]
+```
+
+### Configuration Tailwind
+
+```elixir
+# config/config.exs
+config :tailwind,
+  version: "3.4.0",
+  balados_sync_web: [
+    args: ~w(
+      --config=tailwind.config.js
+      --input=css/app.css
+      --output=../priv/static/assets/app.css
+    ),
+    cd: Path.expand("../apps/balados_sync_web/assets", __DIR__)
+  ]
+```
+
+### Développement TypeScript
+
+Les fichiers TypeScript sont automatiquement compilés par esbuild. Le `tsconfig.json` configure :
+- Target ES2017 pour compatibilité navigateurs modernes
+- Strict mode pour une meilleure sécurité de types
+- Modules ES pour tree-shaking
+
+### Debugging Assets
+
+```bash
+# Voir les erreurs de compilation
+mix esbuild balados_sync_web 2>&1
+
+# Build avec sourcemaps (dev par défaut)
+mix esbuild balados_sync_web --sourcemap=inline
+
+# Vérifier la sortie
+ls -la apps/balados_sync_web/priv/static/assets/
+```
+
+---
+
 ## 🔧 Commandes Utiles IEx
 
 ### Aggregate State
