@@ -84,7 +84,6 @@ Add tasks here. Claude will create GitHub issues for them.
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
-- [ ] RSS aggregate feeds for collections/playlists - [#64](https://github.com/podCloud/balados.sync/issues/64) - OPEN
 - [ ] Enriched podcasts with slugs, branding, social links - [#65](https://github.com/podCloud/balados.sync/issues/65) - OPEN
 - [ ] Public user profile page - [#66](https://github.com/podCloud/balados.sync/issues/66) - OPEN
 - [ ] Public visibility for playlists and collections - [#67](https://github.com/podCloud/balados.sync/issues/67) - OPEN
@@ -96,3 +95,5 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 ## Done
 
 Format: `- [x] Description - [#N](url)`
+
+- [x] RSS aggregate feeds for collections/playlists - [#64](https://github.com/podCloud/balados.sync/issues/64) - PR #84
