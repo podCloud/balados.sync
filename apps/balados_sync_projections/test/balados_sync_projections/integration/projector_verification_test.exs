@@ -29,7 +29,12 @@ defmodule BaladosSyncProjections.Integration.ProjectorVerificationTest do
   alias BaladosSyncCore.Events.{UserSubscribed, PlayRecorded}
   alias BaladosSyncProjections.Schemas.{Subscription, PlayStatus}
 
-  # Helper to apply projections manually, simulating what the projector does
+  # These helpers replicate the projector's database insertion logic.
+  # This is intentional: we're testing the projection *result* not the projector code.
+  # The projector code is tested via integration tests that dispatch commands.
+  # Here we verify that given the same event data, the expected projection structure
+  # is created, ensuring our understanding of the business rules is correct.
+
   defp apply_subscription_event(%UserSubscribed{} = event) do
     subscribed_at = parse_datetime(event.subscribed_at)
 
@@ -47,8 +52,6 @@ defmodule BaladosSyncProjections.Integration.ProjectorVerificationTest do
   end
 
   defp apply_play_status_event(%PlayRecorded{} = event) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-
     ProjectionsRepo.insert(
       %PlayStatus{
         user_id: event.user_id,
@@ -56,7 +59,7 @@ defmodule BaladosSyncProjections.Integration.ProjectorVerificationTest do
         rss_source_item: event.rss_source_item,
         position: event.position,
         played: event.played,
-        updated_at: now
+        updated_at: parse_datetime(event.timestamp)
       },
       on_conflict: {:replace, [:position, :played, :updated_at]},
       conflict_target: [:user_id, :rss_source_item]
@@ -175,12 +178,15 @@ defmodule BaladosSyncProjections.Integration.ProjectorVerificationTest do
       feed = Base.encode64("https://example.com/podcast.xml")
       item = Base.encode64("episode-guid-123,https://example.com/episode.mp3")
 
+      timestamp = DateTime.utc_now() |> DateTime.truncate(:second)
+
       event = %PlayRecorded{
         user_id: user_id,
         rss_source_feed: feed,
         rss_source_item: item,
         position: 1234,
-        played: false
+        played: false,
+        timestamp: timestamp
       }
 
       assert {:ok, _} = apply_play_status_event(event)
@@ -200,6 +206,7 @@ defmodule BaladosSyncProjections.Integration.ProjectorVerificationTest do
       user_id = Ecto.UUID.generate()
       feed = Base.encode64("https://example.com/podcast.xml")
       item = Base.encode64("episode-guid-456,https://example.com/episode.mp3")
+      timestamp1 = DateTime.utc_now() |> DateTime.truncate(:second)
 
       # First play - partial listen
       event1 = %PlayRecorded{
@@ -207,7 +214,8 @@ defmodule BaladosSyncProjections.Integration.ProjectorVerificationTest do
         rss_source_feed: feed,
         rss_source_item: item,
         position: 500,
-        played: false
+        played: false,
+        timestamp: timestamp1
       }
 
       assert {:ok, _} = apply_play_status_event(event1)
@@ -216,13 +224,16 @@ defmodule BaladosSyncProjections.Integration.ProjectorVerificationTest do
       assert play_status.position == 500
       assert play_status.played == false
 
-      # Second play - completed
+      # Second play - completed (1 second later)
+      timestamp2 = DateTime.add(timestamp1, 1, :second)
+
       event2 = %PlayRecorded{
         user_id: user_id,
         rss_source_feed: feed,
         rss_source_item: item,
         position: 3600,
-        played: true
+        played: true,
+        timestamp: timestamp2
       }
 
       assert {:ok, _} = apply_play_status_event(event2)
@@ -238,13 +249,15 @@ defmodule BaladosSyncProjections.Integration.ProjectorVerificationTest do
       feed = Base.encode64("https://example.com/podcast.xml")
       item1 = Base.encode64("episode-1,https://example.com/ep1.mp3")
       item2 = Base.encode64("episode-2,https://example.com/ep2.mp3")
+      timestamp = DateTime.utc_now() |> DateTime.truncate(:second)
 
       event1 = %PlayRecorded{
         user_id: user_id,
         rss_source_feed: feed,
         rss_source_item: item1,
         position: 100,
-        played: false
+        played: false,
+        timestamp: timestamp
       }
 
       event2 = %PlayRecorded{
@@ -252,7 +265,8 @@ defmodule BaladosSyncProjections.Integration.ProjectorVerificationTest do
         rss_source_feed: feed,
         rss_source_item: item2,
         position: 200,
-        played: true
+        played: true,
+        timestamp: timestamp
       }
 
       assert {:ok, _} = apply_play_status_event(event1)
@@ -275,6 +289,78 @@ defmodule BaladosSyncProjections.Integration.ProjectorVerificationTest do
       assert ps1.played == false
       assert ps2.position == 200
       assert ps2.played == true
+    end
+  end
+
+  describe "Idempotency verification" do
+    # These tests verify that projections are idempotent - applying the same event
+    # multiple times produces the same result. This is critical for event sourcing
+    # systems where events may be replayed.
+
+    test "subscription projection is idempotent on replay" do
+      user_id = Ecto.UUID.generate()
+      feed = Base.encode64("https://example.com/podcast.xml")
+      subscribed_at = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      event = %UserSubscribed{
+        user_id: user_id,
+        rss_source_feed: feed,
+        rss_source_id: "podcast-123",
+        subscribed_at: subscribed_at
+      }
+
+      # Apply the same event multiple times (simulating replay)
+      assert {:ok, _} = apply_subscription_event(event)
+      assert {:ok, _} = apply_subscription_event(event)
+      assert {:ok, _} = apply_subscription_event(event)
+
+      # Verify only one record exists
+      subscriptions =
+        ProjectionsRepo.all(
+          from(s in Subscription, where: s.user_id == ^user_id and s.rss_source_feed == ^feed)
+        )
+
+      assert length(subscriptions) == 1
+
+      subscription = hd(subscriptions)
+      assert subscription.user_id == user_id
+      assert subscription.rss_source_feed == feed
+      assert subscription.subscribed_at == subscribed_at
+    end
+
+    test "play_status projection is idempotent on replay" do
+      user_id = Ecto.UUID.generate()
+      feed = Base.encode64("https://example.com/podcast.xml")
+      item = Base.encode64("episode-guid-789,https://example.com/episode.mp3")
+      timestamp = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      event = %PlayRecorded{
+        user_id: user_id,
+        rss_source_feed: feed,
+        rss_source_item: item,
+        position: 1500,
+        played: false,
+        timestamp: timestamp
+      }
+
+      # Apply the same event multiple times (simulating replay)
+      assert {:ok, _} = apply_play_status_event(event)
+      assert {:ok, _} = apply_play_status_event(event)
+      assert {:ok, _} = apply_play_status_event(event)
+
+      # Verify only one record exists
+      play_statuses =
+        ProjectionsRepo.all(
+          from(p in PlayStatus, where: p.user_id == ^user_id and p.rss_source_item == ^item)
+        )
+
+      assert length(play_statuses) == 1
+
+      play_status = hd(play_statuses)
+      assert play_status.user_id == user_id
+      assert play_status.rss_source_item == item
+      assert play_status.position == 1500
+      assert play_status.played == false
     end
   end
 end

@@ -84,7 +84,9 @@ defmodule BaladosSyncCore.CommandedCase do
         end
       end)
     else
-      # For sync tests, use checkout mode which is simpler
+      # For sync tests, use checkout mode which is simpler.
+      # No explicit cleanup is needed because ExUnit's sandbox mode
+      # automatically rolls back transactions at the end of each test.
       for repo <- repos, repo_started?(repo) do
         :ok = Ecto.Adapters.SQL.Sandbox.checkout(repo)
       end
@@ -98,7 +100,11 @@ defmodule BaladosSyncCore.CommandedCase do
     Application.ensure_all_started(:balados_sync_core)
     Application.ensure_all_started(:balados_sync_projections)
 
-    # Wait a moment for repos to be fully ready
+    # Brief pause to allow Repo GenServers to fully initialize after application start.
+    # This addresses a known race condition where Application.ensure_all_started/1 returns
+    # before the Repo processes are ready to accept checkout requests. Without this,
+    # tests may fail with "could not lookup Ecto repo" errors on slow CI systems.
+    # The 10ms delay is minimal but sufficient for process registration to complete.
     Process.sleep(10)
   end
 
