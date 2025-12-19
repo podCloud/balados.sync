@@ -76,7 +76,7 @@ defmodule BaladosSyncCore.Aggregates.User do
     :play_statuses,
     # %{playlist_id => %{name, items}}
     :playlists,
-    # %{collection_id => %{title, slug, feed_ids (MapSet)}}
+    # %{collection_id => %{title, slug, feed_ids (ordered list)}}
     :collections
   ]
 
@@ -100,7 +100,8 @@ defmodule BaladosSyncCore.Aggregates.User do
     AddFeedToCollection,
     RemoveFeedFromCollection,
     UpdateCollection,
-    DeleteCollection
+    DeleteCollection,
+    ReorderCollectionFeed
   }
 
   alias BaladosSyncCore.Events.{
@@ -122,7 +123,8 @@ defmodule BaladosSyncCore.Aggregates.User do
     FeedAddedToCollection,
     FeedRemovedFromCollection,
     CollectionUpdated,
-    CollectionDeleted
+    CollectionDeleted,
+    CollectionFeedReordered
   }
 
   # Initialisation de l'aggregate
@@ -456,6 +458,42 @@ defmodule BaladosSyncCore.Aggregates.User do
     end
   end
 
+  # ReorderCollectionFeed
+  def execute(%__MODULE__{} = user, %ReorderCollectionFeed{} = cmd) do
+    collections = user.collections || %{}
+
+    case Map.get(collections, cmd.collection_id) do
+      nil ->
+        {:error, :collection_not_found}
+
+      collection ->
+        feed_ids = collection.feed_ids || []
+
+        cond do
+          cmd.rss_source_feed not in feed_ids ->
+            {:error, :feed_not_in_collection}
+
+          cmd.new_position < 0 or cmd.new_position >= length(feed_ids) ->
+            {:error, :invalid_position}
+
+          true ->
+            # Remove feed from current position and insert at new position
+            remaining = List.delete(feed_ids, cmd.rss_source_feed)
+            new_order = List.insert_at(remaining, cmd.new_position, cmd.rss_source_feed)
+
+            %CollectionFeedReordered{
+              user_id: user.user_id,
+              collection_id: cmd.collection_id,
+              rss_source_feed: cmd.rss_source_feed,
+              new_position: cmd.new_position,
+              feed_order: new_order,
+              timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
+              event_infos: cmd.event_infos || %{}
+            }
+        end
+    end
+  end
+
   # Application des events pour mettre à jour l'état
   def apply(%__MODULE__{} = user, %UserSubscribed{} = event) do
     subscriptions = user.subscriptions || %{}
@@ -471,8 +509,14 @@ defmodule BaladosSyncCore.Aggregates.User do
     {_default_collection_id, updated_collections} =
       case Enum.find(collections, fn {_id, col} -> col.is_default end) do
         {id, collection} ->
-          # Default collection exists, add feed to it
-          updated_feed_ids = MapSet.put(collection.feed_ids, event.rss_source_feed)
+          # Default collection exists, add feed to it if not already present
+          feed_ids = collection.feed_ids || []
+
+          updated_feed_ids =
+            if event.rss_source_feed in feed_ids,
+              do: feed_ids,
+              else: feed_ids ++ [event.rss_source_feed]
+
           updated_collection = %{collection | feed_ids: updated_feed_ids}
           {id, Map.put(collections, id, updated_collection)}
 
@@ -483,7 +527,7 @@ defmodule BaladosSyncCore.Aggregates.User do
           new_collection = %{
             title: "All Subscriptions",
             is_default: true,
-            feed_ids: MapSet.new([event.rss_source_feed])
+            feed_ids: [event.rss_source_feed]
           }
 
           {new_id, Map.put(collections, new_id, new_collection)}
@@ -660,7 +704,7 @@ defmodule BaladosSyncCore.Aggregates.User do
       is_default: event.is_default,
       description: event.description,
       color: event.color,
-      feed_ids: MapSet.new()
+      feed_ids: []
     }
 
     %{user | collections: Map.put(collections, event.collection_id, new_collection)}
@@ -674,7 +718,14 @@ defmodule BaladosSyncCore.Aggregates.User do
         user
 
       collection ->
-        updated_feed_ids = MapSet.put(collection.feed_ids, event.rss_source_feed)
+        feed_ids = collection.feed_ids || []
+
+        # Add to end of list if not already present
+        updated_feed_ids =
+          if event.rss_source_feed in feed_ids,
+            do: feed_ids,
+            else: feed_ids ++ [event.rss_source_feed]
+
         updated_collection = %{collection | feed_ids: updated_feed_ids}
         %{user | collections: Map.put(collections, event.collection_id, updated_collection)}
     end
@@ -688,7 +739,8 @@ defmodule BaladosSyncCore.Aggregates.User do
         user
 
       collection ->
-        updated_feed_ids = MapSet.delete(collection.feed_ids, event.rss_source_feed)
+        feed_ids = collection.feed_ids || []
+        updated_feed_ids = List.delete(feed_ids, event.rss_source_feed)
         updated_collection = %{collection | feed_ids: updated_feed_ids}
         %{user | collections: Map.put(collections, event.collection_id, updated_collection)}
     end
@@ -722,6 +774,20 @@ defmodule BaladosSyncCore.Aggregates.User do
   def apply(%__MODULE__{} = user, %CollectionDeleted{} = event) do
     collections = user.collections || %{}
     %{user | collections: Map.delete(collections, event.collection_id)}
+  end
+
+  def apply(%__MODULE__{} = user, %CollectionFeedReordered{} = event) do
+    collections = user.collections || %{}
+
+    case Map.get(collections, event.collection_id) do
+      nil ->
+        user
+
+      collection ->
+        # Use the complete feed_order from the event
+        updated_collection = %{collection | feed_ids: event.feed_order}
+        %{user | collections: Map.put(collections, event.collection_id, updated_collection)}
+    end
   end
 
   def apply(%__MODULE__{} = user, _event), do: user

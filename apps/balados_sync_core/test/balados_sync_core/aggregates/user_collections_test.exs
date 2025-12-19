@@ -18,7 +18,8 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
     AddFeedToCollection,
     RemoveFeedFromCollection,
     UpdateCollection,
-    DeleteCollection
+    DeleteCollection,
+    ReorderCollectionFeed
   }
 
   alias BaladosSyncCore.Events.{
@@ -27,7 +28,8 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
     FeedAddedToCollection,
     FeedRemovedFromCollection,
     CollectionUpdated,
-    CollectionDeleted
+    CollectionDeleted,
+    CollectionFeedReordered
   }
 
   describe "Default Collection Creation" do
@@ -166,7 +168,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: []}
         }
       }
 
@@ -195,7 +197,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
           feed => %{subscribed_at: DateTime.utc_now(), unsubscribed_at: nil}
         },
         collections: %{
-          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: []}
         }
       }
 
@@ -245,7 +247,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
         user_id: user_id,
         subscriptions: %{},
         collections: %{
-          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: []}
         }
       }
 
@@ -271,7 +273,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new([feed])}
+          collection_id => %{title: "News", is_default: false, feed_ids: [feed]}
         }
       }
 
@@ -318,7 +320,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: []}
         }
       }
 
@@ -342,7 +344,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: []}
         }
       }
 
@@ -367,7 +369,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: []}
         }
       }
 
@@ -390,7 +392,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "All Subscriptions", is_default: true, feed_ids: MapSet.new()}
+          collection_id => %{title: "All Subscriptions", is_default: true, feed_ids: []}
         }
       }
 
@@ -450,7 +452,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: []}
         }
       }
 
@@ -463,7 +465,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       updated_user = User.apply(user, event)
       collection = updated_user.collections[collection_id]
 
-      assert feed in (collection.feed_ids || [])
+      assert feed in collection.feed_ids
     end
 
     test "apply CollectionDeleted removes collection from aggregate" do
@@ -473,7 +475,7 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       user = %User{
         user_id: user_id,
         collections: %{
-          collection_id => %{title: "News", is_default: false, feed_ids: MapSet.new()}
+          collection_id => %{title: "News", is_default: false, feed_ids: []}
         }
       }
 
@@ -490,6 +492,179 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       # The projection layer will handle the soft delete marker if needed
       assert collection_id not in Map.keys(updated_user.collections)
       assert map_size(updated_user.collections) == 0
+    end
+  end
+
+  describe "Reorder Collection Feed Command" do
+    test "reorders feed to new position" do
+      user_id = "user-123"
+      collection_id = Ecto.UUID.generate()
+      feed1 = "feed-1"
+      feed2 = "feed-2"
+      feed3 = "feed-3"
+
+      user = %User{
+        user_id: user_id,
+        collections: %{
+          collection_id => %{
+            title: "News",
+            is_default: false,
+            feed_ids: [feed1, feed2, feed3]
+          }
+        }
+      }
+
+      # Move feed3 to position 0 (first)
+      cmd = %ReorderCollectionFeed{
+        user_id: user_id,
+        collection_id: collection_id,
+        rss_source_feed: feed3,
+        new_position: 0,
+        event_infos: %{}
+      }
+
+      event = User.execute(user, cmd)
+
+      assert match?(%CollectionFeedReordered{}, event)
+      assert event.rss_source_feed == feed3
+      assert event.new_position == 0
+      assert event.feed_order == [feed3, feed1, feed2]
+    end
+
+    test "returns error if feed is not in collection" do
+      user_id = "user-123"
+      collection_id = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        collections: %{
+          collection_id => %{
+            title: "News",
+            is_default: false,
+            feed_ids: ["feed-1", "feed-2"]
+          }
+        }
+      }
+
+      cmd = %ReorderCollectionFeed{
+        user_id: user_id,
+        collection_id: collection_id,
+        rss_source_feed: "feed-not-in-collection",
+        new_position: 0,
+        event_infos: %{}
+      }
+
+      result = User.execute(user, cmd)
+
+      assert match?({:error, :feed_not_in_collection}, result)
+    end
+
+    test "returns error if collection doesn't exist" do
+      user_id = "user-123"
+
+      user = %User{
+        user_id: user_id,
+        collections: %{}
+      }
+
+      cmd = %ReorderCollectionFeed{
+        user_id: user_id,
+        collection_id: "nonexistent",
+        rss_source_feed: "feed-1",
+        new_position: 0,
+        event_infos: %{}
+      }
+
+      result = User.execute(user, cmd)
+
+      assert match?({:error, :collection_not_found}, result)
+    end
+
+    test "returns error for invalid position (negative)" do
+      user_id = "user-123"
+      collection_id = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        collections: %{
+          collection_id => %{
+            title: "News",
+            is_default: false,
+            feed_ids: ["feed-1", "feed-2"]
+          }
+        }
+      }
+
+      cmd = %ReorderCollectionFeed{
+        user_id: user_id,
+        collection_id: collection_id,
+        rss_source_feed: "feed-1",
+        new_position: -1,
+        event_infos: %{}
+      }
+
+      result = User.execute(user, cmd)
+
+      assert match?({:error, :invalid_position}, result)
+    end
+
+    test "returns error for invalid position (out of bounds)" do
+      user_id = "user-123"
+      collection_id = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        collections: %{
+          collection_id => %{
+            title: "News",
+            is_default: false,
+            feed_ids: ["feed-1", "feed-2"]
+          }
+        }
+      }
+
+      cmd = %ReorderCollectionFeed{
+        user_id: user_id,
+        collection_id: collection_id,
+        rss_source_feed: "feed-1",
+        new_position: 5,
+        event_infos: %{}
+      }
+
+      result = User.execute(user, cmd)
+
+      assert match?({:error, :invalid_position}, result)
+    end
+
+    test "apply CollectionFeedReordered updates feed order" do
+      user_id = "user-123"
+      collection_id = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        collections: %{
+          collection_id => %{
+            title: "News",
+            is_default: false,
+            feed_ids: ["feed-1", "feed-2", "feed-3"]
+          }
+        }
+      }
+
+      event = %CollectionFeedReordered{
+        user_id: user_id,
+        collection_id: collection_id,
+        rss_source_feed: "feed-3",
+        new_position: 0,
+        feed_order: ["feed-3", "feed-1", "feed-2"],
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      updated_user = User.apply(user, event)
+      collection = updated_user.collections[collection_id]
+
+      assert collection.feed_ids == ["feed-3", "feed-1", "feed-2"]
     end
   end
 end

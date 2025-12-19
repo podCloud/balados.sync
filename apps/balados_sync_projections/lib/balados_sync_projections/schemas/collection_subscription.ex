@@ -17,6 +17,7 @@ defmodule BaladosSyncProjections.Schemas.CollectionSubscription do
   schema "collection_subscriptions" do
     field :collection_id, :binary_id
     field :rss_source_feed, :string
+    field :position, :integer, default: 0
 
     belongs_to :collection, Collection,
       define_field: false,
@@ -34,7 +35,8 @@ defmodule BaladosSyncProjections.Schemas.CollectionSubscription do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:collection_id, :rss_source_feed])
+    |> cast(attrs, [:collection_id, :rss_source_feed, :position])
     |> validate_required([:collection_id, :rss_source_feed])
+    |> validate_number(:position, greater_than_or_equal_to: 0)
   end
 end

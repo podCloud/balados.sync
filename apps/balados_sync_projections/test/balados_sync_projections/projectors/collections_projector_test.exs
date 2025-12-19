@@ -17,7 +17,8 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
     FeedAddedToCollection,
     FeedRemovedFromCollection,
     CollectionUpdated,
-    CollectionDeleted
+    CollectionDeleted,
+    CollectionFeedReordered
   }
 
   alias BaladosSyncProjections.Schemas.{Collection, CollectionSubscription}
@@ -266,6 +267,142 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
     end
   end
 
+  describe "CollectionFeedReordered projection" do
+    test "updates feed positions in collection_subscriptions" do
+      user_id = "user-123"
+      collection_id = Ecto.UUID.generate()
+      feed1 = "feed-1"
+      feed2 = "feed-2"
+      feed3 = "feed-3"
+
+      # Create collection
+      create_event = %CollectionCreated{
+        user_id: user_id,
+        collection_id: collection_id,
+        title: "News",
+        is_default: false,
+        timestamp: DateTime.utc_now()
+      }
+
+      apply_projection(create_event)
+
+      # Add three feeds
+      for {feed, pos} <- [{feed1, 0}, {feed2, 1}, {feed3, 2}] do
+        add_event = %FeedAddedToCollection{
+          user_id: user_id,
+          collection_id: collection_id,
+          rss_source_feed: feed,
+          timestamp: DateTime.utc_now()
+        }
+
+        apply_projection(add_event)
+
+        # Set initial positions
+        ProjectionsRepo.update_all(
+          from(s in CollectionSubscription,
+            where: s.collection_id == ^collection_id and s.rss_source_feed == ^feed
+          ),
+          set: [position: pos]
+        )
+      end
+
+      # Reorder: move feed3 to position 0
+      reorder_event = %CollectionFeedReordered{
+        user_id: user_id,
+        collection_id: collection_id,
+        rss_source_feed: feed3,
+        new_position: 0,
+        feed_order: [feed3, feed1, feed2],
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      apply_projection(reorder_event)
+
+      # Verify positions are updated
+      subscriptions =
+        ProjectionsRepo.all(
+          from(s in CollectionSubscription,
+            where: s.collection_id == ^collection_id,
+            order_by: s.position
+          )
+        )
+
+      assert length(subscriptions) == 3
+      assert Enum.at(subscriptions, 0).rss_source_feed == feed3
+      assert Enum.at(subscriptions, 0).position == 0
+      assert Enum.at(subscriptions, 1).rss_source_feed == feed1
+      assert Enum.at(subscriptions, 1).position == 1
+      assert Enum.at(subscriptions, 2).rss_source_feed == feed2
+      assert Enum.at(subscriptions, 2).position == 2
+    end
+
+    test "idempotent - replaying reorder maintains correct positions" do
+      user_id = "user-123"
+      collection_id = Ecto.UUID.generate()
+      feed1 = "feed-1"
+      feed2 = "feed-2"
+
+      # Create collection with two feeds
+      create_event = %CollectionCreated{
+        user_id: user_id,
+        collection_id: collection_id,
+        title: "News",
+        is_default: false,
+        timestamp: DateTime.utc_now()
+      }
+
+      apply_projection(create_event)
+
+      for {feed, pos} <- [{feed1, 0}, {feed2, 1}] do
+        add_event = %FeedAddedToCollection{
+          user_id: user_id,
+          collection_id: collection_id,
+          rss_source_feed: feed,
+          timestamp: DateTime.utc_now()
+        }
+
+        apply_projection(add_event)
+
+        ProjectionsRepo.update_all(
+          from(s in CollectionSubscription,
+            where: s.collection_id == ^collection_id and s.rss_source_feed == ^feed
+          ),
+          set: [position: pos]
+        )
+      end
+
+      # Apply reorder twice
+      reorder_event = %CollectionFeedReordered{
+        user_id: user_id,
+        collection_id: collection_id,
+        rss_source_feed: feed2,
+        new_position: 0,
+        feed_order: [feed2, feed1],
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      apply_projection(reorder_event)
+      apply_projection(reorder_event)
+
+      # Verify positions remain consistent
+      subscriptions =
+        ProjectionsRepo.all(
+          from(s in CollectionSubscription,
+            where: s.collection_id == ^collection_id,
+            order_by: s.position
+          )
+        )
+
+      assert length(subscriptions) == 2
+      assert Enum.at(subscriptions, 0).rss_source_feed == feed2
+      assert Enum.at(subscriptions, 0).position == 0
+      assert Enum.at(subscriptions, 1).rss_source_feed == feed1
+      assert Enum.at(subscriptions, 1).position == 1
+    end
+  end
+
   describe "Default collection handling" do
     test "only one active default collection per user" do
       user_id = "user-123"
@@ -361,5 +498,19 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjectorTest do
       from(c in Collection, where: c.id == ^event.collection_id),
       set: [deleted_at: event.timestamp, updated_at: event.timestamp]
     )
+  end
+
+  defp handle_event(%CollectionFeedReordered{} = event) do
+    # Update positions for all feeds in the collection based on feed_order
+    event.feed_order
+    |> Enum.with_index()
+    |> Enum.each(fn {feed, position} ->
+      ProjectionsRepo.update_all(
+        from(s in CollectionSubscription,
+          where: s.collection_id == ^event.collection_id and s.rss_source_feed == ^feed
+        ),
+        set: [position: position]
+      )
+    end)
   end
 end
