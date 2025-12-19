@@ -1,0 +1,57 @@
+<div class="px-4 py-10 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-xl">
+    <!-- Header -->
+    <div class="mb-8">
+      <.link navigate={~p"/playlists/#{@playlist.id}"} class="text-blue-600 hover:underline text-sm">
+        &larr; Back to Playlist
+      </.link>
+      <h1 class="text-3xl font-bold text-zinc-900 mt-4">Edit Playlist</h1>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <.form for={%{}} action={~p"/playlists/#{@playlist.id}"} method="put" class="space-y-6">
+        <div>
+          <label for="playlist_name" class="block text-sm font-medium text-zinc-700">
+            Name
+          </label>
+          <input
+            type="text"
+            name="playlist[name]"
+            id="playlist_name"
+            required
+            value={@playlist.name}
+            class="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label for="playlist_description" class="block text-sm font-medium text-zinc-700">
+            Description (optional)
+          </label>
+          <textarea
+            name="playlist[description]"
+            id="playlist_description"
+            rows="3"
+            class="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          ><%= @playlist.description %></textarea>
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <.link
+            navigate={~p"/playlists/#{@playlist.id}"}
+            class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-zinc-700 border border-zinc-300 hover:bg-zinc-50 transition"
+          >
+            Cancel
+          </.link>
+          <button
+            type="submit"
+            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
+          >
+            Save Changes
+          </button>
+        </div>
+      </.form>
+    </div>
+  </div>
+</div>

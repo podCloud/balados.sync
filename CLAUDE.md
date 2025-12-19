@@ -354,6 +354,7 @@ git pull origin main
 - Public Timeline Page with Activity Feed (v1.7) ✅ [#40](https://github.com/podCloud/balados.sync/pull/40)
 - Collections & Organization (v1.8) ✅ [#45](https://github.com/podCloud/balados.sync/pull/45)
 - RSS Aggregate Feeds (v1.9) ✅ [#64](https://github.com/podCloud/balados.sync/issues/64)
+- Playlists CRUD Web UI (v2.0) ✅ [#28](https://github.com/podCloud/balados.sync/issues/28)
 
 ---
 
