@@ -1,6 +1,7 @@
 /**
  * Timeline Filter System
  * Handles client-side filtering of timeline events by type and visibility
+ * Persists filter preferences to localStorage for consistent UX across sessions
  */
 
 export type EventType = 'play' | 'subscribe' | 'all'
@@ -10,6 +11,9 @@ interface FilterState {
   mode: FilterMode
   eventTypes: EventType[]
 }
+
+// localStorage key for filter preferences
+const STORAGE_KEY = 'balados_timeline_filter'
 
 interface TimelineEvent {
   id: string
@@ -38,14 +42,71 @@ class TimelineFilter {
       return
     }
 
+    // Load saved filter preferences before anything else
+    this.loadFilterPreference()
+
     // Get all event elements
     this.allEvents = this.extractEventsFromDOM(container)
 
     // Setup filter UI event listeners
     this.setupFilterListeners()
 
+    // Update UI to reflect loaded preferences
+    this.updateModeUI()
+    this.updateEventTypeUI()
+
     // Apply initial filter
     this.applyFilter()
+  }
+
+  /**
+   * Load filter preferences from localStorage
+   * Falls back to defaults if localStorage is unavailable or data is invalid
+   */
+  private loadFilterPreference(): void {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (!stored) return
+
+      const parsed = JSON.parse(stored) as Partial<FilterState>
+
+      // Validate and apply mode
+      if (parsed.mode && ['all', 'me', 'public'].includes(parsed.mode)) {
+        this.state.mode = parsed.mode
+      }
+
+      // Validate and apply eventTypes
+      if (Array.isArray(parsed.eventTypes)) {
+        const validTypes = parsed.eventTypes.filter(
+          (t): t is EventType => ['play', 'subscribe', 'all'].includes(t)
+        )
+        if (validTypes.length > 0) {
+          this.state.eventTypes = validTypes
+        }
+      }
+
+      console.log('[TimelineFilter] Loaded preferences:', this.state)
+    } catch (error) {
+      // Handle localStorage disabled, quota exceeded, or invalid JSON
+      console.warn('[TimelineFilter] Could not load preferences:', error)
+    }
+  }
+
+  /**
+   * Save current filter preferences to localStorage
+   * Silently fails if localStorage is unavailable
+   */
+  private saveFilterPreference(): void {
+    try {
+      const data: FilterState = {
+        mode: this.state.mode,
+        eventTypes: this.state.eventTypes
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    } catch (error) {
+      // Handle localStorage disabled or quota exceeded
+      console.warn('[TimelineFilter] Could not save preferences:', error)
+    }
   }
 
   /**
@@ -98,6 +159,7 @@ class TimelineFilter {
     this.state.mode = mode
     this.updateModeUI()
     this.applyFilter()
+    this.saveFilterPreference()
   }
 
   /**
@@ -118,6 +180,7 @@ class TimelineFilter {
     }
     this.updateEventTypeUI()
     this.applyFilter()
+    this.saveFilterPreference()
   }
 
   /**

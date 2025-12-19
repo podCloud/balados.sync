@@ -87,6 +87,15 @@ defmodule BaladosSyncWeb.Router do
     # Redirect old subscription detail page to public podcast page
     get "/subscriptions/:feed", WebSubscriptionsController, :redirect_to_public
 
+    # Playlists (HTML interface for managing episode playlists)
+    get "/playlists", PlaylistsController, :index
+    get "/playlists/new", PlaylistsController, :new
+    post "/playlists", PlaylistsController, :create
+    get "/playlists/:id", PlaylistsController, :show
+    get "/playlists/:id/edit", PlaylistsController, :edit
+    put "/playlists/:id", PlaylistsController, :update
+    delete "/playlists/:id", PlaylistsController, :delete
+
     # Privacy Manager (HTML interface for managing podcast privacy levels)
     get "/privacy-manager", PrivacyManagerController, :index
     post "/privacy-manager/:feed", PrivacyManagerController, :update_privacy

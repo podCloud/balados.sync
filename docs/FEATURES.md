@@ -124,6 +124,60 @@ Système CQRS/Event Sourcing pour organiser les abonnements en collections.
 **Migration** :
 - `20251209000003_create_collections.exs` - Création tables collections et collection_subscriptions
 
+### Playlists CRUD Web UI (v2.0)
+
+Interface web complète pour la gestion des playlists d'épisodes.
+
+**Pages** :
+- `GET /playlists` - Liste des playlists de l'utilisateur
+- `GET /playlists/new` - Formulaire de création
+- `POST /playlists` - Créer une playlist
+- `GET /playlists/:id` - Détails d'une playlist avec ses épisodes
+- `GET /playlists/:id/edit` - Formulaire de modification
+- `PATCH /playlists/:id` - Modifier une playlist
+- `DELETE /playlists/:id` - Supprimer une playlist (soft-delete)
+
+**Commandes CQRS** :
+- `CreatePlaylist` - Créer une playlist avec nom et description optionnelle
+- `UpdatePlaylist` - Modifier nom et/ou description
+- `DeletePlaylist` - Supprimer une playlist (soft-delete avec `deleted_at`)
+
+**Événements CQRS** :
+- `PlaylistCreated` - Playlist créée avec id généré
+- `PlaylistUpdated` - Nom/description mis à jour
+- `PlaylistDeleted` - Playlist supprimée (soft-delete)
+
+**Agrégat** :
+- `User` aggregate - Gère l'état des playlists utilisateur
+- Validation : nom requis, empêcher création doublons par playlist_id
+
+**Projections** :
+- `playlists` - Liste des playlists (id, user_id, name, description, deleted_at, timestamps)
+- `playlist_items` - Épisodes dans les playlists
+
+**Base de Données** :
+- Table `playlists` (schema `users`) : id, user_id, name, description, deleted_at, inserted_at, updated_at
+- Table `playlist_items` (schema `users`) : id, playlist_id, rss_source_feed, rss_source_item, item_title, feed_title, position, deleted_at
+- Indexes : user_id, playlist_id
+- Soft-delete avec `deleted_at` nullable
+
+**Modules** :
+- Commands: `CreatePlaylist`, `UpdatePlaylist`, `DeletePlaylist`
+- Events: `PlaylistCreated`, `PlaylistUpdated`, `PlaylistDeleted`
+- Schemas: `Playlist`, `PlaylistItem`
+- Projector: `PlaylistsProjector`
+- Controller: `PlaylistsController`
+- HTML: `PlaylistsHTML`
+
+**Tests** :
+- `user_playlists_test.exs` - Tests aggregate (CreatePlaylist, DeletePlaylist, event apply)
+- `playlists_projector_test.exs` - Tests projector (create, delete, update events)
+
+**Migrations** :
+- `20251121000004_create_playlists.exs` - Création tables playlists et playlist_items
+- `20251209000002_add_playlist_fields.exs` - Ajout champs additionnels
+- `20251219101124_add_deleted_at_to_playlists.exs` - Support soft-delete
+
 ---
 
 ### Subscription Pages Refactoring (v1.3)
@@ -675,6 +729,7 @@ mix db.reset --all          # ☢️☢️ EXTREME - TOUT détruit
 - [ ] Support applications mobiles (API)
 - [ ] Fédération entre instances
 - [ ] Découverte communautaire avancée
+- [x] Playlists CRUD de base (v2.0 ✅)
 - [ ] Playlists collaboratives
 - [ ] Historique d'écoute détaillé
 - [ ] Recommandations personnalisées
