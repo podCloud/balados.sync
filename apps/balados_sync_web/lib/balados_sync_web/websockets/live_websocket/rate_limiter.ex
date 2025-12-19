@@ -6,7 +6,21 @@ defmodule BaladosSyncWeb.LiveWebSocket.RateLimiter do
   - Each connection has a token bucket with configurable capacity
   - Tokens refill at a constant rate per second
   - Messages consume 1 token each
-  - When tokens are exhausted, messages are rejected
+  - When tokens are exhausted, messages are rejected with `CONNECTION_RATE_LIMITED`
+
+  ## Rate Limiting Layers
+
+  The WebSocket uses two complementary rate limiting strategies:
+
+  1. **Connection-level (this module)**: Token bucket applied to ALL messages
+     - Purpose: DoS protection, prevent message flooding
+     - Scope: Per WebSocket connection
+     - Error code: `CONNECTION_RATE_LIMITED`
+
+  2. **Command-level (Hammer in MessageHandler)**: Per-user rate limit for `record_play`
+     - Purpose: Business logic, prevent excessive play events
+     - Scope: Per user ID (across all their connections)
+     - Error code: `PLAY_RATE_LIMITED`
 
   ## Configuration
 

@@ -309,6 +309,92 @@ defmodule BaladosSyncWeb.LiveWebSocketIntegrationTest do
     end
   end
 
+  describe "connection rate limiting" do
+    alias BaladosSyncWeb.LiveWebSocket.{State, RateLimiter}
+
+    test "allows messages within rate limit" do
+      state = State.new()
+
+      # Should allow first message
+      assert {:ok, new_state} = State.check_rate_limit(state)
+      assert new_state.rate_limit_bucket.tokens < state.rate_limit_bucket.tokens
+    end
+
+    test "blocks messages after exhausting bucket" do
+      # Create a state with an empty bucket
+      state = State.new()
+
+      empty_bucket = %{
+        tokens: 0.0,
+        last_refill: System.monotonic_time(:millisecond)
+      }
+
+      state_with_empty_bucket = %{state | rate_limit_bucket: empty_bucket}
+
+      # Should be rate limited
+      assert {:error, :rate_limited, _new_state} = State.check_rate_limit(state_with_empty_bucket)
+    end
+
+    test "refills tokens over time" do
+      # Create a bucket that was last refilled 200ms ago with 0 tokens
+      state = State.new()
+
+      old_bucket = %{
+        tokens: 0.0,
+        last_refill: System.monotonic_time(:millisecond) - 200
+      }
+
+      state_with_old_bucket = %{state | rate_limit_bucket: old_bucket}
+
+      # Should have refilled some tokens (200ms * refill_rate/1000)
+      # With default refill_rate of 10, that's 2 tokens
+      assert {:ok, new_state} = State.check_rate_limit(state_with_old_bucket)
+      # Tokens should be approximately 2 - 1 = 1 (refilled 2, consumed 1)
+      assert new_state.rate_limit_bucket.tokens >= 0
+    end
+
+    test "rate limit bucket is per-connection" do
+      # Each new state gets its own fresh bucket
+      state1 = State.new()
+      state2 = State.new()
+
+      # Exhaust state1's bucket
+      {final_state1, _} =
+        Enum.reduce(1..RateLimiter.bucket_capacity(), {state1, 0}, fn _i, {s, count} ->
+          case State.check_rate_limit(s) do
+            {:ok, new_s} -> {new_s, count + 1}
+            {:error, :rate_limited, new_s} -> {new_s, count}
+          end
+        end)
+
+      # state1 should now be rate limited
+      assert {:error, :rate_limited, _} = State.check_rate_limit(final_state1)
+
+      # state2 should still have full capacity
+      assert {:ok, _} = State.check_rate_limit(state2)
+    end
+
+    test "authenticated state preserves rate limit bucket" do
+      state = State.new()
+
+      # Consume some tokens
+      {:ok, state_after_consume} = State.check_rate_limit(state)
+      tokens_after_consume = state_after_consume.rate_limit_bucket.tokens
+
+      # Authenticate the state
+      authenticated_state =
+        State.authenticate(
+          state_after_consume,
+          "user123",
+          :play_token,
+          "token_value"
+        )
+
+      # Rate limit bucket should be preserved
+      assert authenticated_state.rate_limit_bucket.tokens == tokens_after_consume
+    end
+  end
+
   describe "error handling" do
     setup %{token: token} do
       auth_msg = Jason.encode!(%{"type" => "auth", "token" => token})

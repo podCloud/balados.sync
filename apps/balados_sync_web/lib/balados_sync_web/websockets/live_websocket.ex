@@ -55,9 +55,9 @@ defmodule BaladosSyncWeb.LiveWebSocket do
         end
 
       {:error, :rate_limited, rate_limited_state} ->
-        # Rate limit exceeded
-        Logger.warning("Rate limit exceeded for connection")
-        error = error_response("Rate limit exceeded. Please slow down.", "RATE_LIMITED")
+        # Connection-level rate limit exceeded (too many messages of any type)
+        Logger.warning("Connection rate limit exceeded")
+        error = error_response("Too many messages. Please slow down.", "CONNECTION_RATE_LIMITED")
         {:push, {:text, error}, rate_limited_state}
     end
   rescue

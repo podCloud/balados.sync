@@ -118,6 +118,13 @@ config :balados_sync_projections,
 config :balados_sync_jobs,
   play_token_retention_days: 30
 
+# Configure WebSocket connection rate limiting (token bucket)
+# - bucket_capacity: max burst of messages
+# - refill_rate: tokens per second
+config :balados_sync_web, :rate_limiter,
+  bucket_capacity: 20,
+  refill_rate: 10
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
