@@ -96,6 +96,10 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] TypeScript test infrastructure for timeline_actions_menu - [#100](https://github.com/podCloud/balados.sync/issues/100) - PR #102
+- [x] Timeline filter TypeScript tests - [#96](https://github.com/podCloud/balados.sync/issues/96) - PR #103
+- [x] Optimize N+1 query in PlaylistsController - [#98](https://github.com/podCloud/balados.sync/issues/98) - PR #104
+- [x] Audit logging for playlist operations - [#99](https://github.com/podCloud/balados.sync/issues/99) - PR #105
 - [x] Timeline actions 3-dot menu - [#22](https://github.com/podCloud/balados.sync/issues/22) - PR #90
 - [x] Toast notifications accessibility - [#52](https://github.com/podCloud/balados.sync/issues/52) - PR #93
 - [x] Collections: reorder feeds - [#51](https://github.com/podCloud/balados.sync/issues/51) - PR #95

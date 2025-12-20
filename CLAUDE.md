@@ -325,6 +325,7 @@ git pull origin main
 - Messages: commits atomiques, clairs, format conventionnel
 - Branches: `feature/issue-<number>-<slug>` (pas de long noms)
 - PR: créer toujours une PR (validation + traçabilité)
+- **⚠️ MERGE OBLIGATOIRE: `gh pr merge --merge --delete-branch` (JAMAIS --squash)**
 
 **Tests & Database:**
 - Migrations en test: `MIX_ENV=test mix db.migrate`
