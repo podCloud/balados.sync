@@ -393,6 +393,63 @@ Génération de flux RSS agrégés pour abonnements, collections et playlists.
 - `RssCache` - Cache des feeds source (5 min TTL)
 - `PlayTokenHelper` - Validation et construction URLs
 
+### Enriched Podcasts (v2.1)
+
+Admin-managed podcast entries with custom slugs, branding, and social links.
+
+**Features** :
+- **Custom URL slugs** : Human-readable URLs (e.g., `/podcasts/my-show` instead of base64)
+- **Branding** : Background color for podcast page theming
+- **Social links** : Twitter/X, Mastodon, Instagram, YouTube, Spotify, Apple Podcasts
+- **Custom links** : Add arbitrary links with custom titles
+- **SEO redirect** : Base64 URLs automatically redirect to slug URLs
+
+**Admin Interface** :
+- `GET /admin/enriched-podcasts` - List all enriched podcasts
+- `GET /admin/enriched-podcasts/new` - Create new enriched podcast
+- `GET /admin/enriched-podcasts/:id` - View enriched podcast with stats
+- `GET /admin/enriched-podcasts/:id/edit` - Edit enriched podcast
+- `POST /admin/enriched-podcasts` - Create
+- `PUT /admin/enriched-podcasts/:id` - Update
+- `DELETE /admin/enriched-podcasts/:id` - Delete
+
+**Public Access** :
+- `/podcasts/:slug` - Access by custom slug
+- `/podcasts/:base64` - Falls back to base64 (redirects to slug if enriched)
+- Admin link on podcast page for quick access to enrichment
+
+**Database** (System schema, not event-sourced) :
+- Table `system.enriched_podcasts` : id, feed_url, slug, background_color, links (JSONB), created_by_user_id
+- Unique indexes on slug and feed_url
+
+**Validation Rules** :
+- Slug: 3-50 lowercase letters, numbers, hyphens only
+- Slug cannot look like base64 (no uppercase, +, /, =)
+- Background color: valid hex format (#RRGGBB)
+- Links: max 10, valid URLs, proper format
+
+**Social Network Types** :
+- `twitter` - Twitter/X with icon
+- `mastodon` - Mastodon with icon
+- `instagram` - Instagram with icon
+- `youtube` - YouTube with icon
+- `spotify` - Spotify with icon
+- `apple_podcasts` - Apple Podcasts with icon
+- `custom` - Custom link with title
+
+**Modules** :
+- Schema: `BaladosSyncProjections.Schemas.EnrichedPodcast`
+- Context: `BaladosSyncWeb.EnrichedPodcasts`
+- Controller: `BaladosSyncWeb.EnrichedPodcastsController`
+- HTML: `BaladosSyncWeb.EnrichedPodcastsHTML`
+
+**Integration** :
+- Public podcast page displays enrichment (background color, links)
+- Admin link on podcast page for quick enrichment creation/editing
+- Automatic redirect from base64 to slug for SEO
+
+---
+
 ### Live WebSocket Gateway (v1.2)
 
 WebSocket standard pour communication temps réel.
@@ -795,6 +852,61 @@ mix db.reset --all          # ☢️☢️ EXTREME - TOUT détruit
 - [ ] Recommandations personnalisées
 - [ ] Partage de playlists
 - [ ] Support formats additional (vidéo, etc.)
+
+---
+
+## 👤 User Profiles
+
+### Public User Profiles (v2.1)
+
+Pages de profil utilisateur personnalisables et publiques.
+
+**Pages** :
+- `GET /u/:username` - Page de profil public (accessible à tous)
+- `GET /settings/profile` - Édition du profil (authentifié)
+- `PUT /settings/profile` - Mise à jour du profil (authentifié)
+
+**Champs de Profil** :
+- **public_name** : Nom d'affichage (optionnel, max 100 caractères)
+- **bio** : Biographie courte (optionnel, max 500 caractères)
+- **avatar_url** : URL d'avatar (optionnel, max 500 caractères)
+- **public_profile_enabled** : Activer/désactiver le profil public (défaut: false)
+
+**Fonctionnalités** :
+- Display name prioritaire sur username si défini
+- Avatar avec fallback vers initiale colorée
+- Timeline d'activité récente (20 derniers événements publics)
+- Liens vers pages podcasts depuis la timeline
+- Privacy respecting : seuls les événements "public" sont affichés
+
+**Timeline Utilisateur** :
+- Affiche les écoutes récentes de l'utilisateur (privacy = "public")
+- Enrichissement via RssCache (titre podcast, couverture)
+- Format relatif pour les timestamps ("2h ago", "3d ago")
+- Fallback "No public activity yet" si vide
+
+**Sécurité** :
+- Profil visible uniquement si `public_profile_enabled = true`
+- Retourne 404 si utilisateur inexistant ou profil désactivé
+- Pas d'exposition d'informations privées
+
+**Base de Données** :
+- Table `system.users` : ajout colonnes public_name, bio, avatar_url, public_profile_enabled
+- Migration : `20251220100001_add_user_profile_fields.exs`
+
+**Modules** :
+- `ProfileController` - Contrôleur pour edit/update/show
+- `ProfileHTML` - Helpers d'affichage (display_name, time_ago_in_words)
+- `User.profile_changeset/2` - Validation des champs profil
+- Templates: `edit.html.heex`, `show.html.heex`
+
+**Tests** :
+- `profile_controller_test.exs` - 13 tests couvrant :
+  - Authentication enforcement (edit/update)
+  - Profile settings form rendering
+  - Profile update success/validation
+  - Public profile visibility
+  - 404 pour profils désactivés/inexistants
 
 ---
 
