@@ -357,6 +357,7 @@ git pull origin main
 - RSS Aggregate Feeds (v1.9) ✅ [#64](https://github.com/podCloud/balados.sync/issues/64)
 - Playlists CRUD Web UI (v2.0) ✅ [#28](https://github.com/podCloud/balados.sync/issues/28)
 - Enriched Podcasts (v2.1) ✅ [#65](https://github.com/podCloud/balados.sync/issues/65)
+- Public User Profiles (v2.2) ✅ [#66](https://github.com/podCloud/balados.sync/issues/66)
 
 ---
 

@@ -52,6 +52,9 @@ defmodule BaladosSyncWeb.Router do
     # Subscribe/Unsubscribe actions (authentication checked in controller)
     post "/podcasts/:feed/subscribe", PublicController, :subscribe_to_feed
     delete "/podcasts/:feed/subscribe", PublicController, :unsubscribe_from_feed
+
+    # Public user profiles
+    get "/u/:username", ProfileController, :show
   end
 
   # Privacy check/set endpoints (JSON, session auth, works for both authenticated and unauthenticated)
@@ -106,6 +109,10 @@ defmodule BaladosSyncWeb.Router do
 
     # App management (HTML interface)
     get "/apps", AppAuthController, :manage_apps
+
+    # Profile settings (authenticated user only)
+    get "/settings/profile", ProfileController, :edit
+    put "/settings/profile", ProfileController, :update
   end
 
   # LiveView routes for authenticated users

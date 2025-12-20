@@ -15,6 +15,12 @@ defmodule BaladosSyncProjections.Schemas.User do
     field :failed_login_attempts, :integer, default: 0
     field :is_admin, :boolean, default: false
 
+    # Profile fields
+    field :public_name, :string
+    field :avatar_url, :string
+    field :public_profile_enabled, :boolean, default: false
+    field :bio, :string
+
     timestamps(type: :utc_datetime)
   end
 
@@ -175,6 +181,28 @@ defmodule BaladosSyncProjections.Schemas.User do
   """
   def reset_failed_attempts_changeset(user) do
     change(user, failed_login_attempts: 0)
+  end
+
+  @doc """
+  A user changeset for updating profile settings.
+
+  Allows updating public_name, bio, and public_profile_enabled.
+  Avatar URL is handled separately via avatar upload.
+  """
+  def profile_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:public_name, :bio, :public_profile_enabled])
+    |> validate_length(:public_name, max: 100)
+    |> validate_length(:bio, max: 500)
+  end
+
+  @doc """
+  A user changeset for updating the avatar URL.
+  """
+  def avatar_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:avatar_url])
+    |> validate_length(:avatar_url, max: 500)
   end
 
   @doc """
