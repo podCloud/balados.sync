@@ -377,9 +377,12 @@ defmodule BaladosSyncWeb.PodcastOwnership do
   defp check_rate_limit(user_id) do
     one_hour_ago = DateTime.utc_now() |> DateTime.add(-3600, :second)
 
+    # Count verification attempts in the last hour
+    # Uses inserted_at (claim creation time) rather than updated_at
+    # to accurately count new verification requests, not just any update
     count =
       PodcastOwnershipClaim
-      |> where([c], c.user_id == ^user_id and c.updated_at > ^one_hour_ago)
+      |> where([c], c.user_id == ^user_id and c.inserted_at > ^one_hour_ago)
       |> select([c], count(c.id))
       |> SystemRepo.one()
 
