@@ -26,20 +26,50 @@ defmodule BaladosSyncWeb.PlaylistsController do
     end
   end
 
+  # Private helpers for DRY playlist queries
+
+  @doc false
+  defp get_user_playlist(user_id, playlist_id) do
+    from(p in Playlist,
+      where: p.id == ^playlist_id,
+      where: p.user_id == ^user_id,
+      where: is_nil(p.deleted_at)
+    )
+    |> ProjectionsRepo.one()
+  end
+
+  @doc false
+  defp preload_playlist_items(nil), do: nil
+
+  defp preload_playlist_items(playlist) do
+    ProjectionsRepo.preload(playlist,
+      items: from(i in PlaylistItem, where: is_nil(i.deleted_at), order_by: [asc: i.position])
+    )
+  end
+
   @doc """
   Lists all playlists for the current user.
+  Uses a subquery to count items efficiently (avoids N+1 queries).
   """
   def index(conn, _params) do
     user_id = conn.assigns.current_user.id
 
+    # Subquery to count active items per playlist
+    items_count_subquery =
+      from(i in PlaylistItem,
+        where: i.playlist_id == parent_as(:playlist).id,
+        where: is_nil(i.deleted_at),
+        select: count(i.id)
+      )
+
     playlists =
-      from(p in Playlist,
+      from(p in Playlist, as: :playlist,
         where: p.user_id == ^user_id,
         where: is_nil(p.deleted_at),
-        order_by: [desc: p.updated_at]
+        order_by: [desc: p.updated_at],
+        select_merge: %{items_count: subquery(items_count_subquery)}
       )
       |> ProjectionsRepo.all()
-      |> ProjectionsRepo.preload(items: from(i in PlaylistItem, where: is_nil(i.deleted_at), order_by: [asc: i.position]))
 
     render(conn, :index, playlists: playlists)
   end
@@ -96,16 +126,9 @@ defmodule BaladosSyncWeb.PlaylistsController do
     user_id = conn.assigns.current_user.id
 
     playlist =
-      from(p in Playlist,
-        where: p.id == ^playlist_id,
-        where: p.user_id == ^user_id,
-        where: is_nil(p.deleted_at)
-      )
-      |> ProjectionsRepo.one()
-      |> case do
-        nil -> nil
-        p -> ProjectionsRepo.preload(p, items: from(i in PlaylistItem, where: is_nil(i.deleted_at), order_by: [asc: i.position]))
-      end
+      user_id
+      |> get_user_playlist(playlist_id)
+      |> preload_playlist_items()
 
     if playlist do
       render(conn, :show, playlist: playlist)
@@ -121,14 +144,7 @@ defmodule BaladosSyncWeb.PlaylistsController do
   """
   def edit(conn, %{"id" => playlist_id}) do
     user_id = conn.assigns.current_user.id
-
-    playlist =
-      from(p in Playlist,
-        where: p.id == ^playlist_id,
-        where: p.user_id == ^user_id,
-        where: is_nil(p.deleted_at)
-      )
-      |> ProjectionsRepo.one()
+    playlist = get_user_playlist(user_id, playlist_id)
 
     if playlist do
       render(conn, :edit, playlist: playlist)
@@ -144,14 +160,7 @@ defmodule BaladosSyncWeb.PlaylistsController do
   """
   def update(conn, %{"id" => playlist_id, "playlist" => playlist_params}) do
     user_id = conn.assigns.current_user.id
-
-    playlist =
-      from(p in Playlist,
-        where: p.id == ^playlist_id,
-        where: p.user_id == ^user_id,
-        where: is_nil(p.deleted_at)
-      )
-      |> ProjectionsRepo.one()
+    playlist = get_user_playlist(user_id, playlist_id)
 
     if playlist do
       command = %UpdatePlaylist{
