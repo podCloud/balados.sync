@@ -326,6 +326,7 @@ git pull origin main
 - Branches: `feature/issue-<number>-<slug>` (pas de long noms)
 - PR: créer toujours une PR (validation + traçabilité)
 - **⚠️ MERGE OBLIGATOIRE: `gh pr merge --merge --delete-branch` (JAMAIS --squash)**
+- **🚫 RÈGLE INVIOLABLE: JAMAIS de `git push --force` sans autorisation explicite de l'utilisateur**
 
 **Tests & Database:**
 - Migrations en test: `MIX_ENV=test mix db.migrate`
@@ -356,6 +357,8 @@ git pull origin main
 - Collections & Organization (v1.8) ✅ [#45](https://github.com/podCloud/balados.sync/pull/45)
 - RSS Aggregate Feeds (v1.9) ✅ [#64](https://github.com/podCloud/balados.sync/issues/64)
 - Playlists CRUD Web UI (v2.0) ✅ [#28](https://github.com/podCloud/balados.sync/issues/28)
+- Enriched Podcasts (v2.1) ✅ [#65](https://github.com/podCloud/balados.sync/issues/65)
+- Public User Profiles (v2.2) ✅ [#66](https://github.com/podCloud/balados.sync/issues/66)
 
 ---
 
