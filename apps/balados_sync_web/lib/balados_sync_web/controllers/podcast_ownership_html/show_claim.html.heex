@@ -1,0 +1,143 @@
+<.flash_group flash={@flash} />
+
+<div class="px-4 py-10 sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
+  <div class="mx-auto max-w-xl">
+    <a
+      href={~p"/podcast-ownership"}
+      class="inline-flex items-center text-sm text-zinc-600 hover:text-zinc-900 mb-6"
+    >
+      <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Podcast Ownership
+    </a>
+
+    <h1 class="text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl">
+      Verify Ownership
+    </h1>
+
+    <div class="mt-4 mb-8">
+      <p class="text-zinc-600 truncate">
+        <%= @claim.feed_url %>
+      </p>
+      <%= case @claim.status do %>
+        <% "pending" -> %>
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 mt-2">
+            Pending Verification
+          </span>
+        <% "verified" -> %>
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-2">
+            Verified
+          </span>
+        <% "failed" -> %>
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-2">
+            Failed
+          </span>
+        <% "expired" -> %>
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-800 mt-2">
+            Expired
+          </span>
+        <% "cancelled" -> %>
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-800 mt-2">
+            Cancelled
+          </span>
+        <% _ -> %>
+      <% end %>
+    </div>
+
+    <%= if @claim.status == "pending" do %>
+      <!-- Verification Code Section -->
+      <div class="bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8 mb-8">
+        <h2 class="text-lg font-semibold text-zinc-900 mb-4">Your Verification Code</h2>
+
+        <div class="bg-zinc-900 text-green-400 rounded-lg p-4 font-mono text-center mb-4 select-all">
+          <%= @claim.verification_code %>
+        </div>
+
+        <p class="text-sm text-zinc-600 mb-4">
+          Copy this code and add it anywhere in your podcast's RSS feed. You can add it as:
+        </p>
+
+        <ul class="list-disc list-inside text-sm text-zinc-600 space-y-1 mb-4">
+          <li>An XML comment: <code class="bg-zinc-100 px-1 rounded">&lt;!-- <%= @claim.verification_code %> --&gt;</code></li>
+          <li>In your podcast description</li>
+          <li>As a custom tag in your feed</li>
+        </ul>
+
+        <p class="text-sm text-amber-600 font-medium">
+          Expires: <%= Calendar.strftime(@claim.expires_at, "%Y-%m-%d %H:%M UTC") %>
+        </p>
+      </div>
+
+      <!-- Verify Button -->
+      <div class="bg-blue-50 shadow-sm ring-1 ring-blue-200 sm:rounded-xl p-8 mb-8">
+        <h2 class="text-lg font-semibold text-blue-900 mb-4">Ready to Verify?</h2>
+        <p class="text-sm text-blue-700 mb-4">
+          After adding the code to your RSS feed, click the button below. We'll fetch your feed fresh (bypassing all caches) and check for the verification code.
+        </p>
+
+        <form action={~p"/podcast-ownership/claims/#{@claim.id}/verify"} method="post">
+          <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+          <button
+            type="submit"
+            class="w-full rounded-md bg-blue-600 px-4 py-3 text-white font-semibold hover:bg-blue-700 transition"
+          >
+            Verify Now
+          </button>
+        </form>
+
+        <%= if @claim.verification_attempts > 0 do %>
+          <p class="text-sm text-zinc-500 mt-2 text-center">
+            Attempts: <%= @claim.verification_attempts %> / 5
+          </p>
+        <% end %>
+      </div>
+
+      <!-- Cancel Link -->
+      <div class="text-center">
+        <form action={~p"/podcast-ownership/claims/#{@claim.id}/cancel"} method="post" class="inline">
+          <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+          <button
+            type="submit"
+            class="text-sm text-red-600 hover:text-red-700"
+            onclick="return confirm('Are you sure you want to cancel this claim?')"
+          >
+            Cancel this claim
+          </button>
+        </form>
+      </div>
+    <% else %>
+      <!-- Non-pending claim message -->
+      <div class="bg-zinc-50 shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8">
+        <%= case @claim.status do %>
+          <% "verified" -> %>
+            <p class="text-green-700 font-medium">
+              This claim has been verified. You can manage your podcast from the ownership dashboard.
+            </p>
+          <% "failed" -> %>
+            <p class="text-red-700 font-medium mb-2">
+              Verification failed: <%= @claim.failure_reason %>
+            </p>
+            <a href={~p"/podcast-ownership/new"} class="text-blue-600 hover:text-blue-700">
+              Create a new claim
+            </a>
+          <% "expired" -> %>
+            <p class="text-zinc-700 font-medium mb-2">
+              This claim has expired. Please create a new one.
+            </p>
+            <a href={~p"/podcast-ownership/new"} class="text-blue-600 hover:text-blue-700">
+              Create a new claim
+            </a>
+          <% "cancelled" -> %>
+            <p class="text-zinc-700 font-medium mb-2">
+              This claim was cancelled.
+            </p>
+            <a href={~p"/podcast-ownership/new"} class="text-blue-600 hover:text-blue-700">
+              Create a new claim
+            </a>
+          <% _ -> %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

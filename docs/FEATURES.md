@@ -180,6 +180,66 @@ Interface web complète pour la gestion des playlists d'épisodes.
 
 ---
 
+### Podcast Ownership & Verification (v2.3)
+
+Système de vérification d'ownership de podcasts via code RSS.
+
+**Flux de Vérification** :
+1. L'utilisateur initie une revendication pour un podcast (URL du flux)
+2. Le système génère un code de vérification unique
+3. L'utilisateur ajoute le code n'importe où dans son flux RSS
+4. L'utilisateur déclenche la vérification
+5. Le système récupère le flux RSS brut (bypass cache) et recherche le code
+6. Si trouvé, l'ownership est accordé
+7. Le code peut être retiré du flux après vérification
+
+**Pages** :
+- `GET /podcast-ownership` - Liste des podcasts revendiqués et claims en attente
+- `GET /podcast-ownership/new` - Formulaire de revendication
+- `POST /podcast-ownership` - Initier une revendication
+- `GET /podcast-ownership/claims/:id` - Instructions de vérification
+- `POST /podcast-ownership/claims/:id/verify` - Déclencher vérification
+- `POST /podcast-ownership/claims/:id/cancel` - Annuler claim
+- `GET /podcast-ownership/podcasts/:id` - Gérer un podcast revendiqué
+- `POST /podcast-ownership/podcasts/:id/visibility` - Changer visibilité
+- `POST /podcast-ownership/podcasts/:id/relinquish` - Abandonner ownership
+
+**Tables Système** :
+- `enriched_podcasts` - Podcasts enrichis avec admin_user_ids (multi-admin)
+- `podcast_ownership_claims` - Claims en cours de vérification
+- `user_podcast_settings` - Préférences de visibilité par utilisateur
+
+**Sécurité** :
+- Code format: `balados-verify-<random_hex_32>` (cryptographiquement sécurisé)
+- Expiration: 48 heures par défaut
+- Rate limiting: max 5 tentatives par heure par utilisateur
+- Fetch brut: bypass tous les caches, timeout 30s
+
+**Multi-Admin** :
+- Plusieurs utilisateurs peuvent vérifier et administrer le même podcast
+- Chaque admin a ses propres paramètres de visibilité
+- `admin_user_ids` stocke tous les admins
+
+**Visibilité** :
+- `public` - Apparaît sur le profil public de l'utilisateur
+- `private` - N'apparaît pas publiquement
+
+**Background Worker** :
+- `OwnershipClaimCleanupWorker` - Expire les claims périmés, nettoie les vieux claims
+- Exécution quotidienne à 3h UTC
+
+**Modules** :
+- Context: `PodcastOwnership` (non-CQRS, tables système)
+- Controller: `PodcastOwnershipController`
+- Schemas: `EnrichedPodcast`, `PodcastOwnershipClaim`, `UserPodcastSettings`
+- Worker: `OwnershipClaimCleanupWorker`
+
+**Migrations** :
+- `20251220125001_create_enriched_podcasts.exs` - Table enriched_podcasts
+- `20251220130001_add_podcast_ownership_tables.exs` - Tables claims et settings, admin_user_ids
+
+---
+
 ### Subscription Pages Refactoring (v1.3)
 
 Consolidation des pages d'abonnement.

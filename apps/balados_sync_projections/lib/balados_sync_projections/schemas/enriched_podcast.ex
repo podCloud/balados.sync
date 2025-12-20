@@ -3,9 +3,13 @@ defmodule BaladosSyncProjections.Schemas.EnrichedPodcast do
   Schema for enriched podcast entries.
 
   Enriched podcasts allow admins to create custom URL slugs, branding options,
-  and social links for featured podcasts.
+  and social links for featured podcasts. Multiple users can co-administrate
+  a single podcast through the admin_user_ids field.
 
   This is a system table (not event-sourced), managed directly via Ecto.
+
+  Note: This schema is created by PR #107 (enriched podcasts) and extended by
+  PR for issue #68 (podcast ownership with admin_user_ids).
   """
 
   use Ecto.Schema
@@ -22,6 +26,10 @@ defmodule BaladosSyncProjections.Schemas.EnrichedPodcast do
     field :background_color, :string
     field :links, {:array, :map}, default: []
     field :created_by_user_id, :binary_id
+    field :admin_user_ids, {:array, :string}, default: []
+
+    has_many :ownership_claims, BaladosSyncProjections.Schemas.PodcastOwnershipClaim
+    has_many :user_settings, BaladosSyncProjections.Schemas.UserPodcastSettings
 
     timestamps(type: :utc_datetime)
   end
@@ -39,7 +47,7 @@ defmodule BaladosSyncProjections.Schemas.EnrichedPodcast do
   """
   def changeset(enriched_podcast, attrs) do
     enriched_podcast
-    |> cast(attrs, [:feed_url, :slug, :background_color, :links, :created_by_user_id])
+    |> cast(attrs, [:feed_url, :slug, :background_color, :links, :created_by_user_id, :admin_user_ids])
     |> validate_required([:feed_url, :slug, :created_by_user_id])
     |> validate_slug()
     |> validate_background_color()
