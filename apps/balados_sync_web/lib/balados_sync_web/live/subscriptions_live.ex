@@ -19,10 +19,25 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
   require Logger
 
   alias BaladosSyncCore.RssCache
+  alias BaladosSyncCore.Dispatcher
+  alias BaladosSyncCore.Commands.{CreateCollection, UpdateCollection, DeleteCollection, AddFeedToCollection, RemoveFeedFromCollection}
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.Collection
   alias BaladosSyncWeb.Queries
   import Ecto.Query
+
+  @collection_colors [
+    {"Blue", "#3b82f6"},
+    {"Green", "#22c55e"},
+    {"Purple", "#a855f7"},
+    {"Red", "#ef4444"},
+    {"Yellow", "#eab308"},
+    {"Pink", "#ec4899"},
+    {"Indigo", "#6366f1"},
+    {"Teal", "#14b8a6"},
+    {"Orange", "#f97316"},
+    {"Gray", "#6b7280"}
+  ]
 
   @impl true
   def mount(_params, _session, socket) do
@@ -41,6 +56,13 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
       |> assign(:current_collection, nil)
       |> assign(:page_title, "My Subscriptions")
       |> assign(:loading_metadata, true)
+      |> assign(:show_collection_modal, false)
+      |> assign(:editing_collection, nil)
+      |> assign(:collection_form, %{"title" => "", "description" => "", "color" => "#3b82f6"})
+      |> assign(:show_delete_confirm, false)
+      |> assign(:delete_collection_id, nil)
+      |> assign(:manage_feeds_mode, false)
+      |> assign(:collection_colors, @collection_colors)
 
     # Load metadata asynchronously after connected
     if connected?(socket) do
@@ -103,6 +125,182 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
     # Trigger async retry for this feed
     send(self(), {:retry_metadata, encoded_feed})
     {:noreply, socket}
+  end
+
+  # Collection management events
+  def handle_event("open_create_collection", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_collection_modal, true)
+     |> assign(:editing_collection, nil)
+     |> assign(:collection_form, %{"title" => "", "description" => "", "color" => "#3b82f6"})}
+  end
+
+  def handle_event("open_edit_collection", %{"id" => collection_id}, socket) do
+    collection = Enum.find(socket.assigns.collections, &(&1.id == collection_id))
+
+    if collection do
+      {:noreply,
+       socket
+       |> assign(:show_collection_modal, true)
+       |> assign(:editing_collection, collection)
+       |> assign(:collection_form, %{
+         "title" => collection.title || "",
+         "description" => collection.description || "",
+         "color" => collection.color || "#3b82f6"
+       })}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_event("close_collection_modal", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_collection_modal, false)
+     |> assign(:editing_collection, nil)}
+  end
+
+  def handle_event("update_collection_form", %{"field" => field, "value" => value}, socket) do
+    form = Map.put(socket.assigns.collection_form, field, value)
+    {:noreply, assign(socket, :collection_form, form)}
+  end
+
+  def handle_event("save_collection", _params, socket) do
+    user_id = socket.assigns.current_user.id
+    form = socket.assigns.collection_form
+
+    result =
+      if socket.assigns.editing_collection do
+        # Update existing collection
+        command = %UpdateCollection{
+          user_id: user_id,
+          collection_id: socket.assigns.editing_collection.id,
+          title: form["title"],
+          description: form["description"],
+          color: form["color"],
+          event_infos: %{device_id: "web", device_name: "Web Browser"}
+        }
+        Dispatcher.dispatch(command)
+      else
+        # Create new collection
+        command = %CreateCollection{
+          user_id: user_id,
+          title: form["title"],
+          description: form["description"],
+          color: form["color"],
+          is_default: false,
+          event_infos: %{device_id: "web", device_name: "Web Browser"}
+        }
+        Dispatcher.dispatch(command)
+      end
+
+    case result do
+      :ok ->
+        # Reload collections
+        collections = get_user_collections(user_id)
+        {:noreply,
+         socket
+         |> assign(:collections, collections)
+         |> assign(:show_collection_modal, false)
+         |> assign(:editing_collection, nil)
+         |> put_flash(:info, if(socket.assigns.editing_collection, do: "Collection updated", else: "Collection created"))}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, "Error: #{inspect(reason)}")}
+    end
+  end
+
+  def handle_event("confirm_delete_collection", %{"id" => collection_id}, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_delete_confirm, true)
+     |> assign(:delete_collection_id, collection_id)}
+  end
+
+  def handle_event("cancel_delete", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_delete_confirm, false)
+     |> assign(:delete_collection_id, nil)}
+  end
+
+  def handle_event("delete_collection", _params, socket) do
+    user_id = socket.assigns.current_user.id
+    collection_id = socket.assigns.delete_collection_id
+
+    command = %DeleteCollection{
+      user_id: user_id,
+      collection_id: collection_id,
+      event_infos: %{device_id: "web", device_name: "Web Browser"}
+    }
+
+    case Dispatcher.dispatch(command) do
+      :ok ->
+        collections = get_user_collections(user_id)
+        {:noreply,
+         socket
+         |> assign(:collections, collections)
+         |> assign(:show_delete_confirm, false)
+         |> assign(:delete_collection_id, nil)
+         |> assign(:current_collection, nil)
+         |> assign(:subscriptions, socket.assigns.all_subscriptions)
+         |> put_flash(:info, "Collection deleted")}
+
+      {:error, :cannot_delete_default_collection} ->
+        {:noreply,
+         socket
+         |> assign(:show_delete_confirm, false)
+         |> assign(:delete_collection_id, nil)
+         |> put_flash(:error, "Cannot delete the default collection")}
+
+      {:error, reason} ->
+        {:noreply,
+         socket
+         |> assign(:show_delete_confirm, false)
+         |> put_flash(:error, "Error: #{inspect(reason)}")}
+    end
+  end
+
+  def handle_event("toggle_manage_feeds", _params, socket) do
+    {:noreply, assign(socket, :manage_feeds_mode, not socket.assigns.manage_feeds_mode)}
+  end
+
+  def handle_event("toggle_feed_in_collection", %{"feed" => feed, "collection" => collection_id}, socket) do
+    user_id = socket.assigns.current_user.id
+    collection = Enum.find(socket.assigns.collections, &(&1.id == collection_id))
+
+    if collection do
+      feed_in_collection = Enum.any?(collection.collection_subscriptions, &(&1.rss_source_feed == feed))
+
+      command =
+        if feed_in_collection do
+          %RemoveFeedFromCollection{
+            user_id: user_id,
+            collection_id: collection_id,
+            rss_source_feed: feed,
+            event_infos: %{device_id: "web", device_name: "Web Browser"}
+          }
+        else
+          %AddFeedToCollection{
+            user_id: user_id,
+            collection_id: collection_id,
+            rss_source_feed: feed,
+            event_infos: %{device_id: "web", device_name: "Web Browser"}
+          }
+        end
+
+      case Dispatcher.dispatch(command) do
+        :ok ->
+          collections = get_user_collections(user_id)
+          {:noreply, assign(socket, :collections, collections)}
+
+        {:error, reason} ->
+          {:noreply, put_flash(socket, :error, "Error: #{inspect(reason)}")}
+      end
+    else
+      {:noreply, socket}
+    end
   end
 
   @impl true
@@ -305,26 +503,26 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
           </div>
         </div>
         <!-- Collection Badges -->
-        <%= if length(@collections) > 0 do %>
-          <div class="mb-6">
-            <div class="flex flex-wrap gap-2 items-center">
-              <!-- All badge -->
-              <button
-                phx-click="filter"
-                phx-value-collection=""
-                class={"rounded-full px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer " <>
-                  if @current_collection == nil do
-                    "bg-blue-600 text-white"
-                  else
-                    "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
-                  end}
-              >
-                All <span class="ml-1 text-xs opacity-70">(<%= length(@all_subscriptions) %>)</span>
-              </button>
-              <!-- Collection badges -->
-              <%= for collection <- @collections do %>
-                <% is_active = @current_collection && @current_collection.id == collection.id %>
-                <% feed_count = length(collection.collection_subscriptions) %>
+        <div class="mb-6">
+          <div class="flex flex-wrap gap-2 items-center">
+            <!-- All badge -->
+            <button
+              phx-click="filter"
+              phx-value-collection=""
+              class={"rounded-full px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer " <>
+                if @current_collection == nil do
+                  "bg-blue-600 text-white"
+                else
+                  "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                end}
+            >
+              All <span class="ml-1 text-xs opacity-70">(<%= length(@all_subscriptions) %>)</span>
+            </button>
+            <!-- Collection badges with edit/delete buttons -->
+            <%= for collection <- @collections do %>
+              <% is_active = @current_collection && @current_collection.id == collection.id %>
+              <% feed_count = length(collection.collection_subscriptions) %>
+              <div class="relative group inline-flex items-center">
                 <button
                   phx-click="filter"
                   phx-value-collection={collection.id}
@@ -352,10 +550,63 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                     <span class="ml-1">*</span>
                   <% end %>
                 </button>
-              <% end %>
-            </div>
+                <!-- Edit/Delete buttons on hover -->
+                <div class="hidden group-hover:flex absolute -right-1 -top-1 gap-0.5">
+                  <button
+                    phx-click="open_edit_collection"
+                    phx-value-id={collection.id}
+                    class="w-5 h-5 rounded-full bg-white shadow-sm border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-blue-600 hover:border-blue-300"
+                    title="Edit collection"
+                  >
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+                  <%= if not collection.is_default do %>
+                    <button
+                      phx-click="confirm_delete_collection"
+                      phx-value-id={collection.id}
+                      class="w-5 h-5 rounded-full bg-white shadow-sm border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-red-600 hover:border-red-300"
+                      title="Delete collection"
+                    >
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+            <!-- Add Collection button -->
+            <button
+              phx-click="open_create_collection"
+              class="rounded-full w-8 h-8 flex items-center justify-center bg-zinc-100 text-zinc-500 hover:bg-zinc-200 hover:text-zinc-700 transition-colors"
+              title="Create collection"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+            <!-- Manage Feeds toggle (when viewing a collection) -->
+            <%= if @current_collection do %>
+              <button
+                phx-click="toggle_manage_feeds"
+                class={"ml-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors " <>
+                  if @manage_feeds_mode do
+                    "bg-green-600 text-white"
+                  else
+                    "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                  end}
+              >
+                <%= if @manage_feeds_mode do %>
+                  Done
+                <% else %>
+                  Manage Feeds
+                <% end %>
+              </button>
+            <% end %>
           </div>
-        <% end %>
+        </div>
         <!-- Subscriptions Grid -->
         <%= if Enum.empty?(@subscriptions) do %>
           <div class="text-center py-12">
@@ -378,9 +629,34 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <%= for sub <- @subscriptions do %>
               <div
-                class="bg-white shadow rounded-lg overflow-hidden"
+                class="bg-white shadow rounded-lg overflow-hidden relative"
                 data-subscription-feed={sub.rss_source_feed}
               >
+                <!-- Manage Feeds Checkbox Overlay -->
+                <%= if @manage_feeds_mode && @current_collection do %>
+                  <% in_collection = Enum.any?(@current_collection.collection_subscriptions, &(&1.rss_source_feed == sub.rss_source_feed)) %>
+                  <button
+                    phx-click="toggle_feed_in_collection"
+                    phx-value-feed={sub.rss_source_feed}
+                    phx-value-collection={@current_collection.id}
+                    class={"absolute top-2 right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all " <>
+                      if in_collection do
+                        "bg-green-500 text-white"
+                      else
+                        "bg-white/90 border-2 border-zinc-300 text-zinc-400 hover:border-green-500 hover:text-green-500"
+                      end}
+                  >
+                    <%= if in_collection do %>
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                    <% else %>
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                    <% end %>
+                  </button>
+                <% end %>
                 <!-- Cover Image -->
                 <div class="aspect-square bg-zinc-100 flex items-center justify-center relative">
                   <%= if is_map(sub.metadata) && sub.metadata.cover do %>
@@ -489,6 +765,111 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
         <% end %>
       </div>
     </div>
+
+    <!-- Collection Modal -->
+    <%= if @show_collection_modal do %>
+      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" phx-click="close_collection_modal">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4" phx-click-away="close_collection_modal">
+          <div class="p-6">
+            <h2 class="text-xl font-bold text-zinc-900 mb-4">
+              <%= if @editing_collection, do: "Edit Collection", else: "Create Collection" %>
+            </h2>
+
+            <div class="space-y-4">
+              <!-- Title -->
+              <div>
+                <label class="block text-sm font-medium text-zinc-700 mb-1">Title</label>
+                <input
+                  type="text"
+                  value={@collection_form["title"]}
+                  phx-keyup="update_collection_form"
+                  phx-value-field="title"
+                  class="w-full rounded-lg border border-zinc-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="My Collection"
+                  autofocus
+                />
+              </div>
+
+              <!-- Description -->
+              <div>
+                <label class="block text-sm font-medium text-zinc-700 mb-1">Description (optional)</label>
+                <textarea
+                  phx-keyup="update_collection_form"
+                  phx-value-field="description"
+                  class="w-full rounded-lg border border-zinc-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows="2"
+                  placeholder="A brief description..."
+                ><%= @collection_form["description"] %></textarea>
+              </div>
+
+              <!-- Color -->
+              <div>
+                <label class="block text-sm font-medium text-zinc-700 mb-2">Color</label>
+                <div class="flex flex-wrap gap-2">
+                  <%= for {name, color} <- @collection_colors do %>
+                    <button
+                      type="button"
+                      phx-click="update_collection_form"
+                      phx-value-field="color"
+                      phx-value-value={color}
+                      class={"w-8 h-8 rounded-full border-2 transition-all " <>
+                        if @collection_form["color"] == color do
+                          "border-zinc-900 ring-2 ring-offset-2 ring-zinc-400"
+                        else
+                          "border-transparent hover:border-zinc-300"
+                        end}
+                      style={"background-color: #{color}"}
+                      title={name}
+                    />
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-6">
+              <button
+                phx-click="close_collection_modal"
+                class="px-4 py-2 text-sm font-medium text-zinc-700 hover:text-zinc-900"
+              >
+                Cancel
+              </button>
+              <button
+                phx-click="save_collection"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+              >
+                <%= if @editing_collection, do: "Save Changes", else: "Create" %>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Delete Confirmation Modal -->
+    <%= if @show_delete_confirm do %>
+      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6">
+          <h2 class="text-lg font-bold text-zinc-900 mb-2">Delete Collection?</h2>
+          <p class="text-zinc-600 mb-6">
+            This will remove the collection but keep your subscriptions. This action cannot be undone.
+          </p>
+          <div class="flex justify-end gap-3">
+            <button
+              phx-click="cancel_delete"
+              class="px-4 py-2 text-sm font-medium text-zinc-700 hover:text-zinc-900"
+            >
+              Cancel
+            </button>
+            <button
+              phx-click="delete_collection"
+              class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    <% end %>
     """
   end
 
