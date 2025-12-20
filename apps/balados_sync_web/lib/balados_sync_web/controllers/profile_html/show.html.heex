@@ -12,7 +12,7 @@
           />
         <% else %>
           <div class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-            <%= String.first(display_name(@user)) |> String.upcase() %>
+            <%= (String.first(display_name(@user)) || "?") |> String.upcase() %>
           </div>
         <% end %>
 
