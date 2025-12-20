@@ -86,6 +86,7 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 - [ ] Email verification for podcast ownership - [#69](https://github.com/podCloud/balados.sync/issues/69) - REVIEW (PR #112)
 - [ ] Public URLs for playlists/collections - [#67](https://github.com/podCloud/balados.sync/issues/67) - REVIEW (PR #113)
+- [ ] Collection management UI - [#114](https://github.com/podCloud/balados.sync/issues/114) - REVIEW (PR #115, depends on PR #113)
 
 ---
 
