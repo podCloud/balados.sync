@@ -115,6 +115,15 @@ defmodule BaladosSyncProjections.Schemas.EnrichedPodcast do
 
   defp valid_url?(url) do
     uri = URI.parse(url)
-    uri.scheme in ["http", "https"] and not is_nil(uri.host)
+
+    uri.scheme in ["http", "https"] and
+      is_binary(uri.host) and
+      String.length(uri.host) > 0 and
+      not localhost_or_private?(uri.host)
+  end
+
+  # Block localhost, loopback, and common private IP ranges
+  defp localhost_or_private?(host) do
+    String.match?(host, ~r/^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|0\.0\.0\.0|::1|\[::1\])/i)
   end
 end
