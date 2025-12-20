@@ -333,6 +333,63 @@ Génération de flux RSS agrégés pour abonnements, collections et playlists.
 - `RssCache` - Cache des feeds source (5 min TTL)
 - `PlayTokenHelper` - Validation et construction URLs
 
+### Enriched Podcasts (v2.1)
+
+Admin-managed podcast entries with custom slugs, branding, and social links.
+
+**Features** :
+- **Custom URL slugs** : Human-readable URLs (e.g., `/podcasts/my-show` instead of base64)
+- **Branding** : Background color for podcast page theming
+- **Social links** : Twitter/X, Mastodon, Instagram, YouTube, Spotify, Apple Podcasts
+- **Custom links** : Add arbitrary links with custom titles
+- **SEO redirect** : Base64 URLs automatically redirect to slug URLs
+
+**Admin Interface** :
+- `GET /admin/enriched-podcasts` - List all enriched podcasts
+- `GET /admin/enriched-podcasts/new` - Create new enriched podcast
+- `GET /admin/enriched-podcasts/:id` - View enriched podcast with stats
+- `GET /admin/enriched-podcasts/:id/edit` - Edit enriched podcast
+- `POST /admin/enriched-podcasts` - Create
+- `PUT /admin/enriched-podcasts/:id` - Update
+- `DELETE /admin/enriched-podcasts/:id` - Delete
+
+**Public Access** :
+- `/podcasts/:slug` - Access by custom slug
+- `/podcasts/:base64` - Falls back to base64 (redirects to slug if enriched)
+- Admin link on podcast page for quick access to enrichment
+
+**Database** (System schema, not event-sourced) :
+- Table `system.enriched_podcasts` : id, feed_url, slug, background_color, links (JSONB), created_by_user_id
+- Unique indexes on slug and feed_url
+
+**Validation Rules** :
+- Slug: 3-50 lowercase letters, numbers, hyphens only
+- Slug cannot look like base64 (no uppercase, +, /, =)
+- Background color: valid hex format (#RRGGBB)
+- Links: max 10, valid URLs, proper format
+
+**Social Network Types** :
+- `twitter` - Twitter/X with icon
+- `mastodon` - Mastodon with icon
+- `instagram` - Instagram with icon
+- `youtube` - YouTube with icon
+- `spotify` - Spotify with icon
+- `apple_podcasts` - Apple Podcasts with icon
+- `custom` - Custom link with title
+
+**Modules** :
+- Schema: `BaladosSyncProjections.Schemas.EnrichedPodcast`
+- Context: `BaladosSyncWeb.EnrichedPodcasts`
+- Controller: `BaladosSyncWeb.EnrichedPodcastsController`
+- HTML: `BaladosSyncWeb.EnrichedPodcastsHTML`
+
+**Integration** :
+- Public podcast page displays enrichment (background color, links)
+- Admin link on podcast page for quick enrichment creation/editing
+- Automatic redirect from base64 to slug for SEO
+
+---
+
 ### Live WebSocket Gateway (v1.2)
 
 WebSocket standard pour communication temps réel.

@@ -1,0 +1,153 @@
+<div class="px-4 py-10 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-3xl">
+    <.header>
+      Enriched Podcast Details
+      <:subtitle>
+        <.link navigate={~p"/podcasts/#{@enriched_podcast.slug}"} class="text-blue-600 hover:text-blue-800">
+          /podcasts/<%= @enriched_podcast.slug %>
+        </.link>
+      </:subtitle>
+      <:actions>
+        <.link
+          navigate={~p"/admin/enriched-podcasts/#{@enriched_podcast.id}/edit"}
+          class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+        >
+          Edit
+        </.link>
+        <.link
+          href={~p"/admin/enriched-podcasts/#{@enriched_podcast.id}"}
+          method="delete"
+          data-confirm="Are you sure you want to delete this enriched podcast?"
+          class="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 ml-2"
+        >
+          Delete
+        </.link>
+      </:actions>
+    </.header>
+
+    <!-- Podcast Info -->
+    <div class="mt-8 bg-white shadow rounded-lg overflow-hidden">
+      <%= if @enriched_podcast.background_color do %>
+        <div class="h-3" style={"background-color: #{@enriched_podcast.background_color}"}></div>
+      <% end %>
+      <div class="p-6">
+        <h3 class="text-lg font-semibold text-zinc-900">
+          <%= if @feed_metadata, do: @feed_metadata.title, else: "Unknown Podcast" %>
+        </h3>
+        <p class="mt-1 text-sm text-zinc-500 font-mono break-all">
+          <%= @enriched_podcast.feed_url %>
+        </p>
+        <%= if @feed_metadata && @feed_metadata.description do %>
+          <p class="mt-3 text-sm text-zinc-600 line-clamp-3">
+            <%= @feed_metadata.description %>
+          </p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="mt-6 grid grid-cols-3 gap-4">
+      <div class="bg-white shadow rounded-lg p-4">
+        <dt class="text-sm font-medium text-zinc-500">Subscribers</dt>
+        <dd class="mt-1 text-2xl font-semibold text-zinc-900">
+          <%= @stats.subscriber_count %>
+        </dd>
+      </div>
+      <div class="bg-white shadow rounded-lg p-4">
+        <dt class="text-sm font-medium text-zinc-500">Total Plays</dt>
+        <dd class="mt-1 text-2xl font-semibold text-zinc-900">
+          <%= @stats.popularity.plays %>
+        </dd>
+      </div>
+      <div class="bg-white shadow rounded-lg p-4">
+        <dt class="text-sm font-medium text-zinc-500">Popularity Score</dt>
+        <dd class="mt-1 text-2xl font-semibold text-zinc-900">
+          <%= @stats.popularity.score %>
+        </dd>
+      </div>
+    </div>
+
+    <!-- Configuration Details -->
+    <div class="mt-6 bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-medium leading-6 text-zinc-900 mb-4">Configuration</h3>
+
+        <dl class="divide-y divide-zinc-200">
+          <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+            <dt class="text-sm font-medium text-zinc-500">Slug</dt>
+            <dd class="mt-1 text-sm text-zinc-900 sm:mt-0 sm:col-span-2 font-mono">
+              <%= @enriched_podcast.slug %>
+            </dd>
+          </div>
+          <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+            <dt class="text-sm font-medium text-zinc-500">Background Color</dt>
+            <dd class="mt-1 text-sm text-zinc-900 sm:mt-0 sm:col-span-2">
+              <%= if @enriched_podcast.background_color do %>
+                <div class="flex items-center gap-2">
+                  <div
+                    class="w-8 h-8 rounded border border-zinc-300"
+                    style={"background-color: #{@enriched_podcast.background_color}"}
+                  >
+                  </div>
+                  <span class="font-mono"><%= @enriched_podcast.background_color %></span>
+                </div>
+              <% else %>
+                <span class="text-zinc-400">Not set</span>
+              <% end %>
+            </dd>
+          </div>
+          <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+            <dt class="text-sm font-medium text-zinc-500">Links</dt>
+            <dd class="mt-1 text-sm text-zinc-900 sm:mt-0 sm:col-span-2">
+              <%= if @enriched_podcast.links && length(@enriched_podcast.links) > 0 do %>
+                <ul class="space-y-2">
+                  <%= for link <- @enriched_podcast.links do %>
+                    <li class="flex items-center gap-2">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-zinc-100 text-zinc-800">
+                        <%= social_name(link["type"]) %>
+                      </span>
+                      <%= if link["title"] do %>
+                        <span class="text-zinc-700"><%= link["title"] %></span>
+                      <% end %>
+                      <a
+                        href={link["url"]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-blue-600 hover:text-blue-800 text-xs truncate max-w-xs"
+                      >
+                        <%= link["url"] %>
+                      </a>
+                    </li>
+                  <% end %>
+                </ul>
+              <% else %>
+                <span class="text-zinc-400">No links configured</span>
+              <% end %>
+            </dd>
+          </div>
+          <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+            <dt class="text-sm font-medium text-zinc-500">Created</dt>
+            <dd class="mt-1 text-sm text-zinc-900 sm:mt-0 sm:col-span-2">
+              <%= Calendar.strftime(@enriched_podcast.inserted_at, "%B %d, %Y at %H:%M UTC") %>
+            </dd>
+          </div>
+          <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+            <dt class="text-sm font-medium text-zinc-500">Last Updated</dt>
+            <dd class="mt-1 text-sm text-zinc-900 sm:mt-0 sm:col-span-2">
+              <%= Calendar.strftime(@enriched_podcast.updated_at, "%B %d, %Y at %H:%M UTC") %>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="mt-6 flex gap-4">
+      <.link navigate={~p"/admin/enriched-podcasts"} class="text-sm text-zinc-600 hover:text-zinc-900">
+        &larr; Back to Enriched Podcasts
+      </.link>
+      <.link navigate={~p"/podcasts/#{@enriched_podcast.slug}"} class="text-sm text-blue-600 hover:text-blue-800">
+        View Public Page &rarr;
+      </.link>
+    </div>
+  </div>
+</div>
