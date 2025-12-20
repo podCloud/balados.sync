@@ -19,7 +19,8 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
     RemoveFeedFromCollection,
     UpdateCollection,
     DeleteCollection,
-    ReorderCollectionFeed
+    ReorderCollectionFeed,
+    ChangeCollectionVisibility
   }
 
   alias BaladosSyncCore.Events.{
@@ -29,7 +30,8 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
     FeedRemovedFromCollection,
     CollectionUpdated,
     CollectionDeleted,
-    CollectionFeedReordered
+    CollectionFeedReordered,
+    CollectionVisibilityChanged
   }
 
   describe "Default Collection Creation" do
@@ -665,6 +667,169 @@ defmodule BaladosSyncCore.Aggregates.UserCollectionsTest do
       collection = updated_user.collections[collection_id]
 
       assert collection.feed_ids == ["feed-3", "feed-1", "feed-2"]
+    end
+  end
+
+  describe "ChangeCollectionVisibility Command" do
+    test "makes collection public" do
+      user_id = "user-123"
+      collection_id = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        collections: %{
+          collection_id => %{title: "My Collection", is_default: false, feed_ids: [], is_public: false}
+        }
+      }
+
+      cmd = %ChangeCollectionVisibility{
+        user_id: user_id,
+        collection_id: collection_id,
+        is_public: true,
+        event_infos: %{device_id: "web", device_name: "Web Browser"}
+      }
+
+      event = User.execute(user, cmd)
+
+      assert match?(%CollectionVisibilityChanged{}, event)
+      assert event.user_id == user_id
+      assert event.collection_id == collection_id
+      assert event.is_public == true
+    end
+
+    test "makes collection private" do
+      user_id = "user-123"
+      collection_id = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        collections: %{
+          collection_id => %{title: "My Collection", is_default: false, feed_ids: [], is_public: true}
+        }
+      }
+
+      cmd = %ChangeCollectionVisibility{
+        user_id: user_id,
+        collection_id: collection_id,
+        is_public: false,
+        event_infos: %{}
+      }
+
+      event = User.execute(user, cmd)
+
+      assert match?(%CollectionVisibilityChanged{}, event)
+      assert event.is_public == false
+    end
+
+    test "returns error for non-existent collection" do
+      user_id = "user-123"
+      user = %User{user_id: user_id, collections: %{}}
+
+      cmd = %ChangeCollectionVisibility{
+        user_id: user_id,
+        collection_id: "nonexistent",
+        is_public: true,
+        event_infos: %{}
+      }
+
+      result = User.execute(user, cmd)
+
+      assert match?({:error, :collection_not_found}, result)
+    end
+  end
+
+  describe "CollectionVisibilityChanged Event Application" do
+    test "apply CollectionVisibilityChanged updates is_public to true" do
+      user_id = "user-123"
+      collection_id = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        collections: %{
+          collection_id => %{title: "My Collection", is_default: false, feed_ids: [], is_public: false}
+        }
+      }
+
+      event = %CollectionVisibilityChanged{
+        user_id: user_id,
+        collection_id: collection_id,
+        is_public: true,
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      updated_user = User.apply(user, event)
+
+      assert updated_user.collections[collection_id].is_public == true
+    end
+
+    test "apply CollectionVisibilityChanged updates is_public to false" do
+      user_id = "user-123"
+      collection_id = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        collections: %{
+          collection_id => %{title: "My Collection", is_default: false, feed_ids: [], is_public: true}
+        }
+      }
+
+      event = %CollectionVisibilityChanged{
+        user_id: user_id,
+        collection_id: collection_id,
+        is_public: false,
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      updated_user = User.apply(user, event)
+
+      assert updated_user.collections[collection_id].is_public == false
+    end
+
+    test "apply CollectionVisibilityChanged doesn't affect other collections" do
+      user_id = "user-123"
+      collection_id = Ecto.UUID.generate()
+      other_collection = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        collections: %{
+          collection_id => %{title: "Target", is_default: false, feed_ids: [], is_public: false},
+          other_collection => %{title: "Other", is_default: false, feed_ids: [], is_public: false}
+        }
+      }
+
+      event = %CollectionVisibilityChanged{
+        user_id: user_id,
+        collection_id: collection_id,
+        is_public: true,
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      updated_user = User.apply(user, event)
+
+      assert updated_user.collections[collection_id].is_public == true
+      assert updated_user.collections[other_collection].is_public == false
+    end
+
+    test "apply CollectionVisibilityChanged handles missing collection gracefully" do
+      user_id = "user-123"
+      user = %User{user_id: user_id, collections: %{}}
+
+      event = %CollectionVisibilityChanged{
+        user_id: user_id,
+        collection_id: "nonexistent",
+        is_public: true,
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      # Should not crash, just return user unchanged
+      updated_user = User.apply(user, event)
+
+      assert updated_user == user
     end
   end
 end

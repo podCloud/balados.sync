@@ -8,7 +8,7 @@ defmodule BaladosSyncWeb.PlaylistsController do
   use BaladosSyncWeb, :controller
 
   alias BaladosSyncCore.Dispatcher
-  alias BaladosSyncCore.Commands.{CreatePlaylist, UpdatePlaylist, DeletePlaylist}
+  alias BaladosSyncCore.Commands.{CreatePlaylist, UpdatePlaylist, DeletePlaylist, ChangePlaylistVisibility}
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.{Playlist, PlaylistItem}
   alias BaladosSyncWeb.PlaylistEnricher
@@ -227,6 +227,44 @@ defmodule BaladosSyncWeb.PlaylistsController do
         conn
         |> put_flash(:error, "Error deleting playlist: #{inspect(reason)}")
         |> redirect(to: ~p"/playlists")
+    end
+  end
+
+  @doc """
+  Toggles the public visibility of a playlist.
+  """
+  def toggle_visibility(conn, %{"id" => playlist_id}) do
+    user_id = conn.assigns.current_user.id
+    playlist = get_user_playlist(user_id, playlist_id)
+
+    if playlist do
+      # Toggle the visibility
+      new_visibility = not (playlist.is_public || false)
+
+      command = %ChangePlaylistVisibility{
+        user_id: user_id,
+        playlist_id: playlist_id,
+        is_public: new_visibility,
+        event_infos: %{device_id: "web", device_name: "Web Browser"}
+      }
+
+      case Dispatcher.dispatch(command) do
+        :ok ->
+          visibility_text = if new_visibility, do: "public", else: "private"
+
+          conn
+          |> put_flash(:info, "Playlist is now #{visibility_text}.")
+          |> redirect(to: ~p"/playlists/#{playlist_id}")
+
+        {:error, reason} ->
+          conn
+          |> put_flash(:error, "Error updating visibility: #{inspect(reason)}")
+          |> redirect(to: ~p"/playlists/#{playlist_id}")
+      end
+    else
+      conn
+      |> put_flash(:error, "Playlist not found.")
+      |> redirect(to: ~p"/playlists")
     end
   end
 end

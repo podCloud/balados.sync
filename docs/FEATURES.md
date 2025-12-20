@@ -790,14 +790,16 @@ mix db.reset --all          # ☢️☢️ EXTREME - TOUT détruit
 - [ ] Playlists collaboratives
 - [ ] Historique d'écoute détaillé
 - [ ] Recommandations personnalisées
-- [ ] Partage de playlists
+- [x] Public visibility for playlists (v2.2 ✅)
+- [ ] Public visibility for collections
+- [ ] Shareable public URLs
 - [ ] Support formats additional (vidéo, etc.)
 
 ---
 
 ## 👤 User Profiles
 
-### Public User Profiles (v2.1)
+### Public User Profiles (v2.2)
 
 Pages de profil utilisateur personnalisables et publiques.
 
@@ -847,6 +849,42 @@ Pages de profil utilisateur personnalisables et publiques.
   - Profile update success/validation
   - Public profile visibility
   - 404 pour profils désactivés/inexistants
+
+---
+
+## 🌐 Public Visibility (v2.3)
+
+### Playlist Public Visibility
+
+Allows users to make their playlists publicly visible on their profile.
+
+**CQRS Commands** :
+- `ChangePlaylistVisibility` - Toggle playlist visibility (public/private)
+- `ChangeCollectionVisibility` - Toggle collection visibility (public/private)
+
+**CQRS Events** :
+- `PlaylistVisibilityChanged` - Emitted when playlist visibility changes
+- `CollectionVisibilityChanged` - Emitted when collection visibility changes
+
+**Aggregate Updates** :
+- User aggregate handles visibility commands
+- State includes `is_public` flag per playlist/collection
+
+**Projections** :
+- `playlists.is_public` - Boolean flag (default: false)
+- `collections.is_public` - Boolean flag (default: false)
+- Indexes on `(user_id, is_public)` for efficient queries
+
+**UI** :
+- Toggle button on playlist show page
+- Visual indicator (green for public, gray for private)
+- Flash message on toggle
+
+**Routes** :
+- `POST /playlists/:id/toggle-visibility` - Toggle playlist visibility
+
+**Migration** :
+- `20251220120001_add_is_public_to_playlists_and_collections.exs`
 
 ---
 
