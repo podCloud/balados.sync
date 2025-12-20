@@ -245,7 +245,7 @@ defmodule BaladosSyncWeb.PlaylistsController do
         user_id: user_id,
         playlist_id: playlist_id,
         is_public: new_visibility,
-        event_infos: %{}
+        event_infos: %{device_id: "web", device_name: "Web Browser"}
       }
 
       case Dispatcher.dispatch(command) do

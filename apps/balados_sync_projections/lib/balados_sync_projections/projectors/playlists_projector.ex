@@ -196,7 +196,8 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
           id: playlist_id,
           user_id: event.user_id,
           name: playlist.name,
-          description: playlist.description
+          description: playlist.description,
+          is_public: Map.get(playlist, :is_public, false)
         }
 
         acc =
