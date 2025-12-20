@@ -1,0 +1,42 @@
+<div class="mx-auto max-w-sm">
+  <.header class="text-center">
+    Profile Settings
+    <:subtitle>
+      Customize your public profile.
+    </:subtitle>
+  </.header>
+
+  <.simple_form :let={f} for={@changeset} action={~p"/settings/profile"}>
+    <.error :if={@changeset.action}>
+      Oops, something went wrong! Please check the errors below.
+    </.error>
+
+    <.input field={f[:public_name]} type="text" label="Display Name" placeholder={@user.username} />
+    <div class="text-sm text-zinc-500 -mt-4 mb-2">
+      This name will be shown instead of your username on your public profile.
+    </div>
+
+    <.input field={f[:bio]} type="textarea" label="Bio" placeholder="Tell us about yourself..." />
+    <div class="text-sm text-zinc-500 -mt-4 mb-2">
+      A short description that appears on your profile page.
+    </div>
+
+    <.input field={f[:public_profile_enabled]} type="checkbox" label="Enable public profile" />
+    <div class="text-sm text-zinc-500 -mt-2 mb-4">
+      When enabled, your profile page will be visible at
+      <.link navigate={~p"/u/#{@user.username}"} class="font-mono text-brand hover:underline">
+        /u/<%= @user.username %>
+      </.link>
+    </div>
+
+    <:actions>
+      <.button phx-disable-with="Saving..." class="w-full">Save Profile</.button>
+    </:actions>
+  </.simple_form>
+
+  <div class="mt-8 pt-8 border-t border-zinc-200">
+    <.link navigate={~p"/dashboard"} class="text-sm text-zinc-600 hover:text-zinc-900">
+      ← Back to Dashboard
+    </.link>
+  </div>
+</div>
