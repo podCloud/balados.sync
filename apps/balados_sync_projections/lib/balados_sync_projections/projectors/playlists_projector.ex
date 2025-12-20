@@ -20,6 +20,13 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
   alias BaladosSyncProjections.Schemas.{Playlist, PlaylistItem}
 
   project(%PlaylistCreated{} = event, _metadata, fn multi ->
+    Logger.info("Playlist created",
+      action: :playlist_created,
+      user_id: event.user_id,
+      playlist_id: event.playlist_id,
+      playlist_name: event.name
+    )
+
     playlist_attrs = %{
       id: event.playlist_id,
       user_id: event.user_id,
@@ -37,6 +44,12 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
   end)
 
   project(%PlaylistDeleted{} = event, _metadata, fn multi ->
+    Logger.info("Playlist deleted",
+      action: :playlist_deleted,
+      user_id: event.user_id,
+      playlist_id: event.playlist_id
+    )
+
     # Soft delete playlist and all its items
     multi =
       Ecto.Multi.update_all(
@@ -113,6 +126,16 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
   end)
 
   project(%PlaylistUpdated{} = event, _metadata, fn multi ->
+    Logger.info("Playlist updated",
+      action: :playlist_updated,
+      user_id: event.user_id,
+      playlist_id: event.playlist,
+      updated_fields: Enum.filter([
+        if(event.name, do: :name),
+        if(event.description, do: :description)
+      ], & &1)
+    )
+
     updates = []
     updates = if event.name, do: updates ++ [name: event.name], else: updates
     updates = if event.description, do: updates ++ [description: event.description], else: updates
