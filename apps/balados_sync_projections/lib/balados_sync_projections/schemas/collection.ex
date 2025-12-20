@@ -18,6 +18,7 @@ defmodule BaladosSyncProjections.Schemas.Collection do
     field :user_id, :string
     field :title, :string
     field :is_default, :boolean, default: false
+    field :is_public, :boolean, default: false
     field :description, :string
     field :color, :string
     field :deleted_at, :utc_datetime
@@ -37,6 +38,7 @@ defmodule BaladosSyncProjections.Schemas.Collection do
       :user_id,
       :title,
       :is_default,
+      :is_public,
       :description,
       :color,
       :deleted_at,

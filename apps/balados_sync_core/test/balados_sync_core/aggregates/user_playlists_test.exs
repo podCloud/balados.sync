@@ -14,12 +14,14 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
 
   alias BaladosSyncCore.Commands.{
     CreatePlaylist,
-    DeletePlaylist
+    DeletePlaylist,
+    ChangePlaylistVisibility
   }
 
   alias BaladosSyncCore.Events.{
     PlaylistCreated,
-    PlaylistDeleted
+    PlaylistDeleted,
+    PlaylistVisibilityChanged
   }
 
   describe "CreatePlaylist Command" do
@@ -304,6 +306,169 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       assert playlist_to_delete not in Map.keys(updated_user.playlists)
       assert other_playlist in Map.keys(updated_user.playlists)
       assert updated_user.playlists[other_playlist].name == "Keep This"
+    end
+  end
+
+  describe "ChangePlaylistVisibility Command" do
+    test "makes playlist public" do
+      user_id = "user-123"
+      playlist_id = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        playlists: %{
+          playlist_id => %{name: "My Playlist", items: [], is_public: false}
+        }
+      }
+
+      cmd = %ChangePlaylistVisibility{
+        user_id: user_id,
+        playlist_id: playlist_id,
+        is_public: true,
+        event_infos: %{device_id: "web", device_name: "Web Browser"}
+      }
+
+      event = User.execute(user, cmd)
+
+      assert match?(%PlaylistVisibilityChanged{}, event)
+      assert event.user_id == user_id
+      assert event.playlist_id == playlist_id
+      assert event.is_public == true
+    end
+
+    test "makes playlist private" do
+      user_id = "user-123"
+      playlist_id = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        playlists: %{
+          playlist_id => %{name: "My Playlist", items: [], is_public: true}
+        }
+      }
+
+      cmd = %ChangePlaylistVisibility{
+        user_id: user_id,
+        playlist_id: playlist_id,
+        is_public: false,
+        event_infos: %{}
+      }
+
+      event = User.execute(user, cmd)
+
+      assert match?(%PlaylistVisibilityChanged{}, event)
+      assert event.is_public == false
+    end
+
+    test "returns error for non-existent playlist" do
+      user_id = "user-123"
+      user = %User{user_id: user_id, playlists: %{}}
+
+      cmd = %ChangePlaylistVisibility{
+        user_id: user_id,
+        playlist_id: "nonexistent",
+        is_public: true,
+        event_infos: %{}
+      }
+
+      result = User.execute(user, cmd)
+
+      assert match?({:error, :playlist_not_found}, result)
+    end
+  end
+
+  describe "PlaylistVisibilityChanged Event Application" do
+    test "apply PlaylistVisibilityChanged updates is_public to true" do
+      user_id = "user-123"
+      playlist_id = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        playlists: %{
+          playlist_id => %{name: "My Playlist", items: [], is_public: false}
+        }
+      }
+
+      event = %PlaylistVisibilityChanged{
+        user_id: user_id,
+        playlist_id: playlist_id,
+        is_public: true,
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      updated_user = User.apply(user, event)
+
+      assert updated_user.playlists[playlist_id].is_public == true
+    end
+
+    test "apply PlaylistVisibilityChanged updates is_public to false" do
+      user_id = "user-123"
+      playlist_id = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        playlists: %{
+          playlist_id => %{name: "My Playlist", items: [], is_public: true}
+        }
+      }
+
+      event = %PlaylistVisibilityChanged{
+        user_id: user_id,
+        playlist_id: playlist_id,
+        is_public: false,
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      updated_user = User.apply(user, event)
+
+      assert updated_user.playlists[playlist_id].is_public == false
+    end
+
+    test "apply PlaylistVisibilityChanged doesn't affect other playlists" do
+      user_id = "user-123"
+      playlist_id = Ecto.UUID.generate()
+      other_playlist = Ecto.UUID.generate()
+
+      user = %User{
+        user_id: user_id,
+        playlists: %{
+          playlist_id => %{name: "Target", items: [], is_public: false},
+          other_playlist => %{name: "Other", items: [], is_public: false}
+        }
+      }
+
+      event = %PlaylistVisibilityChanged{
+        user_id: user_id,
+        playlist_id: playlist_id,
+        is_public: true,
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      updated_user = User.apply(user, event)
+
+      assert updated_user.playlists[playlist_id].is_public == true
+      assert updated_user.playlists[other_playlist].is_public == false
+    end
+
+    test "apply PlaylistVisibilityChanged handles missing playlist gracefully" do
+      user_id = "user-123"
+      user = %User{user_id: user_id, playlists: %{}}
+
+      event = %PlaylistVisibilityChanged{
+        user_id: user_id,
+        playlist_id: "nonexistent",
+        is_public: true,
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      # Should not crash, just return user unchanged
+      updated_user = User.apply(user, event)
+
+      assert updated_user == user
     end
   end
 end
