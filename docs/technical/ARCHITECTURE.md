@@ -488,6 +488,56 @@ GET /subscriptions → SubscriptionController
 
 ---
 
+## System Tables vs Event-Sourced Data
+
+L'application distingue deux types de données selon leur nature :
+
+### Event-Sourced (CQRS)
+
+Données générées par les **actions utilisateur** et nécessitant un **historique complet** :
+
+| Catégorie | Exemples | Source de vérité |
+|-----------|----------|------------------|
+| Subscriptions | Abonnements, désabonnements | Event Store |
+| Play statuses | Progression, écoutes | Event Store |
+| Playlists | Création, items, ordre | Event Store |
+| Collections | Création, feeds, ordre | Event Store |
+| Privacy | Changements de visibilité | Event Store |
+
+**Caractéristiques** :
+- Flux : Command → Aggregate → Event → EventStore → Projectors → Projections
+- Les projections peuvent être **reconstruites** à partir des events
+- L'historique complet est préservé (audit trail automatique)
+
+### System Tables (Direct Ecto)
+
+Données de **configuration** ou **administratives** ne nécessitant pas d'historique :
+
+| Catégorie | Exemples | Schema |
+|-----------|----------|--------|
+| Comptes | Users, credentials | `system` |
+| Auth tokens | App tokens, play tokens | `system` |
+| Admin config | Enriched podcasts | `system` |
+| User profile | Avatar, bio, public name | `system` |
+
+**Caractéristiques** :
+- Gérées directement via Ecto (pas de Command/Event)
+- Modifications **écrasent** les valeurs précédentes
+- Pour l'audit, ajouter du logging applicatif si nécessaire
+- Reset des projections **ne les affecte pas**
+
+### Quand utiliser chaque approche ?
+
+| Critère | Event-Sourced | System Table |
+|---------|---------------|--------------|
+| Historique requis | ✅ Oui | ❌ Non |
+| Actions utilisateur fréquentes | ✅ Oui | ❌ Non |
+| Données de configuration | ❌ Non | ✅ Oui |
+| Besoin de replay/rebuild | ✅ Oui | ❌ Non |
+| Données admin-only | ❌ Non | ✅ Oui |
+
+---
+
 ## Technologies
 
 ### Core Stack

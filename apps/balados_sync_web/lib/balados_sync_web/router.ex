@@ -125,6 +125,17 @@ defmodule BaladosSyncWeb.Router do
     get "/", AdminController, :index
     get "/rss-utility", AdminController, :rss_utility
     post "/rss-utility/generate", AdminController, :generate_rss_link
+
+    # Enriched podcasts management
+    get "/enriched-podcasts", EnrichedPodcastsController, :index
+    get "/enriched-podcasts/new", EnrichedPodcastsController, :new
+    post "/enriched-podcasts", EnrichedPodcastsController, :create
+    get "/enriched-podcasts/:id", EnrichedPodcastsController, :show
+    get "/enriched-podcasts/:id/edit", EnrichedPodcastsController, :edit
+    put "/enriched-podcasts/:id", EnrichedPodcastsController, :update
+    patch "/enriched-podcasts/:id", EnrichedPodcastsController, :update
+    delete "/enriched-podcasts/:id", EnrichedPodcastsController, :delete
+    get "/enriched-podcasts/check-slug/:slug", EnrichedPodcastsController, :check_slug
   end
 
   # Other scopes may use custom stacks.

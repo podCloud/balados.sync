@@ -1,0 +1,145 @@
+<div class="px-4 py-10 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-3xl">
+    <.header>
+      Edit Enriched Podcast
+      <:subtitle>
+        <%= if @feed_metadata, do: @feed_metadata.title, else: @enriched_podcast.feed_url %>
+      </:subtitle>
+    </.header>
+
+    <div class="mt-8">
+      <.simple_form :let={f} for={@changeset} action={~p"/admin/enriched-podcasts/#{@enriched_podcast.id}"} method="put">
+        <.error :if={@changeset.action}>
+          Oops, something went wrong! Please check the errors below.
+        </.error>
+
+        <.input field={f[:feed_url]} type="text" label="Feed URL" readonly class="bg-zinc-50" />
+        <p class="text-xs text-zinc-500 -mt-2">
+          Feed URL cannot be changed. Create a new entry if needed.
+        </p>
+
+        <.input
+          field={f[:slug]}
+          type="text"
+          label="Custom Slug"
+          placeholder="my-podcast-name"
+          required
+        />
+        <p class="text-xs text-zinc-500 -mt-2">
+          3-50 characters. Lowercase letters, numbers, and hyphens only.
+          Will be accessible at /podcasts/your-slug
+        </p>
+
+        <.input
+          field={f[:background_color]}
+          type="text"
+          label="Background Color"
+          placeholder="#FF5733"
+        />
+        <p class="text-xs text-zinc-500 -mt-2">
+          Optional. Hex color format (#RRGGBB) for page branding.
+        </p>
+
+        <div class="mt-6">
+          <label class="block text-sm font-medium text-zinc-700 mb-2">Social & Custom Links</label>
+          <p class="text-xs text-zinc-500 mb-4">
+            Add up to 10 links. Social networks will display with their icons.
+          </p>
+
+          <div id="links-container" class="space-y-3">
+            <!-- Existing links will be populated via JavaScript -->
+          </div>
+
+          <button
+            type="button"
+            onclick="addLink()"
+            class="mt-3 inline-flex items-center px-3 py-1.5 border border-zinc-300 shadow-sm text-xs font-medium rounded text-zinc-700 bg-white hover:bg-zinc-50"
+          >
+            <svg class="-ml-0.5 mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Link
+          </button>
+        </div>
+
+        <:actions>
+          <.button type="submit">Update Enriched Podcast</.button>
+          <.link navigate={~p"/admin/enriched-podcasts/#{@enriched_podcast.id}"} class="text-sm text-zinc-600 hover:text-zinc-900 ml-4">
+            Cancel
+          </.link>
+        </:actions>
+      </.simple_form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const socialTypes = <%= raw(Jason.encode!(@social_types)) %>;
+  const existingLinks = <%= raw(Jason.encode!(@enriched_podcast.links || [])) %>;
+  let linkIndex = 0;
+
+  function addLink(type = 'custom', url = '', title = '') {
+    const container = document.getElementById('links-container');
+    const div = document.createElement('div');
+    div.className = 'flex gap-2 items-start';
+    div.id = `link-${linkIndex}`;
+
+    const typeOptions = socialTypes.map(t =>
+      `<option value="${t}" ${type === t ? 'selected' : ''}>${t.charAt(0).toUpperCase() + t.slice(1).replace('_', ' ')}</option>`
+    ).join('');
+
+    div.innerHTML = `
+      <select name="enriched_podcast[links][${linkIndex}][type]"
+              onchange="toggleTitleField(${linkIndex}, this.value)"
+              class="rounded-md border-zinc-300 text-sm">
+        <option value="custom" ${type === 'custom' ? 'selected' : ''}>Custom</option>
+        ${typeOptions}
+      </select>
+      <input type="text" name="enriched_podcast[links][${linkIndex}][title]"
+             id="link-title-${linkIndex}"
+             placeholder="Link title"
+             value="${title}"
+             class="flex-1 rounded-md border-zinc-300 text-sm ${type !== 'custom' ? 'hidden' : ''}" />
+      <input type="url" name="enriched_podcast[links][${linkIndex}][url]"
+             placeholder="https://..."
+             value="${url}"
+             required
+             class="flex-1 rounded-md border-zinc-300 text-sm" />
+      <button type="button" onclick="removeLink(${linkIndex})"
+              class="text-red-500 hover:text-red-700 p-1">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    `;
+
+    container.appendChild(div);
+    linkIndex++;
+  }
+
+  function removeLink(index) {
+    const element = document.getElementById(`link-${index}`);
+    if (element) element.remove();
+  }
+
+  function toggleTitleField(index, type) {
+    const titleField = document.getElementById(`link-title-${index}`);
+    if (titleField) {
+      if (type === 'custom') {
+        titleField.classList.remove('hidden');
+        titleField.required = true;
+      } else {
+        titleField.classList.add('hidden');
+        titleField.required = false;
+        titleField.value = '';
+      }
+    }
+  }
+
+  // Populate existing links on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    existingLinks.forEach(link => {
+      addLink(link.type, link.url, link.title || '');
+    });
+  });
+</script>

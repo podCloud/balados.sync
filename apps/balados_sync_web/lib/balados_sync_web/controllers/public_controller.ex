@@ -172,10 +172,39 @@ defmodule BaladosSyncWeb.PublicController do
   @doc """
   Display a single podcast feed page with recent episodes.
   Shows conditional subscribe/unsubscribe buttons based on authentication status.
+
+  Supports both slug-based URLs (/podcasts/my-show) and base64-encoded URLs.
   """
-  def feed_page(conn, %{"feed" => encoded_feed}) do
-    with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
-         {:ok, xml} <- RssCache.fetch_feed(feed_url),
+  def feed_page(conn, %{"feed" => slug_or_encoded}) do
+    alias BaladosSyncWeb.EnrichedPodcasts
+
+    # Resolve slug or encoded feed
+    case EnrichedPodcasts.resolve_slug_or_encoded(slug_or_encoded) do
+      {:slug, feed_url, enrichment} ->
+        # Found by slug, proceed with feed_url from enrichment
+        encoded_feed = Base.url_encode64(feed_url, padding: false)
+        render_feed_page(conn, feed_url, encoded_feed, enrichment)
+
+      {:encoded, feed_url, enrichment} ->
+        # Found by base64 decode
+        encoded_feed = slug_or_encoded
+
+        # Optional: redirect to slug URL if enrichment exists (for SEO)
+        if enrichment && enrichment.slug do
+          redirect(conn, to: ~p"/podcasts/#{enrichment.slug}")
+        else
+          render_feed_page(conn, feed_url, encoded_feed, enrichment)
+        end
+
+      {:error, :invalid} ->
+        conn
+        |> put_flash(:error, "Feed not found")
+        |> redirect(to: ~p"/trending/podcasts")
+    end
+  end
+
+  defp render_feed_page(conn, feed_url, encoded_feed, enrichment) do
+    with {:ok, xml} <- RssCache.fetch_feed(feed_url),
          {:ok, metadata} <- RssParser.parse_feed(xml),
          {:ok, episodes} <- RssParser.parse_episodes(xml) do
       popularity = ProjectionsRepo.get(PodcastPopularity, encoded_feed)
@@ -238,7 +267,8 @@ defmodule BaladosSyncWeb.PublicController do
         subscription: subscription,
         current_user: current_user,
         current_privacy: current_privacy,
-        played_items: played_items
+        played_items: played_items,
+        enrichment: enrichment
       )
     else
       _ ->
