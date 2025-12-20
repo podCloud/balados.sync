@@ -11,6 +11,7 @@ defmodule BaladosSyncWeb.PlaylistsController do
   alias BaladosSyncCore.Commands.{CreatePlaylist, UpdatePlaylist, DeletePlaylist}
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.{Playlist, PlaylistItem}
+  alias BaladosSyncWeb.PlaylistEnricher
   import Ecto.Query
 
   plug :require_authenticated_user
@@ -121,6 +122,13 @@ defmodule BaladosSyncWeb.PlaylistsController do
 
   @doc """
   Shows a playlist with its episodes.
+
+  Fetches RSS feeds in parallel to enrich episode metadata with:
+  - Full descriptions
+  - Cover images
+  - Publication dates
+  - Duration
+  - Enclosure (audio file) info
   """
   def show(conn, %{"id" => playlist_id}) do
     user_id = conn.assigns.current_user.id
@@ -131,7 +139,10 @@ defmodule BaladosSyncWeb.PlaylistsController do
       |> preload_playlist_items()
 
     if playlist do
-      render(conn, :show, playlist: playlist)
+      # Enrich items with metadata from RSS feeds
+      enriched_items = PlaylistEnricher.enrich_items(playlist.items)
+
+      render(conn, :show, playlist: playlist, enriched_items: enriched_items)
     else
       conn
       |> put_flash(:error, "Playlist not found.")
