@@ -35,8 +35,8 @@
     </div>
 
     <!-- Episodes List -->
-    <div class="space-y-3" id="playlist-items">
-      <%= if Enum.empty?(@playlist.items) do %>
+    <div class="space-y-4" id="playlist-items">
+      <%= if Enum.empty?(@enriched_items) do %>
         <div class="bg-white shadow rounded-lg p-8 text-center text-zinc-500">
           <svg class="mx-auto h-12 w-12 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
@@ -47,39 +47,113 @@
           </p>
         </div>
       <% else %>
-        <%= for item <- @playlist.items do %>
+        <%= for item <- @enriched_items do %>
           <div
-            class="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border-l-4 border-purple-400"
+            class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-zinc-200 overflow-hidden"
             data-item-id={item.id}
             data-feed={item.rss_source_feed}
             data-item={item.rss_source_item}
           >
-            <div class="flex items-center gap-4">
-              <!-- Drag Handle (for future SortableJS) -->
-              <div class="cursor-grab text-zinc-400 hover:text-zinc-600">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
-                </svg>
-              </div>
+            <div class="flex">
+              <!-- Episode Cover -->
+              <%= if item.cover do %>
+                <div class="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32">
+                  <img
+                    src={item.cover}
+                    alt={item.item_title}
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              <% else %>
+                <div class="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                  <svg class="w-10 h-10 text-white/80" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                  </svg>
+                </div>
+              <% end %>
 
               <!-- Episode Info -->
-              <div class="flex-1 min-w-0">
-                <h3 class="font-semibold text-zinc-900 truncate">
-                  <%= item.item_title || "Unknown Episode" %>
-                </h3>
-                <p class="text-sm text-zinc-600 truncate">
-                  <%= item.feed_title || "Unknown Podcast" %>
-                </p>
-              </div>
+              <div class="flex-1 p-4 min-w-0 flex flex-col">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0 flex-1">
+                    <h3 class="font-semibold text-zinc-900 line-clamp-2">
+                      <%= item.item_title || "Unknown Episode" %>
+                    </h3>
+                    <p class="text-sm text-zinc-600 mt-0.5">
+                      <%= item.feed_title || "Unknown Podcast" %>
+                    </p>
+                  </div>
 
-              <!-- Actions -->
-              <div class="flex gap-2">
-                <.link
-                  navigate={~p"/episodes/#{item.rss_source_item}"}
-                  class="text-blue-600 hover:text-blue-800 text-sm"
-                >
-                  View
-                </.link>
+                  <!-- Drag Handle -->
+                  <div class="cursor-grab text-zinc-400 hover:text-zinc-600 flex-shrink-0">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Metadata Row -->
+                <div class="flex items-center gap-3 mt-2 text-xs text-zinc-500">
+                  <%= if item.pub_date do %>
+                    <span class="flex items-center gap-1">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                      </svg>
+                      <%= BaladosSyncWeb.PlaylistEnricher.format_pub_date(item.pub_date) %>
+                    </span>
+                  <% end %>
+                  <%= if item.duration do %>
+                    <span class="flex items-center gap-1">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <%= BaladosSyncWeb.PlaylistEnricher.format_duration(item.duration) %>
+                    </span>
+                  <% end %>
+                  <%= if not item.enriched do %>
+                    <span class="text-amber-600 flex items-center gap-1" title="Metadata could not be fetched">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                      </svg>
+                      Cached
+                    </span>
+                  <% end %>
+                </div>
+
+                <!-- Description (truncated) -->
+                <%= if item.description && item.description != "" do %>
+                  <p class="text-sm text-zinc-600 mt-2 line-clamp-2">
+                    <%= BaladosSyncWeb.PlaylistEnricher.strip_html_tags(item.description) |> String.slice(0, 200) %>
+                  </p>
+                <% end %>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-3 mt-auto pt-2">
+                  <%= if item.enclosure do %>
+                    <a
+                      href={item.enclosure.url}
+                      target="_blank"
+                      rel="noopener"
+                      class="inline-flex items-center gap-1 text-sm text-purple-600 hover:text-purple-800 font-medium"
+                    >
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                      Play
+                    </a>
+                  <% end %>
+                  <%= if item.link do %>
+                    <a
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener"
+                      class="text-sm text-zinc-600 hover:text-zinc-800"
+                    >
+                      View episode
+                    </a>
+                  <% end %>
+                </div>
               </div>
             </div>
           </div>
