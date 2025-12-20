@@ -37,4 +37,23 @@ defmodule BaladosSyncWeb.ProfileHTML do
   end
 
   def time_ago_in_words(_), do: "Unknown"
+
+  @doc """
+  Returns the Tailwind CSS gradient class for a collection based on its color.
+  """
+  def collection_color_class(%{color: color}) when is_binary(color) do
+    case color do
+      "blue" -> "bg-gradient-to-br from-blue-400 to-blue-600"
+      "green" -> "bg-gradient-to-br from-green-400 to-green-600"
+      "purple" -> "bg-gradient-to-br from-purple-400 to-purple-600"
+      "red" -> "bg-gradient-to-br from-red-400 to-red-600"
+      "yellow" -> "bg-gradient-to-br from-yellow-400 to-yellow-600"
+      "pink" -> "bg-gradient-to-br from-pink-400 to-pink-600"
+      "indigo" -> "bg-gradient-to-br from-indigo-400 to-indigo-600"
+      "teal" -> "bg-gradient-to-br from-teal-400 to-teal-600"
+      _ -> "bg-gradient-to-br from-zinc-400 to-zinc-600"
+    end
+  end
+
+  def collection_color_class(_), do: "bg-gradient-to-br from-zinc-400 to-zinc-600"
 end
