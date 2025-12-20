@@ -96,12 +96,14 @@ defmodule BaladosSyncCore.Aggregates.User do
     UpdatePlaylist,
     ReorderPlaylist,
     DeletePlaylist,
+    ChangePlaylistVisibility,
     CreateCollection,
     AddFeedToCollection,
     RemoveFeedFromCollection,
     UpdateCollection,
     DeleteCollection,
-    ReorderCollectionFeed
+    ReorderCollectionFeed,
+    ChangeCollectionVisibility
   }
 
   alias BaladosSyncCore.Events.{
@@ -119,12 +121,14 @@ defmodule BaladosSyncCore.Aggregates.User do
     PlaylistUpdated,
     PlaylistReordered,
     PlaylistDeleted,
+    PlaylistVisibilityChanged,
     CollectionCreated,
     FeedAddedToCollection,
     FeedRemovedFromCollection,
     CollectionUpdated,
     CollectionDeleted,
-    CollectionFeedReordered
+    CollectionFeedReordered,
+    CollectionVisibilityChanged
   }
 
   # Initialisation de l'aggregate
@@ -279,6 +283,23 @@ defmodule BaladosSyncCore.Aggregates.User do
       timestamp: DateTime.utc_now(),
       event_infos: cmd.event_infos || %{}
     }
+  end
+
+  # ChangePlaylistVisibility
+  def execute(%__MODULE__{} = user, %ChangePlaylistVisibility{} = cmd) do
+    playlists = user.playlists || %{}
+
+    if Map.has_key?(playlists, cmd.playlist_id) do
+      %PlaylistVisibilityChanged{
+        user_id: user.user_id,
+        playlist_id: cmd.playlist_id,
+        is_public: cmd.is_public,
+        timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
+        event_infos: cmd.event_infos || %{}
+      }
+    else
+      {:error, :playlist_not_found}
+    end
   end
 
   # ShareEpisode
@@ -494,6 +515,23 @@ defmodule BaladosSyncCore.Aggregates.User do
     end
   end
 
+  # ChangeCollectionVisibility
+  def execute(%__MODULE__{} = user, %ChangeCollectionVisibility{} = cmd) do
+    collections = user.collections || %{}
+
+    if Map.has_key?(collections, cmd.collection_id) do
+      %CollectionVisibilityChanged{
+        user_id: user.user_id,
+        collection_id: cmd.collection_id,
+        is_public: cmd.is_public,
+        timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
+        event_infos: cmd.event_infos || %{}
+      }
+    else
+      {:error, :collection_not_found}
+    end
+  end
+
   # Application des events pour mettre à jour l'état
   def apply(%__MODULE__{} = user, %UserSubscribed{} = event) do
     subscriptions = user.subscriptions || %{}
@@ -687,6 +725,19 @@ defmodule BaladosSyncCore.Aggregates.User do
     %{user | playlists: Map.delete(playlists, event.playlist_id)}
   end
 
+  def apply(%__MODULE__{} = user, %PlaylistVisibilityChanged{} = event) do
+    playlists = user.playlists || %{}
+
+    case Map.get(playlists, event.playlist_id) do
+      nil ->
+        user
+
+      playlist ->
+        updated_playlist = Map.put(playlist, :is_public, event.is_public)
+        %{user | playlists: Map.put(playlists, event.playlist_id, updated_playlist)}
+    end
+  end
+
   def apply(%__MODULE__{} = user, %UserCheckpoint{} = event) do
     %{
       user
@@ -786,6 +837,19 @@ defmodule BaladosSyncCore.Aggregates.User do
       collection ->
         # Use the complete feed_order from the event
         updated_collection = %{collection | feed_ids: event.feed_order}
+        %{user | collections: Map.put(collections, event.collection_id, updated_collection)}
+    end
+  end
+
+  def apply(%__MODULE__{} = user, %CollectionVisibilityChanged{} = event) do
+    collections = user.collections || %{}
+
+    case Map.get(collections, event.collection_id) do
+      nil ->
+        user
+
+      collection ->
+        updated_collection = Map.put(collection, :is_public, event.is_public)
         %{user | collections: Map.put(collections, event.collection_id, updated_collection)}
     end
   end
