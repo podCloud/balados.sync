@@ -359,6 +359,7 @@ git pull origin main
 - Playlists CRUD Web UI (v2.0) ✅ [#28](https://github.com/podCloud/balados.sync/issues/28)
 - Enriched Podcasts (v2.1) ✅ [#65](https://github.com/podCloud/balados.sync/issues/65)
 - Public User Profiles (v2.2) ✅ [#66](https://github.com/podCloud/balados.sync/issues/66)
+- Public Visibility for Playlists/Collections (v2.3) ✅ [#67](https://github.com/podCloud/balados.sync/issues/67)
 - Podcast Ownership & Verification (v2.4) ✅ [#68](https://github.com/podCloud/balados.sync/issues/68)
 
 ---
