@@ -326,6 +326,7 @@ git pull origin main
 - Branches: `feature/issue-<number>-<slug>` (pas de long noms)
 - PR: créer toujours une PR (validation + traçabilité)
 - **⚠️ MERGE OBLIGATOIRE: `gh pr merge --merge --delete-branch` (JAMAIS --squash)**
+- **🚫 RÈGLE INVIOLABLE: JAMAIS de `git push --force` sans autorisation explicite de l'utilisateur**
 
 **Tests & Database:**
 - Migrations en test: `MIX_ENV=test mix db.migrate`
