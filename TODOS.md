@@ -84,8 +84,7 @@ Add tasks here. Claude will create GitHub issues for them.
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
-- [ ] Podcast ownership via RSS verification code - [#68](https://github.com/podCloud/balados.sync/issues/68) - REVIEW (PR #110)
-- [ ] Email verification for podcast ownership - [#69](https://github.com/podCloud/balados.sync/issues/69) - REVIEW (PR #111, depends on #110)
+- [ ] Email verification for podcast ownership - [#69](https://github.com/podCloud/balados.sync/issues/69) - REVIEW (PR #112)
 
 ---
 
@@ -93,6 +92,7 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] Podcast ownership via RSS verification code - [#68](https://github.com/podCloud/balados.sync/issues/68) - PR #110
 - [x] Enriched podcasts with slugs, branding, social links - [#65](https://github.com/podCloud/balados.sync/issues/65) - PR #107
 - [x] Public user profile page - [#66](https://github.com/podCloud/balados.sync/issues/66) - PR #108
 - [x] Public visibility for playlists and collections - [#67](https://github.com/podCloud/balados.sync/issues/67) - PR #109
