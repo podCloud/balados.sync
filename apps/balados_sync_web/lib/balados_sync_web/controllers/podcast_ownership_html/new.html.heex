@@ -1,0 +1,66 @@
+<.flash_group flash={@flash} />
+
+<div class="px-4 py-10 sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
+  <div class="mx-auto max-w-xl">
+    <a
+      href={~p"/podcast-ownership"}
+      class="inline-flex items-center text-sm text-zinc-600 hover:text-zinc-900 mb-6"
+    >
+      <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Podcast Ownership
+    </a>
+
+    <h1 class="text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl">
+      Claim a Podcast
+    </h1>
+    <p class="mt-3 text-lg text-zinc-600">
+      Verify ownership of your podcast by adding a verification code to your RSS feed.
+    </p>
+
+    <div class="mt-8 bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8">
+      <form action={~p"/podcast-ownership"} method="post">
+        <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+
+        <div class="mb-6">
+          <label for="feed_url" class="block text-sm font-semibold text-zinc-900 mb-2">
+            Podcast RSS Feed URL
+          </label>
+          <input
+            type="url"
+            id="feed_url"
+            name="claim[feed_url]"
+            required
+            placeholder="https://example.com/feed.xml"
+            class="w-full rounded-md border-zinc-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+          <p class="mt-2 text-sm text-zinc-500">
+            Enter the full URL of your podcast's RSS feed.
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full rounded-md bg-blue-600 px-4 py-3 text-white font-semibold hover:bg-blue-700 transition"
+        >
+          Generate Verification Code
+        </button>
+      </form>
+    </div>
+
+    <div class="mt-8 bg-zinc-50 shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8">
+      <h2 class="text-lg font-semibold text-zinc-900 mb-4">How it works</h2>
+      <ol class="list-decimal list-inside space-y-3 text-zinc-700">
+        <li>Enter your podcast's RSS feed URL above</li>
+        <li>We'll generate a unique verification code for you</li>
+        <li>Add the code anywhere in your RSS feed (in a comment, description, or custom tag)</li>
+        <li>Click "Verify" and we'll check your feed for the code</li>
+        <li>Once verified, you can manage enriched metadata for your podcast</li>
+      </ol>
+      <p class="mt-4 text-sm text-zinc-500">
+        The verification code can be removed from your feed after successful verification.
+      </p>
+    </div>
+  </div>
+</div>

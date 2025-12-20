@@ -356,6 +356,7 @@ git pull origin main
 - Collections & Organization (v1.8) ✅ [#45](https://github.com/podCloud/balados.sync/pull/45)
 - RSS Aggregate Feeds (v1.9) ✅ [#64](https://github.com/podCloud/balados.sync/issues/64)
 - Playlists CRUD Web UI (v2.0) ✅ [#28](https://github.com/podCloud/balados.sync/issues/28)
+- Podcast Ownership & Verification (v2.3) ✅ [#68](https://github.com/podCloud/balados.sync/issues/68)
 
 ---
 

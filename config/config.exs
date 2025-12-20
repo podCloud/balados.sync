@@ -107,6 +107,12 @@ config :balados_sync_jobs, BaladosSyncJobs.Scheduler,
       schedule: "0 2 * * *",
       task: {BaladosSyncJobs.PlayTokenCleanupWorker, :perform, []},
       timezone: "UTC"
+    ],
+    # Run ownership claim cleanup daily at 3 AM UTC
+    ownership_claim_cleanup: [
+      schedule: "0 3 * * *",
+      task: {BaladosSyncJobs.OwnershipClaimCleanupWorker, :perform, []},
+      timezone: "UTC"
     ]
   ]
 
@@ -116,7 +122,8 @@ config :balados_sync_projections,
 
 # Configure PlayToken cleanup retention
 config :balados_sync_jobs,
-  play_token_retention_days: 30
+  play_token_retention_days: 30,
+  ownership_claim_retention_days: 30
 
 # Configure WebSocket connection rate limiting (token bucket)
 # - bucket_capacity: max burst of messages

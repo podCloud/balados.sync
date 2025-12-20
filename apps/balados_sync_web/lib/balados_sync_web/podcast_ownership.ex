@@ -1,0 +1,409 @@
+defmodule BaladosSyncWeb.PodcastOwnership do
+  @moduledoc """
+  Context for podcast ownership claims and verification.
+
+  Handles the verification flow for users claiming administrative ownership of podcasts
+  by proving they control the podcast's RSS feed.
+
+  ## Verification Flow
+
+  1. User initiates claim for a podcast (by feed URL)
+  2. System generates a unique verification code
+  3. User adds the code anywhere in their RSS feed (comment, description, custom tag)
+  4. User triggers verification
+  5. System fetches the RSS feed **raw** (bypassing all caches) and searches for the code
+  6. If code is found, ownership is granted
+  7. Code can be removed from feed after successful verification
+
+  ## Security Considerations
+
+  - Verification codes expire after 48 hours by default
+  - Rate limiting: max 5 verification attempts per hour
+  - Raw fetch bypasses all caching to ensure fresh content
+  - Code search is case-sensitive exact match
+  """
+
+  import Ecto.Query
+  alias BaladosSyncCore.SystemRepo
+  alias BaladosSyncProjections.Schemas.{EnrichedPodcast, PodcastOwnershipClaim, UserPodcastSettings}
+  alias BaladosSyncWeb.RssParser
+
+  require Logger
+
+  @verification_rate_limit_per_hour 5
+  @verification_timeout_ms 30_000
+
+  ## Claim Initiation
+
+  @doc """
+  Initiates a podcast ownership claim for a user.
+
+  Returns {:ok, claim} with the verification code.
+  Returns {:error, reason} if claim cannot be created.
+
+  ## Options
+  - `:expiration_hours` - Hours until verification code expires (default: 48)
+  """
+  def request_ownership(user_id, feed_url, opts \\ []) do
+    normalized_url = String.trim(feed_url)
+
+    # Check for existing pending claim
+    case get_pending_claim(user_id, normalized_url) do
+      nil ->
+        PodcastOwnershipClaim.create_changeset(user_id, normalized_url, opts)
+        |> SystemRepo.insert()
+
+      existing_claim ->
+        {:error, :pending_claim_exists, existing_claim}
+    end
+  end
+
+  @doc """
+  Cancels a pending ownership claim.
+  """
+  def cancel_claim(claim_id, user_id) do
+    with {:ok, claim} <- get_claim_by_id(claim_id),
+         :ok <- verify_claim_ownership(claim, user_id),
+         true <- claim.status == "pending" do
+      claim
+      |> PodcastOwnershipClaim.cancel_changeset()
+      |> SystemRepo.update()
+    else
+      {:error, :not_found} -> {:error, :claim_not_found}
+      {:error, :unauthorized} -> {:error, :unauthorized}
+      false -> {:error, :claim_not_pending}
+    end
+  end
+
+  ## Verification
+
+  @doc """
+  Verifies a podcast ownership claim by fetching the RSS feed and searching for the verification code.
+
+  Returns {:ok, enriched_podcast} if verification succeeds.
+  Returns {:error, reason} if verification fails.
+  """
+  def verify_ownership(claim_id, user_id) do
+    with {:ok, claim} <- get_claim_by_id(claim_id),
+         :ok <- verify_claim_ownership(claim, user_id),
+         :ok <- check_claim_status(claim),
+         :ok <- check_rate_limit(user_id),
+         {:ok, feed_content} <- fetch_feed_raw(claim.feed_url),
+         :ok <- search_verification_code(feed_content, claim.verification_code) do
+      # Verification successful - create or update enriched podcast
+      SystemRepo.transaction(fn ->
+        # Get or create enriched podcast
+        enriched_podcast = get_or_create_enriched_podcast(claim.feed_url, user_id, feed_content)
+
+        # Add user as admin if not already
+        enriched_podcast = add_admin_to_podcast(enriched_podcast, user_id)
+
+        # Update claim status
+        claim
+        |> PodcastOwnershipClaim.verify_changeset(enriched_podcast.id)
+        |> SystemRepo.update!()
+
+        # Create user settings with default visibility
+        get_or_create_user_settings(user_id, enriched_podcast.id, "private")
+
+        enriched_podcast
+      end)
+    else
+      {:error, :code_not_found} = error ->
+        # Increment attempts and mark as failed
+        with {:ok, claim} <- get_claim_by_id(claim_id) do
+          claim
+          |> PodcastOwnershipClaim.fail_changeset("Verification code not found in RSS feed")
+          |> SystemRepo.update()
+        end
+
+        error
+
+      {:error, reason} = error ->
+        Logger.error("Verification failed for claim #{claim_id}: #{inspect(reason)}")
+        error
+    end
+  end
+
+  ## RSS Feed Fetching (Bypass Cache)
+
+  defp fetch_feed_raw(feed_url) do
+    # Use HTTPoison with cache-busting headers
+    headers = [
+      {"Cache-Control", "no-cache, no-store, must-revalidate"},
+      {"Pragma", "no-cache"},
+      {"Expires", "0"}
+    ]
+
+    options = [
+      timeout: @verification_timeout_ms,
+      recv_timeout: @verification_timeout_ms,
+      follow_redirect: true
+    ]
+
+    case HTTPoison.get(feed_url, headers, options) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        {:ok, body}
+
+      {:ok, %HTTPoison.Response{status_code: status}} ->
+        Logger.error("Feed fetch failed with status #{status}: #{feed_url}")
+        {:error, {:http_error, status}}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.error("Feed fetch network error: #{inspect(reason)}")
+        {:error, {:network_error, reason}}
+    end
+  end
+
+  defp search_verification_code(feed_content, verification_code) do
+    # Case-sensitive exact match - search entire raw response
+    if String.contains?(feed_content, verification_code) do
+      :ok
+    else
+      {:error, :code_not_found}
+    end
+  end
+
+  ## Enriched Podcast Management
+
+  defp get_or_create_enriched_podcast(feed_url, user_id, feed_content) do
+    case SystemRepo.get_by(EnrichedPodcast, feed_url: feed_url) do
+      nil ->
+        # Parse feed to extract metadata for initial title
+        metadata = extract_feed_metadata(feed_content)
+
+        # Generate a slug from the feed title or URL
+        slug = generate_slug(metadata[:title] || feed_url)
+
+        %EnrichedPodcast{}
+        |> EnrichedPodcast.changeset(%{
+          feed_url: feed_url,
+          slug: slug,
+          created_by_user_id: user_id,
+          admin_user_ids: [user_id]
+        })
+        |> SystemRepo.insert!()
+
+      podcast ->
+        podcast
+    end
+  end
+
+  defp extract_feed_metadata(feed_content) do
+    case RssParser.parse_feed(feed_content) do
+      {:ok, metadata} -> metadata
+      {:error, _} -> %{}
+    end
+  end
+
+  defp generate_slug(source) do
+    source
+    |> String.downcase()
+    |> String.replace(~r/[^a-z0-9\s-]/, "")
+    |> String.replace(~r/\s+/, "-")
+    |> String.slice(0, 50)
+    |> String.trim("-")
+    |> ensure_slug_unique()
+  end
+
+  defp ensure_slug_unique(slug, attempt \\ 0) do
+    final_slug = if attempt > 0, do: "#{slug}-#{attempt}", else: slug
+
+    if SystemRepo.exists?(from(p in EnrichedPodcast, where: p.slug == ^final_slug)) do
+      ensure_slug_unique(slug, attempt + 1)
+    else
+      final_slug
+    end
+  end
+
+  defp add_admin_to_podcast(enriched_podcast, user_id) do
+    if user_id in (enriched_podcast.admin_user_ids || []) do
+      enriched_podcast
+    else
+      enriched_podcast
+      |> add_admin_changeset(user_id)
+      |> SystemRepo.update!()
+    end
+  end
+
+  defp add_admin_changeset(enriched_podcast, user_id) do
+    current_admins = enriched_podcast.admin_user_ids || []
+    new_admins = Enum.uniq([user_id | current_admins])
+
+    Ecto.Changeset.change(enriched_podcast, admin_user_ids: new_admins)
+  end
+
+  @doc """
+  Removes a user from podcast admins (relinquish ownership).
+  """
+  def relinquish_ownership(enriched_podcast_id, user_id) do
+    with {:ok, podcast} <- get_enriched_podcast(enriched_podcast_id),
+         true <- user_id in (podcast.admin_user_ids || []) do
+      current_admins = podcast.admin_user_ids || []
+      new_admins = Enum.reject(current_admins, &(&1 == user_id))
+
+      podcast
+      |> Ecto.Changeset.change(admin_user_ids: new_admins)
+      |> SystemRepo.update()
+    else
+      {:error, :not_found} -> {:error, :podcast_not_found}
+      false -> {:error, :not_an_admin}
+    end
+  end
+
+  ## User Settings
+
+  defp get_or_create_user_settings(user_id, enriched_podcast_id, visibility) do
+    case SystemRepo.get_by(UserPodcastSettings, user_id: user_id, enriched_podcast_id: enriched_podcast_id) do
+      nil ->
+        %UserPodcastSettings{}
+        |> UserPodcastSettings.changeset(%{
+          user_id: user_id,
+          enriched_podcast_id: enriched_podcast_id,
+          visibility: visibility
+        })
+        |> SystemRepo.insert!()
+
+      settings ->
+        settings
+    end
+  end
+
+  @doc """
+  Updates visibility setting for a user's claimed podcast.
+  """
+  def update_visibility(user_id, enriched_podcast_id, visibility) when visibility in ["public", "private"] do
+    case SystemRepo.get_by(UserPodcastSettings, user_id: user_id, enriched_podcast_id: enriched_podcast_id) do
+      nil ->
+        {:error, :settings_not_found}
+
+      settings ->
+        settings
+        |> UserPodcastSettings.changeset(%{visibility: visibility})
+        |> SystemRepo.update()
+    end
+  end
+
+  def update_visibility(_user_id, _enriched_podcast_id, _visibility) do
+    {:error, :invalid_visibility}
+  end
+
+  ## Queries
+
+  @doc """
+  Gets all podcasts administered by a user.
+  """
+  def list_user_administered_podcasts(user_id) do
+    EnrichedPodcast
+    |> where([p], ^user_id in p.admin_user_ids)
+    |> SystemRepo.all()
+  end
+
+  @doc """
+  Gets public podcasts claimed by a user (for profile display).
+  """
+  def list_user_public_podcasts(user_id) do
+    query =
+      from p in EnrichedPodcast,
+        join: s in UserPodcastSettings,
+        on: s.enriched_podcast_id == p.id,
+        where: s.user_id == ^user_id and s.visibility == "public",
+        select: p
+
+    SystemRepo.all(query)
+  end
+
+  @doc """
+  Gets pending claims for a user.
+  """
+  def list_pending_claims(user_id) do
+    PodcastOwnershipClaim
+    |> where([c], c.user_id == ^user_id and c.status == "pending")
+    |> order_by([c], desc: c.inserted_at)
+    |> SystemRepo.all()
+  end
+
+  @doc """
+  Gets a claim by ID.
+  """
+  def get_claim(claim_id) do
+    SystemRepo.get(PodcastOwnershipClaim, claim_id)
+  end
+
+  defp get_pending_claim(user_id, feed_url) do
+    PodcastOwnershipClaim
+    |> where([c], c.user_id == ^user_id and c.feed_url == ^feed_url and c.status == "pending")
+    |> SystemRepo.one()
+  end
+
+  defp get_claim_by_id(claim_id) do
+    case SystemRepo.get(PodcastOwnershipClaim, claim_id) do
+      nil -> {:error, :not_found}
+      claim -> {:ok, claim}
+    end
+  end
+
+  defp get_enriched_podcast(podcast_id) do
+    case SystemRepo.get(EnrichedPodcast, podcast_id) do
+      nil -> {:error, :not_found}
+      podcast -> {:ok, podcast}
+    end
+  end
+
+  ## Validations
+
+  defp verify_claim_ownership(claim, user_id) do
+    if claim.user_id == user_id do
+      :ok
+    else
+      {:error, :unauthorized}
+    end
+  end
+
+  defp check_claim_status(claim) do
+    cond do
+      claim.status != "pending" ->
+        {:error, :claim_not_pending}
+
+      DateTime.compare(claim.expires_at, DateTime.utc_now()) == :lt ->
+        {:error, :claim_expired}
+
+      true ->
+        :ok
+    end
+  end
+
+  defp check_rate_limit(user_id) do
+    one_hour_ago = DateTime.utc_now() |> DateTime.add(-3600, :second)
+
+    count =
+      PodcastOwnershipClaim
+      |> where([c], c.user_id == ^user_id and c.updated_at > ^one_hour_ago)
+      |> select([c], count(c.id))
+      |> SystemRepo.one()
+
+    if count >= @verification_rate_limit_per_hour do
+      {:error, :rate_limit_exceeded}
+    else
+      :ok
+    end
+  end
+
+  ## Background Jobs
+
+  @doc """
+  Expires old pending claims.
+  Should be run periodically (e.g., daily cron job).
+  """
+  def expire_old_claims do
+    now = DateTime.utc_now()
+
+    {count, _} =
+      PodcastOwnershipClaim
+      |> where([c], c.status == "pending" and c.expires_at < ^now)
+      |> SystemRepo.update_all(set: [status: "expired", updated_at: now])
+
+    Logger.info("Expired #{count} old ownership claims")
+    {:ok, count}
+  end
+end
