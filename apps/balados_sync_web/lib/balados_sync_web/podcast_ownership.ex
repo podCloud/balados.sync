@@ -25,7 +25,8 @@ defmodule BaladosSyncWeb.PodcastOwnership do
 
   import Ecto.Query
   alias BaladosSyncCore.SystemRepo
-  alias BaladosSyncProjections.Schemas.{EnrichedPodcast, PodcastOwnershipClaim, UserPodcastSettings}
+  alias BaladosSyncCore.OwnershipEmails
+  alias BaladosSyncProjections.Schemas.{EmailVerification, EnrichedPodcast, PodcastOwnershipClaim, UserPodcastSettings}
   alias BaladosSyncWeb.RssParser
 
   require Logger
@@ -389,6 +390,231 @@ defmodule BaladosSyncWeb.PodcastOwnership do
     end
   end
 
+  ## Email Verification Flow
+
+  @email_rate_limit_per_hour 3
+  @email_rate_limit_per_email_per_hour 2
+
+  @doc """
+  Extracts available contact emails from a podcast RSS feed.
+
+  Returns {:ok, emails} where emails is a list of %{email: string, source: string}.
+  Returns {:error, reason} if feed cannot be fetched or parsed.
+  """
+  def get_available_emails(feed_url) do
+    with {:ok, feed_content} <- fetch_feed_raw(feed_url),
+         {:ok, emails} <- RssParser.extract_contact_emails(feed_content) do
+      {:ok, emails}
+    end
+  end
+
+  @doc """
+  Initiates email verification for a claim.
+
+  1. Validates claim is pending and owned by user
+  2. Fetches RSS feed and extracts emails
+  3. Validates selected email exists in feed
+  4. Creates email verification record
+  5. Sends verification email
+
+  Returns {:ok, email_verification} or {:error, reason}.
+  """
+  def request_email_verification(claim_id, user_id, selected_email) do
+    with {:ok, claim} <- get_claim_by_id(claim_id),
+         :ok <- verify_claim_ownership(claim, user_id),
+         :ok <- check_claim_status(claim),
+         :ok <- check_email_rate_limit(user_id, selected_email),
+         {:ok, feed_content} <- fetch_feed_raw(claim.feed_url),
+         {:ok, emails} <- RssParser.extract_contact_emails(feed_content),
+         {:ok, email_info} <- validate_email_in_feed(selected_email, emails),
+         {:ok, metadata} <- extract_feed_metadata_safe(feed_content) do
+      # Cancel any existing pending email verification for this claim
+      cancel_pending_email_verifications(claim_id)
+
+      # Create new email verification
+      verification =
+        EmailVerification.create_changeset(user_id, claim_id, email_info.email, email_info.source)
+        |> SystemRepo.insert!()
+
+      # Send the email
+      podcast_title = metadata[:title] || "Unknown Podcast"
+
+      case OwnershipEmails.deliver_verification_email(
+             verification.email,
+             verification.verification_code,
+             podcast_title,
+             claim.feed_url
+           ) do
+        {:ok, _email} ->
+          # Mark as sent
+          {:ok, updated_verification} =
+            verification
+            |> EmailVerification.mark_sent_changeset()
+            |> SystemRepo.update()
+
+          Logger.info("Email verification sent for claim #{claim_id} to #{verification.email}")
+          {:ok, updated_verification}
+
+        {:error, reason} ->
+          Logger.error("Failed to send verification email: #{inspect(reason)}")
+          {:error, :email_send_failed}
+      end
+    end
+  end
+
+  defp validate_email_in_feed(selected_email, emails) do
+    normalized = String.downcase(selected_email)
+
+    case Enum.find(emails, fn %{email: email} -> String.downcase(email) == normalized end) do
+      nil -> {:error, :email_not_in_feed}
+      email_info -> {:ok, email_info}
+    end
+  end
+
+  defp extract_feed_metadata_safe(feed_content) do
+    case RssParser.parse_feed(feed_content) do
+      {:ok, metadata} -> {:ok, metadata}
+      {:error, _} -> {:ok, %{}}
+    end
+  end
+
+  defp cancel_pending_email_verifications(claim_id) do
+    now = DateTime.utc_now()
+
+    EmailVerification
+    |> where([v], v.claim_id == ^claim_id and v.status == "pending")
+    |> SystemRepo.update_all(set: [status: "expired", updated_at: now])
+  end
+
+  @doc """
+  Submits a verification code for email-based ownership verification.
+
+  Returns {:ok, enriched_podcast} if code is correct.
+  Returns {:error, reason} if verification fails.
+  """
+  def verify_email_code(claim_id, user_id, submitted_code) do
+    with {:ok, claim} <- get_claim_by_id(claim_id),
+         :ok <- verify_claim_ownership(claim, user_id),
+         :ok <- check_claim_status(claim),
+         {:ok, verification} <- get_pending_email_verification(claim_id),
+         :ok <- check_verification_expired(verification),
+         :ok <- check_verification_code(verification, submitted_code) do
+      # Verification successful
+      SystemRepo.transaction(fn ->
+        # Mark email verification as verified
+        verification
+        |> EmailVerification.verify_changeset()
+        |> SystemRepo.update!()
+
+        # Fetch feed content for metadata
+        {:ok, feed_content} = fetch_feed_raw(claim.feed_url)
+
+        # Get or create enriched podcast
+        enriched_podcast = get_or_create_enriched_podcast(claim.feed_url, user_id, feed_content)
+
+        # Add user as admin if not already
+        enriched_podcast = add_admin_to_podcast(enriched_podcast, user_id)
+
+        # Update claim status with email verification method
+        claim
+        |> PodcastOwnershipClaim.verify_changeset(enriched_podcast.id)
+        |> Ecto.Changeset.change(verification_method: "email")
+        |> SystemRepo.update!()
+
+        # Create user settings with default visibility
+        get_or_create_user_settings(user_id, enriched_podcast.id, "private")
+
+        Logger.info("Email verification successful for claim #{claim_id}")
+        enriched_podcast
+      end)
+    else
+      {:error, :code_mismatch} = error ->
+        # Increment attempts
+        with {:ok, verification} <- get_pending_email_verification(claim_id) do
+          verification
+          |> EmailVerification.increment_attempts_changeset()
+          |> SystemRepo.update()
+        end
+
+        error
+
+      error ->
+        error
+    end
+  end
+
+  defp get_pending_email_verification(claim_id) do
+    case SystemRepo.one(
+           from v in EmailVerification,
+             where: v.claim_id == ^claim_id and v.status in ["pending", "sent"],
+             order_by: [desc: v.inserted_at],
+             limit: 1
+         ) do
+      nil -> {:error, :no_pending_verification}
+      verification -> {:ok, verification}
+    end
+  end
+
+  defp check_verification_expired(verification) do
+    if DateTime.compare(verification.expires_at, DateTime.utc_now()) == :lt do
+      {:error, :verification_expired}
+    else
+      :ok
+    end
+  end
+
+  defp check_verification_code(verification, submitted_code) do
+    # Normalize: remove spaces and compare case-insensitively for digits
+    normalized_submitted = String.replace(submitted_code, ~r/\s+/, "")
+    normalized_stored = verification.verification_code
+
+    if normalized_submitted == normalized_stored do
+      :ok
+    else
+      {:error, :code_mismatch}
+    end
+  end
+
+  defp check_email_rate_limit(user_id, email) do
+    one_hour_ago = DateTime.utc_now() |> DateTime.add(-3600, :second)
+
+    # Rate limit per user
+    user_count =
+      EmailVerification
+      |> where([v], v.user_id == ^user_id and v.inserted_at > ^one_hour_ago)
+      |> select([v], count(v.id))
+      |> SystemRepo.one()
+
+    if user_count >= @email_rate_limit_per_hour do
+      {:error, :rate_limit_exceeded}
+    else
+      # Rate limit per email
+      email_count =
+        EmailVerification
+        |> where([v], v.email == ^email and v.inserted_at > ^one_hour_ago)
+        |> select([v], count(v.id))
+        |> SystemRepo.one()
+
+      if email_count >= @email_rate_limit_per_email_per_hour do
+        {:error, :email_rate_limit_exceeded}
+      else
+        :ok
+      end
+    end
+  end
+
+  @doc """
+  Gets the current email verification for a claim, if any.
+  """
+  def get_email_verification(claim_id) do
+    SystemRepo.one(
+      from v in EmailVerification,
+        where: v.claim_id == ^claim_id,
+        order_by: [desc: v.inserted_at],
+        limit: 1
+    )
+  end
+
   ## Background Jobs
 
   @doc """
@@ -404,6 +630,22 @@ defmodule BaladosSyncWeb.PodcastOwnership do
       |> SystemRepo.update_all(set: [status: "expired", updated_at: now])
 
     Logger.info("Expired #{count} old ownership claims")
+    {:ok, count}
+  end
+
+  @doc """
+  Expires old pending email verifications.
+  Should be run periodically (e.g., every 15 minutes).
+  """
+  def expire_old_email_verifications do
+    now = DateTime.utc_now()
+
+    {count, _} =
+      EmailVerification
+      |> where([v], v.status in ["pending", "sent"] and v.expires_at < ^now)
+      |> SystemRepo.update_all(set: [status: "expired", updated_at: now])
+
+    Logger.info("Expired #{count} old email verifications")
     {:ok, count}
   end
 end

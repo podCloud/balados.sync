@@ -93,12 +93,26 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
         |> redirect(to: ~p"/podcast-ownership")
 
       true ->
-        render(conn, :show_claim, claim: claim)
+        # Get available emails from feed for email verification option
+        available_emails =
+          case PodcastOwnership.get_available_emails(claim.feed_url) do
+            {:ok, emails} -> emails
+            {:error, _} -> []
+          end
+
+        # Get current email verification status if any
+        email_verification = PodcastOwnership.get_email_verification(claim.id)
+
+        render(conn, :show_claim,
+          claim: claim,
+          available_emails: available_emails,
+          email_verification: email_verification
+        )
     end
   end
 
   @doc """
-  Triggers verification for a pending claim.
+  Triggers verification for a pending claim (RSS method).
   """
   def verify(conn, %{"id" => claim_id}) do
     user_id = conn.assigns.current_user.id
@@ -127,6 +141,89 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
       {:error, :claim_not_pending} ->
         conn
         |> put_flash(:error, "This claim is no longer pending.")
+        |> redirect(to: ~p"/podcast-ownership")
+
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, "Verification failed: #{inspect(reason)}")
+        |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
+    end
+  end
+
+  @doc """
+  Initiates email verification for a claim.
+  """
+  def request_email_verification(conn, %{"id" => claim_id, "email" => email}) do
+    user_id = conn.assigns.current_user.id
+
+    case PodcastOwnership.request_email_verification(claim_id, user_id, email) do
+      {:ok, _verification} ->
+        conn
+        |> put_flash(:info, "Verification code sent to #{email}. Check your inbox!")
+        |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
+
+      {:error, :email_not_in_feed} ->
+        conn
+        |> put_flash(:error, "This email is not listed in the podcast's RSS feed.")
+        |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
+
+      {:error, :rate_limit_exceeded} ->
+        conn
+        |> put_flash(:error, "Too many verification requests. Please wait before trying again.")
+        |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
+
+      {:error, :email_rate_limit_exceeded} ->
+        conn
+        |> put_flash(:error, "Too many emails sent to this address. Please wait before trying again.")
+        |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
+
+      {:error, :email_send_failed} ->
+        conn
+        |> put_flash(:error, "Failed to send verification email. Please try again later.")
+        |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
+
+      {:error, :claim_expired} ->
+        conn
+        |> put_flash(:error, "This claim has expired. Please create a new one.")
+        |> redirect(to: ~p"/podcast-ownership")
+
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, "Error: #{inspect(reason)}")
+        |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
+    end
+  end
+
+  @doc """
+  Submits email verification code.
+  """
+  def verify_email_code(conn, %{"id" => claim_id, "code" => code}) do
+    user_id = conn.assigns.current_user.id
+
+    case PodcastOwnership.verify_email_code(claim_id, user_id, code) do
+      {:ok, enriched_podcast} ->
+        conn
+        |> put_flash(:info, "Email verification successful! You are now an admin of this podcast.")
+        |> redirect(to: ~p"/podcast-ownership/podcasts/#{enriched_podcast.id}")
+
+      {:error, :code_mismatch} ->
+        conn
+        |> put_flash(:error, "Invalid verification code. Please check and try again.")
+        |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
+
+      {:error, :verification_expired} ->
+        conn
+        |> put_flash(:error, "Verification code has expired. Please request a new one.")
+        |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
+
+      {:error, :no_pending_verification} ->
+        conn
+        |> put_flash(:error, "No pending email verification. Please request a verification email first.")
+        |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
+
+      {:error, :claim_expired} ->
+        conn
+        |> put_flash(:error, "This claim has expired. Please create a new one.")
         |> redirect(to: ~p"/podcast-ownership")
 
       {:error, reason} ->
