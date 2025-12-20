@@ -14,6 +14,7 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
     PlaylistUpdated,
     PlaylistReordered,
     PlaylistDeleted,
+    PlaylistVisibilityChanged,
     UserCheckpoint
   }
 
@@ -167,6 +168,24 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
         set: [position: position, updated_at: DateTime.utc_now()]
       )
     end)
+  end)
+
+  project(%PlaylistVisibilityChanged{} = event, _metadata, fn multi ->
+    Logger.info("Playlist visibility changed",
+      action: :playlist_visibility_changed,
+      user_id: event.user_id,
+      playlist_id: event.playlist_id,
+      is_public: event.is_public
+    )
+
+    Ecto.Multi.update_all(
+      multi,
+      :playlist,
+      from(p in Playlist,
+        where: p.id == ^event.playlist_id and p.user_id == ^event.user_id
+      ),
+      set: [is_public: event.is_public, updated_at: DateTime.utc_now()]
+    )
   end)
 
   project(%UserCheckpoint{} = event, _metadata, fn multi ->

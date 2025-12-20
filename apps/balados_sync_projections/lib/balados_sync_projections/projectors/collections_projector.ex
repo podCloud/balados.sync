@@ -178,6 +178,26 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
     end)
   end)
 
+  @doc """
+  Projects CollectionVisibilityChanged event to update a collection's public visibility.
+  """
+  project(%BaladosSyncCore.Events.CollectionVisibilityChanged{} = event, _metadata, fn multi ->
+    Logger.debug(
+      "Projecting CollectionVisibilityChanged for collection_id=#{event.collection_id}, is_public=#{event.is_public}"
+    )
+
+    Ecto.Multi.update_all(
+      multi,
+      :update_collection_visibility,
+      fn _ ->
+        from(c in Collection,
+          where: c.id == ^event.collection_id
+        )
+      end,
+      set: [is_public: event.is_public, updated_at: truncate_timestamp(event.timestamp)]
+    )
+  end)
+
   # Private functions
 
   @doc false

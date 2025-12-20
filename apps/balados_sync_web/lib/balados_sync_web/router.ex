@@ -95,6 +95,7 @@ defmodule BaladosSyncWeb.Router do
     get "/playlists/:id/edit", PlaylistsController, :edit
     put "/playlists/:id", PlaylistsController, :update
     delete "/playlists/:id", PlaylistsController, :delete
+    post "/playlists/:id/toggle-visibility", PlaylistsController, :toggle_visibility
 
     # Privacy Manager (HTML interface for managing podcast privacy levels)
     get "/privacy-manager", PrivacyManagerController, :index

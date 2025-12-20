@@ -8,6 +8,7 @@ defmodule BaladosSyncProjections.Schemas.Playlist do
     field :user_id, :string
     field :name, :string
     field :description, :string
+    field :is_public, :boolean, default: false
     field :deleted_at, :utc_datetime
 
     # Virtual field for optimized item counting (avoids N+1 queries)
@@ -20,7 +21,7 @@ defmodule BaladosSyncProjections.Schemas.Playlist do
 
   def changeset(playlist, attrs) do
     playlist
-    |> cast(attrs, [:user_id, :name, :description])
+    |> cast(attrs, [:user_id, :name, :description, :is_public])
     |> validate_required([:user_id, :name])
   end
 end
