@@ -498,18 +498,17 @@ defmodule BaladosSyncWeb.PodcastOwnership do
          :ok <- check_claim_status(claim),
          {:ok, verification} <- get_pending_email_verification(claim_id),
          :ok <- check_verification_expired(verification),
-         :ok <- check_verification_code(verification, submitted_code) do
-      # Verification successful
+         :ok <- check_verification_code(verification, submitted_code),
+         # Fetch feed content BEFORE transaction to avoid network calls inside DB transaction
+         {:ok, feed_content} <- fetch_feed_raw(claim.feed_url) do
+      # Verification successful - all DB operations in transaction
       SystemRepo.transaction(fn ->
         # Mark email verification as verified
         verification
         |> EmailVerification.verify_changeset()
         |> SystemRepo.update!()
 
-        # Fetch feed content for metadata
-        {:ok, feed_content} = fetch_feed_raw(claim.feed_url)
-
-        # Get or create enriched podcast
+        # Get or create enriched podcast (uses pre-fetched feed_content)
         enriched_podcast = get_or_create_enriched_podcast(claim.feed_url, user_id, feed_content)
 
         # Add user as admin if not already
