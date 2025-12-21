@@ -29,6 +29,7 @@ defmodule BaladosSyncWeb.Plugs.JWTAuth do
   """
 
   import Plug.Conn
+  import BaladosSyncWeb.ErrorHelpers, only: [unauthorized: 2, forbidden: 2]
   require Logger
 
   alias BaladosSyncWeb.AppAuth
@@ -52,16 +53,14 @@ defmodule BaladosSyncWeb.Plugs.JWTAuth do
         Logger.debug("JWT auth failed: #{inspect(error)}")
 
         conn
-        |> put_status(:forbidden)
-        |> Phoenix.Controller.json(%{error: "Insufficient permissions"})
+        |> forbidden("Insufficient permissions")
         |> halt()
 
       error ->
         Logger.debug("JWT auth failed: #{inspect(error)}")
 
         conn
-        |> put_status(:unauthorized)
-        |> Phoenix.Controller.json(%{error: "Unauthorized"})
+        |> unauthorized("Unauthorized")
         |> halt()
     end
   end

@@ -57,7 +57,7 @@ These items address gaps identified in the [architectural audit](docs/ARCHITECTU
 | API documentation (OpenAPI/Swagger) | Medium | High | Critical for third-party apps |
 | Client SDKs (JS, Swift, Kotlin) | High | High | Easier app integration |
 | Postman/Insomnia collection | Low | Medium | Quick testing for devs |
-| Better error codes | Low | Medium | Machine-readable errors |
+| ~~Better error codes~~ | ~~Low~~ | ~~Medium~~ | ✅ #136 - Added error_code field to all API errors |
 
 ---
 
