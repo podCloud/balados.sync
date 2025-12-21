@@ -14,9 +14,9 @@ These items address gaps identified in the [architectural audit](docs/ARCHITECTU
 
 | Idea | Effort | Impact | Notes |
 |------|--------|--------|-------|
-| Add tests for SyncController | Medium | High | Core sync functionality untested |
-| Add tests for PlayController | Medium | High | Play tracking needs coverage |
-| Add tests for PrivacyController | Low | Medium | Privacy management critical |
+| ~~Add tests for SyncController~~ | ~~Medium~~ | ~~High~~ | ✅ #132 - Comprehensive sync tests added |
+| ~~Add tests for PlayController~~ | ~~Medium~~ | ~~High~~ | ✅ Already has ~20 tests covering all endpoints |
+| ~~Add tests for PrivacyController~~ | ~~Low~~ | ~~Medium~~ | ✅ #127 - Privacy management tested |
 | Property-based tests with StreamData | Medium | Medium | Better edge case coverage |
 
 ### Security Hardening
