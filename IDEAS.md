@@ -47,8 +47,8 @@ These items address gaps identified in the [architectural audit](docs/ARCHITECTU
 |------|--------|--------|-------|
 | Split User aggregate | High | Medium | 1030 lines, multiple bounded contexts |
 | Extract RSS infrastructure | Medium | Low | Move from core to infra layer |
-| Centralized error handling | Medium | Medium | Create ErrorHelpers module |
-| Add missing DB indexes | Low | Low | `public_events.event_type`, `playlists.is_public` |
+| ~~Centralized error handling~~ | ~~Medium~~ | ~~Medium~~ | ✅ #124 - ErrorHelpers module created |
+| ~~Add missing DB indexes~~ | ~~Low~~ | ~~Low~~ | ✅ Indexes already exist in migrations |
 
 ### Developer Experience
 
