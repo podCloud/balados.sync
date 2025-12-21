@@ -4,10 +4,14 @@ defmodule BaladosSyncWeb.SyncController do
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.SyncUserData
   alias BaladosSyncWeb.Plugs.JWTAuth
+  alias BaladosSyncWeb.Plugs.RateLimiter
   import BaladosSyncWeb.ErrorHelpers
 
   # Scope requirements for sync - requires user.sync or full user access
   plug JWTAuth, [scopes_any: ["user.sync", "user"]] when action in [:sync]
+
+  # Rate limit: 30 requests per minute (write operation)
+  plug RateLimiter, limit: 30, window_ms: 60_000, key: :user_id, namespace: "sync"
 
   def sync(conn, params) do
     user_id = conn.assigns.current_user_id

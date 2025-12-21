@@ -29,6 +29,14 @@ defmodule BaladosSyncWeb.AppAuthController do
 
   alias BaladosSyncWeb.AppAuth
   alias BaladosSyncWeb.Scopes
+  alias BaladosSyncWeb.Plugs.RateLimiter
+
+  # Rate limit auth operations: 10 requests per minute per IP
+  plug RateLimiter,
+    limit: 10,
+    window_ms: 60_000,
+    key: :ip,
+    namespace: "auth"
 
   @doc """
   Shows the authorization page for a third-party app.
