@@ -85,6 +85,8 @@ Add tasks here. Claude will create GitHub issues for them.
 Format: `- [ ] Description - [#N](url) - STATUS`
 
 - [ ] Email verification for podcast ownership - [#69](https://github.com/podCloud/balados.sync/issues/69) - REVIEW (PR #112)
+- [ ] Public URLs for playlists/collections - [#67](https://github.com/podCloud/balados.sync/issues/67) - REVIEW (PR #113)
+- [ ] Collection management UI - [#114](https://github.com/podCloud/balados.sync/issues/114) - REVIEW (PR #115, depends on PR #113)
 
 ---
 
@@ -95,7 +97,7 @@ Format: `- [x] Description - [#N](url)`
 - [x] Podcast ownership via RSS verification code - [#68](https://github.com/podCloud/balados.sync/issues/68) - PR #110
 - [x] Enriched podcasts with slugs, branding, social links - [#65](https://github.com/podCloud/balados.sync/issues/65) - PR #107
 - [x] Public user profile page - [#66](https://github.com/podCloud/balados.sync/issues/66) - PR #108
-- [x] Public visibility for playlists and collections - [#67](https://github.com/podCloud/balados.sync/issues/67) - PR #109
+- [x] Public visibility toggle for playlists and collections - [#67](https://github.com/podCloud/balados.sync/issues/67) - PR #109
 - [x] Dynamic RSS metadata enrichment for playlists - [#29](https://github.com/podCloud/balados.sync/issues/29) - PR #106
 - [x] TypeScript test infrastructure for timeline_actions_menu - [#100](https://github.com/podCloud/balados.sync/issues/100) - PR #102
 - [x] Timeline filter TypeScript tests - [#96](https://github.com/podCloud/balados.sync/issues/96) - PR #103

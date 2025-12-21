@@ -46,11 +46,18 @@
     </div>
 
     <%= if @claim.status == "pending" do %>
-      <!-- Verification Code Section -->
-      <div class="bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8 mb-8">
-        <h2 class="text-lg font-semibold text-zinc-900 mb-4">Your Verification Code</h2>
+      <p class="text-sm text-zinc-600 mb-6">
+        Choose one of the verification methods below to prove you own this podcast.
+      </p>
 
-        <div class="bg-zinc-900 text-green-400 rounded-lg p-4 font-mono text-center mb-4 select-all">
+      <!-- Method 1: RSS Verification -->
+      <div class="bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8 mb-6">
+        <h2 class="text-lg font-semibold text-zinc-900 mb-4">
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-200 text-sm font-bold mr-2">1</span>
+          RSS Feed Verification
+        </h2>
+
+        <div class="bg-zinc-900 text-green-400 rounded-lg p-4 font-mono text-center mb-4 select-all text-sm">
           <%= @claim.verification_code %>
         </div>
 
@@ -59,22 +66,10 @@
         </p>
 
         <ul class="list-disc list-inside text-sm text-zinc-600 space-y-1 mb-4">
-          <li>An XML comment: <code class="bg-zinc-100 px-1 rounded">&lt;!-- <%= @claim.verification_code %> --&gt;</code></li>
+          <li>An XML comment: <code class="bg-zinc-100 px-1 rounded text-xs">&lt;!-- <%= @claim.verification_code %> --&gt;</code></li>
           <li>In your podcast description</li>
           <li>As a custom tag in your feed</li>
         </ul>
-
-        <p class="text-sm text-amber-600 font-medium">
-          Expires: <%= Calendar.strftime(@claim.expires_at, "%Y-%m-%d %H:%M UTC") %>
-        </p>
-      </div>
-
-      <!-- Verify Button -->
-      <div class="bg-blue-50 shadow-sm ring-1 ring-blue-200 sm:rounded-xl p-8 mb-8">
-        <h2 class="text-lg font-semibold text-blue-900 mb-4">Ready to Verify?</h2>
-        <p class="text-sm text-blue-700 mb-4">
-          After adding the code to your RSS feed, click the button below. We'll fetch your feed fresh (bypassing all caches) and check for the verification code.
-        </p>
 
         <form action={~p"/podcast-ownership/claims/#{@claim.id}/verify"} method="post">
           <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
@@ -82,14 +77,110 @@
             type="submit"
             class="w-full rounded-md bg-blue-600 px-4 py-3 text-white font-semibold hover:bg-blue-700 transition"
           >
-            Verify Now
+            Verify RSS Feed
           </button>
         </form>
 
-        <%= if @claim.verification_attempts > 0 do %>
-          <p class="text-sm text-zinc-500 mt-2 text-center">
-            Attempts: <%= @claim.verification_attempts %> / 5
-          </p>
+        <p class="text-xs text-zinc-500 mt-2 text-center">
+          Expires: <%= Calendar.strftime(@claim.expires_at, "%Y-%m-%d %H:%M UTC") %>
+        </p>
+      </div>
+
+      <!-- Method 2: Email Verification -->
+      <div class="bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8 mb-6">
+        <h2 class="text-lg font-semibold text-zinc-900 mb-4">
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-200 text-sm font-bold mr-2">2</span>
+          Email Verification
+        </h2>
+
+        <%= if length(@available_emails) > 0 do %>
+          <%= if @email_verification && @email_verification.status in ["pending", "sent"] do %>
+            <!-- Email verification in progress -->
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+              <p class="text-sm text-green-800 font-medium mb-2">
+                Verification code sent to: <%= @email_verification.email %>
+              </p>
+              <p class="text-xs text-green-700">
+                Code expires: <%= Calendar.strftime(@email_verification.expires_at, "%Y-%m-%d %H:%M UTC") %>
+              </p>
+            </div>
+
+            <form action={~p"/podcast-ownership/claims/#{@claim.id}/email-code"} method="post" class="mb-4">
+              <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+              <label class="block text-sm font-medium text-zinc-700 mb-2">
+                Enter the 6-digit code from your email:
+              </label>
+              <input
+                type="text"
+                name="code"
+                placeholder="000000"
+                maxlength="6"
+                pattern="[0-9]{6}"
+                required
+                class="w-full rounded-md border-zinc-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-center text-2xl tracking-widest font-mono mb-4"
+              />
+              <button
+                type="submit"
+                class="w-full rounded-md bg-green-600 px-4 py-3 text-white font-semibold hover:bg-green-700 transition"
+              >
+                Verify Code
+              </button>
+            </form>
+
+            <%= if @email_verification.attempts > 0 do %>
+              <p class="text-sm text-zinc-500 text-center mb-4">
+                Attempts: <%= @email_verification.attempts %> / 5
+              </p>
+            <% end %>
+
+            <div class="text-center">
+              <p class="text-sm text-zinc-600 mb-2">Didn't receive the email?</p>
+              <form action={~p"/podcast-ownership/claims/#{@claim.id}/email-verify"} method="post" class="inline">
+                <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+                <input type="hidden" name="email" value={@email_verification.email} />
+                <button type="submit" class="text-sm text-blue-600 hover:text-blue-700">
+                  Resend verification email
+                </button>
+              </form>
+            </div>
+          <% else %>
+            <!-- Select email to verify -->
+            <p class="text-sm text-zinc-600 mb-4">
+              We found the following email addresses in your podcast's RSS feed. Select one to receive a verification code:
+            </p>
+
+            <div class="space-y-2 mb-4">
+              <%= for email_info <- @available_emails do %>
+                <form action={~p"/podcast-ownership/claims/#{@claim.id}/email-verify"} method="post">
+                  <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+                  <input type="hidden" name="email" value={email_info.email} />
+                  <button
+                    type="submit"
+                    class="w-full text-left rounded-md border border-zinc-300 px-4 py-3 hover:bg-zinc-50 transition flex justify-between items-center group"
+                  >
+                    <span>
+                      <span class="font-medium"><%= email_info.email %></span>
+                      <span class="text-xs text-zinc-500 ml-2">from &lt;<%= email_info.source %>&gt;</span>
+                    </span>
+                    <span class="text-blue-600 text-sm group-hover:underline">
+                      Send code &rarr;
+                    </span>
+                  </button>
+                </form>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
+            <p class="text-sm text-zinc-600">
+              No email addresses found in your podcast's RSS feed. To use email verification, add an email to one of these fields:
+            </p>
+            <ul class="list-disc list-inside text-sm text-zinc-500 mt-2 space-y-1">
+              <li><code class="bg-zinc-100 px-1 rounded">&lt;itunes:owner&gt;&lt;itunes:email&gt;</code></li>
+              <li><code class="bg-zinc-100 px-1 rounded">&lt;managingEditor&gt;</code></li>
+              <li><code class="bg-zinc-100 px-1 rounded">&lt;webMaster&gt;</code></li>
+            </ul>
+          </div>
         <% end %>
       </div>
 

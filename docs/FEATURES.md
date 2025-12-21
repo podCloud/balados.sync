@@ -182,23 +182,34 @@ Interface web complète pour la gestion des playlists d'épisodes.
 
 ### Podcast Ownership & Verification (v2.3)
 
-Système de vérification d'ownership de podcasts via code RSS.
+Système de vérification d'ownership de podcasts via code RSS ou email.
 
-**Flux de Vérification** :
-1. L'utilisateur initie une revendication pour un podcast (URL du flux)
-2. Le système génère un code de vérification unique
-3. L'utilisateur ajoute le code n'importe où dans son flux RSS
-4. L'utilisateur déclenche la vérification
-5. Le système récupère le flux RSS brut (bypass cache) et recherche le code
-6. Si trouvé, l'ownership est accordé
-7. Le code peut être retiré du flux après vérification
+**Méthodes de Vérification** :
+
+1. **RSS Feed Verification** :
+   - L'utilisateur initie une revendication pour un podcast (URL du flux)
+   - Le système génère un code de vérification unique (`balados-verify-<hex>`)
+   - L'utilisateur ajoute le code n'importe où dans son flux RSS
+   - L'utilisateur déclenche la vérification
+   - Le système récupère le flux RSS brut (bypass cache) et recherche le code
+   - Si trouvé, l'ownership est accordé
+   - Le code peut être retiré du flux après vérification
+
+2. **Email Verification** (v2.4) :
+   - Le système extrait les emails du flux RSS (`<itunes:owner>`, `<managingEditor>`, etc.)
+   - L'utilisateur sélectionne un email pour recevoir un code à 6 chiffres
+   - Le système envoie un email avec le code de vérification
+   - L'utilisateur entre le code sur la page de claim
+   - Si le code correspond, l'ownership est accordé
 
 **Pages** :
 - `GET /podcast-ownership` - Liste des podcasts revendiqués et claims en attente
 - `GET /podcast-ownership/new` - Formulaire de revendication
 - `POST /podcast-ownership` - Initier une revendication
-- `GET /podcast-ownership/claims/:id` - Instructions de vérification
-- `POST /podcast-ownership/claims/:id/verify` - Déclencher vérification
+- `GET /podcast-ownership/claims/:id` - Instructions de vérification (RSS + Email)
+- `POST /podcast-ownership/claims/:id/verify` - Déclencher vérification RSS
+- `POST /podcast-ownership/claims/:id/email-verify` - Demander code par email
+- `POST /podcast-ownership/claims/:id/email-code` - Soumettre code email
 - `POST /podcast-ownership/claims/:id/cancel` - Annuler claim
 - `GET /podcast-ownership/podcasts/:id` - Gérer un podcast revendiqué
 - `POST /podcast-ownership/podcasts/:id/visibility` - Changer visibilité
@@ -207,12 +218,23 @@ Système de vérification d'ownership de podcasts via code RSS.
 **Tables Système** :
 - `enriched_podcasts` - Podcasts enrichis avec admin_user_ids (multi-admin)
 - `podcast_ownership_claims` - Claims en cours de vérification
+- `email_verifications` - Codes de vérification par email
 - `user_podcast_settings` - Préférences de visibilité par utilisateur
 
+**Extraction d'Emails RSS** :
+- `<itunes:owner><itunes:email>` - Email propriétaire iTunes
+- `<managingEditor>` - Email éditeur (format RFC 822)
+- `<webMaster>` - Email webmaster
+- `<author>` - Email auteur
+
 **Sécurité** :
-- Code format: `balados-verify-<random_hex_32>` (cryptographiquement sécurisé)
-- Expiration: 48 heures par défaut
-- Rate limiting: max 5 tentatives par heure par utilisateur
+- Code RSS: `balados-verify-<random_hex_32>` (cryptographiquement sécurisé)
+- Code Email: 6 chiffres numériques
+- Expiration RSS: 48 heures par défaut
+- Expiration Email: 30 minutes
+- Rate limiting RSS: max 5 tentatives par heure par utilisateur
+- Rate limiting Email: max 3 demandes par heure par utilisateur, 2 par email
+- Max 5 tentatives de code incorrect avant blocage
 - Fetch brut: bypass tous les caches, timeout 30s
 
 **Multi-Admin** :
@@ -228,9 +250,14 @@ Système de vérification d'ownership de podcasts via code RSS.
 - `OwnershipClaimCleanupWorker` - Expire les claims périmés, nettoie les vieux claims
 - Exécution quotidienne à 3h UTC
 
+**Email en Développement** :
+- Mailer Swoosh configuré avec adaptateur Local
+- Prévisualisation: `/dev/mailbox`
+
 **Modules** :
 - Context: `PodcastOwnership` (non-CQRS, tables système)
 - Controller: `PodcastOwnershipController`
+- Emails: `OwnershipEmails`
 - Schemas: `EnrichedPodcast`, `PodcastOwnershipClaim`, `UserPodcastSettings`
 - Worker: `OwnershipClaimCleanupWorker`
 

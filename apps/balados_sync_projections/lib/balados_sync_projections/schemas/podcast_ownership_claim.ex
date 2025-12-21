@@ -32,6 +32,7 @@ defmodule BaladosSyncProjections.Schemas.PodcastOwnershipClaim do
     field :expires_at, :utc_datetime
     field :failure_reason, :string
     field :verification_attempts, :integer, default: 0
+    field :verification_method, :string, default: "rss"
 
     belongs_to :enriched_podcast, BaladosSyncProjections.Schemas.EnrichedPodcast, type: :binary_id
 
@@ -50,6 +51,7 @@ defmodule BaladosSyncProjections.Schemas.PodcastOwnershipClaim do
       :expires_at,
       :failure_reason,
       :verification_attempts,
+      :verification_method,
       :enriched_podcast_id
     ])
     |> validate_required([:user_id, :feed_url, :verification_code, :expires_at])
