@@ -27,6 +27,7 @@ defmodule BaladosSyncWeb.PodcastOwnership do
   alias BaladosSyncCore.SystemRepo
   alias BaladosSyncCore.OwnershipEmails
   alias BaladosSyncProjections.Schemas.{EmailVerification, EnrichedPodcast, PodcastOwnershipClaim, UserPodcastSettings}
+  alias BaladosSyncCore.UrlValidator
   alias BaladosSyncWeb.RssParser
 
   require Logger
@@ -129,6 +130,18 @@ defmodule BaladosSyncWeb.PodcastOwnership do
   ## RSS Feed Fetching (Bypass Cache)
 
   defp fetch_feed_raw(feed_url) do
+    # Validate URL before fetching to prevent SSRF attacks
+    case UrlValidator.validate_rss_url(feed_url) do
+      :ok ->
+        do_fetch_raw(feed_url)
+
+      {:error, reason} ->
+        Logger.warning("Feed fetch blocked by URL validation: #{reason} for #{feed_url}")
+        {:error, :url_blocked}
+    end
+  end
+
+  defp do_fetch_raw(feed_url) do
     # Use HTTPoison with cache-busting headers
     headers = [
       {"Cache-Control", "no-cache, no-store, must-revalidate"},
