@@ -4,6 +4,7 @@ defmodule BaladosSyncWeb.EpisodeController do
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.{SaveEpisode, ShareEpisode}
   alias BaladosSyncWeb.Plugs.JWTAuth
+  import BaladosSyncWeb.ErrorHelpers
 
   # Scope requirements for episode operations
   # Save and share are write operations that affect play status
@@ -29,9 +30,7 @@ defmodule BaladosSyncWeb.EpisodeController do
         json(conn, %{status: "success"})
 
       {:error, reason} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{error: inspect(reason)})
+        handle_dispatch_error(conn, reason)
     end
   end
 
@@ -54,9 +53,7 @@ defmodule BaladosSyncWeb.EpisodeController do
         json(conn, %{status: "success"})
 
       {:error, reason} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{error: inspect(reason)})
+        handle_dispatch_error(conn, reason)
     end
   end
 end

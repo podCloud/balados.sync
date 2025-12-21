@@ -6,6 +6,7 @@ defmodule BaladosSyncWeb.PrivacyController do
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.UserPrivacy
   alias BaladosSyncWeb.Plugs.JWTAuth
+  import BaladosSyncWeb.ErrorHelpers
   import Ecto.Query
 
   # Scope requirements for privacy settings
@@ -45,9 +46,7 @@ defmodule BaladosSyncWeb.PrivacyController do
         json(conn, %{status: "success"})
 
       {:error, reason} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{error: inspect(reason)})
+        handle_dispatch_error(conn, reason)
     end
   end
 

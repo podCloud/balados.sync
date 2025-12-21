@@ -30,6 +30,7 @@ defmodule BaladosSyncWeb.PlayController do
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.PlayStatus
   alias BaladosSyncWeb.Plugs.JWTAuth
+  import BaladosSyncWeb.ErrorHelpers
   import Ecto.Query
 
   # Scope requirements for play status management
@@ -92,9 +93,7 @@ defmodule BaladosSyncWeb.PlayController do
         json(conn, %{status: "success"})
 
       {:error, reason} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{error: inspect(reason)})
+        handle_dispatch_error(conn, reason)
     end
   end
 
@@ -146,9 +145,7 @@ defmodule BaladosSyncWeb.PlayController do
         json(conn, %{status: "success"})
 
       {:error, reason} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{error: inspect(reason)})
+        handle_dispatch_error(conn, reason)
     end
   end
 
