@@ -361,6 +361,7 @@ git pull origin main
 - Public User Profiles (v2.2) ✅ [#66](https://github.com/podCloud/balados.sync/issues/66)
 - Public Visibility for Playlists/Collections (v2.3) ✅ [#67](https://github.com/podCloud/balados.sync/issues/67)
 - Podcast Ownership & Verification (v2.4) ✅ [#68](https://github.com/podCloud/balados.sync/issues/68)
+- Email Verification for Ownership (v2.5) ✅ [#69](https://github.com/podCloud/balados.sync/issues/69)
 
 ---
 

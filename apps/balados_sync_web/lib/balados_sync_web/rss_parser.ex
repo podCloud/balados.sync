@@ -86,6 +86,87 @@ defmodule BaladosSyncWeb.RssParser do
     end
   end
 
+  @doc """
+  Extracts email addresses from RSS feed for ownership verification.
+
+  Searches for emails in:
+  - `<itunes:owner><itunes:email>`
+  - `<managingEditor>` (may contain "email (name)" format)
+  - `<webMaster>` (may contain "email (name)" format)
+  - `<author>`
+  - `<itunes:author>` (if contains email format)
+
+  Returns a list of maps with :email and :source keys.
+
+  ## Example
+      iex> {:ok, emails} = RssParser.extract_contact_emails(xml)
+      [%{email: "podcast@example.com", source: "itunes:owner"}]
+  """
+  def extract_contact_emails(xml_string) when is_binary(xml_string) do
+    doc = SweetXml.parse(xml_string)
+    extract_feed_emails(doc)
+  rescue
+    e ->
+      Logger.error("Email extraction error: #{inspect(e)}")
+      {:error, :parse_failed}
+  end
+
+  defp extract_feed_emails(doc) do
+    emails =
+      []
+      |> maybe_add_email(extract_itunes_owner_email(doc), "itunes:owner")
+      |> maybe_add_email(extract_email_from_field(doc, ~x"//rss/channel/managingEditor/text()"), "managingEditor")
+      |> maybe_add_email(extract_email_from_field(doc, ~x"//rss/channel/webMaster/text()"), "webMaster")
+      |> maybe_add_email(extract_email_from_text(extract_text(doc, ~x"//rss/channel/author/text()")), "author")
+      |> maybe_add_email(extract_email_from_text(extract_text(doc, ~x"//rss/channel/itunes:author/text()")), "itunes:author")
+      |> Enum.uniq_by(fn %{email: email} -> String.downcase(email) end)
+
+    {:ok, emails}
+  end
+
+  defp extract_itunes_owner_email(doc) do
+    extract_text(doc, ~x"//rss/channel/itunes:owner/itunes:email/text()")
+    |> validate_email()
+  end
+
+  defp extract_email_from_field(doc, xpath) do
+    case extract_text(doc, xpath) do
+      nil -> nil
+      text -> extract_email_from_text(text)
+    end
+  end
+
+  defp extract_email_from_text(nil), do: nil
+
+  defp extract_email_from_text(text) do
+    # Try to find email in text (handles "email (name)" or "name <email>" formats)
+    email_regex = ~r/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+
+    case Regex.run(email_regex, text) do
+      [email] -> validate_email(email)
+      _ -> nil
+    end
+  end
+
+  @email_validation_regex ~r/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+  defp validate_email(nil), do: nil
+
+  defp validate_email(email) when is_binary(email) do
+    email = String.trim(email)
+
+    if Regex.match?(@email_validation_regex, email) do
+      email
+    else
+      nil
+    end
+  end
+
+  defp maybe_add_email(list, nil, _source), do: list
+
+  defp maybe_add_email(list, email, source) do
+    [%{email: email, source: source} | list]
+  end
+
   defp extract_feed_cover(doc) do
     # Try iTunes image first, then RSS image
     src =
