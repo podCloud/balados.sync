@@ -45,6 +45,8 @@ defmodule BaladosSyncWeb.Plugs.JWTAuth do
       |> assign(:app_token, app_token)
       |> assign(:app_id, claims["iss"])
       |> assign(:jwt_claims, claims)
+      |> assign(:device_id, claims["device_id"] || app_token.app_id)
+      |> assign(:device_name, claims["device_name"] || app_token.app_name)
     else
       {:error, :insufficient_scopes} = error ->
         Logger.debug("JWT auth failed: #{inspect(error)}")
