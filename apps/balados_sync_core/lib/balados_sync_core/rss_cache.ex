@@ -4,6 +4,7 @@ defmodule BaladosSyncCore.RssCache do
   """
   require Logger
   alias BaladosSyncCore.RssParser
+  alias BaladosSyncCore.UrlValidator
 
   @cache_name :rss_feed_cache
   @cache_ttl :timer.minutes(5)
@@ -91,8 +92,20 @@ defmodule BaladosSyncCore.RssCache do
     end
   end
 
-  # Fetch HTTP d'un flux RSS
+  # Fetch HTTP d'un flux RSS with SSRF protection
   defp fetch_from_url(url) do
+    # Validate URL before fetching to prevent SSRF attacks
+    case UrlValidator.validate_rss_url(url) do
+      :ok ->
+        do_fetch(url)
+
+      {:error, reason} ->
+        Logger.warning("RSS fetch blocked by URL validation: #{reason} for #{url}")
+        {:error, :url_blocked}
+    end
+  end
+
+  defp do_fetch(url) do
     case HTTPoison.get(url, [], follow_redirect: true, timeout: 10_000, recv_timeout: 10_000) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         {:ok, body}
