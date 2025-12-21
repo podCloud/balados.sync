@@ -2,7 +2,7 @@ defmodule BaladosSyncWeb.SyncControllerTest do
   use BaladosSyncWeb.ConnCase
 
   alias BaladosSyncCore.Dispatcher
-  alias BaladosSyncCore.Commands.{Subscribe, RecordPlay}
+  alias BaladosSyncCore.Commands.{Subscribe, RecordPlay, CreatePlaylist}
   alias BaladosSyncWeb.JwtTestHelper
 
   @moduletag :sync_controller
@@ -359,6 +359,206 @@ defmodule BaladosSyncWeb.SyncControllerTest do
         assert Map.has_key?(ps, "played")
         assert Map.has_key?(ps, "updated_at")
       end
+    end
+  end
+
+  describe "POST /api/v1/sync - playlist sync" do
+    test "syncs new playlist from client", %{conn: conn, user_id: user_id} do
+      playlist_id = Ecto.UUID.generate()
+
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.sync"])
+        |> post("/api/v1/sync", %{
+          "playlists" => [
+            %{
+              "id" => playlist_id,
+              "name" => "My Synced Playlist",
+              "description" => "A playlist synced from client",
+              "is_public" => false,
+              "items" => [],
+              "updated_at" => DateTime.utc_now() |> DateTime.to_iso8601()
+            }
+          ]
+        })
+
+      response = json_response(conn, 200)
+      assert response["status"] == "success"
+      assert is_list(response["data"]["playlists"])
+
+      # Verify playlist was created
+      playlists = response["data"]["playlists"]
+      synced_playlist = Enum.find(playlists, fn p -> p["id"] == playlist_id end)
+      assert synced_playlist["name"] == "My Synced Playlist"
+    end
+
+    test "syncs playlist with items from client", %{conn: conn, user_id: user_id} do
+      playlist_id = Ecto.UUID.generate()
+      feed = "aHR0cHM6Ly9wbGF5bGlzdC5leGFtcGxlLmNvbS9mZWVk"
+      item = "aHR0cHM6Ly9wbGF5bGlzdC5leGFtcGxlLmNvbS9lcGlzb2RlMQ=="
+
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.sync"])
+        |> post("/api/v1/sync", %{
+          "playlists" => [
+            %{
+              "id" => playlist_id,
+              "name" => "Playlist With Items",
+              "items" => [
+                %{
+                  "rss_source_feed" => feed,
+                  "rss_source_item" => item,
+                  "item_title" => "Episode 1",
+                  "feed_title" => "My Podcast",
+                  "position" => 0
+                }
+              ],
+              "updated_at" => DateTime.utc_now() |> DateTime.to_iso8601()
+            }
+          ]
+        })
+
+      response = json_response(conn, 200)
+      assert response["status"] == "success"
+
+      # Verify playlist has items
+      playlists = response["data"]["playlists"]
+      synced_playlist = Enum.find(playlists, fn p -> p["id"] == playlist_id end)
+      assert synced_playlist != nil
+      assert length(synced_playlist["items"]) == 1
+    end
+
+    test "syncs deleted playlist from client", %{conn: conn, user_id: user_id} do
+      # First create a playlist via command
+      playlist_id = Ecto.UUID.generate()
+
+      Dispatcher.dispatch(%CreatePlaylist{
+        user_id: user_id,
+        name: "To Be Deleted",
+        playlist_id: playlist_id,
+        event_infos: %{}
+      })
+
+      # Wait for projection to complete (eventual consistency)
+      Process.sleep(300)
+
+      # Now sync with deleted_at
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.sync"])
+        |> post("/api/v1/sync", %{
+          "playlists" => [
+            %{
+              "id" => playlist_id,
+              "name" => "To Be Deleted",
+              "deleted_at" => DateTime.utc_now() |> DateTime.to_iso8601(),
+              "updated_at" => DateTime.utc_now() |> DateTime.to_iso8601()
+            }
+          ]
+        })
+
+      response = json_response(conn, 200)
+      assert response["status"] == "success"
+
+      # Verify playlist is no longer in active list
+      playlists = response["data"]["playlists"]
+      deleted_playlist = Enum.find(playlists, fn p -> p["id"] == playlist_id end)
+      assert deleted_playlist == nil
+    end
+
+    test "older client update does not overwrite newer server data", %{conn: conn, user_id: user_id} do
+      # Create a playlist directly in projections (server-side data)
+      playlist_id = Ecto.UUID.generate()
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      # First sync to create the playlist with current timestamp
+      conn1 =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.sync"])
+        |> post("/api/v1/sync", %{
+          "playlists" => [
+            %{
+              "id" => playlist_id,
+              "name" => "Server Playlist",
+              "updated_at" => now |> DateTime.to_iso8601()
+            }
+          ]
+        })
+
+      assert json_response(conn1, 200)["status"] == "success"
+
+      # Try to sync with older data (1 hour ago)
+      old_time = DateTime.add(now, -3600, :second)
+
+      conn2 =
+        build_conn()
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.sync"])
+        |> post("/api/v1/sync", %{
+          "playlists" => [
+            %{
+              "id" => playlist_id,
+              "name" => "Old Client Name",
+              "updated_at" => old_time |> DateTime.to_iso8601()
+            }
+          ]
+        })
+
+      response = json_response(conn2, 200)
+      assert response["status"] == "success"
+
+      # Server name should be preserved (not overwritten by older client data)
+      playlists = response["data"]["playlists"]
+      playlist = Enum.find(playlists, fn p -> p["id"] == playlist_id end)
+      assert playlist["name"] == "Server Playlist"
+    end
+
+    test "handles playlist sync with subscriptions and play statuses", %{conn: conn, user_id: user_id} do
+      playlist_id = Ecto.UUID.generate()
+      feed = "aHR0cHM6Ly9jb21iaW5lZC5leGFtcGxlLmNvbS9mZWVk"
+      item = "aHR0cHM6Ly9jb21iaW5lZC5leGFtcGxlLmNvbS9lcGlzb2RlMQ=="
+
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.sync"])
+        |> post("/api/v1/sync", %{
+          "subscriptions" => [
+            %{
+              "rss_source_feed" => feed,
+              "rss_source_id" => "combined-podcast",
+              "subscribed_at" => DateTime.utc_now() |> DateTime.to_iso8601()
+            }
+          ],
+          "play_statuses" => [
+            %{
+              "rss_source_feed" => feed,
+              "rss_source_item" => item,
+              "position" => 600,
+              "played" => false,
+              "updated_at" => DateTime.utc_now() |> DateTime.to_iso8601()
+            }
+          ],
+          "playlists" => [
+            %{
+              "id" => playlist_id,
+              "name" => "Combined Playlist",
+              "items" => [
+                %{
+                  "rss_source_feed" => feed,
+                  "rss_source_item" => item,
+                  "position" => 0
+                }
+              ],
+              "updated_at" => DateTime.utc_now() |> DateTime.to_iso8601()
+            }
+          ]
+        })
+
+      response = json_response(conn, 200)
+      assert response["status"] == "success"
+      assert is_list(response["data"]["subscriptions"])
+      assert is_list(response["data"]["play_statuses"])
+      assert is_list(response["data"]["playlists"])
     end
   end
 end
