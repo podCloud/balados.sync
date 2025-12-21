@@ -92,6 +92,10 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] Sanitize error messages to prevent information leakage - [#124](https://github.com/podCloud/balados.sync/issues/124) - PR #130
+- [x] Extend rate limiting to all API endpoints - [#123](https://github.com/podCloud/balados.sync/issues/123) - PR #129
+- [x] Add input validation for RSS feed URLs (SSRF prevention) - [#122](https://github.com/podCloud/balados.sync/issues/122) - PR #128
+- [x] Add comprehensive tests for PrivacyController - [#121](https://github.com/podCloud/balados.sync/issues/121) - PR #127
 - [x] Admin Panel pour Flux Enrichis - [#26](https://github.com/podCloud/balados.sync/issues/26) - via PRs #107, #110, #112
 - [x] Integration tests for email verification - [#116](https://github.com/podCloud/balados.sync/issues/116) - PR #118
 - [x] Email verification for podcast ownership - [#69](https://github.com/podCloud/balados.sync/issues/69) - PR #112
