@@ -31,6 +31,7 @@ defmodule BaladosSyncWeb.SubscriptionController do
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.Subscription
   alias BaladosSyncWeb.Plugs.JWTAuth
+  import BaladosSyncWeb.ErrorHelpers
   import Ecto.Query
 
   # Scope requirements for subscription management
@@ -89,9 +90,7 @@ defmodule BaladosSyncWeb.SubscriptionController do
         json(conn, %{status: "success"})
 
       {:error, reason} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{error: inspect(reason)})
+        handle_dispatch_error(conn, reason)
     end
   end
 
@@ -143,9 +142,7 @@ defmodule BaladosSyncWeb.SubscriptionController do
         json(conn, %{status: "success"})
 
       {:error, reason} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{error: inspect(reason)})
+        handle_dispatch_error(conn, reason)
     end
   end
 

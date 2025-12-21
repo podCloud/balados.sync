@@ -4,6 +4,7 @@ defmodule BaladosSyncWeb.SyncController do
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.SyncUserData
   alias BaladosSyncWeb.Plugs.JWTAuth
+  import BaladosSyncWeb.ErrorHelpers
 
   # Scope requirements for sync - requires user.sync or full user access
   plug JWTAuth, [scopes_any: ["user.sync", "user"]] when action in [:sync]
@@ -33,9 +34,7 @@ defmodule BaladosSyncWeb.SyncController do
         })
 
       {:error, reason} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{error: inspect(reason)})
+        handle_dispatch_error(conn, reason)
     end
   end
 
