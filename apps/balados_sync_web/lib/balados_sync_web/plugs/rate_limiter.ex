@@ -170,6 +170,7 @@ defmodule BaladosSyncWeb.Plugs.RateLimiter do
     |> put_resp_content_type("application/json")
     |> send_resp(429, Jason.encode!(%{
       error: "rate_limit_exceeded",
+      error_code: "RATE_LIMIT_EXCEEDED",
       message: "Too many requests. Please try again later.",
       retry_after_seconds: retry_after_seconds
     }))

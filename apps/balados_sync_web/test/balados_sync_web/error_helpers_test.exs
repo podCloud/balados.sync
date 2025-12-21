@@ -50,7 +50,7 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
   end
 
   describe "handle_error/3" do
-    test "returns sanitized JSON error response" do
+    test "returns sanitized JSON error response with error_code" do
       conn =
         build_conn(:post, "/test")
         |> handle_error(:invalid_input)
@@ -58,6 +58,7 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
       assert conn.status == 422
       body = Jason.decode!(conn.resp_body)
       assert body["error"] == "Invalid input"
+      assert body["error_code"] == "VALIDATION_ERROR"
     end
 
     test "uses custom status when provided" do
@@ -66,6 +67,8 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
         |> handle_error(:not_found, status: 404)
 
       assert conn.status == 404
+      body = Jason.decode!(conn.resp_body)
+      assert body["error_code"] == "NOT_FOUND"
     end
 
     test "uses custom message when provided" do
@@ -76,10 +79,19 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
       body = Jason.decode!(conn.resp_body)
       assert body["error"] == "Custom error message"
     end
+
+    test "uses explicit error code when provided" do
+      conn =
+        build_conn(:post, "/test")
+        |> handle_error(:some_error, code: "CUSTOM_CODE")
+
+      body = Jason.decode!(conn.resp_body)
+      assert body["error_code"] == "CUSTOM_CODE"
+    end
   end
 
   describe "handle_dispatch_error/2" do
-    test "returns 422 with sanitized error" do
+    test "returns 422 with sanitized error and VALIDATION_ERROR code" do
       conn =
         build_conn(:post, "/test")
         |> handle_dispatch_error(:command_failed)
@@ -87,11 +99,12 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
       assert conn.status == 422
       body = Jason.decode!(conn.resp_body)
       assert body["error"] == "Command failed"
+      assert body["error_code"] == "VALIDATION_ERROR"
     end
   end
 
   describe "internal_server_error/2" do
-    test "returns 500 with generic message" do
+    test "returns 500 with generic message and INTERNAL_ERROR code" do
       conn =
         build_conn(:get, "/test")
         |> internal_server_error()
@@ -99,6 +112,7 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
       assert conn.status == 500
       body = Jason.decode!(conn.resp_body)
       assert body["error"] == "Internal server error"
+      assert body["error_code"] == "INTERNAL_ERROR"
     end
 
     test "logs the reason when provided" do
@@ -108,6 +122,77 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
         |> internal_server_error(:database_connection_failed)
 
       assert conn.status == 500
+    end
+  end
+
+  describe "unauthorized/2" do
+    test "returns 401 with UNAUTHORIZED code" do
+      conn =
+        build_conn(:get, "/test")
+        |> unauthorized()
+
+      assert conn.status == 401
+      body = Jason.decode!(conn.resp_body)
+      assert body["error"] == "Unauthorized"
+      assert body["error_code"] == "UNAUTHORIZED"
+    end
+
+    test "uses custom message" do
+      conn =
+        build_conn(:get, "/test")
+        |> unauthorized("Invalid token")
+
+      body = Jason.decode!(conn.resp_body)
+      assert body["error"] == "Invalid token"
+      assert body["error_code"] == "UNAUTHORIZED"
+    end
+  end
+
+  describe "forbidden/2" do
+    test "returns 403 with FORBIDDEN code" do
+      conn =
+        build_conn(:get, "/test")
+        |> forbidden()
+
+      assert conn.status == 403
+      body = Jason.decode!(conn.resp_body)
+      assert body["error"] == "Insufficient permissions"
+      assert body["error_code"] == "FORBIDDEN"
+    end
+  end
+
+  describe "not_found/2" do
+    test "returns 404 with NOT_FOUND code" do
+      conn =
+        build_conn(:get, "/test")
+        |> not_found()
+
+      assert conn.status == 404
+      body = Jason.decode!(conn.resp_body)
+      assert body["error"] == "Not found"
+      assert body["error_code"] == "NOT_FOUND"
+    end
+  end
+
+  describe "rate_limit_exceeded/2" do
+    test "returns 429 with RATE_LIMIT_EXCEEDED code" do
+      conn =
+        build_conn(:get, "/test")
+        |> rate_limit_exceeded()
+
+      assert conn.status == 429
+      body = Jason.decode!(conn.resp_body)
+      assert body["error"] == "rate_limit_exceeded"
+      assert body["error_code"] == "RATE_LIMIT_EXCEEDED"
+      assert get_resp_header(conn, "retry-after") == ["60"]
+    end
+
+    test "uses custom retry-after value" do
+      conn =
+        build_conn(:get, "/test")
+        |> rate_limit_exceeded(120)
+
+      assert get_resp_header(conn, "retry-after") == ["120"]
     end
   end
 end

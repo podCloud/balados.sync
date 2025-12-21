@@ -26,22 +26,26 @@ defmodule BaladosSyncWeb.PlayControllerTest do
   end
 
   describe "POST /api/v1/play - authentication" do
-    test "returns 401 without authorization header", %{conn: conn} do
+    test "returns 401 with UNAUTHORIZED error code", %{conn: conn} do
       conn = post(conn, "/api/v1/play", %{})
 
-      assert json_response(conn, 401)["error"] == "Unauthorized"
+      response = json_response(conn, 401)
+      assert response["error"] == "Unauthorized"
+      assert response["error_code"] == "UNAUTHORIZED"
     end
 
-    test "returns 401 with invalid JWT", %{conn: conn} do
+    test "returns 401 with invalid JWT and error code", %{conn: conn} do
       conn =
         conn
         |> put_req_header("authorization", "Bearer invalid.jwt.token")
         |> post("/api/v1/play", %{})
 
-      assert json_response(conn, 401)["error"] == "Unauthorized"
+      response = json_response(conn, 401)
+      assert response["error"] == "Unauthorized"
+      assert response["error_code"] == "UNAUTHORIZED"
     end
 
-    test "returns 403 with insufficient scopes (read-only)", %{conn: conn, user_id: user_id} do
+    test "returns 403 with FORBIDDEN error code (read-only scope)", %{conn: conn, user_id: user_id} do
       conn =
         conn
         |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.plays.read"])
@@ -52,7 +56,9 @@ defmodule BaladosSyncWeb.PlayControllerTest do
           "played" => false
         })
 
-      assert json_response(conn, 403)["error"] == "Insufficient permissions"
+      response = json_response(conn, 403)
+      assert response["error"] == "Insufficient permissions"
+      assert response["error_code"] == "FORBIDDEN"
     end
 
     test "succeeds with user.plays.write scope", %{conn: conn, user_id: user_id} do
