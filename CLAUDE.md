@@ -45,6 +45,8 @@ mix phx.server    # http://localhost:4000
 |----------|---------|
 | [**docs/GOALS.md**](docs/GOALS.md) | Objectifs et vision |
 | [**docs/FEATURES.md**](docs/FEATURES.md) | Fonctionnalités implémentées |
+| [**docs/ARCHITECTURAL_AUDIT.md**](docs/ARCHITECTURAL_AUDIT.md) | Audit architectural (2025-12-21) |
+| [**IDEAS.md**](IDEAS.md) | Idées et roadmap futures |
 | [**docs/technical/ARCHITECTURE.md**](docs/technical/ARCHITECTURE.md) | Architecture système |
 | [**docs/technical/DEVELOPMENT.md**](docs/technical/DEVELOPMENT.md) | Workflow et commandes |
 | [**docs/technical/AUTH_SYSTEM.md**](docs/technical/AUTH_SYSTEM.md) | Autorisation JWT |

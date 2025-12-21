@@ -200,5 +200,5 @@ Le projet sert aussi de terrain d'apprentissage pour :
 
 ---
 
-**Dernière mise à jour** : 2025-11-24
-**Statut** : 🟡 En développement actif - Phase de stabilisation
+**Dernière mise à jour** : 2025-12-21
+**Statut** : 🟢 En développement actif - Core features complete, stabilization ongoing

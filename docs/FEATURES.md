@@ -2,6 +2,8 @@
 
 Documentation complète de toutes les fonctionnalités implémentées, organisées par domaine.
 
+**Last Updated**: 2025-12-21 | **See also**: [Architectural Audit](ARCHITECTURAL_AUDIT.md) | [Ideas & Roadmap](../IDEAS.md)
+
 ---
 
 ## 🔐 Authentification & Autorisation
