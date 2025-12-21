@@ -41,10 +41,13 @@ defmodule BaladosSyncWeb.Endpoint do
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
+  # Request body size limit to prevent memory exhaustion attacks
+  # 1 MB is sufficient for JSON API payloads (sync data, play positions, etc.)
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
-    json_decoder: Phoenix.json_library()
+    json_decoder: Phoenix.json_library(),
+    length: 1_000_000
 
   plug Plug.MethodOverride
   plug Plug.Head

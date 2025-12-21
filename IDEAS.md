@@ -23,10 +23,10 @@ These items address gaps identified in the [architectural audit](docs/ARCHITECTU
 
 | Idea | Effort | Impact | Notes |
 |------|--------|--------|-------|
-| Input validation for RSS URLs | Low | High | Prevent SSRF attacks |
-| Rate limiting on API endpoints | Low | High | Extend Hammer usage |
-| Sanitize error messages | Low | Medium | Stop exposing `inspect(reason)` |
-| Request body size limits | Low | Medium | Prevent memory exhaustion |
+| ~~Input validation for RSS URLs~~ | ~~Low~~ | ~~High~~ | ✅ #122 - SSRF prevention |
+| ~~Rate limiting on API endpoints~~ | ~~Low~~ | ~~High~~ | ✅ #123 - Hammer usage extended |
+| ~~Sanitize error messages~~ | ~~Low~~ | ~~Medium~~ | ✅ #124 - ErrorHelpers module |
+| ~~Request body size limits~~ | ~~Low~~ | ~~Medium~~ | ✅ #133 - 1MB limit in Plug.Parsers |
 
 ---
 
