@@ -160,7 +160,7 @@ defmodule BaladosSyncWeb.AppAuth do
   Returns {:ok, %{claims: claims, app_token: app_token}} or {:error, reason}
   """
   def verify_app_request(token) do
-    with {:ok, claims} <- Joken.peek_claims(token),
+    with {:ok, claims} <- safe_peek_claims(token),
          {:ok, app_id} <- extract_app_id(claims),
          {:ok, user_id} <- extract_user_id(claims),
          {:ok, app_token} <- get_active_token(user_id, app_id),
@@ -172,6 +172,13 @@ defmodule BaladosSyncWeb.AppAuth do
       {:error, reason} -> {:error, reason}
       _ -> {:error, :invalid_token}
     end
+  end
+
+  # Safely peek at JWT claims, catching any parsing errors
+  defp safe_peek_claims(token) do
+    Joken.peek_claims(token)
+  rescue
+    _ -> {:error, :invalid_token_format}
   end
 
   @doc """
