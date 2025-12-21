@@ -134,9 +134,9 @@ Items from code analysis that should be addressed:
 
 | Item | Location | Priority |
 |------|----------|----------|
-| TODO: implement sync structure | `sync_controller.ex:64` | High |
-| TODO: playlists documentation | `user.ex:25` | Low |
-| TODO: Sync playlists not implemented | `user.ex:349` | High |
+| ~~TODO: implement sync structure~~ | ~~`sync_controller.ex:64`~~ | ~~High~~ ✅ #131 |
+| ~~TODO: playlists documentation~~ | ~~`user.ex:25`~~ | ~~Low~~ ✅ #131 |
+| ~~TODO: Sync playlists not implemented~~ | ~~`user.ex:349`~~ | ~~High~~ ✅ #131 |
 | TODO: Switch to Argon2 | `user.ex:88` | Medium |
 | TODO: EventStore API simplification | `snapshot_worker.ex:38` | Low |
 | Duplicate code in RSS aggregation | `rss_aggregate_controller.ex` | Low |

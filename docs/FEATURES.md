@@ -550,6 +550,84 @@ Responses :
 
 ---
 
+### REST Sync API (v2.6)
+
+API REST pour synchronisation bidirectionnelle des données utilisateur (subscriptions, play statuses, playlists).
+
+**Endpoint** : `POST /api/v1/sync`
+
+**Authentication** : JWT avec scope `user.sync` ou `user`
+
+**Rate Limiting** : 30 requêtes/minute
+
+**Request Body** :
+```json
+{
+  "subscriptions": [
+    {
+      "rss_source_feed": "base64_encoded_feed",
+      "rss_source_id": "podcast-id",
+      "subscribed_at": "2025-12-21T10:00:00Z",
+      "unsubscribed_at": null
+    }
+  ],
+  "play_statuses": [
+    {
+      "rss_source_feed": "base64_encoded_feed",
+      "rss_source_item": "base64_encoded_item",
+      "position": 300,
+      "played": false,
+      "updated_at": "2025-12-21T10:00:00Z"
+    }
+  ],
+  "playlists": [
+    {
+      "id": "uuid",
+      "name": "My Playlist",
+      "description": "Optional description",
+      "is_public": false,
+      "items": [
+        {
+          "rss_source_feed": "base64_encoded_feed",
+          "rss_source_item": "base64_encoded_item",
+          "item_title": "Episode Title",
+          "feed_title": "Podcast Title",
+          "position": 0
+        }
+      ],
+      "updated_at": "2025-12-21T10:00:00Z",
+      "deleted_at": null
+    }
+  ]
+}
+```
+
+**Response** :
+```json
+{
+  "status": "success",
+  "data": {
+    "subscriptions": [...],
+    "play_statuses": [...],
+    "playlists": [...]
+  }
+}
+```
+
+**Merge Logic** :
+- Bidirectional merge based on timestamps
+- Client data with newer `updated_at` wins
+- Server data preserved if more recent
+- `deleted_at` tracked for 45 days for sync propagation
+- Soft deletes for playlists and playlist items
+
+**Modules** :
+- `SyncController` - REST endpoint
+- Direct projection updates via `Ecto.Multi`
+- No event emission (direct DB merge)
+
+---
+
 ## 🔐 Gestion de la Confidentialité
 
 ### Privacy Choice Modal (v1.4)

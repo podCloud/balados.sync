@@ -22,7 +22,7 @@ defmodule BaladosSyncCore.Aggregates.User do
   - `privacy` - Privacy level: `:public`, `:anonymous`, or `:private`
   - `subscriptions` - Map of `%{feed => %{subscribed_at, unsubscribed_at, rss_source_id}}`
   - `play_statuses` - Map of `%{item => %{position, played, updated_at, rss_source_feed}}`
-  - `playlists` - Map of `%{playlist_id => %{name, items}}` (TODO)
+  - `playlists` - Map of `%{playlist_id => %{name, description, items, is_public}}`
 
   ## Command Flow
 
@@ -336,19 +336,10 @@ defmodule BaladosSyncCore.Aggregates.User do
     }
   end
 
-  # SyncUserData - Génère plusieurs events selon les diffs
-  def execute(%__MODULE__{} = user, %SyncUserData{} = cmd) do
-    events = []
-
-    # Sync des subscriptions
-    events = events ++ sync_subscriptions(user, cmd.subscriptions, cmd)
-
-    # Sync des play_statuses
-    events = events ++ sync_play_statuses(user, cmd.play_statuses, cmd)
-
-    # TODO: Sync des playlists quand implémenté
-
-    events
+  # SyncUserData - No-op at aggregate level
+  # All sync operations are handled directly in projections by SyncController
+  def execute(%__MODULE__{} = _user, %SyncUserData{} = _cmd) do
+    []
   end
 
   # Snapshot
@@ -857,156 +848,6 @@ defmodule BaladosSyncCore.Aggregates.User do
   def apply(%__MODULE__{} = user, _event), do: user
 
   # Helpers privés
-  defp sync_subscriptions(user, synced_subs, cmd) do
-    current_subs = user.subscriptions || %{}
-
-    Enum.flat_map(synced_subs, fn {feed, synced_sub} ->
-      case Map.get(current_subs, feed) do
-        nil ->
-          # Subscription inconnue, on émet subscribe
-          [
-            %UserSubscribed{
-              user_id: user.user_id,
-              rss_source_feed: feed,
-              rss_source_id: synced_sub.rss_source_id,
-              subscribed_at: synced_sub.subscribed_at,
-              timestamp: DateTime.utc_now(),
-              event_infos: cmd.event_infos || %{}
-            }
-          ]
-
-        server_sub ->
-          cond do
-            # Synced est subscribed
-            is_subscribed?(synced_sub) ->
-              cond do
-                is_subscribed?(server_sub) ->
-                  # Les deux subscribed, on prend le plus récent
-                  if DateTime.compare(synced_sub.subscribed_at, server_sub.subscribed_at) == :gt do
-                    [
-                      %UserSubscribed{
-                        user_id: user.user_id,
-                        rss_source_feed: feed,
-                        rss_source_id: synced_sub.rss_source_id,
-                        subscribed_at: synced_sub.subscribed_at,
-                        timestamp: DateTime.utc_now(),
-                        event_infos: cmd.event_infos || %{}
-                      }
-                    ]
-                  else
-                    []
-                  end
-
-                true ->
-                  # Server unsubscribed, synced subscribed
-                  unsub_at = server_sub.unsubscribed_at || DateTime.from_unix!(0)
-
-                  if DateTime.compare(synced_sub.subscribed_at, unsub_at) == :gt do
-                    [
-                      %UserSubscribed{
-                        user_id: user.user_id,
-                        rss_source_feed: feed,
-                        rss_source_id: synced_sub.rss_source_id,
-                        subscribed_at: synced_sub.subscribed_at,
-                        timestamp: DateTime.utc_now(),
-                        event_infos: cmd.event_infos || %{}
-                      }
-                    ]
-                  else
-                    []
-                  end
-              end
-
-            # Synced est unsubscribed
-            true ->
-              cond do
-                is_subscribed?(server_sub) ->
-                  # Server subscribed, synced unsubscribed
-                  if DateTime.compare(synced_sub.unsubscribed_at, server_sub.subscribed_at) == :gt do
-                    [
-                      %UserUnsubscribed{
-                        user_id: user.user_id,
-                        rss_source_feed: feed,
-                        rss_source_id: synced_sub.rss_source_id,
-                        unsubscribed_at: synced_sub.unsubscribed_at,
-                        timestamp: DateTime.utc_now(),
-                        event_infos: cmd.event_infos || %{}
-                      }
-                    ]
-                  else
-                    []
-                  end
-
-                true ->
-                  # Les deux unsubscribed, on prend le plus récent
-                  server_unsub = server_sub.unsubscribed_at || DateTime.from_unix!(0)
-
-                  if DateTime.compare(synced_sub.unsubscribed_at, server_unsub) == :gt do
-                    [
-                      %UserUnsubscribed{
-                        user_id: user.user_id,
-                        rss_source_feed: feed,
-                        rss_source_id: synced_sub.rss_source_id,
-                        unsubscribed_at: synced_sub.unsubscribed_at,
-                        timestamp: DateTime.utc_now(),
-                        event_infos: cmd.event_infos || %{}
-                      }
-                    ]
-                  else
-                    []
-                  end
-              end
-          end
-      end
-    end)
-  end
-
-  defp sync_play_statuses(user, synced_statuses, cmd) do
-    current_statuses = user.play_statuses || %{}
-
-    Enum.flat_map(synced_statuses, fn {item, synced_status} ->
-      case Map.get(current_statuses, item) do
-        nil ->
-          # Nouveau play status
-          [
-            %PlayRecorded{
-              user_id: user.user_id,
-              rss_source_feed: synced_status.rss_source_feed,
-              rss_source_item: item,
-              position: synced_status.position,
-              played: synced_status.played,
-              timestamp: DateTime.utc_now(),
-              event_infos: cmd.event_infos || %{}
-            }
-          ]
-
-        server_status ->
-          # On prend celui avec updated_at le plus récent
-          if DateTime.compare(synced_status.updated_at, server_status.updated_at) == :gt do
-            [
-              %PlayRecorded{
-                user_id: user.user_id,
-                rss_source_feed: synced_status.rss_source_feed,
-                rss_source_item: item,
-                position: synced_status.position,
-                played: synced_status.played,
-                timestamp: DateTime.utc_now(),
-                event_infos: cmd.event_infos || %{}
-              }
-            ]
-          else
-            []
-          end
-      end
-    end)
-  end
-
-  defp is_subscribed?(sub) do
-    sub_at = sub.subscribed_at || DateTime.from_unix!(0)
-    unsub_at = sub.unsubscribed_at || DateTime.from_unix!(0)
-    DateTime.compare(sub_at, unsub_at) == :gt
-  end
-
   defp filter_subscriptions(subscriptions) do
     now = DateTime.utc_now()
     forty_five_days_ago = DateTime.add(now, -45, :day)
