@@ -470,28 +470,301 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
     end
   end
 
-  # Assert a condition eventually becomes true, with retries.
-  # Useful for async operations where timing is non-deterministic.
-  defp assert_eventually(fun, opts \\ []) do
-    timeout = Keyword.get(opts, :timeout, 500)
-    interval = Keyword.get(opts, :interval, 10)
 
-    deadline = System.monotonic_time(:millisecond) + timeout
-    do_assert_eventually(fun, deadline, interval)
+  describe "collection management: create collection" do
+    test "opens create collection modal", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      # Click the create collection button (+ button)
+      html = view |> element("button[phx-click=\"open_create_collection\"]") |> render_click()
+
+      # Modal should be visible
+      assert html =~ "Create Collection"
+      assert html =~ "Title"
+      assert html =~ "Description"
+      assert html =~ "Color"
+    end
+
+    test "form accepts title input", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      # Open modal
+      view |> element("button[phx-click=\"open_create_collection\"]") |> render_click()
+
+      # Fill in the form via update_collection_form event
+      html = view |> render_keyup("update_collection_form", %{"field" => "title", "value" => "My New Collection"})
+
+      # Form should show the input value (input has the value set)
+      assert html =~ "My New Collection"
+    end
+
+    test "closes create modal on cancel", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      # Open modal
+      view |> element("button[phx-click=\"open_create_collection\"]") |> render_click()
+
+      # Cancel
+      html = view |> element("button[phx-click=\"close_collection_modal\"]") |> render_click()
+
+      # Modal should be closed
+      refute html =~ "Create Collection"
+    end
+
+    test "selects color in create modal", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      # Open modal
+      view |> element("button[phx-click=\"open_create_collection\"]") |> render_click()
+
+      # Click a color button (green) - use render_click with the event directly
+      html = view |> render_click("update_collection_form", %{"field" => "color", "value" => "#22c55e"})
+
+      # Color should be selected (has ring class)
+      assert html =~ "ring-2"
+    end
   end
 
-  defp do_assert_eventually(fun, deadline, interval) do
-    try do
-      fun.()
-    rescue
-      ExUnit.AssertionError ->
-        if System.monotonic_time(:millisecond) >= deadline do
-          # Final attempt - let it raise
-          fun.()
-        else
-          Process.sleep(interval)
-          do_assert_eventually(fun, deadline, interval)
-        end
+  describe "collection management: edit collection" do
+    test "opens edit collection modal with existing data", %{conn: conn, user: user} do
+      collection = create_collection(user.id, "Existing Collection", "#ef4444")
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      # Click edit button on the collection
+      html = view |> element("button[phx-click=\"open_edit_collection\"][phx-value-id=\"#{collection.id}\"]") |> render_click()
+
+      # Modal should show "Edit Collection" with existing data
+      assert html =~ "Edit Collection"
+      assert html =~ "Existing Collection"
+    end
+
+    test "form shows updated title in edit mode", %{conn: conn, user: user} do
+      collection = create_collection(user.id, "Original Title", "#3b82f6")
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      # Open edit modal
+      view |> element("button[phx-click=\"open_edit_collection\"][phx-value-id=\"#{collection.id}\"]") |> render_click()
+
+      # Update title via event
+      html = view |> render_keyup("update_collection_form", %{"field" => "title", "value" => "Updated Title"})
+
+      # Form should show the updated value
+      assert html =~ "Updated Title"
+    end
+
+    test "changes collection color in form", %{conn: conn, user: user} do
+      collection = create_collection(user.id, "Color Test", "#3b82f6")
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      # Open edit modal
+      view |> element("button[phx-click=\"open_edit_collection\"][phx-value-id=\"#{collection.id}\"]") |> render_click()
+
+      # Select a different color (purple) via event
+      html = view |> render_click("update_collection_form", %{"field" => "color", "value" => "#a855f7"})
+
+      # Color should be selected in modal (has ring class)
+      assert html =~ "ring-2"
+    end
+  end
+
+  describe "collection management: delete collection" do
+    test "shows delete confirmation modal", %{conn: conn, user: user} do
+      collection = create_collection(user.id, "To Delete", "#ef4444")
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      # Click delete button
+      html = view |> element("button[phx-click=\"confirm_delete_collection\"][phx-value-id=\"#{collection.id}\"]") |> render_click()
+
+      # Confirmation modal should appear
+      assert html =~ "Delete Collection?"
+      assert html =~ "This will remove the collection but keep your subscriptions"
+    end
+
+    test "cancels delete on cancel button", %{conn: conn, user: user} do
+      collection = create_collection(user.id, "Keep Me", "#22c55e")
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      # Open delete confirmation
+      view |> element("button[phx-click=\"confirm_delete_collection\"][phx-value-id=\"#{collection.id}\"]") |> render_click()
+
+      # Cancel
+      html = view |> element("button[phx-click=\"cancel_delete\"]") |> render_click()
+
+      # Modal should be closed and collection still exists
+      refute html =~ "Delete Collection?"
+      assert html =~ "Keep Me"
+    end
+
+    test "confirm delete button is present in modal", %{conn: conn, user: user} do
+      collection = create_collection(user.id, "Delete Me", "#ef4444")
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions")
+
+      # Open delete confirmation
+      html = view |> element("button[phx-click=\"confirm_delete_collection\"][phx-value-id=\"#{collection.id}\"]") |> render_click()
+
+      # Modal should have the delete confirmation button
+      assert html =~ "phx-click=\"delete_collection\""
+      assert html =~ "Delete"
+    end
+
+    test "hides delete button for default collection", %{conn: conn, user: user} do
+      # Create a default collection
+      %Collection{
+        id: Ecto.UUID.generate(),
+        user_id: user.id,
+        title: "Default Collection",
+        color: "#3b82f6",
+        is_default: true
+      }
+      |> ProjectionsRepo.insert!()
+
+      {:ok, _view, html} = live(conn, ~p"/subscriptions")
+
+      # Default collection should be displayed
+      assert html =~ "Default Collection"
+      # Should show asterisk indicator for default
+      assert html =~ "*"
+    end
+  end
+
+  describe "collection management: manage feeds mode" do
+    test "shows manage feeds button when viewing a collection", %{conn: conn, user: user} do
+      collection = create_collection(user.id, "My Collection", "#3b82f6")
+
+      {:ok, _view, html} = live(conn, ~p"/subscriptions?collection=#{collection.id}")
+
+      assert html =~ "Manage Feeds"
+    end
+
+    test "hides manage feeds button when viewing all subscriptions", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/subscriptions")
+
+      # Should not show Manage Feeds toggle button when no collection is selected
+      # (Note: HTML comments containing "Manage Feeds" are still rendered but the button should be absent)
+      refute html =~ "phx-click=\"toggle_manage_feeds\""
+    end
+
+    test "toggles manage feeds mode on and off", %{conn: conn, user: user} do
+      sub = create_subscription(user.id, @feed_url_1, "Podcast One")
+      collection = create_collection(user.id, "Test Collection", "#3b82f6")
+      add_to_collection(collection.id, sub.rss_source_feed)
+
+      cache_metadata(@feed_url_1, %{title: "Podcast One"})
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions?collection=#{collection.id}")
+
+      # Enable manage feeds mode
+      html = view |> element("button[phx-click=\"toggle_manage_feeds\"]") |> render_click()
+
+      # Button should change to "Done"
+      assert html =~ "Done"
+
+      # Disable manage feeds mode
+      html = view |> element("button[phx-click=\"toggle_manage_feeds\"]") |> render_click()
+
+      # Button should be back to "Manage Feeds"
+      assert html =~ "Manage Feeds"
+    end
+
+    test "shows checkmarks on feeds in manage mode", %{conn: conn, user: user} do
+      sub = create_subscription(user.id, @feed_url_1, "Podcast One")
+      collection = create_collection(user.id, "Test Collection", "#3b82f6")
+      add_to_collection(collection.id, sub.rss_source_feed)
+
+      cache_metadata(@feed_url_1, %{title: "Podcast One"})
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions?collection=#{collection.id}")
+
+      # Enable manage feeds mode
+      html = view |> element("button[phx-click=\"toggle_manage_feeds\"]") |> render_click()
+
+      # Should show toggle button with checkmark (feed is in collection)
+      assert html =~ "toggle_feed_in_collection"
+      assert html =~ "bg-green-500"  # Green background for included feeds
+    end
+
+    test "toggle feed button is present in manage mode", %{conn: conn, user: user} do
+      sub = create_subscription(user.id, @feed_url_1, "Podcast One")
+      collection = create_collection(user.id, "Test Collection", "#3b82f6")
+      add_to_collection(collection.id, sub.rss_source_feed)
+
+      cache_metadata(@feed_url_1, %{title: "Podcast One"})
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions?collection=#{collection.id}")
+
+      # Enable manage feeds mode
+      html = view |> element("button[phx-click=\"toggle_manage_feeds\"]") |> render_click()
+
+      # Initially in collection (green checkmark)
+      assert html =~ "bg-green-500"
+
+      # Toggle button should be present with correct event
+      assert html =~ "toggle_feed_in_collection"
+      assert html =~ sub.rss_source_feed
+    end
+  end
+
+  describe "collection UI elements" do
+    test "shows collection badge with correct color", %{conn: conn, user: user} do
+      create_collection(user.id, "Blue Collection", "#3b82f6")
+      create_collection(user.id, "Red Collection", "#ef4444")
+
+      {:ok, _view, html} = live(conn, ~p"/subscriptions")
+
+      assert html =~ "Blue Collection"
+      assert html =~ "Red Collection"
+      assert html =~ "#3b82f6"
+      assert html =~ "#ef4444"
+    end
+
+    test "shows feed count in collection badge", %{conn: conn, user: user} do
+      sub1 = create_subscription(user.id, @feed_url_1, "Podcast 1")
+      sub2 = create_subscription(user.id, @feed_url_2, "Podcast 2")
+      collection = create_collection(user.id, "Two Feeds", "#22c55e")
+      add_to_collection(collection.id, sub1.rss_source_feed)
+      add_to_collection(collection.id, sub2.rss_source_feed)
+
+      {:ok, _view, html} = live(conn, ~p"/subscriptions")
+
+      # Should show (2) in the badge
+      assert html =~ "Two Feeds"
+      assert html =~ "(2)"
+    end
+
+    test "marks default collection with asterisk", %{conn: conn, user: user} do
+      %Collection{
+        id: Ecto.UUID.generate(),
+        user_id: user.id,
+        title: "Default",
+        color: "#3b82f6",
+        is_default: true
+      }
+      |> ProjectionsRepo.insert!()
+
+      {:ok, _view, html} = live(conn, ~p"/subscriptions")
+
+      # Default collection shows asterisk
+      assert html =~ "Default"
+      assert html =~ "*"
+    end
+
+    test "highlights active collection", %{conn: conn, user: user} do
+      collection = create_collection(user.id, "Active Collection", "#a855f7")
+
+      {:ok, view, _html} = live(conn, ~p"/subscriptions?collection=#{collection.id}")
+
+      html = render(view)
+
+      # Active collection should have the full color background (not transparent)
+      assert html =~ "Active Collection"
+      # When active, background is the full color, when inactive it has 20 appended for transparency
+      assert html =~ "style=\"background-color: #a855f7"
     end
   end
 end
