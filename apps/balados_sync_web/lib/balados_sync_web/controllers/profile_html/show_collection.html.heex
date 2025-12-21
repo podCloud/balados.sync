@@ -1,0 +1,77 @@
+<div class="px-4 py-10 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-3xl">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+      <.link navigate={~p"/u/#{@user.username}"} class="text-blue-600 hover:underline">
+        &larr; Back to <%= display_name(@user) %>'s profile
+      </.link>
+    </nav>
+
+    <!-- Collection Header -->
+    <div class="bg-white shadow rounded-lg p-6 mb-8">
+      <div class="flex items-center gap-4 mb-4">
+        <div class={"w-16 h-16 rounded-lg flex items-center justify-center text-white text-2xl #{collection_color_class(@collection)}"}>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-zinc-900"><%= @collection.title %></h1>
+          <p class="text-zinc-500">
+            by <.link navigate={~p"/u/#{@user.username}"} class="text-blue-600 hover:underline">@<%= @user.username %></.link>
+            · <%= length(@feeds) %> podcasts
+          </p>
+        </div>
+      </div>
+
+      <%= if @collection.description do %>
+        <p class="text-zinc-700 mt-4"><%= @collection.description %></p>
+      <% end %>
+    </div>
+
+    <!-- Podcasts Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="collection-feeds">
+      <%= if Enum.empty?(@feeds) do %>
+        <div class="col-span-full bg-white shadow rounded-lg p-8 text-center text-zinc-500">
+          <p>This collection is empty.</p>
+        </div>
+      <% else %>
+        <%= for feed <- @feeds do %>
+          <.link
+            navigate={~p"/podcasts/#{feed.rss_source_feed}"}
+            class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 block"
+          >
+            <div class="flex gap-4">
+              <!-- Podcast Cover -->
+              <%= if feed.image do %>
+                <div class="flex-shrink-0">
+                  <img
+                    src={feed.image}
+                    alt={feed.title}
+                    class="w-20 h-20 rounded-lg object-cover shadow"
+                  />
+                </div>
+              <% else %>
+                <div class="flex-shrink-0 w-20 h-20 rounded-lg bg-zinc-200 flex items-center justify-center">
+                  <span class="text-zinc-400 text-xs">No Cover</span>
+                </div>
+              <% end %>
+
+              <!-- Podcast Info -->
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-zinc-900 truncate">
+                  <%= feed.title || "Unknown Podcast" %>
+                </h3>
+                <%= if feed.description do %>
+                  <p class="text-sm text-zinc-600 mt-1 line-clamp-2">
+                    <%= feed.description |> String.slice(0, 100) %>...
+                  </p>
+                <% end %>
+              </div>
+            </div>
+          </.link>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

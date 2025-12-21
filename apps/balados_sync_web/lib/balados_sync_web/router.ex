@@ -55,6 +55,8 @@ defmodule BaladosSyncWeb.Router do
 
     # Public user profiles
     get "/u/:username", ProfileController, :show
+    get "/u/:username/playlists/:id", ProfileController, :show_playlist
+    get "/u/:username/collections/:id", ProfileController, :show_collection
   end
 
   # Privacy check/set endpoints (JSON, session auth, works for both authenticated and unauthenticated)
