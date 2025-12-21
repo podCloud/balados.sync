@@ -92,6 +92,7 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] Add machine-readable error codes to API responses - [#136](https://github.com/podCloud/balados.sync/issues/136) - PR #137
 - [x] Add request body size limits to prevent memory exhaustion - [#133](https://github.com/podCloud/balados.sync/issues/133) - PR #134
 - [x] Implement playlist sync in API endpoint - [#131](https://github.com/podCloud/balados.sync/issues/131) - PR #132
 - [x] Sanitize error messages to prevent information leakage - [#124](https://github.com/podCloud/balados.sync/issues/124) - PR #130
