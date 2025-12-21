@@ -36,7 +36,7 @@ These items address gaps identified in the [architectural audit](docs/ARCHITECTU
 
 | Idea | Effort | Impact | Notes |
 |------|--------|--------|-------|
-| Complete playlist sync | High | High | TODO in aggregate, critical for apps |
+| ~~Complete playlist sync~~ | ~~High~~ | ~~High~~ | ✅ #131 - Implemented direct projection merge |
 | Multi-device real-time sync | High | High | WebSocket exists, sync logic incomplete |
 | Conflict resolution strategy | Medium | High | Define merge semantics |
 | Offline-first support | High | Medium | Important for mobile apps |
