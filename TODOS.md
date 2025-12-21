@@ -92,6 +92,7 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] Admin Panel pour Flux Enrichis - [#26](https://github.com/podCloud/balados.sync/issues/26) - via PRs #107, #110, #112
 - [x] Integration tests for email verification - [#116](https://github.com/podCloud/balados.sync/issues/116) - PR #118
 - [x] Email verification for podcast ownership - [#69](https://github.com/podCloud/balados.sync/issues/69) - PR #112
 - [x] Podcast ownership via RSS verification code - [#68](https://github.com/podCloud/balados.sync/issues/68) - PR #110
