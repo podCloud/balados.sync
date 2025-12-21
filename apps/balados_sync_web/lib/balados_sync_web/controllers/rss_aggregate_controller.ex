@@ -4,10 +4,19 @@ defmodule BaladosSyncWeb.RssAggregateController do
 
   alias BaladosSyncCore.RssCache
   alias BaladosSyncWeb.PlayTokenHelper
+  alias BaladosSyncWeb.Plugs.RateLimiter
   alias BaladosSyncCore.SystemRepo
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.{PlayToken, Subscription, Playlist, PlaylistItem, Collection, CollectionSubscription}
   import Ecto.Query
+
+  # Rate limit RSS aggregate endpoints: 10 requests per minute per token
+  # These endpoints fetch external RSS feeds, so we need to be conservative
+  plug RateLimiter,
+    limit: 10,
+    window_ms: 60_000,
+    key: {:param, "user_token"},
+    namespace: "rss_aggregate"
 
   def subscriptions(conn, %{"user_token" => token}) do
     with {:ok, user_id} <- verify_user_token(token),

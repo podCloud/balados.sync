@@ -30,12 +30,20 @@ defmodule BaladosSyncWeb.PlayController do
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.PlayStatus
   alias BaladosSyncWeb.Plugs.JWTAuth
+  alias BaladosSyncWeb.Plugs.RateLimiter
   import BaladosSyncWeb.ErrorHelpers
   import Ecto.Query
 
   # Scope requirements for play status management
   plug JWTAuth, [scopes: ["user.plays.read"]] when action in [:index]
   plug JWTAuth, [scopes: ["user.plays.write"]] when action in [:record, :update_position]
+
+  # Rate limits per user
+  plug RateLimiter, [limit: 100, window_ms: 60_000, key: :user_id, namespace: "play_read"]
+       when action in [:index]
+
+  plug RateLimiter, [limit: 60, window_ms: 60_000, key: :user_id, namespace: "play_write"]
+       when action in [:record, :update_position]
 
   @doc """
   Records a play event for an episode.

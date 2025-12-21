@@ -6,12 +6,20 @@ defmodule BaladosSyncWeb.PrivacyController do
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.UserPrivacy
   alias BaladosSyncWeb.Plugs.JWTAuth
+  alias BaladosSyncWeb.Plugs.RateLimiter
   import BaladosSyncWeb.ErrorHelpers
   import Ecto.Query
 
   # Scope requirements for privacy settings
   plug JWTAuth, [scopes: ["user.privacy.read"]] when action in [:show]
   plug JWTAuth, [scopes: ["user.privacy.write"]] when action in [:update]
+
+  # Rate limits per user
+  plug RateLimiter, [limit: 100, window_ms: 60_000, key: :user_id, namespace: "privacy_read"]
+       when action in [:show]
+
+  plug RateLimiter, [limit: 30, window_ms: 60_000, key: :user_id, namespace: "privacy_write"]
+       when action in [:update]
 
   def update(conn, %{"privacy" => privacy} = params) do
     user_id = conn.assigns.current_user_id

@@ -6,7 +6,16 @@ defmodule BaladosSyncWeb.PlayGatewayController do
   alias BaladosSyncCore.Commands.RecordPlay
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.PlayToken
+  alias BaladosSyncWeb.Plugs.RateLimiter
   import Ecto.Query
+
+  # Rate limit play gateway: 60 requests per minute per token
+  # Higher limit since podcast players make frequent requests
+  plug RateLimiter,
+    limit: 60,
+    window_ms: 60_000,
+    key: {:param, "user_token"},
+    namespace: "play_gateway"
 
   def play(conn, %{"user_token" => token, "feed_id" => feed_id, "item_id" => item_id}) do
     with {:ok, user_id} <- verify_user_token(token),

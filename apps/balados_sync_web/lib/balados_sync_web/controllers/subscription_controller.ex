@@ -31,12 +31,24 @@ defmodule BaladosSyncWeb.SubscriptionController do
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.Subscription
   alias BaladosSyncWeb.Plugs.JWTAuth
+  alias BaladosSyncWeb.Plugs.RateLimiter
   import BaladosSyncWeb.ErrorHelpers
   import Ecto.Query
 
   # Scope requirements for subscription management
   plug JWTAuth, [scopes: ["user.subscriptions.read"]] when action in [:index, :metadata]
   plug JWTAuth, [scopes: ["user.subscriptions.write"]] when action in [:create, :delete]
+
+  # Rate limits per user
+  plug RateLimiter, [limit: 100, window_ms: 60_000, key: :user_id, namespace: "subs_read"]
+       when action in [:index]
+
+  # Metadata endpoint rate limited separately (involves RSS fetch)
+  plug RateLimiter, [limit: 20, window_ms: 60_000, key: :user_id, namespace: "subs_metadata"]
+       when action in [:metadata]
+
+  plug RateLimiter, [limit: 30, window_ms: 60_000, key: :user_id, namespace: "subs_write"]
+       when action in [:create, :delete]
 
   @doc """
   Subscribes to a podcast feed.
