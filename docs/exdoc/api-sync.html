@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>Sync API — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-extra" id="main" data-type="extras">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>Sync API</h1>
+
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/guides/api/sync.md#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+<p>Full state synchronization endpoint for podcast apps.</p><h2 id="overview" class="section-heading"><a href="#overview" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Overview</span></h2><p>The sync endpoint allows apps to:</p><ol><li>Send local changes to the server</li><li>Receive remote changes since last sync</li><li>Resolve conflicts between devices</li></ol><h2 id="endpoint" class="section-heading"><a href="#endpoint" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Endpoint</span></h2><pre><code class="http">POST /api/v1/sync
+Authorization: Bearer &lt;token&gt;
+Content-Type: application/json</code></pre><h2 id="request-format" class="section-heading"><a href="#request-format" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Request Format</span></h2><pre><code class="json">{
+  &quot;last_sync&quot;: &quot;2024-01-19T10:00:00Z&quot;,
+  &quot;changes&quot;: {
+    &quot;subscriptions&quot;: {
+      &quot;added&quot;: [
+        {
+          &quot;feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9uZXc=&quot;,
+          &quot;timestamp&quot;: &quot;2024-01-20T08:00:00Z&quot;
+        }
+      ],
+      &quot;removed&quot;: [
+        {
+          &quot;feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9vbGQ=&quot;,
+          &quot;timestamp&quot;: &quot;2024-01-20T09:00:00Z&quot;
+        }
+      ]
+    },
+    &quot;plays&quot;: [
+      {
+        &quot;feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0&quot;,
+        &quot;item&quot;: &quot;Z3VpZC0xMjMsaHR0cHM6Ly9leGFtcGxlLmNvbS9lcDEubXAz&quot;,
+        &quot;position&quot;: 1500,
+        &quot;played&quot;: false,
+        &quot;timestamp&quot;: &quot;2024-01-20T10:30:00Z&quot;
+      }
+    ],
+    &quot;playlists&quot;: [
+      {
+        &quot;id&quot;: &quot;playlist-local-123&quot;,
+        &quot;name&quot;: &quot;Road Trip&quot;,
+        &quot;items&quot;: [&quot;item1&quot;, &quot;item2&quot;],
+        &quot;timestamp&quot;: &quot;2024-01-20T07:00:00Z&quot;
+      }
+    ]
+  }
+}</code></pre><h3 id="request-body" class="section-heading"><a href="#request-body" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Request Body</span></h3><table><thead><tr><th style="text-align: left;">Field</th><th style="text-align: left;">Type</th><th style="text-align: left;">Required</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">last_sync</code></td><td style="text-align: left;">string</td><td style="text-align: left;">No</td><td style="text-align: left;">ISO 8601 timestamp of last successful sync</td></tr><tr><td style="text-align: left;"><code class="inline">changes</code></td><td style="text-align: left;">object</td><td style="text-align: left;">Yes</td><td style="text-align: left;">Local changes to push</td></tr><tr><td style="text-align: left;"><code class="inline">changes.subscriptions</code></td><td style="text-align: left;">object</td><td style="text-align: left;">No</td><td style="text-align: left;">Subscription changes</td></tr><tr><td style="text-align: left;"><code class="inline">changes.plays</code></td><td style="text-align: left;">array</td><td style="text-align: left;">No</td><td style="text-align: left;">Playback updates</td></tr><tr><td style="text-align: left;"><code class="inline">changes.playlists</code></td><td style="text-align: left;">array</td><td style="text-align: left;">No</td><td style="text-align: left;">Playlist changes</td></tr></tbody></table><h2 id="response-format" class="section-heading"><a href="#response-format" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response Format</span></h2><pre><code class="json">{
+  &quot;sync_token&quot;: &quot;2024-01-20T10:35:00Z&quot;,
+  &quot;changes&quot;: {
+    &quot;subscriptions&quot;: {
+      &quot;added&quot;: [
+        {
+          &quot;feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9mcm9tLW90aGVyLWRldmljZQ==&quot;,
+          &quot;subscribed_at&quot;: &quot;2024-01-19T15:00:00Z&quot;
+        }
+      ],
+      &quot;removed&quot;: []
+    },
+    &quot;plays&quot;: [
+      {
+        &quot;feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0&quot;,
+        &quot;item&quot;: &quot;Z3VpZC00NTYsaHR0cHM6Ly9leGFtcGxlLmNvbS9lcDIubXAz&quot;,
+        &quot;position&quot;: 2400,
+        &quot;played&quot;: true,
+        &quot;updated_at&quot;: &quot;2024-01-19T20:00:00Z&quot;
+      }
+    ],
+    &quot;playlists&quot;: []
+  },
+  &quot;conflicts&quot;: []
+}</code></pre><h3 id="response-fields" class="section-heading"><a href="#response-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response Fields</span></h3><table><thead><tr><th style="text-align: left;">Field</th><th style="text-align: left;">Type</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">sync_token</code></td><td style="text-align: left;">string</td><td style="text-align: left;">Token for next sync (use as <code class="inline">last_sync</code>)</td></tr><tr><td style="text-align: left;"><code class="inline">changes</code></td><td style="text-align: left;">object</td><td style="text-align: left;">Remote changes since <code class="inline">last_sync</code></td></tr><tr><td style="text-align: left;"><code class="inline">conflicts</code></td><td style="text-align: left;">array</td><td style="text-align: left;">Conflicts that need resolution</td></tr></tbody></table><h2 id="conflict-resolution" class="section-heading"><a href="#conflict-resolution" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Conflict Resolution</span></h2><p>When the same resource was modified on multiple devices, conflicts are reported:</p><pre><code class="json">{
+  &quot;conflicts&quot;: [
+    {
+      &quot;type&quot;: &quot;play_position&quot;,
+      &quot;feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0&quot;,
+      &quot;item&quot;: &quot;Z3VpZC0xMjMsaHR0cHM6Ly9leGFtcGxlLmNvbS9lcDEubXAz&quot;,
+      &quot;local&quot;: {
+        &quot;position&quot;: 1500,
+        &quot;timestamp&quot;: &quot;2024-01-20T10:30:00Z&quot;
+      },
+      &quot;remote&quot;: {
+        &quot;position&quot;: 2000,
+        &quot;timestamp&quot;: &quot;2024-01-20T10:25:00Z&quot;
+      },
+      &quot;resolution&quot;: &quot;local_wins&quot;
+    }
+  ]
+}</code></pre><h3 id="resolution-strategies" class="section-heading"><a href="#resolution-strategies" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Resolution Strategies</span></h3><table><thead><tr><th style="text-align: left;">Strategy</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">local_wins</code></td><td style="text-align: left;">Local change was applied</td></tr><tr><td style="text-align: left;"><code class="inline">remote_wins</code></td><td style="text-align: left;">Remote change takes precedence</td></tr><tr><td style="text-align: left;"><code class="inline">merged</code></td><td style="text-align: left;">Changes were merged</td></tr></tbody></table><p><strong>Default behavior</strong>:</p><ul><li>Subscriptions: Last-write-wins</li><li>Play positions: Highest-progress-wins (furthest position)</li><li>Playlists: Merge items, last-write-wins for metadata</li></ul><h2 id="websocket-real-time-sync" class="section-heading"><a href="#websocket-real-time-sync" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">WebSocket Real-Time Sync</span></h2><p>For real-time synchronization, connect to the WebSocket endpoint:</p><pre><code class="makeup elixir" translate="no"><span class="n">wss</span><span class="ss">://</span><span class="n">sync</span><span class="o">.</span><span class="n">balados</span><span class="o">.</span><span class="n">cloud</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">live</span></code></pre><h3 id="connection" class="section-heading"><a href="#connection" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Connection</span></h3><pre><code class="javascript">const ws = new WebSocket('wss://sync.balados.cloud/api/v1/live');
+
+ws.onopen = () =&gt; {
+  // Authenticate
+  ws.send(JSON.stringify({
+    type: 'auth',
+    token: 'your-jwt-token'
+  }));
+};
+
+ws.onmessage = (event) =&gt; {
+  const data = JSON.parse(event.data);
+  // Handle: auth_success, play_update, subscription_update, etc.
+};</code></pre><h3 id="message-types" class="section-heading"><a href="#message-types" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Message Types</span></h3><table><thead><tr><th style="text-align: left;">Type</th><th style="text-align: left;">Direction</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">auth</code></td><td style="text-align: left;">Client → Server</td><td style="text-align: left;">Authenticate connection</td></tr><tr><td style="text-align: left;"><code class="inline">auth_success</code></td><td style="text-align: left;">Server → Client</td><td style="text-align: left;">Authentication confirmed</td></tr><tr><td style="text-align: left;"><code class="inline">record_play</code></td><td style="text-align: left;">Client → Server</td><td style="text-align: left;">Record playback event</td></tr><tr><td style="text-align: left;"><code class="inline">play_update</code></td><td style="text-align: left;">Server → Client</td><td style="text-align: left;">Playback updated (from another device)</td></tr><tr><td style="text-align: left;"><code class="inline">subscribe</code></td><td style="text-align: left;">Client → Server</td><td style="text-align: left;">Subscribe to feed</td></tr><tr><td style="text-align: left;"><code class="inline">subscription_update</code></td><td style="text-align: left;">Server → Client</td><td style="text-align: left;">Subscription changed</td></tr></tbody></table><h2 id="example-full-sync-flow" class="section-heading"><a href="#example-full-sync-flow" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example: Full Sync Flow</span></h2><pre><code class="makeup bash" translate="no"><span class=""># Initial sync (no last_sync, get everything)
+</span><span class="">curl -X POST &quot;https://sync.balados.cloud/api/v1/sync&quot; \
+</span><span class="">  -H &quot;Authorization: Bearer $TOKEN&quot; \
+</span><span class="">  -H &quot;Content-Type: application/json&quot; \
+</span><span class="">  -d &#39;{&quot;changes&quot;: {}}&#39;
+</span><span class="">
+</span><span class=""># Response includes sync_token: &quot;2024-01-20T10:00:00Z&quot;
+</span><span class="">
+</span><span class=""># Subsequent sync with changes
+</span><span class="">curl -X POST &quot;https://sync.balados.cloud/api/v1/sync&quot; \
+</span><span class="">  -H &quot;Authorization: Bearer $TOKEN&quot; \
+</span><span class="">  -H &quot;Content-Type: application/json&quot; \
+</span><span class="">  -d &#39;{
+</span><span class="">    &quot;last_sync&quot;: &quot;2024-01-20T10:00:00Z&quot;,
+</span><span class="">    &quot;changes&quot;: {
+</span><span class="">      &quot;plays&quot;: [{
+</span><span class="">        &quot;feed&quot;: &quot;...&quot;,
+</span><span class="">        &quot;item&quot;: &quot;...&quot;,
+</span><span class="">        &quot;position&quot;: 300
+</span><span class="">      }]
+</span><span class="">    }
+</span><span class="">  }&#39;
+</span></code></pre>
+
+</div>
+
+<div class="bottom-actions" id="bottom-actions">
+  <div class="bottom-actions-item">
+
+      <a href="api-collections.html" class="bottom-actions-button" rel="prev">
+        <span class="subheader">
+          ← Previous Page
+        </span>
+        <span class="title">
+Collections API
+        </span>
+      </a>
+
+  </div>
+  <div class="bottom-actions-item">
+
+      <a href="api-public.html" class="bottom-actions-button" rel="next">
+        <span class="subheader">
+          Next Page →
+        </span>
+        <span class="title">
+Public API
+        </span>
+      </a>
+
+  </div>
+</div>
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

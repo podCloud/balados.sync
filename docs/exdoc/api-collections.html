@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>Collections API — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-extra" id="main" data-type="extras">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>Collections API</h1>
+
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/guides/api/collections.md#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+<p>Organize podcasts into collections (folders/groups).</p><h2 id="endpoints" class="section-heading"><a href="#endpoints" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Endpoints</span></h2><table><thead><tr><th style="text-align: left;">Method</th><th style="text-align: left;">Path</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">GET</code></td><td style="text-align: left;"><code class="inline">/api/v1/collections</code></td><td style="text-align: left;">List all collections</td></tr><tr><td style="text-align: left;"><code class="inline">GET</code></td><td style="text-align: left;"><code class="inline">/api/v1/collections/:id</code></td><td style="text-align: left;">Get a collection</td></tr><tr><td style="text-align: left;"><code class="inline">POST</code></td><td style="text-align: left;"><code class="inline">/api/v1/collections</code></td><td style="text-align: left;">Create a collection</td></tr><tr><td style="text-align: left;"><code class="inline">PATCH</code></td><td style="text-align: left;"><code class="inline">/api/v1/collections/:id</code></td><td style="text-align: left;">Update a collection</td></tr><tr><td style="text-align: left;"><code class="inline">DELETE</code></td><td style="text-align: left;"><code class="inline">/api/v1/collections/:id</code></td><td style="text-align: left;">Delete a collection</td></tr><tr><td style="text-align: left;"><code class="inline">POST</code></td><td style="text-align: left;"><code class="inline">/api/v1/collections/:id/feeds</code></td><td style="text-align: left;">Add a feed to collection</td></tr><tr><td style="text-align: left;"><code class="inline">DELETE</code></td><td style="text-align: left;"><code class="inline">/api/v1/collections/:id/feeds/:feed_id</code></td><td style="text-align: left;">Remove feed from collection</td></tr></tbody></table><h2 id="list-collections" class="section-heading"><a href="#list-collections" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">List Collections</span></h2><pre><code class="http">GET /api/v1/collections
+Authorization: Bearer &lt;token&gt;</code></pre><h3 id="response" class="section-heading"><a href="#response" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response</span></h3><pre><code class="json">{
+  &quot;collections&quot;: [
+    {
+      &quot;id&quot;: &quot;col-123&quot;,
+      &quot;name&quot;: &quot;Tech Podcasts&quot;,
+      &quot;description&quot;: &quot;My favorite tech shows&quot;,
+      &quot;is_public&quot;: false,
+      &quot;feeds&quot;: [
+        {
+          &quot;id&quot;: &quot;feed-1&quot;,
+          &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS90ZWNo&quot;,
+          &quot;position&quot;: 0
+        }
+      ],
+      &quot;created_at&quot;: &quot;2024-01-10T09:00:00Z&quot;,
+      &quot;updated_at&quot;: &quot;2024-01-15T14:00:00Z&quot;
+    }
+  ]
+}</code></pre><h2 id="get-a-collection" class="section-heading"><a href="#get-a-collection" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Get a Collection</span></h2><pre><code class="http">GET /api/v1/collections/:id
+Authorization: Bearer &lt;token&gt;</code></pre><h3 id="response-1" class="section-heading"><a href="#response-1" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response</span></h3><pre><code class="json">{
+  &quot;collection&quot;: {
+    &quot;id&quot;: &quot;col-123&quot;,
+    &quot;name&quot;: &quot;Tech Podcasts&quot;,
+    &quot;description&quot;: &quot;My favorite tech shows&quot;,
+    &quot;is_public&quot;: false,
+    &quot;feeds&quot;: [
+      {
+        &quot;id&quot;: &quot;feed-1&quot;,
+        &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS90ZWNo&quot;,
+        &quot;position&quot;: 0,
+        &quot;metadata&quot;: {
+          &quot;title&quot;: &quot;Tech Talk&quot;,
+          &quot;image_url&quot;: &quot;https://example.com/tech.jpg&quot;
+        }
+      }
+    ],
+    &quot;created_at&quot;: &quot;2024-01-10T09:00:00Z&quot;
+  }
+}</code></pre><h2 id="create-a-collection" class="section-heading"><a href="#create-a-collection" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Create a Collection</span></h2><pre><code class="http">POST /api/v1/collections
+Authorization: Bearer &lt;token&gt;
+Content-Type: application/json
+
+{
+  &quot;name&quot;: &quot;Comedy Shows&quot;,
+  &quot;description&quot;: &quot;Podcasts that make me laugh&quot;,
+  &quot;is_public&quot;: false
+}</code></pre><h3 id="request-body" class="section-heading"><a href="#request-body" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Request Body</span></h3><table><thead><tr><th style="text-align: left;">Field</th><th style="text-align: left;">Type</th><th style="text-align: left;">Required</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">name</code></td><td style="text-align: left;">string</td><td style="text-align: left;">Yes</td><td style="text-align: left;">Collection name (max 100 chars)</td></tr><tr><td style="text-align: left;"><code class="inline">description</code></td><td style="text-align: left;">string</td><td style="text-align: left;">No</td><td style="text-align: left;">Collection description (max 500 chars)</td></tr><tr><td style="text-align: left;"><code class="inline">is_public</code></td><td style="text-align: left;">boolean</td><td style="text-align: left;">No</td><td style="text-align: left;">Make collection publicly visible (default: false)</td></tr></tbody></table><h3 id="response-201-created" class="section-heading"><a href="#response-201-created" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response (201 Created)</span></h3><pre><code class="json">{
+  &quot;collection&quot;: {
+    &quot;id&quot;: &quot;col-456&quot;,
+    &quot;name&quot;: &quot;Comedy Shows&quot;,
+    &quot;description&quot;: &quot;Podcasts that make me laugh&quot;,
+    &quot;is_public&quot;: false,
+    &quot;feeds&quot;: [],
+    &quot;created_at&quot;: &quot;2024-01-20T10:00:00Z&quot;
+  }
+}</code></pre><h2 id="update-a-collection" class="section-heading"><a href="#update-a-collection" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Update a Collection</span></h2><pre><code class="http">PATCH /api/v1/collections/:id
+Authorization: Bearer &lt;token&gt;
+Content-Type: application/json
+
+{
+  &quot;name&quot;: &quot;Comedy &amp; Humor&quot;,
+  &quot;is_public&quot;: true
+}</code></pre><h3 id="request-body-1" class="section-heading"><a href="#request-body-1" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Request Body</span></h3><p>All fields are optional. Only provided fields will be updated.</p><table><thead><tr><th style="text-align: left;">Field</th><th style="text-align: left;">Type</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">name</code></td><td style="text-align: left;">string</td><td style="text-align: left;">New collection name</td></tr><tr><td style="text-align: left;"><code class="inline">description</code></td><td style="text-align: left;">string</td><td style="text-align: left;">New description</td></tr><tr><td style="text-align: left;"><code class="inline">is_public</code></td><td style="text-align: left;">boolean</td><td style="text-align: left;">Update visibility</td></tr></tbody></table><h3 id="response-200-ok" class="section-heading"><a href="#response-200-ok" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response (200 OK)</span></h3><pre><code class="json">{
+  &quot;collection&quot;: {
+    &quot;id&quot;: &quot;col-456&quot;,
+    &quot;name&quot;: &quot;Comedy &amp; Humor&quot;,
+    &quot;description&quot;: &quot;Podcasts that make me laugh&quot;,
+    &quot;is_public&quot;: true,
+    &quot;updated_at&quot;: &quot;2024-01-20T11:00:00Z&quot;
+  }
+}</code></pre><h2 id="delete-a-collection" class="section-heading"><a href="#delete-a-collection" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Delete a Collection</span></h2><pre><code class="http">DELETE /api/v1/collections/:id
+Authorization: Bearer &lt;token&gt;</code></pre><h3 id="response-200-ok-1" class="section-heading"><a href="#response-200-ok-1" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response (200 OK)</span></h3><pre><code class="json">{
+  &quot;message&quot;: &quot;Collection deleted&quot;
+}</code></pre><h2 id="add-feed-to-collection" class="section-heading"><a href="#add-feed-to-collection" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Add Feed to Collection</span></h2><pre><code class="http">POST /api/v1/collections/:id/feeds
+Authorization: Bearer &lt;token&gt;
+Content-Type: application/json
+
+{
+  &quot;feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9jb21lZHk=&quot;
+}</code></pre><h3 id="request-body-2" class="section-heading"><a href="#request-body-2" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Request Body</span></h3><table><thead><tr><th style="text-align: left;">Field</th><th style="text-align: left;">Type</th><th style="text-align: left;">Required</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">feed</code></td><td style="text-align: left;">string</td><td style="text-align: left;">Yes</td><td style="text-align: left;">Base64-encoded RSS feed URL</td></tr></tbody></table><h3 id="response-201-created-1" class="section-heading"><a href="#response-201-created-1" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response (201 Created)</span></h3><pre><code class="json">{
+  &quot;feed&quot;: {
+    &quot;id&quot;: &quot;feed-789&quot;,
+    &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9jb21lZHk=&quot;,
+    &quot;position&quot;: 1
+  }
+}</code></pre><h2 id="remove-feed-from-collection" class="section-heading"><a href="#remove-feed-from-collection" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Remove Feed from Collection</span></h2><pre><code class="http">DELETE /api/v1/collections/:id/feeds/:feed_id
+Authorization: Bearer &lt;token&gt;</code></pre><h3 id="response-200-ok-2" class="section-heading"><a href="#response-200-ok-2" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response (200 OK)</span></h3><pre><code class="json">{
+  &quot;message&quot;: &quot;Feed removed from collection&quot;
+}</code></pre><h2 id="rss-feed-for-collection" class="section-heading"><a href="#rss-feed-for-collection" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">RSS Feed for Collection</span></h2><p>Public collections have an RSS feed that aggregates all podcasts:</p><pre><code class="makeup elixir" translate="no"><span class="nc">GET</span><span class="w"> </span><span class="o">/</span><span class="n">rss</span><span class="o">/</span><span class="ss">:user_token</span><span class="o">/</span><span class="n">collections</span><span class="o">/</span><span class="ss">:collection_id</span></code></pre><p>This returns an RSS/XML feed with recent episodes from all podcasts in the collection.</p>
+
+</div>
+
+<div class="bottom-actions" id="bottom-actions">
+  <div class="bottom-actions-item">
+
+      <a href="api-playback.html" class="bottom-actions-button" rel="prev">
+        <span class="subheader">
+          ← Previous Page
+        </span>
+        <span class="title">
+Playback API
+        </span>
+      </a>
+
+  </div>
+  <div class="bottom-actions-item">
+
+      <a href="api-sync.html" class="bottom-actions-button" rel="next">
+        <span class="subheader">
+          Next Page →
+        </span>
+        <span class="title">
+Sync API
+        </span>
+      </a>
+
+  </div>
+</div>
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

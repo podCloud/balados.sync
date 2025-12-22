@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>API Overview — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-extra" id="main" data-type="extras">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>Balados Sync API</h1>
+
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/guides/api/overview.md#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+<p>Balados Sync provides a REST API for podcast synchronization across devices and applications.</p><h2 id="base-url" class="section-heading"><a href="#base-url" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Base URL</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">https</span><span class="ss">://</span><span class="n">sync</span><span class="o">.</span><span class="n">balados</span><span class="o">.</span><span class="n">cloud</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span></code></pre><h2 id="authentication" class="section-heading"><a href="#authentication" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Authentication</span></h2><p>All API endpoints (except public endpoints) require JWT authentication.</p><h3 id="obtaining-a-token" class="section-heading"><a href="#obtaining-a-token" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Obtaining a Token</span></h3><ol><li>Register your application at <code class="inline">/app-creator</code></li><li>Redirect users to <code class="inline">/authorize?client_id=YOUR_APP_ID&amp;scopes=user.subscriptions.read,user.plays.write</code></li><li>After authorization, receive a JWT token</li><li>Include the token in all requests: <code class="inline">Authorization: Bearer &lt;token&gt;</code></li></ol><h3 id="token-scopes" class="section-heading"><a href="#token-scopes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Token Scopes</span></h3><table><thead><tr><th style="text-align: left;">Scope</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">*</code></td><td style="text-align: left;">Full access</td></tr><tr><td style="text-align: left;"><code class="inline">*.read</code></td><td style="text-align: left;">Read-only access to all resources</td></tr><tr><td style="text-align: left;"><code class="inline">*.write</code></td><td style="text-align: left;">Write access to all resources</td></tr><tr><td style="text-align: left;"><code class="inline">user.subscriptions.read</code></td><td style="text-align: left;">Read user's podcast subscriptions</td></tr><tr><td style="text-align: left;"><code class="inline">user.subscriptions.write</code></td><td style="text-align: left;">Manage subscriptions</td></tr><tr><td style="text-align: left;"><code class="inline">user.plays.read</code></td><td style="text-align: left;">Read playback history</td></tr><tr><td style="text-align: left;"><code class="inline">user.plays.write</code></td><td style="text-align: left;">Record playback events</td></tr><tr><td style="text-align: left;"><code class="inline">user.playlists.read</code></td><td style="text-align: left;">Read playlists</td></tr><tr><td style="text-align: left;"><code class="inline">user.playlists.write</code></td><td style="text-align: left;">Manage playlists</td></tr><tr><td style="text-align: left;"><code class="inline">user.privacy.read</code></td><td style="text-align: left;">Read privacy settings</td></tr><tr><td style="text-align: left;"><code class="inline">user.privacy.write</code></td><td style="text-align: left;">Update privacy settings</td></tr><tr><td style="text-align: left;"><code class="inline">user.sync</code></td><td style="text-align: left;">Full sync access</td></tr></tbody></table><h2 id="error-handling" class="section-heading"><a href="#error-handling" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Error Handling</span></h2><p>All errors return a consistent JSON format:</p><pre><code class="json">{
+  &quot;error&quot;: {
+    &quot;code&quot;: &quot;INVALID_FEED&quot;,
+    &quot;message&quot;: &quot;The RSS feed URL is malformed&quot;
+  }
+}</code></pre><h3 id="common-error-codes" class="section-heading"><a href="#common-error-codes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Common Error Codes</span></h3><table><thead><tr><th style="text-align: left;">Code</th><th style="text-align: left;">HTTP Status</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">UNAUTHORIZED</code></td><td style="text-align: left;">401</td><td style="text-align: left;">Missing or invalid authentication</td></tr><tr><td style="text-align: left;"><code class="inline">FORBIDDEN</code></td><td style="text-align: left;">403</td><td style="text-align: left;">Insufficient permissions</td></tr><tr><td style="text-align: left;"><code class="inline">NOT_FOUND</code></td><td style="text-align: left;">404</td><td style="text-align: left;">Resource not found</td></tr><tr><td style="text-align: left;"><code class="inline">INVALID_INPUT</code></td><td style="text-align: left;">422</td><td style="text-align: left;">Validation error</td></tr><tr><td style="text-align: left;"><code class="inline">INVALID_FEED</code></td><td style="text-align: left;">422</td><td style="text-align: left;">Malformed RSS feed URL</td></tr><tr><td style="text-align: left;"><code class="inline">RATE_LIMITED</code></td><td style="text-align: left;">429</td><td style="text-align: left;">Too many requests</td></tr><tr><td style="text-align: left;"><code class="inline">SERVER_ERROR</code></td><td style="text-align: left;">500</td><td style="text-align: left;">Internal server error</td></tr></tbody></table><h2 id="rate-limiting" class="section-heading"><a href="#rate-limiting" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Rate Limiting</span></h2><ul><li><strong>Default</strong>: 100 requests per minute per IP</li><li><strong>Authenticated</strong>: 1000 requests per minute per user</li><li>Headers: <code class="inline">X-RateLimit-Limit</code>, <code class="inline">X-RateLimit-Remaining</code>, <code class="inline">X-RateLimit-Reset</code></li></ul><h2 id="data-encoding" class="section-heading"><a href="#data-encoding" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Data Encoding</span></h2><p>RSS feed URLs and episode identifiers are <strong>Base64-encoded</strong> in API requests and responses.</p><pre><code class="makeup elixir" translate="no"><span class="c1"># Encode</span><span class="w">
+</span><span class="n">feed_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Base</span><span class="o">.</span><span class="n">encode64</span><span class="p" data-group-id="1896408818-1">(</span><span class="s">&quot;https://example.com/feed.xml&quot;</span><span class="p" data-group-id="1896408818-1">)</span><span class="w">
+</span><span class="c1"># =&gt; &quot;aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVkLnhtbA==&quot;</span><span class="w">
+
+</span><span class="c1"># Decode</span><span class="w">
+</span><span class="nc">Base</span><span class="o">.</span><span class="n">decode64!</span><span class="p" data-group-id="1896408818-2">(</span><span class="s">&quot;aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVkLnhtbA==&quot;</span><span class="p" data-group-id="1896408818-2">)</span><span class="w">
+</span><span class="c1"># =&gt; &quot;https://example.com/feed.xml&quot;</span></code></pre><h2 id="next-steps" class="section-heading"><a href="#next-steps" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Next Steps</span></h2><ul><li><a href="api-subscriptions.html">Subscriptions API</a> - Manage podcast subscriptions</li><li><a href="api-playback.html">Playback API</a> - Record and sync playback progress</li><li><a href="api-collections.html">Collections API</a> - Organize podcasts into collections</li><li><a href="api-sync.html">Sync API</a> - Full state synchronization</li><li><a href="api-public.html">Public API</a> - Trending and discovery endpoints</li></ul>
+
+</div>
+
+<div class="bottom-actions" id="bottom-actions">
+  <div class="bottom-actions-item">
+
+      <a href="claude.html" class="bottom-actions-button" rel="prev">
+        <span class="subheader">
+          ← Previous Page
+        </span>
+        <span class="title">
+Developer Guide
+        </span>
+      </a>
+
+  </div>
+  <div class="bottom-actions-item">
+
+      <a href="api-subscriptions.html" class="bottom-actions-button" rel="next">
+        <span class="subheader">
+          Next Page →
+        </span>
+        <span class="title">
+Subscriptions API
+        </span>
+      </a>
+
+  </div>
+</div>
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

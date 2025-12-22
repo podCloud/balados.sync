@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>BaladosSyncWeb.AppAuthController — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">BaladosSyncWeb.AppAuthController</span> 
+      <small class="app-vsn" translate="no">(Balados Sync v0.1.0)</small>
+
+    </h1>
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/controllers/app_auth_controller.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Controller for OAuth-style app authorization flow.</p><p>This controller handles the authorization flow for third-party applications
+that want to access user data. Apps present a JWT containing their public key
+and metadata, which users can approve or deny.</p><h2 id="module-authorization-flow" class="section-heading"><a href="#module-authorization-flow" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Authorization Flow</span></h2><ol><li>App creates a JWT with its public key and metadata</li><li>App redirects user to <code class="inline">/authorize?token=...</code></li><li>User logs in (if not already authenticated)</li><li>User sees authorization page with app details and requested scopes</li><li>User approves, creating an AppToken record</li><li>App can now make API requests using JWTs signed with its private key</li></ol><h2 id="module-routes" class="section-heading"><a href="#module-routes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Routes</span></h2><ul><li><code class="inline">GET /authorize?token=...</code> - Show authorization page</li><li><code class="inline">POST /authorize</code> - Create authorization after user approval</li><li><code class="inline">GET /api/v1/apps</code> - List authorized apps (JWT authenticated)</li><li><code class="inline">DELETE /api/v1/apps/:jti</code> - Revoke app authorization (JWT authenticated)</li></ul>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#authorize/2" data-no-tooltip="" translate="no">authorize(conn, arg2)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Shows the authorization page for a third-party app.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_authorization/2" data-no-tooltip="" translate="no">create_authorization(conn, arg2)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Creates the authorization after user confirms.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete/2" data-no-tooltip="" translate="no">delete(conn, map)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Revokes an app authorization.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#index/2" data-no-tooltip="" translate="no">index(conn, params)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Lists all authorized apps for the current user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#manage_apps/2" data-no-tooltip="" translate="no">manage_apps(conn, params)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Shows the HTML page for managing authorized apps.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+
+    <div class="functions-list">
+<section class="detail" id="authorize/2">
+
+  <div class="detail-header">
+    <a href="#authorize/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">authorize(conn, arg2)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/controllers/app_auth_controller.ex#L58" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Shows the authorization page for a third-party app.</p><h2 id="authorize/2-parameters" class="section-heading"><a href="#authorize/2-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">token</code> - JWT containing app metadata and public key</li></ul><h2 id="authorize/2-responses" class="section-heading"><a href="#authorize/2-responses" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Responses</span></h2><ul><li>Renders authorization page if user is authenticated</li><li>Redirects to login if user is not authenticated</li><li>Redirects with error if token is invalid</li></ul><h2 id="authorize/2-example-request" class="section-heading"><a href="#authorize/2-example-request" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example Request</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">GET</span><span class="w"> </span><span class="o">/</span><span class="n">authorize?</span><span class="n">token</span><span class="o">=</span><span class="n">eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9</span><span class="n">...</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="create_authorization/2">
+
+  <div class="detail-header">
+    <a href="#create_authorization/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_authorization(conn, arg2)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/controllers/app_auth_controller.ex#L139" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Creates the authorization after user confirms.</p><p>This endpoint is called when the user clicks &quot;Authorize&quot; on the authorization page.
+It decodes the token again, validates it, and creates an AppToken record.</p><h2 id="create_authorization/2-parameters" class="section-heading"><a href="#create_authorization/2-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">token</code> - The same JWT from the authorization page</li></ul><h2 id="create_authorization/2-responses" class="section-heading"><a href="#create_authorization/2-responses" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Responses</span></h2><ul><li>Redirects to dashboard with success message on approval</li><li>Redirects with error if token is invalid or authorization fails</li><li>Returns 401 if user is not authenticated</li></ul><h2 id="create_authorization/2-example-request" class="section-heading"><a href="#create_authorization/2-example-request" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example Request</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">POST</span><span class="w"> </span><span class="o">/</span><span class="n">authorize</span><span class="w">
+</span><span class="nc">Content</span><span class="o">-</span><span class="ss">Type</span><span class="p">:</span><span class="w"> </span><span class="n">application</span><span class="o">/</span><span class="n">x</span><span class="o">-</span><span class="n">www</span><span class="o">-</span><span class="n">form</span><span class="o">-</span><span class="n">urlencoded</span><span class="w">
+
+</span><span class="n">token</span><span class="o">=</span><span class="n">eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9</span><span class="n">...</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="delete/2">
+
+  <div class="detail-header">
+    <a href="#delete/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete(conn, map)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/controllers/app_auth_controller.ex#L276" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Revokes an app authorization.</p><p>Removes access for a specific app by marking its authorization as revoked.
+The app will no longer be able to make authenticated requests on behalf of the user.</p><h2 id="delete/2-parameters" class="section-heading"><a href="#delete/2-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">app_id</code> - The unique app identifier (from JWT iss field)</li></ul><h2 id="delete/2-authentication" class="section-heading"><a href="#delete/2-authentication" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Authentication</span></h2><p>Requires a valid JWT token in the Authorization header.</p><h2 id="delete/2-example-request" class="section-heading"><a href="#delete/2-example-request" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example Request</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">DELETE</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">apps</span><span class="o">/</span><span class="n">com</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">podcast</span><span class="o">-</span><span class="n">player</span><span class="w">
+</span><span class="ss">Authorization</span><span class="p">:</span><span class="w"> </span><span class="nc">Bearer</span><span class="w"> </span><span class="n">eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9</span><span class="n">...</span></code></pre><h2 id="delete/2-example-response-success" class="section-heading"><a href="#delete/2-example-response-success" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example Response (Success)</span></h2><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="2156458771-1">{</span><span class="w">
+  </span><span class="ss">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;success&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="ss">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;App authorization revoked&quot;</span><span class="w">
+</span><span class="p" data-group-id="2156458771-1">}</span></code></pre><h2 id="delete/2-example-response-not-found" class="section-heading"><a href="#delete/2-example-response-not-found" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example Response (Not Found)</span></h2><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="8376051901-1">{</span><span class="w">
+  </span><span class="ss">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;App not found or already revoked&quot;</span><span class="w">
+</span><span class="p" data-group-id="8376051901-1">}</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="index/2">
+
+  <div class="detail-header">
+    <a href="#index/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">index(conn, params)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/controllers/app_auth_controller.ex#L220" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Lists all authorized apps for the current user.</p><p>Returns a list of all non-revoked app authorizations for the authenticated user.
+Requires JWT authentication via the API.</p><h2 id="index/2-authentication" class="section-heading"><a href="#index/2-authentication" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Authentication</span></h2><p>Requires a valid JWT token in the Authorization header.</p><h2 id="index/2-example-request" class="section-heading"><a href="#index/2-example-request" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example Request</span></h2><pre><code class="makeup elixir" translate="no"><span class="nc">GET</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">apps</span><span class="w">
+</span><span class="ss">Authorization</span><span class="p">:</span><span class="w"> </span><span class="nc">Bearer</span><span class="w"> </span><span class="n">eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9</span><span class="n">...</span></code></pre><h2 id="index/2-example-response" class="section-heading"><a href="#index/2-example-response" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example Response</span></h2><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="2336675425-1">{</span><span class="w">
+  </span><span class="ss">&quot;apps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="2336675425-2">[</span><span class="w">
+    </span><span class="p" data-group-id="2336675425-3">{</span><span class="w">
+      </span><span class="ss">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;uuid&quot;</span><span class="p">,</span><span class="w">
+      </span><span class="ss">&quot;app_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;com.example.podcast-player&quot;</span><span class="p">,</span><span class="w">
+      </span><span class="ss">&quot;app_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Podcast Player Pro&quot;</span><span class="p">,</span><span class="w">
+      </span><span class="ss">&quot;app_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://podcastplayer.com&quot;</span><span class="p">,</span><span class="w">
+      </span><span class="ss">&quot;app_image&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://podcastplayer.com/icon.png&quot;</span><span class="p">,</span><span class="w">
+      </span><span class="ss">&quot;scopes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="2336675425-4">[</span><span class="s">&quot;user.subscriptions.read&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;user.plays.write&quot;</span><span class="p" data-group-id="2336675425-4">]</span><span class="p">,</span><span class="w">
+      </span><span class="ss">&quot;last_used_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2024-01-15T10:30:00Z&quot;</span><span class="p">,</span><span class="w">
+      </span><span class="ss">&quot;inserted_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2024-01-01T08:00:00Z&quot;</span><span class="p">,</span><span class="w">
+      </span><span class="ss">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2024-01-15T10:30:00Z&quot;</span><span class="w">
+    </span><span class="p" data-group-id="2336675425-3">}</span><span class="w">
+  </span><span class="p" data-group-id="2336675425-2">]</span><span class="w">
+</span><span class="p" data-group-id="2336675425-1">}</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="manage_apps/2">
+
+  <div class="detail-header">
+    <a href="#manage_apps/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">manage_apps(conn, params)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/controllers/app_auth_controller.ex#L296" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Shows the HTML page for managing authorized apps.</p><p>This page displays all apps the user has authorized, with options to revoke access.
+Images are shown only if 10% of users have authorized the app.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

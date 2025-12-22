@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>BaladosSyncWeb.ErrorHelpers — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">BaladosSyncWeb.ErrorHelpers</span> 
+      <small class="app-vsn" translate="no">(Balados Sync v0.1.0)</small>
+
+    </h1>
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/error_helpers.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Helper module for consistent and secure error handling in controllers.</p><p>This module provides functions to handle errors in a way that:</p><ul><li>Logs full error details server-side for debugging</li><li>Returns sanitized, user-friendly messages to clients</li><li>Provides machine-readable error codes for programmatic handling</li><li>Prevents information leakage through error responses</li></ul><h2 id="module-error-codes" class="section-heading"><a href="#module-error-codes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Error Codes</span></h2><p>All API errors include an <code class="inline">error_code</code> field with one of:</p><ul><li><code class="inline">UNAUTHORIZED</code> - Authentication required or invalid token</li><li><code class="inline">FORBIDDEN</code> - Valid auth but insufficient permissions</li><li><code class="inline">NOT_FOUND</code> - Requested resource doesn't exist</li><li><code class="inline">VALIDATION_ERROR</code> - Input validation failed</li><li><code class="inline">RATE_LIMIT_EXCEEDED</code> - Too many requests</li><li><code class="inline">INTERNAL_ERROR</code> - Server-side error</li></ul><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><p>In controllers:</p><pre><code class="makeup elixir" translate="no"><span class="kn">import</span><span class="w"> </span><span class="nc">BaladosSyncWeb.ErrorHelpers</span><span class="w">
+
+</span><span class="k">case</span><span class="w"> </span><span class="nc">Dispatcher</span><span class="o">.</span><span class="n">dispatch</span><span class="p" data-group-id="0945923901-1">(</span><span class="n">command</span><span class="p" data-group-id="0945923901-1">)</span><span class="w"> </span><span class="k" data-group-id="0945923901-2">do</span><span class="w">
+  </span><span class="ss">:ok</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
+    </span><span class="n">json</span><span class="p" data-group-id="0945923901-3">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0945923901-4">%{</span><span class="ss">status</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;success&quot;</span><span class="p" data-group-id="0945923901-4">}</span><span class="p" data-group-id="0945923901-3">)</span><span class="w">
+
+  </span><span class="p" data-group-id="0945923901-5">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p" data-group-id="0945923901-5">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
+    </span><span class="n">handle_dispatch_error</span><span class="p" data-group-id="0945923901-6">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p" data-group-id="0945923901-6">)</span><span class="w">
+</span><span class="k" data-group-id="0945923901-2">end</span></code></pre><p>Or with flash messages:</p><pre><code class="makeup elixir" translate="no"><span class="k">case</span><span class="w"> </span><span class="nc">SomeContext</span><span class="o">.</span><span class="n">do_something</span><span class="p" data-group-id="8463432659-1">(</span><span class="p" data-group-id="8463432659-1">)</span><span class="w"> </span><span class="k" data-group-id="8463432659-2">do</span><span class="w">
+  </span><span class="p" data-group-id="8463432659-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p" data-group-id="8463432659-3">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
+    </span><span class="n">redirect</span><span class="p" data-group-id="8463432659-4">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="ss">to</span><span class="p">:</span><span class="w"> </span><span class="sx">~p&quot;/success&quot;</span><span class="p" data-group-id="8463432659-4">)</span><span class="w">
+
+  </span><span class="p" data-group-id="8463432659-5">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p" data-group-id="8463432659-5">}</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
+    </span><span class="n">handle_error_with_flash</span><span class="p" data-group-id="8463432659-6">(</span><span class="n">conn</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="p">,</span><span class="w"> </span><span class="sx">~p&quot;/fallback&quot;</span><span class="p" data-group-id="8463432659-6">)</span><span class="w">
+</span><span class="k" data-group-id="8463432659-2">end</span></code></pre>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#forbidden/2" data-no-tooltip="" translate="no">forbidden(conn, message \\ &quot;Insufficient permissions&quot;)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns a forbidden error response with error code.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#handle_dispatch_error/2" data-no-tooltip="" translate="no">handle_dispatch_error(conn, reason)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Handles dispatch errors from Commanded.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#handle_error/3" data-no-tooltip="" translate="no">handle_error(conn, reason, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Standard error response format for JSON APIs.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#handle_error_with_flash/4" data-no-tooltip="" translate="no">handle_error_with_flash(conn, reason, redirect_to, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Handles errors with flash messages for web pages.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#internal_server_error/2" data-no-tooltip="" translate="no">internal_server_error(conn, reason \\ nil)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns a generic internal server error response with error code.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#not_found/2" data-no-tooltip="" translate="no">not_found(conn, message \\ &quot;Not found&quot;)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns a not found error response with error code.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#rate_limit_exceeded/2" data-no-tooltip="" translate="no">rate_limit_exceeded(conn, retry_after \\ 60)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns a rate limit exceeded error response with error code.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#sanitize_reason/1" data-no-tooltip="" translate="no">sanitize_reason(reason)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Sanitizes an error reason to a user-friendly message.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unauthorized/2" data-no-tooltip="" translate="no">unauthorized(conn, message \\ &quot;Unauthorized&quot;)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns an unauthorized error response with error code.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+
+    <div class="functions-list">
+<section class="detail" id="forbidden/2">
+
+    <span id="forbidden/1"></span>
+
+  <div class="detail-header">
+    <a href="#forbidden/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">forbidden(conn, message \\ &quot;Insufficient permissions&quot;)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/error_helpers.ex#L189" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Returns a forbidden error response with error code.</p>
+  </section>
+</section>
+<section class="detail" id="handle_dispatch_error/2">
+
+  <div class="detail-header">
+    <a href="#handle_dispatch_error/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">handle_dispatch_error(conn, reason)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/error_helpers.ex#L87" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Handles dispatch errors from Commanded.</p><p>Returns 422 Unprocessable Entity with a validation error code.</p>
+  </section>
+</section>
+<section class="detail" id="handle_error/3">
+
+    <span id="handle_error/2"></span>
+
+  <div class="detail-header">
+    <a href="#handle_error/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">handle_error(conn, reason, opts \\ [])</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/error_helpers.ex#L70" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Standard error response format for JSON APIs.</p><p>Logs the full error for debugging and returns a sanitized response with error code.</p><h2 id="handle_error/3-options" class="section-heading"><a href="#handle_error/3-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:status</code> - HTTP status code (default: 422 for dispatch errors, 500 for others)</li><li><code class="inline">:message</code> - Custom user-facing message (optional, uses reason-based default)</li><li><code class="inline">:code</code> - Error code atom (optional, inferred from status/reason)</li></ul>
+  </section>
+</section>
+<section class="detail" id="handle_error_with_flash/4">
+
+    <span id="handle_error_with_flash/3"></span>
+
+  <div class="detail-header">
+    <a href="#handle_error_with_flash/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">handle_error_with_flash(conn, reason, redirect_to, opts \\ [])</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/error_helpers.ex#L100" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Handles errors with flash messages for web pages.</p><p>Logs the full error and redirects with a sanitized flash message.</p>
+  </section>
+</section>
+<section class="detail" id="internal_server_error/2">
+
+    <span id="internal_server_error/1"></span>
+
+  <div class="detail-header">
+    <a href="#internal_server_error/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">internal_server_error(conn, reason \\ nil)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/error_helpers.ex#L169" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Returns a generic internal server error response with error code.</p>
+  </section>
+</section>
+<section class="detail" id="not_found/2">
+
+    <span id="not_found/1"></span>
+
+  <div class="detail-header">
+    <a href="#not_found/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">not_found(conn, message \\ &quot;Not found&quot;)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/error_helpers.ex#L198" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Returns a not found error response with error code.</p>
+  </section>
+</section>
+<section class="detail" id="rate_limit_exceeded/2">
+
+    <span id="rate_limit_exceeded/1"></span>
+
+  <div class="detail-header">
+    <a href="#rate_limit_exceeded/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">rate_limit_exceeded(conn, retry_after \\ 60)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/error_helpers.ex#L207" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Returns a rate limit exceeded error response with error code.</p>
+  </section>
+</section>
+<section class="detail" id="sanitize_reason/1">
+
+  <div class="detail-header">
+    <a href="#sanitize_reason/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">sanitize_reason(reason)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/error_helpers.ex#L119" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Sanitizes an error reason to a user-friendly message.</p><p>Converts internal error tuples and atoms to readable messages without
+exposing internal details like module names or stack traces.</p>
+  </section>
+</section>
+<section class="detail" id="unauthorized/2">
+
+    <span id="unauthorized/1"></span>
+
+  <div class="detail-header">
+    <a href="#unauthorized/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unauthorized(conn, message \\ &quot;Unauthorized&quot;)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/error_helpers.ex#L180" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Returns an unauthorized error response with error code.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>Balados Sync — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-extra" id="main" data-type="extras">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>Balados Sync</h1>
+
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/README.md#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+<p>Système CQRS/Event Sourcing pour la synchronisation d'écoutes de podcasts, d'abonnements et de playlists.</p><h2 id="origine" class="section-heading"><a href="#origine" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Origine</span></h2><p>Le système a été codé par Claude.AI en suivant les instructions d'une note présente dans <a href="docs/guides/ORIGINAL_NOTE.md">docs/guides/ORIGINAL_NOTE.md</a></p><h2 id="documentation" class="section-heading"><a href="#documentation" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Documentation</span></h2><ul><li><a href="claude.html"><strong>CLAUDE.md</strong></a> - Guide pour Claude Code (architecture, patterns, workflows)</li><li><a href="docs/GOALS.md"><strong>docs/GOALS.md</strong></a> - Objectifs du projet, vision, roadmap</li><li><a href="docs/technical/ARCHITECTURE.md"><strong>docs/technical/ARCHITECTURE.md</strong></a> - Architecture complète du système</li><li><a href="docs/technical/DEVELOPMENT.md"><strong>docs/technical/DEVELOPMENT.md</strong></a> - Guide de développement</li><li><a href="docs/technical/AUTH_SYSTEM.md"><strong>docs/technical/AUTH_SYSTEM.md</strong></a> - Système d'autorisation JWT</li><li><a href="docs/technical/CQRS_PATTERNS.md"><strong>docs/technical/CQRS_PATTERNS.md</strong></a> - Patterns CQRS/Event Sourcing</li><li><a href="docs/technical/TESTING_GUIDE.md"><strong>docs/technical/TESTING_GUIDE.md</strong></a> - Guide de tests</li><li><a href="docs/api/"><strong>docs/api/</strong></a> - Documentation API (authentication, endpoints)</li></ul><h2 id="architecture" class="section-heading"><a href="#architecture" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Architecture</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">balados_sync</span><span class="o">/</span><span class="w">
+</span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">apps</span><span class="o">/</span><span class="w">
+</span><span class="err">│</span><span class="w">   </span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">balados_sync_core</span><span class="o">/</span><span class="w">        </span><span class="c1"># Domain (CQRS/ES)</span><span class="w">
+</span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">events</span><span class="o">/</span><span class="w">                </span><span class="c1"># Events immuables</span><span class="w">
+</span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">commands</span><span class="o">/</span><span class="w">              </span><span class="c1"># Intentions</span><span class="w">
+</span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">aggregates</span><span class="o">/</span><span class="w">            </span><span class="c1"># Business logic</span><span class="w">
+</span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">router</span><span class="o">.</span><span class="n">ex</span><span class="w">              </span><span class="c1"># Command routing</span><span class="w">
+</span><span class="err">│</span><span class="w">   </span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">balados_sync_projections</span><span class="o">/</span><span class="w">  </span><span class="c1"># Read models</span><span class="w">
+</span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">schemas</span><span class="o">/</span><span class="w">               </span><span class="c1"># Tables PostgreSQL</span><span class="w">
+</span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">projectors</span><span class="o">/</span><span class="w">            </span><span class="c1"># Event handlers</span><span class="w">
+</span><span class="err">│</span><span class="w">   </span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">balados_sync_web</span><span class="o">/</span><span class="w">          </span><span class="c1"># API REST</span><span class="w">
+</span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">controllers</span><span class="o">/</span><span class="w">           </span><span class="c1"># HTTP endpoints</span><span class="w">
+</span><span class="err">│</span><span class="w">   </span><span class="err">└</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">balados_sync_jobs</span><span class="o">/</span><span class="w">         </span><span class="c1"># Workers</span><span class="w">
+</span><span class="err">│</span><span class="w">       </span><span class="err">└</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">snapshot_worker</span><span class="o">.</span><span class="n">ex</span><span class="w">     </span><span class="c1"># Checkpoints &amp; cleanup</span><span class="w">
+</span><span class="err">└</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">config</span><span class="o">/</span></code></pre><h2 id="concepts-clés" class="section-heading"><a href="#concepts-clés" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Concepts clés</span></h2><h3 id="event-sourcing" class="section-heading"><a href="#event-sourcing" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Event Sourcing</span></h3><ul><li><strong>Event Store</strong> : Tous les événements sont stockés de façon immuable</li><li><strong>Checkpoints</strong> : Snapshots créés tous les 5 minutes pour les events &gt; 45 jours</li><li><strong>Cleanup</strong> : Les events &gt; 45 jours sont supprimés après checkpoint</li><li>⚠️ <strong>Exception</strong> : Les deletion events suppriment l'historique concerné (disparaissent après 45j)</li></ul><h3 id="privacy-granulaire" class="section-heading"><a href="#privacy-granulaire" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Privacy granulaire</span></h3><ul><li><strong>Public</strong> : Données visibles avec user_id</li><li><strong>Anonymous</strong> : Données visibles sans user_id</li><li><strong>Private</strong> : Données cachées</li></ul><p>Privacy configurable par :</p><ul><li>Utilisateur (globale)</li><li>Podcast (feed)</li><li>Épisode (item)</li></ul><h3 id="système-de-popularité" class="section-heading"><a href="#système-de-popularité" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Système de popularité</span></h3><p>Scores par action :</p><ul><li>Subscribe : <strong>10 points</strong></li><li>Play : <strong>5 points</strong></li><li>Save/Like : <strong>3 points</strong></li><li>Share : <strong>2 points</strong></li></ul><p>Recalculé toutes les 5 minutes depuis l'event log.</p><h2 id="installation" class="section-heading"><a href="#installation" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Installation</span></h2><h3 id="prérequis" class="section-heading"><a href="#prérequis" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Prérequis</span></h3><ul><li>Elixir 1.17+</li><li>PostgreSQL 14+</li><li>Erlang 26+</li></ul><h3 id="setup" class="section-heading"><a href="#setup" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Setup</span></h3><pre><code class="makeup bash" translate="no"><span class=""># Cloner le projet
+</span><span class="">git clone &lt;repo&gt;
+</span><span class="">cd balados_sync
+</span><span class="">
+</span><span class=""># Installer les dépendances
+</span><span class="">mix deps.get
+</span><span class="">
+</span><span class=""># Créer les bases de données (system schema + event store)
+</span><span class="">mix db.create
+</span><span class="">
+</span><span class=""># Initialiser l&#39;event store + migrer schéma system
+</span><span class="">mix db.init
+</span><span class="">
+</span><span class=""># Lancer le projet
+</span><span class="">mix phx.server
+</span></code></pre><p>Le serveur démarre sur <code class="inline">http://localhost:4000</code></p><h3 id="commandes-de-base-de-données" class="section-heading"><a href="#commandes-de-base-de-données" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Commandes de base de données</span></h3><p><strong>Installation initiale:</strong></p><pre><code class="makeup bash" translate="no"><span class="">mix db.create     # Crée BDD et event store
+</span><span class="">mix db.init       # Initialise event store + migre system
+</span></code></pre><p><strong>Pendant le développement:</strong></p><pre><code class="makeup bash" translate="no"><span class="">mix db.migrate        # Migrer le schéma system (après création migration)
+</span><span class="">mix system_db.migrate # Idem (alias plus verbeux)
+</span><span class="">
+</span><span class=""># Resets SÉCURISÉS (demandent confirmation):
+</span><span class="">mix db.reset --projections   # Reset projections uniquement (SAFE) ✅
+</span><span class="">mix db.reset --system        # Reset system (users, tokens) ⚠️
+</span><span class="">mix db.reset --events        # Reset event store (EXTREME!) ☢️
+</span><span class="">mix db.reset --all           # Reset TOUT (EXTREME!) ☢️
+</span></code></pre><p><strong>Note:</strong> Le projet utilise 4 schémas PostgreSQL distincts :</p><ul><li><strong><code class="inline">system</code></strong> (permanent) : Users et tokens</li><li><strong><code class="inline">events</code></strong> (permanent) : Event store (source de vérité)</li><li><strong><code class="inline">public</code></strong> (transitoire) : Projections publiques (reconstruites depuis events)</li><li>Voir <a href="#architecture-de-la-base-de-données">Architecture de la Base de Données</a> pour plus de détails</li></ul><p>⚠️ <strong>Important:</strong> Les commandes <code class="inline">mix ecto.reset</code>, <code class="inline">ecto.drop</code>, <code class="inline">ecto.migrate</code>, <code class="inline">ecto.create</code> sont <strong>interdites</strong>. Utilisez <code class="inline">mix db.*</code> à la place.</p><h2 id="configuration" class="section-heading"><a href="#configuration" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Configuration</span></h2><h3 id="variables-d-environnement" class="section-heading"><a href="#variables-d-environnement" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Variables d'environnement</span></h3><pre><code class="makeup bash" translate="no"><span class=""># Development
+</span><span class="">export DATABASE_URL=&quot;postgresql://postgres:postgres@localhost/balados_sync_dev&quot;
+</span><span class="">export EVENT_STORE_URL=&quot;postgresql://postgres:postgres@localhost/balados_sync_eventstore_dev&quot;
+</span><span class="">export SECRET_KEY_BASE=&quot;your-secret-key&quot;
+</span><span class="">
+</span><span class=""># Production
+</span><span class="">export PHX_HOST=&quot;api.example.com&quot;
+</span><span class="">export PORT=4000
+</span></code></pre><h3 id="génération-de-clés-jwt-rs256" class="section-heading"><a href="#génération-de-clés-jwt-rs256" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Génération de clés JWT (RS256)</span></h3><pre><code class="makeup bash" translate="no"><span class=""># Générer une paire de clés
+</span><span class="">openssl genrsa -out private_key.pem 2048
+</span><span class="">openssl rsa -in private_key.pem -pubout -out public_key.pem
+</span></code></pre><h3 id="dépendances-supplémentaires" class="section-heading"><a href="#dépendances-supplémentaires" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Dépendances supplémentaires</span></h3><p>Le projet nécessite les dépendances suivantes (déjà dans mix.exs) :</p><pre><code class="makeup elixir" translate="no"><span class="c1"># Core</span><span class="w">
+</span><span class="p" data-group-id="7393775176-1">{</span><span class="ss">:commanded</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;~&gt; 1.4&quot;</span><span class="p" data-group-id="7393775176-1">}</span><span class="w">
+</span><span class="p" data-group-id="7393775176-2">{</span><span class="ss">:eventstore</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;~&gt; 1.4&quot;</span><span class="p" data-group-id="7393775176-2">}</span><span class="w">
+</span><span class="p" data-group-id="7393775176-3">{</span><span class="ss">:ecto_sql</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;~&gt; 3.12&quot;</span><span class="p" data-group-id="7393775176-3">}</span><span class="w">
+</span><span class="p" data-group-id="7393775176-4">{</span><span class="ss">:postgrex</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;~&gt; 0.19&quot;</span><span class="p" data-group-id="7393775176-4">}</span><span class="w">
+
+</span><span class="c1"># Web</span><span class="w">
+</span><span class="p" data-group-id="7393775176-5">{</span><span class="ss">:phoenix</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;~&gt; 1.7&quot;</span><span class="p" data-group-id="7393775176-5">}</span><span class="w">
+</span><span class="p" data-group-id="7393775176-6">{</span><span class="ss">:joken</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;~&gt; 2.6&quot;</span><span class="p" data-group-id="7393775176-6">}</span><span class="w">
+</span><span class="p" data-group-id="7393775176-7">{</span><span class="ss">:joken_jwks</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;~&gt; 1.6&quot;</span><span class="p" data-group-id="7393775176-7">}</span><span class="w">
+
+</span><span class="c1"># RSS Proxy &amp; Aggregation</span><span class="w">
+</span><span class="p" data-group-id="7393775176-8">{</span><span class="ss">:httpoison</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;~&gt; 2.2&quot;</span><span class="p" data-group-id="7393775176-8">}</span><span class="w">
+</span><span class="p" data-group-id="7393775176-9">{</span><span class="ss">:cachex</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;~&gt; 3.6&quot;</span><span class="p" data-group-id="7393775176-9">}</span><span class="w">
+</span><span class="p" data-group-id="7393775176-10">{</span><span class="ss">:sweet_xml</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;~&gt; 0.7&quot;</span><span class="p" data-group-id="7393775176-10">}</span><span class="w">
+</span><span class="p" data-group-id="7393775176-11">{</span><span class="ss">:timex</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;~&gt; 3.7&quot;</span><span class="p" data-group-id="7393775176-11">}</span><span class="w">
+
+</span><span class="c1"># Jobs</span><span class="w">
+</span><span class="p" data-group-id="7393775176-12">{</span><span class="ss">:quantum</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;~&gt; 3.5&quot;</span><span class="p" data-group-id="7393775176-12">}</span></code></pre><h3 id="configuration-du-subdomain-play" class="section-heading"><a href="#configuration-du-subdomain-play" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Configuration du subdomain play</span></h3><p>Pour tester en local, ajoutez à <code class="inline">/etc/hosts</code> :</p><pre><code class="makeup elixir" translate="no"><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="w"> </span><span class="n">balados</span><span class="o">.</span><span class="n">sync</span><span class="w"> </span><span class="n">play</span><span class="o">.</span><span class="n">balados</span><span class="o">.</span><span class="n">sync</span></code></pre><p>Puis dans <code class="inline">config/dev.exs</code> :</p><pre><code class="makeup elixir" translate="no"><span class="n">config</span><span class="w"> </span><span class="ss">:balados_sync_web</span><span class="p">,</span><span class="w"> </span><span class="nc">BaladosSyncWeb.Endpoint</span><span class="p">,</span><span class="w">
+  </span><span class="ss">url</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5305446742-1">[</span><span class="ss">host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;balados.sync&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">port</span><span class="p">:</span><span class="w"> </span><span class="mi">4000</span><span class="p" data-group-id="5305446742-1">]</span><span class="p">,</span><span class="w">
+  </span><span class="ss">http</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5305446742-2">[</span><span class="ss">ip</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5305446742-3">{</span><span class="mi">127</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="5305446742-3">}</span><span class="p">,</span><span class="w"> </span><span class="ss">port</span><span class="p">:</span><span class="w"> </span><span class="mi">4000</span><span class="p" data-group-id="5305446742-2">]</span><span class="p">,</span><span class="w">
+  </span><span class="ss">check_origin</span><span class="p">:</span><span class="w"> </span><span class="no">false</span><span class="w">
+
+</span><span class="n">config</span><span class="w"> </span><span class="ss">:balados_sync_web</span><span class="p">,</span><span class="w">
+  </span><span class="ss">play_domain</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;play.balados.sync&quot;</span></code></pre><p>Testez :</p><pre><code class="makeup bash" translate="no"><span class=""># Devrait répondre normalement
+</span><span class="">curl http://balados.sync:4000/api/v1/public/trending/podcasts
+</span><span class="">
+</span><span class=""># Devrait utiliser le PlayGatewayController
+</span><span class="">curl -L http://play.balados.sync:4000/{token}/{feed}/{item}
+</span></code></pre><h2 id="utilisation-de-l-api" class="section-heading"><a href="#utilisation-de-l-api" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Utilisation de l'API</span></h2><h3 id="authentification" class="section-heading"><a href="#authentification" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Authentification</span></h3><p>Toutes les requêtes authentifiées nécessitent un JWT dans le header :</p><pre><code class="makeup bash" translate="no"><span class="">Authorization: Bearer &lt;jwt_token&gt;
+</span></code></pre><p>Le JWT doit contenir :</p><pre><code class="json">{
+  &quot;sub&quot;: &quot;user_id&quot;,
+  &quot;jti&quot;: &quot;unique_token_id&quot;,
+  &quot;device_id&quot;: &quot;device_123&quot;,
+  &quot;device_name&quot;: &quot;iPhone de John&quot;,
+  &quot;iat&quot;: 1234567890,
+  &quot;exp&quot;: 1234567890
+}</code></pre><p>Signé avec RS256 et la clé privée correspondant à la public key enregistrée.</p><h3 id="endpoints" class="section-heading"><a href="#endpoints" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Endpoints</span></h3><h4>1. Synchronisation complète</h4><pre><code class="makeup bash" translate="no"><span class="">POST /api/v1/sync
+</span><span class="">Content-Type: application/json
+</span><span class="">Authorization: Bearer &lt;token&gt;
+</span><span class="">
+</span><span class="">{
+</span><span class="">  &quot;subscriptions&quot;: [
+</span><span class="">    {
+</span><span class="">      &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk&quot;,
+</span><span class="">      &quot;rss_source_id&quot;: &quot;podcast_id&quot;,
+</span><span class="">      &quot;subscribed_at&quot;: &quot;2024-01-15T10:30:00Z&quot;,
+</span><span class="">      &quot;unsubscribed_at&quot;: null
+</span><span class="">    }
+</span><span class="">  ],
+</span><span class="">  &quot;play_statuses&quot;: [
+</span><span class="">    {
+</span><span class="">      &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk&quot;,
+</span><span class="">      &quot;rss_source_item&quot;: &quot;ZXBpc29kZV8xMjM=&quot;,
+</span><span class="">      &quot;position&quot;: 1250,
+</span><span class="">      &quot;played&quot;: false,
+</span><span class="">      &quot;updated_at&quot;: &quot;2024-01-15T11:00:00Z&quot;
+</span><span class="">    }
+</span><span class="">  ],
+</span><span class="">  &quot;playlists&quot;: []
+</span><span class="">}
+</span></code></pre><p><strong>Réponse :</strong></p><pre><code class="json">{
+  &quot;status&quot;: &quot;success&quot;,
+  &quot;data&quot;: {
+    &quot;subscriptions&quot;: [...],
+    &quot;play_statuses&quot;: [...],
+    &quot;playlists&quot;: [...]
+  }
+}</code></pre><h4>2. Abonnements</h4><pre><code class="makeup bash" translate="no"><span class=""># S&#39;abonner à un podcast
+</span><span class="">POST /api/v1/subscriptions
+</span><span class="">{
+</span><span class="">  &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk&quot;,
+</span><span class="">  &quot;rss_source_id&quot;: &quot;podcast_id&quot;
+</span><span class="">}
+</span><span class="">
+</span><span class=""># Se désabonner
+</span><span class="">DELETE /api/v1/subscriptions/aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk
+</span><span class="">
+</span><span class=""># Liste des abonnements actifs
+</span><span class="">GET /api/v1/subscriptions
+</span></code></pre><h4>3. Écoutes</h4><pre><code class="makeup bash" translate="no"><span class=""># Enregistrer une écoute
+</span><span class="">POST /api/v1/play
+</span><span class="">{
+</span><span class="">  &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk&quot;,
+</span><span class="">  &quot;rss_source_item&quot;: &quot;ZXBpc29kZV8xMjM=&quot;,
+</span><span class="">  &quot;position&quot;: 1250,
+</span><span class="">  &quot;played&quot;: false
+</span><span class="">}
+</span><span class="">
+</span><span class=""># Mettre à jour la position
+</span><span class="">PUT /api/v1/play/ZXBpc29kZV8xMjM=/position
+</span><span class="">{
+</span><span class="">  &quot;position&quot;: 2500
+</span><span class="">}
+</span><span class="">
+</span><span class=""># Liste des statuts de lecture
+</span><span class="">GET /api/v1/play?played=false&amp;feed=aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk&amp;limit=50
+</span></code></pre><h4>4. Épisodes</h4><pre><code class="makeup bash" translate="no"><span class=""># Sauvegarder/liker un épisode
+</span><span class="">POST /api/v1/episodes/ZXBpc29kZV8xMjM=/save?feed=aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk
+</span><span class="">
+</span><span class=""># Partager un épisode
+</span><span class="">POST /api/v1/episodes/ZXBpc29kZV8xMjM=/share?feed=aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk
+</span></code></pre><h4>5. Privacy</h4><pre><code class="makeup bash" translate="no"><span class=""># Changer la privacy globale
+</span><span class="">PUT /api/v1/privacy
+</span><span class="">{
+</span><span class="">  &quot;privacy&quot;: &quot;anonymous&quot;
+</span><span class="">}
+</span><span class="">
+</span><span class=""># Privacy pour un podcast spécifique
+</span><span class="">PUT /api/v1/privacy
+</span><span class="">{
+</span><span class="">  &quot;privacy&quot;: &quot;private&quot;,
+</span><span class="">  &quot;feed&quot;: &quot;aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk&quot;
+</span><span class="">}
+</span><span class="">
+</span><span class=""># Privacy pour un épisode spécifique
+</span><span class="">PUT /api/v1/privacy
+</span><span class="">{
+</span><span class="">  &quot;privacy&quot;: &quot;public&quot;,
+</span><span class="">  &quot;feed&quot;: &quot;aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk&quot;,
+</span><span class="">  &quot;item&quot;: &quot;ZXBpc29kZV8xMjM=&quot;
+</span><span class="">}
+</span><span class="">
+</span><span class=""># Voir ses settings de privacy
+</span><span class="">GET /api/v1/privacy
+</span><span class="">GET /api/v1/privacy?feed=aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk
+</span></code></pre><h4>6. Données publiques (pas d'auth)</h4><pre><code class="makeup bash" translate="no"><span class=""># Top podcasts trending
+</span><span class="">GET /api/v1/public/trending/podcasts?limit=20
+</span><span class="">
+</span><span class=""># Top épisodes trending
+</span><span class="">GET /api/v1/public/trending/episodes?limit=20&amp;feed=aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk
+</span><span class="">
+</span><span class=""># Popularité d&#39;un podcast
+</span><span class="">GET /api/v1/public/feed/aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk/popularity
+</span><span class="">
+</span><span class=""># Popularité d&#39;un épisode
+</span><span class="">GET /api/v1/public/episode/ZXBpc29kZV8xMjM=/popularity
+</span><span class="">
+</span><span class=""># Timeline publique
+</span><span class="">GET /api/v1/public/timeline?limit=50&amp;offset=0&amp;event_type=play&amp;feed=aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk
+</span></code></pre><h4>7. RSS Proxy avec cache LRU (pas d'auth)</h4><p>Proxy CORS pour accéder aux flux RSS depuis le navigateur avec cache de 5 minutes :</p><pre><code class="makeup bash" translate="no"><span class=""># Récupérer un flux RSS complet
+</span><span class="">GET /api/v1/rss/proxy/aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVkLnhtbA==
+</span><span class="">Accept: application/xml
+</span><span class="">
+</span><span class=""># Filtrer pour un seul épisode (par guid ET enclosure)
+</span><span class="">GET /api/v1/rss/proxy/aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVkLnhtbA==/ZXBpc29kZV8xMjMsaHR0cHM6Ly9leGFtcGxlLmNvbS9lcC5tcDM=
+</span><span class="">Accept: application/xml
+</span></code></pre><p><strong>Headers de réponse :</strong></p><ul><li><code class="inline">Access-Control-Allow-Origin: *</code></li><li><code class="inline">Cache-Control: public, max-age=300</code></li><li><code class="inline">Content-Type: application/xml</code></li></ul><p><strong>Cache LRU :</strong></p><ul><li>500 entrées max</li><li>TTL de 5 minutes</li><li>Eviction automatique LRU (Least Recently Used)</li></ul><h4>8. RSS Agrégé par utilisateur (avec user_token)</h4><p>Flux RSS personnalisés construits dynamiquement :</p><pre><code class="makeup bash" translate="no"><span class=""># Tous les épisodes de mes abonnements (100 derniers)
+</span><span class="">GET /api/v1/rss/user/{user_token}/subscriptions
+</span><span class="">Accept: application/xml
+</span><span class="">
+</span><span class=""># Épisodes d&#39;une playlist
+</span><span class="">GET /api/v1/rss/user/{user_token}/playlist/{playlist_id}
+</span><span class="">Accept: application/xml
+</span></code></pre><p><strong>Fonctionnalités :</strong></p><ul><li>Fetch parallèle de tous les feeds via le proxy RSS</li><li>Merge des épisodes triés par date (desc)</li><li>Préfixe du nom du podcast : <code class="inline">[Tech Talks] Episode 42</code></li><li>URLs enclosure remplacées par les passerelles play</li><li>Cache privé de 1 minute</li></ul><p><strong>Génération d'un user_token :</strong></p><pre><code class="makeup bash" translate="no"><span class="">POST /api/v1/tokens
+</span><span class="">Authorization: Bearer &lt;jwt&gt;
+</span><span class="">{
+</span><span class="">  &quot;name&quot;: &quot;My RSS Reader&quot;
+</span><span class="">}
+</span><span class="">
+</span><span class=""># Réponse:
+</span><span class="">{
+</span><span class="">  &quot;token&quot;: &quot;randomBase64Token&quot;,
+</span><span class="">  &quot;user_id&quot;: &quot;user_123&quot;
+</span><span class="">}
+</span></code></pre><h4>9. Play Gateway (subdomain play.balados.sync)</h4><p>Passerelle qui enregistre une écoute et redirige vers l'enclosure :</p><pre><code class="makeup bash" translate="no"><span class=""># Format: https://play.balados.sync/{user_token}/{feed_id}/{item_id}
+</span><span class="">GET https://play.balados.sync/randomToken123/aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk/ZXBpc29kZV8xMjMsaHR0cHM6Ly9leGFtcGxlLmNvbS9lcC5tcDM=
+</span></code></pre><p><strong>Workflow :</strong></p><ol><li>Vérifie le <code class="inline">user_token</code></li><li>Decode <code class="inline">feed_id</code> et <code class="inline">item_id</code> (base64)</li><li>Dispatch une commande <code class="inline">RecordPlay</code> (async)</li><li>Redirige 302 vers l'URL de l'enclosure réelle</li></ol><p><strong>Usage dans les flux agrégés :</strong>
+Tous les flux RSS personnalisés (<code class="inline">/user/:token/subscriptions</code> et <code class="inline">/playlist/:id</code>) utilisent automatiquement ces URLs comme enclosures, permettant de tracker les écoutes.</p><p><strong>Exemple de réponse trending :</strong></p><pre><code class="json">{
+  &quot;podcasts&quot;: [
+    {
+      &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk&quot;,
+      &quot;feed_title&quot;: &quot;Tech Talks&quot;,
+      &quot;feed_author&quot;: &quot;John Doe&quot;,
+      &quot;feed_cover&quot;: {
+        &quot;src&quot;: &quot;https://example.com/cover.jpg&quot;,
+        &quot;srcset&quot;: &quot;...&quot;
+      },
+      &quot;score&quot;: 25420,
+      &quot;score_previous&quot;: 20000,
+      &quot;plays&quot;: 3420,
+      &quot;plays_previous&quot;: 3000,
+      &quot;plays_people&quot;: [&quot;user1&quot;, &quot;user2&quot;, &quot;user3&quot;],
+      &quot;likes&quot;: 340,
+      &quot;likes_previous&quot;: 300
+    }
+  ]
+}</code></pre><h2 id="architecture-de-la-base-de-données" class="section-heading"><a href="#architecture-de-la-base-de-données" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Architecture de la Base de Données</span></h2><p>La base de données PostgreSQL utilise <strong>4 schémas distincts</strong> gérés par <strong>2 Ecto Repositories</strong> :</p><h3 id="architecture-multi-repo" class="section-heading"><a href="#architecture-multi-repo" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Architecture Multi-Repo</span></h3><h4>SystemRepo (Données Permanentes)</h4><p><strong>Gestion</strong>: <a href="Mix.Tasks.System.Migrate.html"><code class="inline">mix system.migrate</code></a></p><p>Contient les données permanentes via la gestion de Ecto (CRUD direct) :</p><ul><li><code class="inline">users</code> : Utilisateurs enregistrés</li><li><code class="inline">app_tokens</code> : Tokens JWT valides (App Auth)</li><li><code class="inline">play_tokens</code> : Tokens de partage RSS</li></ul><p><strong>Caractéristiques</strong>:</p><ul><li>❌ NOT event-sourced (JAMAIS)</li><li>✅ Direct CRUD operations via Ecto</li><li>⚠️  Données permanentes (non reconstruisibles)</li></ul><h4>ProjectionsRepo (Projections Publiques)</h4><p><strong>Gestion</strong>: <a href="Mix.Tasks.Projections.Migrate.html"><code class="inline">mix projections.migrate</code></a></p><p>Contient les <strong>projections reconstruites</strong> depuis les events (read models) :</p><ul><li><strong>Schéma <code class="inline">public</code></strong> : Données publiques<ul><li><code class="inline">public_events</code> : Events publics/anonymes filtrés</li><li><code class="inline">podcast_popularity</code> : Stats de popularité par podcast</li><li><code class="inline">episode_popularity</code> : Stats de popularité par épisode</li><li><code class="inline">subscriptions</code> : Abonnements utilisateurs</li></ul></li></ul><p><strong>Caractéristiques</strong>:</p><ul><li>✅ Event-sourced (reconstruites depuis EventStore)</li><li>✅ Peuvent être réinitialisées sans crainte (<code class="inline">mix db.reset --projections</code>)</li><li>🔄 Automatiquement reconstruites via les projectors</li></ul><h4>EventStore (Commanded)</h4><p><strong>Gestion</strong>: <code class="inline">mix event_store.init -a balados_sync_core</code> (une seule fois)</p><p>Contient <strong>tous les événements immuables</strong> du système :</p><ul><li>Chaque action (Subscribe, Play, etc.) crée un event</li><li>Les events sont immuables (pour &quot;supprimer&quot;, émettre nouvel event)</li><li>Exception: Les deletion events suppriment l'historique concerné</li></ul><p><strong>Important</strong>: ❌ <strong>NE JAMAIS</strong> modifier manuellement. Géré uniquement par Commanded.</p><h3 id="configuration-flexible" class="section-heading"><a href="#configuration-flexible" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Configuration Flexible</span></h3><p>Ces deux repos <strong>peuvent être dans la même BDD PostgreSQL avec schemas différents</strong> (par défaut en dev) :</p><pre><code class="sql">-- Une seule BDD avec 3 schemas
+CREATE SCHEMA system;    -- SystemRepo
+CREATE SCHEMA public;    -- ProjectionsRepo
+CREATE SCHEMA events;    -- EventStore</code></pre><p>Ou <strong>séparés en différentes BDD</strong> pour une meilleure isolation (recommandé en prod) :</p><pre><code class="makeup elixir" translate="no"><span class="n">balados_sync_system</span><span class="w">      </span><span class="err">→</span><span class="w"> </span><span class="nc">SystemRepo</span><span class="w"> </span><span class="p" data-group-id="8020274508-1">(</span><span class="n">schema</span><span class="w"> </span><span class="n">system</span><span class="p" data-group-id="8020274508-1">)</span><span class="w">
+</span><span class="n">balados_sync_projections</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="nc">ProjectionsRepo</span><span class="w"> </span><span class="p" data-group-id="8020274508-2">(</span><span class="n">schema</span><span class="w"> </span><span class="n">public</span><span class="p" data-group-id="8020274508-2">)</span><span class="w">
+</span><span class="n">balados_sync_events</span><span class="w">      </span><span class="err">→</span><span class="w"> </span><span class="nc">EventStore</span><span class="w"> </span><span class="p" data-group-id="8020274508-3">(</span><span class="n">schema</span><span class="w"> </span><span class="n">events</span><span class="p" data-group-id="8020274508-3">)</span></code></pre><h3 id="commandes-référence" class="section-heading"><a href="#commandes-référence" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Commandes Référence</span></h3><table><thead><tr><th style="text-align: left;">Commande</th><th style="text-align: left;">Cible</th><th style="text-align: left;">Contenu</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">mix db.create</code></td><td style="text-align: left;">Tous</td><td style="text-align: left;">Crée BDD et schemas</td></tr><tr><td style="text-align: left;"><code class="inline">mix db.init</code></td><td style="text-align: left;">system + events</td><td style="text-align: left;">Initialise tout d'un coup</td></tr><tr><td style="text-align: left;"><a href="Mix.Tasks.Db.Migrate.html"><code class="inline">mix db.migrate</code></a></td><td style="text-align: left;">system + projections</td><td style="text-align: left;">Migre les deux repos</td></tr><tr><td style="text-align: left;"><a href="Mix.Tasks.System.Migrate.html"><code class="inline">mix system.migrate</code></a></td><td style="text-align: left;">system</td><td style="text-align: left;">Migre SEULEMENT SystemRepo</td></tr><tr><td style="text-align: left;"><a href="Mix.Tasks.Projections.Migrate.html"><code class="inline">mix projections.migrate</code></a></td><td style="text-align: left;">public</td><td style="text-align: left;">Migre SEULEMENT ProjectionsRepo</td></tr></tbody></table><h3 id="reset-commands" class="section-heading"><a href="#reset-commands" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Reset Commands</span></h3><pre><code class="makeup bash" translate="no"><span class=""># ✅ SAFE - Reset projections uniquement (preserve system + events)
+</span><span class="">mix db.reset --projections
+</span><span class="">
+</span><span class=""># ⚠️  DANGER - Reset system schema (users, tokens)
+</span><span class="">mix db.reset --system
+</span><span class="">
+</span><span class=""># ☢️ EXTREME - Reset event store
+</span><span class="">mix db.reset --events
+</span><span class="">
+</span><span class=""># ☢️☢️ EXTREME - Reset TOUT
+</span><span class="">mix db.reset --all
+</span></code></pre><p><strong>Danger</strong>:</p><ul><li>❌ <code class="inline">mix ecto.reset</code> = Réinitialise TOUT (events + system), <strong>éviter</strong></li><li>✅ <code class="inline">mix db.reset --projections</code> = Réinitialise projections seulement, <strong>SAFE</strong></li></ul><h2 id="worker-de-maintenance" class="section-heading"><a href="#worker-de-maintenance" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Worker de maintenance</span></h2><p>Le <code class="inline">SnapshotWorker</code> s'exécute <strong>toutes les 5 minutes</strong> :</p><ol><li><strong>Checkpoint</strong> : Crée des snapshots pour les users avec events &gt; 45 jours</li><li><strong>Recalcul</strong> : Met à jour la popularité avec le système de points</li><li><strong>Cleanup</strong> : Supprime les events &gt; 45 jours (après checkpoint)</li></ol><p>Configuration dans <code class="inline">config/config.exs</code> :</p><pre><code class="makeup elixir" translate="no"><span class="n">config</span><span class="w"> </span><span class="ss">:balados_sync_jobs</span><span class="p">,</span><span class="w"> </span><span class="nc">BaladosSyncJobs.Scheduler</span><span class="p">,</span><span class="w">
+  </span><span class="ss">jobs</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5479018125-1">[</span><span class="w">
+    </span><span class="p" data-group-id="5479018125-2">{</span><span class="s">&quot;*/5 * * * *&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5479018125-3">{</span><span class="nc">BaladosSyncJobs.SnapshotWorker</span><span class="p">,</span><span class="w"> </span><span class="ss">:perform</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5479018125-4">[</span><span class="p" data-group-id="5479018125-4">]</span><span class="p" data-group-id="5479018125-3">}</span><span class="p" data-group-id="5479018125-2">}</span><span class="w">
+  </span><span class="p" data-group-id="5479018125-1">]</span></code></pre><h2 id="développement" class="section-heading"><a href="#développement" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Développement</span></h2><h3 id="tests" class="section-heading"><a href="#tests" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Tests</span></h3><pre><code class="makeup bash" translate="no"><span class=""># Lancer tous les tests
+</span><span class="">mix test
+</span><span class="">
+</span><span class=""># Tests d&#39;une app spécifique
+</span><span class="">cd apps/balados_sync_core
+</span><span class="">mix test
+</span><span class="">
+</span><span class=""># Avec coverage
+</span><span class="">mix test --cover
+</span></code></pre><h3 id="console-interactive" class="section-heading"><a href="#console-interactive" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Console interactive</span></h3><pre><code class="makeup bash" translate="no"><span class=""># Console avec toutes les apps chargées
+</span><span class="">iex -S mix
+</span><span class="">
+</span><span class=""># Dispatcher une command
+</span><span class="">alias BaladosSyncCore.App
+</span><span class="">alias BaladosSyncCore.Commands.Subscribe
+</span><span class="">
+</span><span class="">App.dispatch(%Subscribe{
+</span><span class="">  user_id: &quot;user_123&quot;,
+</span><span class="">  device_id: &quot;device_456&quot;,
+</span><span class="">  device_name: &quot;iPhone&quot;,
+</span><span class="">  rss_source_feed: &quot;base64_feed&quot;,
+</span><span class="">  rss_source_id: &quot;podcast_id&quot;
+</span><span class="">})
+</span><span class="">
+</span><span class=""># Query les projections
+</span><span class="">alias BaladosSyncProjections.Repo
+</span><span class="">alias BaladosSyncProjections.Schemas.Subscription
+</span><span class="">Repo.all(Subscription)
+</span></code></pre><h3 id="replay-d-events" class="section-heading"><a href="#replay-d-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Replay d'events</span></h3><p>Si vous devez reconstruire les projections :</p><pre><code class="makeup bash" translate="no"><span class=""># Arrêter les projectors
+</span><span class=""># Supprimer les données des projections (pas l&#39;event store !)
+</span><span class="">mix ecto.reset
+</span><span class="">
+</span><span class=""># Les projectors vont automatiquement rejouer tous les events
+</span></code></pre><h2 id="encodage-rss" class="section-heading"><a href="#encodage-rss" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Encodage RSS</span></h2><p>Les <code class="inline">rss_source_feed</code> et <code class="inline">rss_source_item</code> utilisent base64 :</p><pre><code class="makeup elixir" translate="no"><span class="c1"># Feed</span><span class="w">
+</span><span class="n">feed_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://example.com/feed.xml&quot;</span><span class="w">
+</span><span class="n">rss_source_feed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Base</span><span class="o">.</span><span class="n">encode64</span><span class="p" data-group-id="6089338959-1">(</span><span class="n">feed_url</span><span class="p" data-group-id="6089338959-1">)</span><span class="w">
+
+</span><span class="c1"># Item (guid + enclosure)</span><span class="w">
+</span><span class="n">guid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;episode-123&quot;</span><span class="w">
+</span><span class="n">enclosure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;https://example.com/episode.mp3&quot;</span><span class="w">
+</span><span class="n">rss_source_item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Base</span><span class="o">.</span><span class="n">encode64</span><span class="p" data-group-id="6089338959-2">(</span><span class="s">&quot;</span><span class="si" data-group-id="6089338959-3">#{</span><span class="n">guid</span><span class="si" data-group-id="6089338959-3">}</span><span class="s">,</span><span class="si" data-group-id="6089338959-4">#{</span><span class="n">enclosure</span><span class="si" data-group-id="6089338959-4">}</span><span class="s">&quot;</span><span class="p" data-group-id="6089338959-2">)</span></code></pre><h2 id="production" class="section-heading"><a href="#production" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Production</span></h2><h3 id="déploiement" class="section-heading"><a href="#déploiement" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Déploiement</span></h3><pre><code class="makeup bash" translate="no"><span class=""># Build release
+</span><span class="">MIX_ENV=prod mix release
+</span><span class="">
+</span><span class=""># Lancer
+</span><span class="">_build/prod/rel/balados_sync/bin/balados_sync start
+</span></code></pre><h3 id="monitoring" class="section-heading"><a href="#monitoring" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Monitoring</span></h3><p>Le système expose des métriques via Phoenix LiveDashboard :</p><pre><code class="makeup elixir" translate="no"><span class="n">http</span><span class="ss">://</span><span class="n">localhost</span><span class="p">:</span><span class="mi">4000</span><span class="o">/</span><span class="n">dashboard</span></code></pre><p>Métriques importantes :</p><ul><li>Nombre d'events dans l'event store</li><li>Latence des projections</li><li>Nombre de users actifs</li><li>Popularité en temps réel</li></ul><h2 id="troubleshooting" class="section-heading"><a href="#troubleshooting" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Troubleshooting</span></h2><h3 id="les-projections-sont-en-retard" class="section-heading"><a href="#les-projections-sont-en-retard" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Les projections sont en retard</span></h3><pre><code class="makeup bash" translate="no"><span class=""># Vérifier l&#39;état des projections
+</span><span class="">iex -S mix
+</span><span class="">BaladosSyncProjections.Projectors.SubscriptionProjector.state()
+</span></code></pre><h3 id="événements-manquants" class="section-heading"><a href="#événements-manquants" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Événements manquants</span></h3><p>Les events sont immuables. Si des données semblent manquer, vérifiez :</p><ol><li>Les filtres de privacy</li><li>Les checkpoints récents</li><li>Les logs du worker</li></ol><h3 id="performance" class="section-heading"><a href="#performance" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Performance</span></h3><p>Pour améliorer les performances :</p><ol><li>Rafraîchir les vues matérialisées : <code class="inline">REFRESH MATERIALIZED VIEW site.trending_podcasts</code></li><li>Analyser les index : <code class="inline">ANALYZE users.subscriptions</code></li><li>Augmenter le pool size PostgreSQL dans la config</li></ol><h2 id="licence" class="section-heading"><a href="#licence" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Licence</span></h2><p>MIT</p><h2 id="support" class="section-heading"><a href="#support" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Support</span></h2><p>Pour toute question : support@balados-sync.example.com</p>
+
+</div>
+
+<div class="bottom-actions" id="bottom-actions">
+  <div class="bottom-actions-item">
+
+      <a href="api-public.html" class="bottom-actions-button" rel="prev">
+        <span class="subheader">
+          ← Previous Page
+        </span>
+        <span class="title">
+Public API
+        </span>
+      </a>
+
+  </div>
+  <div class="bottom-actions-item">
+
+  </div>
+</div>
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

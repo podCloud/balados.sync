@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>BaladosSyncCore.Aggregates.User — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">BaladosSyncCore.Aggregates.User</span> 
+      <small class="app-vsn" translate="no">(Balados Sync v0.1.0)</small>
+
+    </h1>
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_core/lib/balados_sync_core/aggregates/user.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>User aggregate for the CQRS/Event Sourcing system.</p><p>This aggregate is the core of the Balados Sync domain model. It encapsulates all
+business logic for managing user subscriptions, play statuses, playlists, and privacy
+settings. The aggregate follows the CQRS/ES pattern with two key functions:</p><h2 id="module-cqrs-es-pattern" class="section-heading"><a href="#module-cqrs-es-pattern" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">CQRS/ES Pattern</span></h2><ul><li><a href="#execute/2"><code class="inline">execute/2</code></a> - Validates commands and returns events (command → event)</li><li><a href="#apply/2"><code class="inline">apply/2</code></a> - Updates aggregate state based on events (event → state)</li></ul><h2 id="module-state-management" class="section-heading"><a href="#module-state-management" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">State Management</span></h2><p>The aggregate state is rebuilt by replaying all events for a user from the event store.
+State is never persisted directly - it's always derived from the event stream.</p><h3 id="module-aggregate-state-structure" class="section-heading"><a href="#module-aggregate-state-structure" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Aggregate State Structure</span></h3><ul><li><code class="inline">user_id</code> - Unique identifier for the user</li><li><code class="inline">privacy</code> - Privacy level: <code class="inline">:public</code>, <code class="inline">:anonymous</code>, or <code class="inline">:private</code></li><li><code class="inline">subscriptions</code> - Map of <code class="inline">%{feed =&gt; %{subscribed_at, unsubscribed_at, rss_source_id}}</code></li><li><code class="inline">play_statuses</code> - Map of <code class="inline">%{item =&gt; %{position, played, updated_at, rss_source_feed}}</code></li><li><code class="inline">playlists</code> - Map of <code class="inline">%{playlist_id =&gt; %{name, description, items, is_public}}</code></li></ul><h2 id="module-command-flow" class="section-heading"><a href="#module-command-flow" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Command Flow</span></h2><ol><li>Command arrives via Dispatcher (e.g., <code class="inline">Subscribe</code>)</li><li>Dispatcher loads aggregate by rebuilding state from events</li><li><a href="#execute/2"><code class="inline">execute/2</code></a> validates command and returns event(s)</li><li>EventStore persists events immutably</li><li><a href="#apply/2"><code class="inline">apply/2</code></a> updates aggregate state (for in-memory state)</li><li>Projectors listen to events and update read models</li></ol><h2 id="module-event-sourcing-benefits" class="section-heading"><a href="#module-event-sourcing-benefits" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Event Sourcing Benefits</span></h2><ul><li>Complete audit trail of all user actions</li><li>Time travel: rebuild state at any point in history</li><li>Event replay for bug fixes or new projections</li><li>Natural support for sync conflicts (timestamp-based resolution)</li></ul><h2 id="module-aggregate-lifecycle" class="section-heading"><a href="#module-aggregate-lifecycle" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Aggregate Lifecycle</span></h2><p>The aggregate is stateless between command dispatches. Each command:</p><ol><li>Loads current state by replaying events</li><li>Executes command logic</li><li>Returns events to be persisted</li><li>State updates happen via <a href="#apply/2"><code class="inline">apply/2</code></a> during replay</li></ol><h2 id="module-examples" class="section-heading"><a href="#module-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Dispatch a command (through Dispatcher)</span><span class="w">
+</span><span class="nc">Dispatcher</span><span class="o">.</span><span class="n">dispatch</span><span class="p" data-group-id="2328855687-1">(</span><span class="p" data-group-id="2328855687-2">%</span><span class="nc" data-group-id="2328855687-2">Subscribe</span><span class="p" data-group-id="2328855687-2">{</span><span class="w">
+  </span><span class="ss">user_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user-123&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="ss">rss_source_feed</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;base64-feed&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="ss">rss_source_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;podcast-id&quot;</span><span class="w">
+</span><span class="p" data-group-id="2328855687-2">}</span><span class="p" data-group-id="2328855687-1">)</span><span class="w">
+
+</span><span class="c1"># This internally:</span><span class="w">
+</span><span class="c1"># 1. Loads User aggregate for &quot;user-123&quot;</span><span class="w">
+</span><span class="c1"># 2. Calls execute(%User{}, %Subscribe{})</span><span class="w">
+</span><span class="c1"># 3. Returns %UserSubscribed{} event</span><span class="w">
+</span><span class="c1"># 4. Persists event to EventStore</span><span class="w">
+</span><span class="c1"># 5. Calls apply(%User{}, %UserSubscribed{})</span><span class="w">
+</span><span class="c1"># 6. Projectors update read models</span></code></pre>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#apply/2" data-no-tooltip="" translate="no">apply(user, event)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#execute/2" data-no-tooltip="" translate="no">execute(user, cmd)</a>
+
+      </div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+
+    <div class="functions-list">
+<section class="detail" id="apply/2">
+
+  <div class="detail-header">
+    <a href="#apply/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">apply(user, event)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_core/lib/balados_sync_core/aggregates/user.ex#L527" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="execute/2">
+
+  <div class="detail-header">
+    <a href="#execute/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">execute(user, cmd)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_core/lib/balados_sync_core/aggregates/user.ex#L135" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

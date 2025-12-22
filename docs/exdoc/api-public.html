@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>Public API — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-extra" id="main" data-type="extras">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>Public API</h1>
+
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/guides/api/public.md#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+<p>Public endpoints for podcast discovery and trending content. No authentication required.</p><h2 id="base-url" class="section-heading"><a href="#base-url" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Base URL</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">https</span><span class="ss">://</span><span class="n">sync</span><span class="o">.</span><span class="n">balados</span><span class="o">.</span><span class="n">cloud</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">public</span></code></pre><h2 id="endpoints" class="section-heading"><a href="#endpoints" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Endpoints</span></h2><table><thead><tr><th style="text-align: left;">Method</th><th style="text-align: left;">Path</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">GET</code></td><td style="text-align: left;"><code class="inline">/trending/podcasts</code></td><td style="text-align: left;">Get trending podcasts</td></tr><tr><td style="text-align: left;"><code class="inline">GET</code></td><td style="text-align: left;"><code class="inline">/trending/episodes</code></td><td style="text-align: left;">Get trending episodes</td></tr><tr><td style="text-align: left;"><code class="inline">GET</code></td><td style="text-align: left;"><code class="inline">/timeline</code></td><td style="text-align: left;">Get public activity timeline</td></tr><tr><td style="text-align: left;"><code class="inline">GET</code></td><td style="text-align: left;"><code class="inline">/feed/:feed/popularity</code></td><td style="text-align: left;">Get podcast popularity stats</td></tr><tr><td style="text-align: left;"><code class="inline">GET</code></td><td style="text-align: left;"><code class="inline">/episode/:item/popularity</code></td><td style="text-align: left;">Get episode popularity stats</td></tr></tbody></table><h2 id="trending-podcasts" class="section-heading"><a href="#trending-podcasts" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Trending Podcasts</span></h2><p>Get the most popular podcasts based on subscriber count and recent activity.</p><pre><code class="http">GET /api/v1/public/trending/podcasts</code></pre><h3 id="query-parameters" class="section-heading"><a href="#query-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Query Parameters</span></h3><table><thead><tr><th style="text-align: left;">Parameter</th><th style="text-align: left;">Type</th><th style="text-align: left;">Default</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">limit</code></td><td style="text-align: left;">integer</td><td style="text-align: left;">20</td><td style="text-align: left;">Number of results (max 100)</td></tr><tr><td style="text-align: left;"><code class="inline">period</code></td><td style="text-align: left;">string</td><td style="text-align: left;"><code class="inline">week</code></td><td style="text-align: left;">Time period: <code class="inline">day</code>, <code class="inline">week</code>, <code class="inline">month</code></td></tr></tbody></table><h3 id="response" class="section-heading"><a href="#response" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response</span></h3><pre><code class="json">{
+  &quot;podcasts&quot;: [
+    {
+      &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS90b3A=&quot;,
+      &quot;title&quot;: &quot;Top Podcast&quot;,
+      &quot;description&quot;: &quot;The most popular show&quot;,
+      &quot;image_url&quot;: &quot;https://example.com/cover.jpg&quot;,
+      &quot;subscriber_count&quot;: 1234,
+      &quot;play_count&quot;: 5678,
+      &quot;rank&quot;: 1
+    }
+  ],
+  &quot;period&quot;: &quot;week&quot;,
+  &quot;generated_at&quot;: &quot;2024-01-20T12:00:00Z&quot;
+}</code></pre><h2 id="trending-episodes" class="section-heading"><a href="#trending-episodes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Trending Episodes</span></h2><p>Get the most played episodes recently.</p><pre><code class="http">GET /api/v1/public/trending/episodes</code></pre><h3 id="query-parameters-1" class="section-heading"><a href="#query-parameters-1" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Query Parameters</span></h3><table><thead><tr><th style="text-align: left;">Parameter</th><th style="text-align: left;">Type</th><th style="text-align: left;">Default</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">limit</code></td><td style="text-align: left;">integer</td><td style="text-align: left;">20</td><td style="text-align: left;">Number of results (max 100)</td></tr><tr><td style="text-align: left;"><code class="inline">period</code></td><td style="text-align: left;">string</td><td style="text-align: left;"><code class="inline">week</code></td><td style="text-align: left;">Time period: <code class="inline">day</code>, <code class="inline">week</code>, <code class="inline">month</code></td></tr></tbody></table><h3 id="response-1" class="section-heading"><a href="#response-1" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response</span></h3><pre><code class="json">{
+  &quot;episodes&quot;: [
+    {
+      &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0&quot;,
+      &quot;rss_source_item&quot;: &quot;Z3VpZC0xMjMsaHR0cHM6Ly9leGFtcGxlLmNvbS9lcDEubXAz&quot;,
+      &quot;title&quot;: &quot;Amazing Episode #42&quot;,
+      &quot;podcast_title&quot;: &quot;Great Podcast&quot;,
+      &quot;image_url&quot;: &quot;https://example.com/ep42.jpg&quot;,
+      &quot;play_count&quot;: 890,
+      &quot;completion_rate&quot;: 0.75,
+      &quot;rank&quot;: 1
+    }
+  ]
+}</code></pre><h2 id="public-timeline" class="section-heading"><a href="#public-timeline" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Public Timeline</span></h2><p>Get a feed of public activity (plays, subscriptions) from users who opted in.</p><pre><code class="http">GET /api/v1/public/timeline</code></pre><h3 id="query-parameters-2" class="section-heading"><a href="#query-parameters-2" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Query Parameters</span></h3><table><thead><tr><th style="text-align: left;">Parameter</th><th style="text-align: left;">Type</th><th style="text-align: left;">Default</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">limit</code></td><td style="text-align: left;">integer</td><td style="text-align: left;">50</td><td style="text-align: left;">Number of events (max 100)</td></tr><tr><td style="text-align: left;"><code class="inline">before</code></td><td style="text-align: left;">string</td><td style="text-align: left;">-</td><td style="text-align: left;">Cursor for pagination (event ID)</td></tr><tr><td style="text-align: left;"><code class="inline">type</code></td><td style="text-align: left;">string</td><td style="text-align: left;">-</td><td style="text-align: left;">Filter by event type: <code class="inline">play</code>, <code class="inline">subscribe</code></td></tr></tbody></table><h3 id="response-2" class="section-heading"><a href="#response-2" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response</span></h3><pre><code class="json">{
+  &quot;events&quot;: [
+    {
+      &quot;id&quot;: &quot;evt-123&quot;,
+      &quot;type&quot;: &quot;play&quot;,
+      &quot;user&quot;: {
+        &quot;username&quot;: &quot;podcast_lover&quot;,
+        &quot;avatar_url&quot;: &quot;https://example.com/avatar.jpg&quot;
+      },
+      &quot;podcast&quot;: {
+        &quot;title&quot;: &quot;Great Podcast&quot;,
+        &quot;image_url&quot;: &quot;https://example.com/cover.jpg&quot;
+      },
+      &quot;episode&quot;: {
+        &quot;title&quot;: &quot;Episode 42&quot;
+      },
+      &quot;timestamp&quot;: &quot;2024-01-20T11:30:00Z&quot;
+    },
+    {
+      &quot;id&quot;: &quot;evt-122&quot;,
+      &quot;type&quot;: &quot;subscribe&quot;,
+      &quot;user&quot;: {
+        &quot;username&quot;: &quot;new_listener&quot;
+      },
+      &quot;podcast&quot;: {
+        &quot;title&quot;: &quot;Another Podcast&quot;
+      },
+      &quot;timestamp&quot;: &quot;2024-01-20T11:25:00Z&quot;
+    }
+  ],
+  &quot;next_cursor&quot;: &quot;evt-100&quot;
+}</code></pre><h2 id="podcast-popularity" class="section-heading"><a href="#podcast-popularity" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Podcast Popularity</span></h2><p>Get detailed popularity statistics for a specific podcast.</p><pre><code class="http">GET /api/v1/public/feed/:feed/popularity</code></pre><h3 id="path-parameters" class="section-heading"><a href="#path-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Path Parameters</span></h3><table><thead><tr><th style="text-align: left;">Parameter</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">feed</code></td><td style="text-align: left;">Base64-encoded RSS feed URL</td></tr></tbody></table><h3 id="response-3" class="section-heading"><a href="#response-3" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response</span></h3><pre><code class="json">{
+  &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0&quot;,
+  &quot;subscriber_count&quot;: 1234,
+  &quot;total_plays&quot;: 56789,
+  &quot;avg_completion_rate&quot;: 0.72,
+  &quot;trending_rank&quot;: 5,
+  &quot;stats_by_period&quot;: {
+    &quot;day&quot;: {&quot;plays&quot;: 150, &quot;new_subscribers&quot;: 10},
+    &quot;week&quot;: {&quot;plays&quot;: 890, &quot;new_subscribers&quot;: 45},
+    &quot;month&quot;: {&quot;plays&quot;: 3200, &quot;new_subscribers&quot;: 180}
+  }
+}</code></pre><h2 id="episode-popularity" class="section-heading"><a href="#episode-popularity" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Episode Popularity</span></h2><p>Get popularity statistics for a specific episode.</p><pre><code class="http">GET /api/v1/public/episode/:item/popularity</code></pre><h3 id="path-parameters-1" class="section-heading"><a href="#path-parameters-1" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Path Parameters</span></h3><table><thead><tr><th style="text-align: left;">Parameter</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">item</code></td><td style="text-align: left;">Base64-encoded episode identifier</td></tr></tbody></table><h3 id="response-4" class="section-heading"><a href="#response-4" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response</span></h3><pre><code class="json">{
+  &quot;rss_source_item&quot;: &quot;Z3VpZC0xMjMsaHR0cHM6Ly9leGFtcGxlLmNvbS9lcDEubXAz&quot;,
+  &quot;play_count&quot;: 890,
+  &quot;unique_listeners&quot;: 654,
+  &quot;completion_rate&quot;: 0.75,
+  &quot;avg_position&quot;: 2400,
+  &quot;shares&quot;: 23
+}</code></pre><h2 id="example-fetch-trending-for-app-homepage" class="section-heading"><a href="#example-fetch-trending-for-app-homepage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example: Fetch Trending for App Homepage</span></h2><pre><code class="makeup bash" translate="no"><span class=""># Get top 10 podcasts this week
+</span><span class="">curl &quot;https://sync.balados.cloud/api/v1/public/trending/podcasts?limit=10&amp;period=week&quot;
+</span><span class="">
+</span><span class=""># Get recent public activity
+</span><span class="">curl &quot;https://sync.balados.cloud/api/v1/public/timeline?limit=20&quot;
+</span></code></pre><h2 id="privacy-note" class="section-heading"><a href="#privacy-note" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Privacy Note</span></h2><p>Only activity from users who have set their privacy to <code class="inline">public</code> appears in the public API. Users can control their visibility in their privacy settings.</p>
+
+</div>
+
+<div class="bottom-actions" id="bottom-actions">
+  <div class="bottom-actions-item">
+
+      <a href="api-sync.html" class="bottom-actions-button" rel="prev">
+        <span class="subheader">
+          ← Previous Page
+        </span>
+        <span class="title">
+Sync API
+        </span>
+      </a>
+
+  </div>
+  <div class="bottom-actions-item">
+
+      <a href="readme.html" class="bottom-actions-button" rel="next">
+        <span class="subheader">
+          Next Page →
+        </span>
+        <span class="title">
+Balados Sync
+        </span>
+      </a>
+
+  </div>
+</div>
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>
