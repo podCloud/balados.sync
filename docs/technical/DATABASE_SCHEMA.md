@@ -86,7 +86,7 @@ config :eventstore, EventStore.Config,
 - ❌ NOT event-sourced (permanent architectural decision)
 - ✅ Direct CRUD operations via Ecto
 - 🔒 NEVER truncated by `mix db.reset --projections`
-- 🔐 Uses standard security patterns (bcrypt, sessions)
+- 🔐 Uses standard security patterns (Argon2id, sessions)
 
 **Tables:**
 
@@ -98,7 +98,7 @@ config :eventstore, EventStore.Config,
 
 **Why permanent and not event-sourced?**
 - Authentication is well-understood with traditional CRUD patterns
-- Compliance with standard security practices (bcrypt, OAuth)
+- Compliance with standard security practices (Argon2id, OAuth)
 - Clear separation: `system` = infrastructure, projections = domain logic
 - Avoids unnecessary complexity for operational data
 - Faster authentication (no event replay needed)
@@ -656,7 +656,7 @@ apps/balados_sync_projections/
 **Rationale:**
 
 1. **Simplicity:** Authentication is well-understood with traditional CRUD
-2. **Standards:** bcrypt, sessions, OAuth follow established patterns
+2. **Standards:** Argon2id, sessions, OAuth follow established patterns
 3. **Separation of Concerns:**
    - `system` = Infrastructure (how the app operates)
    - projections = Domain (what users do)

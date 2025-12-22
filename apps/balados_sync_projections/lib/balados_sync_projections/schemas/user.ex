@@ -1,6 +1,20 @@
 defmodule BaladosSyncProjections.Schemas.User do
+  @moduledoc """
+  User schema with Argon2id password hashing.
+
+  Passwords are hashed with Argon2id (OWASP 2025 recommended) which provides
+  memory-hard protection against GPU-based attacks.
+  """
   use Ecto.Schema
   import Ecto.Changeset
+
+  require Logger
+
+  # Argon2id configuration (OWASP 2025 recommendations)
+  # t_cost: 3 iterations
+  # m_cost: 16 = 64 MiB memory (2^16 KiB)
+  # parallelism: 1 thread
+  @argon2_opts [t_cost: 3, m_cost: 16, parallelism: 1]
 
   @primary_key {:id, :string, autogenerate: {Ecto.UUID, :generate, []}}
   @schema_prefix "system"
@@ -35,7 +49,7 @@ defmodule BaladosSyncProjections.Schemas.User do
   ## Security considerations
 
   - Password must be at least 12 characters
-  - Password is hashed using bcrypt
+  - Password is hashed using Argon2id (OWASP 2025 recommended)
   - Email is downcased and trimmed
   - Username is trimmed and validated for format
   """
@@ -84,9 +98,7 @@ defmodule BaladosSyncProjections.Schemas.User do
 
     if hash_password? && password && changeset.valid? do
       changeset
-      # Using Bcrypt for password hashing
-      # TODO: Switch back to Argon2 once UTF-8 encoding issue is resolved
-      |> put_change(:hashed_password, Bcrypt.hash_pwd_salt(password))
+      |> put_change(:hashed_password, Argon2.hash_pwd_salt(password, @argon2_opts))
       |> delete_change(:password)
     else
       changeset
@@ -216,15 +228,15 @@ defmodule BaladosSyncProjections.Schemas.User do
   Verifies the password.
 
   If there is no user or the user doesn't have a password, we call
-  `Bcrypt.no_user_verify/0` to avoid timing attacks.
+  `Argon2.no_user_verify/0` to avoid timing attacks.
   """
   def valid_password?(%__MODULE__{hashed_password: hashed_password}, password)
       when is_binary(hashed_password) and byte_size(password) > 0 do
-    Bcrypt.verify_pass(password, hashed_password)
+    Argon2.verify_pass(password, hashed_password)
   end
 
   def valid_password?(_, _) do
-    Bcrypt.no_user_verify()
+    Argon2.no_user_verify()
     false
   end
 
