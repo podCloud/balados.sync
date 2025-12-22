@@ -31,7 +31,9 @@ defmodule BaladosSync.Umbrella.MixProject do
     [
       # Required to run "mix format" on ~H/.heex files from the umbrella root
       {:phoenix_live_view, ">= 0.0.0"},
-      {:ex_doc, "~> 0.34", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.34", only: :dev, runtime: false},
+      # Property-based testing
+      {:stream_data, "~> 1.1", only: [:test, :dev]}
     ]
   end
 

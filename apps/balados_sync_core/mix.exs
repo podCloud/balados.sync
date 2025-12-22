@@ -47,7 +47,9 @@ defmodule BaladosSyncCore.MixProject do
       {:finch, "~> 0.13"},
       {:httpoison, "~> 2.0"},
       {:cachex, "~> 3.6"},
-      {:sweet_xml, "~> 0.7"}
+      {:sweet_xml, "~> 0.7"},
+      # Property-based testing
+      {:stream_data, "~> 1.1", only: :test}
     ]
   end
 
