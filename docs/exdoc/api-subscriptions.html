@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>Subscriptions API — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-extra" id="main" data-type="extras">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>Subscriptions API</h1>
+
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/guides/api/subscriptions.md#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+<p>Manage podcast subscriptions for the authenticated user.</p><h2 id="endpoints" class="section-heading"><a href="#endpoints" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Endpoints</span></h2><table><thead><tr><th style="text-align: left;">Method</th><th style="text-align: left;">Path</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">GET</code></td><td style="text-align: left;"><code class="inline">/api/v1/subscriptions</code></td><td style="text-align: left;">List all subscriptions</td></tr><tr><td style="text-align: left;"><code class="inline">POST</code></td><td style="text-align: left;"><code class="inline">/api/v1/subscriptions</code></td><td style="text-align: left;">Subscribe to a podcast</td></tr><tr><td style="text-align: left;"><code class="inline">DELETE</code></td><td style="text-align: left;"><code class="inline">/api/v1/subscriptions/:feed</code></td><td style="text-align: left;">Unsubscribe from a podcast</td></tr><tr><td style="text-align: left;"><code class="inline">GET</code></td><td style="text-align: left;"><code class="inline">/api/v1/subscriptions/:feed/metadata</code></td><td style="text-align: left;">Get podcast metadata</td></tr></tbody></table><h2 id="list-subscriptions" class="section-heading"><a href="#list-subscriptions" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">List Subscriptions</span></h2><pre><code class="http">GET /api/v1/subscriptions
+Authorization: Bearer &lt;token&gt;</code></pre><h3 id="response" class="section-heading"><a href="#response" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response</span></h3><pre><code class="json">{
+  &quot;subscriptions&quot;: [
+    {
+      &quot;id&quot;: &quot;sub-123&quot;,
+      &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0&quot;,
+      &quot;rss_source_id&quot;: &quot;podcast-abc&quot;,
+      &quot;subscribed_at&quot;: &quot;2024-01-15T10:30:00Z&quot;,
+      &quot;metadata&quot;: {
+        &quot;title&quot;: &quot;Example Podcast&quot;,
+        &quot;description&quot;: &quot;A great podcast about examples&quot;,
+        &quot;image_url&quot;: &quot;https://example.com/cover.jpg&quot;
+      }
+    }
+  ]
+}</code></pre><h2 id="subscribe-to-a-podcast" class="section-heading"><a href="#subscribe-to-a-podcast" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Subscribe to a Podcast</span></h2><pre><code class="http">POST /api/v1/subscriptions
+Authorization: Bearer &lt;token&gt;
+Content-Type: application/json
+
+{
+  &quot;feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0&quot;
+}</code></pre><h3 id="request-body" class="section-heading"><a href="#request-body" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Request Body</span></h3><table><thead><tr><th style="text-align: left;">Field</th><th style="text-align: left;">Type</th><th style="text-align: left;">Required</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">feed</code></td><td style="text-align: left;">string</td><td style="text-align: left;">Yes</td><td style="text-align: left;">Base64-encoded RSS feed URL</td></tr></tbody></table><h3 id="response-201-created" class="section-heading"><a href="#response-201-created" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response (201 Created)</span></h3><pre><code class="json">{
+  &quot;subscription&quot;: {
+    &quot;id&quot;: &quot;sub-456&quot;,
+    &quot;rss_source_feed&quot;: &quot;aHR0cHM6Ly9mZWVkcy5leGFtcGxlLmNvbS9wb2RjYXN0&quot;,
+    &quot;rss_source_id&quot;: &quot;podcast-xyz&quot;,
+    &quot;subscribed_at&quot;: &quot;2024-01-20T14:00:00Z&quot;
+  }
+}</code></pre><h3 id="errors" class="section-heading"><a href="#errors" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Errors</span></h3><table><thead><tr><th style="text-align: left;">Code</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">INVALID_FEED</code></td><td style="text-align: left;">The feed URL is malformed or not a valid RSS feed</td></tr><tr><td style="text-align: left;"><code class="inline">ALREADY_SUBSCRIBED</code></td><td style="text-align: left;">User is already subscribed to this feed</td></tr></tbody></table><h2 id="unsubscribe-from-a-podcast" class="section-heading"><a href="#unsubscribe-from-a-podcast" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Unsubscribe from a Podcast</span></h2><pre><code class="http">DELETE /api/v1/subscriptions/:feed
+Authorization: Bearer &lt;token&gt;</code></pre><h3 id="path-parameters" class="section-heading"><a href="#path-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Path Parameters</span></h3><table><thead><tr><th style="text-align: left;">Parameter</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code class="inline">feed</code></td><td style="text-align: left;">Base64-encoded RSS feed URL</td></tr></tbody></table><h3 id="response-200-ok" class="section-heading"><a href="#response-200-ok" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response (200 OK)</span></h3><pre><code class="json">{
+  &quot;message&quot;: &quot;Unsubscribed successfully&quot;
+}</code></pre><h2 id="get-podcast-metadata" class="section-heading"><a href="#get-podcast-metadata" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Get Podcast Metadata</span></h2><p>Fetch metadata for a subscribed podcast (title, description, episodes).</p><pre><code class="http">GET /api/v1/subscriptions/:feed/metadata
+Authorization: Bearer &lt;token&gt;</code></pre><h3 id="response-1" class="section-heading"><a href="#response-1" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Response</span></h3><pre><code class="json">{
+  &quot;metadata&quot;: {
+    &quot;title&quot;: &quot;Example Podcast&quot;,
+    &quot;description&quot;: &quot;A great podcast about examples&quot;,
+    &quot;author&quot;: &quot;John Doe&quot;,
+    &quot;image_url&quot;: &quot;https://example.com/cover.jpg&quot;,
+    &quot;link&quot;: &quot;https://example.com&quot;,
+    &quot;language&quot;: &quot;en&quot;,
+    &quot;episode_count&quot;: 42
+  }
+}</code></pre><h2 id="example-subscribe-with-curl" class="section-heading"><a href="#example-subscribe-with-curl" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example: Subscribe with curl</span></h2><pre><code class="makeup bash" translate="no"><span class=""># Encode the feed URL
+</span><span class="">FEED=$(echo -n &quot;https://feeds.example.com/podcast.xml&quot; | base64)
+</span><span class="">
+</span><span class=""># Subscribe
+</span><span class="">curl -X POST &quot;https://sync.balados.cloud/api/v1/subscriptions&quot; \
+</span><span class="">  -H &quot;Authorization: Bearer $TOKEN&quot; \
+</span><span class="">  -H &quot;Content-Type: application/json&quot; \
+</span><span class="">  -d &quot;{\&quot;feed\&quot;: \&quot;$FEED\&quot;}&quot;
+</span></code></pre>
+
+</div>
+
+<div class="bottom-actions" id="bottom-actions">
+  <div class="bottom-actions-item">
+
+      <a href="api-overview.html" class="bottom-actions-button" rel="prev">
+        <span class="subheader">
+          ← Previous Page
+        </span>
+        <span class="title">
+API Overview
+        </span>
+      </a>
+
+  </div>
+  <div class="bottom-actions-item">
+
+      <a href="api-playback.html" class="bottom-actions-button" rel="next">
+        <span class="subheader">
+          Next Page →
+        </span>
+        <span class="title">
+Playback API
+        </span>
+      </a>
+
+  </div>
+</div>
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

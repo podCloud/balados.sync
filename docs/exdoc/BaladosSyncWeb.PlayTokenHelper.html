@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>BaladosSyncWeb.PlayTokenHelper — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">BaladosSyncWeb.PlayTokenHelper</span> 
+      <small class="app-vsn" translate="no">(Balados Sync v0.1.0)</small>
+
+    </h1>
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/play_token_helper.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Helper functions for managing PlayTokens used by the play gateway.</p><p>PlayTokens allow authenticated users to track plays through the RSS aggregation gateway
+without requiring full app authentication on each play.</p><p>Supports two play gateway modes:</p><ol><li>External domain mode (production): <a href="https://%7Bplay_domain%7D/%7Btoken%7D/%7Bfeed%7D/%7Bitem%7D">https://{play_domain}/{token}/{feed}/{item}</a></li><li>Local path mode (development, default): /play/{token}/{feed}/{item}</li></ol><p>Configuration:</p><ul><li>If <code class="inline">play_domain</code> is set, uses external domain URLs</li><li>Otherwise, uses local path (/play/) as default (for single-domain development)</li></ul><p>Example config:
+  config :balados_sync_web, play_domain: &quot;play.example.com&quot;  # Production
+  # or omit for development path mode at /play/</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#build_play_url/3" data-no-tooltip="" translate="no">build_play_url(token, encoded_feed, item_id_encoded)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Builds a play gateway URL for the given token, feed, and item.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_balados_web_token/2" data-no-tooltip="" translate="no">create_balados_web_token(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Creates a new &quot;Balados Web&quot; PlayToken for the user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_websocket_token/2" data-no-tooltip="" translate="no">create_websocket_token(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Creates a new &quot;Balados Web Sync&quot; PlayToken for the user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_balados_web_token/1" data-no-tooltip="" translate="no">get_balados_web_token(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Gets the existing &quot;Balados Web&quot; token for the user, if it exists and is not revoked.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_or_create_balados_web_token/1" data-no-tooltip="" translate="no">get_or_create_balados_web_token(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Gets or creates a PlayToken named &quot;Balados Web&quot; for the user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_or_create_websocket_token/1" data-no-tooltip="" translate="no">get_or_create_websocket_token(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Gets or creates a PlayToken named &quot;Balados Web Sync&quot; for the user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_websocket_token/1" data-no-tooltip="" translate="no">get_websocket_token(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Gets the existing &quot;Balados Web Sync&quot; token for the user, if it exists and is not revoked.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+
+    <div class="functions-list">
+<section class="detail" id="build_play_url/3">
+
+  <div class="detail-header">
+    <a href="#build_play_url/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">build_play_url(token, encoded_feed, item_id_encoded)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/play_token_helper.ex#L200" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Builds a play gateway URL for the given token, feed, and item.</p><p>Intelligently chooses between:</p><ul><li>External domain mode: <a href="https://%7Bplay_domain%7D/%7Btoken%7D/%7Bfeed%7D/%7Bitem%7D">https://{play_domain}/{token}/{feed}/{item}</a></li><li>Local path mode: /play/{token}/{feed}/{item}</li></ul><p>Configuration:</p><ul><li>If <code class="inline">play_domain</code> is set, uses external domain URLs</li><li>Otherwise, uses local path routes (development default)</li></ul><p>The encoding is applied by the caller for flexibility.</p>
+  </section>
+</section>
+<section class="detail" id="create_balados_web_token/2">
+
+    <span id="create_balados_web_token/1"></span>
+
+  <div class="detail-header">
+    <a href="#create_balados_web_token/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_balados_web_token(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/play_token_helper.ex#L93" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Creates a new &quot;Balados Web&quot; PlayToken for the user.</p><p>Only creates if a valid token doesn't already exist. If one already exists, returns it.</p><p>Accepts optional expiration_days parameter (defaults to config or 365 days).</p><p>Returns {:ok, token_string} on success, {:error, reason} on failure.</p>
+  </section>
+</section>
+<section class="detail" id="create_websocket_token/2">
+
+    <span id="create_websocket_token/1"></span>
+
+  <div class="detail-header">
+    <a href="#create_websocket_token/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_websocket_token(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/play_token_helper.ex#L147" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Creates a new &quot;Balados Web Sync&quot; PlayToken for the user.</p><p>Only creates if a valid token doesn't already exist. If one already exists, returns it.</p><p>Accepts optional expiration_days parameter (defaults to config or 365 days).</p><p>Returns {:ok, token_string} on success, {:error, reason} on failure.</p>
+  </section>
+</section>
+<section class="detail" id="get_balados_web_token/1">
+
+  <div class="detail-header">
+    <a href="#get_balados_web_token/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_balados_web_token(user_id)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/play_token_helper.ex#L71" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Gets the existing &quot;Balados Web&quot; token for the user, if it exists and is not revoked.</p><p>Returns {:ok, token_string} if found, :not_found if not found or revoked, {:error, reason} on failure.</p>
+  </section>
+</section>
+<section class="detail" id="get_or_create_balados_web_token/1">
+
+  <div class="detail-header">
+    <a href="#get_or_create_balados_web_token/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_or_create_balados_web_token(user_id)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/play_token_helper.ex#L33" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Gets or creates a PlayToken named &quot;Balados Web&quot; for the user.</p><p>This is used to generate play gateway links in RSS feeds. The token is automatically
+created on first use to avoid requiring users to manually set up tokens.</p><p>Returns {:ok, token_string} on success, {:error, reason} on failure.</p>
+  </section>
+</section>
+<section class="detail" id="get_or_create_websocket_token/1">
+
+  <div class="detail-header">
+    <a href="#get_or_create_websocket_token/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_or_create_websocket_token(user_id)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/play_token_helper.ex#L51" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Gets or creates a PlayToken named &quot;Balados Web Sync&quot; for the user.</p><p>This is used for WebSocket play event tracking. The token is automatically
+created on first use when accessing subscription/discovery pages.</p><p>Returns {:ok, token_string} on success, {:error, reason} on failure.</p>
+  </section>
+</section>
+<section class="detail" id="get_websocket_token/1">
+
+  <div class="detail-header">
+    <a href="#get_websocket_token/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_websocket_token(user_id)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/play_token_helper.ex#L125" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Gets the existing &quot;Balados Web Sync&quot; token for the user, if it exists and is not revoked.</p><p>Returns {:ok, token_string} if found, :not_found if not found or revoked, {:error, reason} on failure.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

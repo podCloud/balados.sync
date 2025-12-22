@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>BaladosSyncWeb.PlaylistEnricher — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">BaladosSyncWeb.PlaylistEnricher</span> 
+      <small class="app-vsn" translate="no">(Balados Sync v0.1.0)</small>
+
+    </h1>
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/playlist_enricher.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Enriches playlist items with metadata fetched from RSS feeds.</p><p>Fetches RSS feeds in parallel and matches episodes with playlist items
+to provide enriched metadata (full description, cover, pub_date, duration, etc.).</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#enrich_items/1" data-no-tooltip="" translate="no">enrich_items(items)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Enriches a list of playlist items with metadata from their source RSS feeds.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#fetch_feeds_parallel/1" data-no-tooltip="" translate="no">fetch_feeds_parallel(feed_urls)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Fetches multiple RSS feeds in parallel with timeout protection.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#format_duration/1" data-no-tooltip="" translate="no">format_duration(seconds)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Formats duration in seconds to human-readable format (HH:MM:SS or MM:SS).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#format_pub_date/1" data-no-tooltip="" translate="no">format_pub_date(date)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Formats pub_date to a relative or absolute date string.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#strip_html_tags/1" data-no-tooltip="" translate="no">strip_html_tags(html)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Strips HTML tags from a string.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+
+    <div class="functions-list">
+<section class="detail" id="enrich_items/1">
+
+  <div class="detail-header">
+    <a href="#enrich_items/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">enrich_items(items)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/playlist_enricher.ex#L39" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Enriches a list of playlist items with metadata from their source RSS feeds.</p><h2 id="enrich_items/1-process" class="section-heading"><a href="#enrich_items/1-process" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Process</span></h2><ol><li>Groups items by source feed URL</li><li>Fetches each feed in parallel with timeout protection</li><li>Matches parsed episodes with playlist items by GUID</li><li>Returns enriched items with additional metadata</li></ol><h2 id="enrich_items/1-returns" class="section-heading"><a href="#enrich_items/1-returns" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Returns</span></h2><p>A list of enriched items, each containing:</p><ul><li>Original item fields (id, position, etc.)</li><li>Enriched fields: :description, :cover, :pub_date, :duration, :enclosure, :link</li><li>:enriched flag (true if metadata was fetched, false if using fallback)</li></ul><h2 id="enrich_items/1-example" class="section-heading"><a href="#enrich_items/1-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">items</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p" data-group-id="0166429028-1">[</span><span class="p" data-group-id="0166429028-2">%{</span><span class="ss">rss_source_feed</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://...&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">rss_source_item</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ep-123&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="0166429028-2">}</span><span class="p" data-group-id="0166429028-1">]</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">enriched</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">PlaylistEnricher</span><span class="o">.</span><span class="n">enrich_items</span><span class="p" data-group-id="0166429028-3">(</span><span class="n">items</span><span class="p" data-group-id="0166429028-3">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">hd</span><span class="p" data-group-id="0166429028-4">(</span><span class="n">enriched</span><span class="p" data-group-id="0166429028-4">)</span><span class="o">.</span><span class="n">enriched</span><span class="w">
+</span><span class="no">true</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="fetch_feeds_parallel/1">
+
+  <div class="detail-header">
+    <a href="#fetch_feeds_parallel/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">fetch_feeds_parallel(feed_urls)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/playlist_enricher.ex#L59" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Fetches multiple RSS feeds in parallel with timeout protection.</p><p>Returns a map of %{feed_url =&gt; %{guid =&gt; episode_metadata}}.</p>
+  </section>
+</section>
+<section class="detail" id="format_duration/1">
+
+  <div class="detail-header">
+    <a href="#format_duration/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">format_duration(seconds)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/playlist_enricher.ex#L162" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Formats duration in seconds to human-readable format (HH:MM:SS or MM:SS).</p>
+  </section>
+</section>
+<section class="detail" id="format_pub_date/1">
+
+  <div class="detail-header">
+    <a href="#format_pub_date/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">format_pub_date(date)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/playlist_enricher.ex#L181" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Formats pub_date to a relative or absolute date string.</p>
+  </section>
+</section>
+<section class="detail" id="strip_html_tags/1">
+
+  <div class="detail-header">
+    <a href="#strip_html_tags/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">strip_html_tags(html)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/playlist_enricher.ex#L202" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Strips HTML tags from a string.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

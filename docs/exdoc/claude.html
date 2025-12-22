@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>Developer Guide — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-extra" id="main" data-type="extras">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>CLAUDE.md - Balados Sync</h1>
+
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/CLAUDE.md#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+<p>Ce fichier fournit des instructions à Claude Code pour travailler sur ce repository.</p><h2 id="vue-d-ensemble-du-projet" class="section-heading"><a href="#vue-d-ensemble-du-projet" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">📖 Vue d'Ensemble du Projet</span></h2><p><strong>Balados Sync</strong> est une plateforme ouverte de synchronisation de podcasts utilisant <strong>CQRS/Event Sourcing</strong> avec Elixir.</p><h3 id="objectif-principal" class="section-heading"><a href="#objectif-principal" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Objectif Principal</span></h3><p>Créer une plateforme ouverte pour synchroniser les écoutes de podcasts entre applications et appareils, avec découverte communautaire et support self-hosted.</p><p><strong>👉 Voir</strong> : <a href="docs/GOALS.md">docs/GOALS.md</a></p><h3 id="architecture" class="section-heading"><a href="#architecture" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Architecture</span></h3><p>Application <strong>Elixir umbrella</strong> avec 4 apps :</p><ul><li><strong>balados_sync_core</strong> : Domain, CQRS, Event Sourcing (Commanded)</li><li><strong>balados_sync_projections</strong> : Read Models, Projectors (Ecto)</li><li><strong>balados_sync_web</strong> : REST API, Controllers (Phoenix)</li><li><strong>balados_sync_jobs</strong> : Background Workers</li></ul><p><strong>👉 Détails</strong> : <a href="docs/technical/ARCHITECTURE.md">docs/technical/ARCHITECTURE.md</a></p><hr class="thin"/><h2 id="quick-start" class="section-heading"><a href="#quick-start" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">🚀 Quick Start</span></h2><h3 id="installation-setup" class="section-heading"><a href="#installation-setup" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Installation &amp; Setup</span></h3><pre><code class="makeup bash" translate="no"><span class="">mix deps.get
+</span><span class="">mix db.create
+</span><span class="">mix db.init
+</span><span class="">mix phx.server    # http://localhost:4000
+</span></code></pre><p><strong>👉 Guide complet</strong> : <a href="docs/technical/DEVELOPMENT.md">docs/technical/DEVELOPMENT.md</a></p><hr class="thin"/><h2 id="documentation" class="section-heading"><a href="#documentation" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">📚 Documentation</span></h2><table><thead><tr><th style="text-align: left;">Document</th><th style="text-align: left;">Contenu</th></tr></thead><tbody><tr><td style="text-align: left;"><a href="docs/GOALS.md"><strong>docs/GOALS.md</strong></a></td><td style="text-align: left;">Objectifs et vision</td></tr><tr><td style="text-align: left;"><a href="docs/FEATURES.md"><strong>docs/FEATURES.md</strong></a></td><td style="text-align: left;">Fonctionnalités implémentées</td></tr><tr><td style="text-align: left;"><a href="docs/ARCHITECTURAL_AUDIT.md"><strong>docs/ARCHITECTURAL_AUDIT.md</strong></a></td><td style="text-align: left;">Audit architectural (2025-12-21)</td></tr><tr><td style="text-align: left;"><a href="IDEAS.md"><strong>IDEAS.md</strong></a></td><td style="text-align: left;">Idées et roadmap futures</td></tr><tr><td style="text-align: left;"><a href="docs/technical/ARCHITECTURE.md"><strong>docs/technical/ARCHITECTURE.md</strong></a></td><td style="text-align: left;">Architecture système</td></tr><tr><td style="text-align: left;"><a href="docs/technical/DEVELOPMENT.md"><strong>docs/technical/DEVELOPMENT.md</strong></a></td><td style="text-align: left;">Workflow et commandes</td></tr><tr><td style="text-align: left;"><a href="docs/technical/AUTH_SYSTEM.md"><strong>docs/technical/AUTH_SYSTEM.md</strong></a></td><td style="text-align: left;">Autorisation JWT</td></tr><tr><td style="text-align: left;"><a href="docs/technical/CQRS_PATTERNS.md"><strong>docs/technical/CQRS_PATTERNS.md</strong></a></td><td style="text-align: left;">Patterns CQRS/ES</td></tr><tr><td style="text-align: left;"><a href="docs/technical/DATABASE_SCHEMA.md"><strong>docs/technical/DATABASE_SCHEMA.md</strong></a></td><td style="text-align: left;">Architecture BD</td></tr><tr><td style="text-align: left;"><a href="docs/technical/POST_MERGE_FOLLOWUPS.md"><strong>docs/technical/POST_MERGE_FOLLOWUPS.md</strong></a></td><td style="text-align: left;">Issues de suivi post-merge</td></tr></tbody></table><hr class="thin"/><h2 id="principes-clés" class="section-heading"><a href="#principes-clés" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">🎯 Principes Clés</span></h2><h3 id="cqrs-event-sourcing" class="section-heading"><a href="#cqrs-event-sourcing" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">CQRS/Event Sourcing</span></h3><p><strong>Flux</strong> : Command → Aggregate → Event → EventStore → Projectors → Projections</p><ul><li><strong>Commands</strong> : Intentions (Subscribe, RecordPlay, ...)</li><li><strong>Events</strong> : Faits immuables (UserSubscribed, PlayRecorded, ...)</li><li><strong>Aggregates</strong> : Logique métier (User aggregate)</li><li><strong>Projections</strong> : Read models dénormalisés</li></ul><p><strong>👉 Patterns</strong> : <a href="docs/technical/CQRS_PATTERNS.md">docs/technical/CQRS_PATTERNS.md</a></p><h3 id="event-store-source-de-vérité" class="section-heading"><a href="#event-store-source-de-vérité" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Event Store = Source de Vérité</span></h3><ul><li>❌ <strong>NE JAMAIS</strong> modifier manuellement la DB <code class="inline">events</code></li><li>✅ Events sont <strong>immuables</strong> (émettre nouvel event pour &quot;supprimer&quot;)</li><li>⚠️ <strong>Exception</strong> : Les deletion events supprimaient l'historique (disparaissent après 45j)</li></ul><h3 id="projections-eventual-consistency" class="section-heading"><a href="#projections-eventual-consistency" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Projections = Eventual Consistency</span></h3><ul><li>Délai normal : quelques millisecondes</li><li>Pour reset : <code class="inline">mix db.reset --projections</code> (SAFE, replay automatique)</li></ul><hr class="thin"/><h2 id="autorisation" class="section-heading"><a href="#autorisation" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">🔐 Autorisation</span></h2><p>OAuth-style JWT flow avec scopes hiérarchiques :</p><pre><code class="makeup elixir" translate="no"><span class="o">*</span><span class="w">                         </span><span class="p" data-group-id="9160678947-1">(</span><span class="n">full</span><span class="w"> </span><span class="n">access</span><span class="p" data-group-id="9160678947-1">)</span><span class="w">
+</span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="o">*</span><span class="o">.</span><span class="n">read</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="o">*</span><span class="o">.</span><span class="n">write</span><span class="w">
+</span><span class="err">└</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">user</span><span class="w">
+    </span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">user</span><span class="o">.</span><span class="n">subscriptions</span><span class="o">.</span><span class="p" data-group-id="9160678947-2">{</span><span class="n">read</span><span class="p">,</span><span class="n">write</span><span class="p" data-group-id="9160678947-2">}</span><span class="w">
+    </span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">user</span><span class="o">.</span><span class="n">plays</span><span class="o">.</span><span class="p" data-group-id="9160678947-3">{</span><span class="n">read</span><span class="p">,</span><span class="n">write</span><span class="p" data-group-id="9160678947-3">}</span><span class="w">
+    </span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">user</span><span class="o">.</span><span class="n">playlists</span><span class="o">.</span><span class="p" data-group-id="9160678947-4">{</span><span class="n">read</span><span class="p">,</span><span class="n">write</span><span class="p" data-group-id="9160678947-4">}</span><span class="w">
+    </span><span class="err">├</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">user</span><span class="o">.</span><span class="n">privacy</span><span class="o">.</span><span class="p" data-group-id="9160678947-5">{</span><span class="n">read</span><span class="p">,</span><span class="n">write</span><span class="p" data-group-id="9160678947-5">}</span><span class="w">
+    </span><span class="err">└</span><span class="err">─</span><span class="err">─</span><span class="w"> </span><span class="n">user</span><span class="o">.</span><span class="n">sync</span></code></pre><p><strong>👉 Détails</strong> : <a href="docs/technical/AUTH_SYSTEM.md">docs/technical/AUTH_SYSTEM.md</a></p><hr class="thin"/><h2 id="base-de-données" class="section-heading"><a href="#base-de-données" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">🗄️ Base de Données</span></h2><h3 id="trois-repos-ecto" class="section-heading"><a href="#trois-repos-ecto" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Trois Repos Ecto</span></h3><table><thead><tr><th style="text-align: left;">Repo</th><th style="text-align: left;">Schema</th><th style="text-align: left;">Type</th><th style="text-align: left;">Commande</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>SystemRepo</strong></td><td style="text-align: left;"><code class="inline">system</code></td><td style="text-align: left;">Permanent (users, tokens)</td><td style="text-align: left;"><a href="Mix.Tasks.System.Migrate.html"><code class="inline">mix system.migrate</code></a></td></tr><tr><td style="text-align: left;"><strong>ProjectionsRepo</strong></td><td style="text-align: left;"><code class="inline">public</code></td><td style="text-align: left;">Event-sourcées (read models)</td><td style="text-align: left;"><a href="Mix.Tasks.Projections.Migrate.html"><code class="inline">mix projections.migrate</code></a></td></tr><tr><td style="text-align: left;"><strong>EventStore</strong></td><td style="text-align: left;"><code class="inline">events</code></td><td style="text-align: left;">Immuable (source de vérité)</td><td style="text-align: left;">Automatique (Commanded)</td></tr></tbody></table><h3 id="commandes" class="section-heading"><a href="#commandes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Commandes</span></h3><pre><code class="makeup bash" translate="no"><span class="">mix db.migrate              # Tous les repos
+</span><span class="">mix system.migrate          # Seulement system
+</span><span class="">mix projections.migrate     # Seulement projections
+</span><span class="">mix db.reset --projections  # ✅ SAFE - reset projections
+</span><span class="">mix db.reset --all          # ☢️  DANGER - tout détruit
+</span></code></pre><p><strong>⚠️</strong> Ne pas utiliser <code class="inline">mix ecto.*</code> directement</p><p><strong>👉 Détails</strong> : <a href="docs/technical/DATABASE_SCHEMA.md">docs/technical/DATABASE_SCHEMA.md</a></p><hr class="thin"/><h2 id="tests" class="section-heading"><a href="#tests" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">🧪 Tests</span></h2><pre><code class="makeup bash" translate="no"><span class="">mix test                    # Tous les tests
+</span><span class="">mix test --cover           # Avec couverture
+</span><span class="">cd apps/balados_sync_core &amp;&amp; mix test  # App spécifique
+</span></code></pre><hr class="thin"/><h2 id="background-workers-cleanup-tasks" class="section-heading"><a href="#background-workers-cleanup-tasks" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">🔄 Background Workers &amp; Cleanup Tasks</span></h2><h3 id="playtoken-expiration-cleanup" class="section-heading"><a href="#playtoken-expiration-cleanup" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PlayToken Expiration Cleanup</span></h3><p>PlayTokens are automatically expired based on configuration (default: 365 days). Expired tokens are periodically cleaned up to maintain database performance.</p><p><strong>Manual Cleanup</strong> (if needed in production):</p><pre><code class="makeup bash" translate="no"><span class=""># Execute cleanup worker manually
+</span><span class="">mix run -e &quot;BaladosSyncJobs.PlayTokenCleanupWorker.perform()&quot;
+</span><span class="">
+</span><span class=""># Or from iex
+</span><span class="">iex&gt; BaladosSyncJobs.PlayTokenCleanupWorker.perform()
+</span></code></pre><p><strong>Configuration</strong>:</p><pre><code class="makeup elixir" translate="no"><span class="c1"># config/config.exs</span><span class="w">
+</span><span class="n">config</span><span class="w"> </span><span class="ss">:balados_sync_projections</span><span class="p">,</span><span class="w">
+  </span><span class="ss">play_token_expiration_days</span><span class="p">:</span><span class="w"> </span><span class="mi">365</span><span class="w">  </span><span class="c1"># Default: 1 year</span><span class="w">
+
+</span><span class="n">config</span><span class="w"> </span><span class="ss">:balados_sync_jobs</span><span class="p">,</span><span class="w">
+  </span><span class="ss">play_token_cleanup_batch_size</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="w">  </span><span class="c1"># Optional: batch deletion size</span></code></pre><p><strong>Monitoring</strong>:</p><ul><li>Monitor token accumulation: Check <code class="inline">system.play_tokens</code> table for expired tokens</li><li>Set up alerts if expired tokens are not being cleaned up</li><li>Backup database before first cleanup run in production</li></ul><p><strong>Important Notes</strong>:</p><ul><li>Cleanup is safe: only removes expired and revoked tokens</li><li>Partial index on <code class="inline">expires_at</code> optimizes cleanup queries</li><li>Cleanup respects transaction boundaries (atomic deletions)</li></ul><hr class="thin"/><h2 id="notes-pour-claude-code" class="section-heading"><a href="#notes-pour-claude-code" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">📝 Notes pour Claude Code</span></h2><h3 id="prérequis" class="section-heading"><a href="#prérequis" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Prérequis</span></h3><ul><li>Tu ne peux pas démarrer/arrêter le serveur Phoenix</li><li>Mets à jour docs/ après chaque commit</li><li>Consulte les docs thématiques plutôt que de tout garder dans CLAUDE.md</li></ul><h3 id="workflow-de-développement" class="section-heading"><a href="#workflow-de-développement" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Workflow de Développement</span></h3><p><strong>⚠️ IMPORTANT</strong>: Le workflow de développement complet est défini dans <a href=".claude/agents/development-workflow.md">.claude/agents/development-workflow.md</a>. Ce fichier doit être suivi à la lettre pour toute tâche de développement.</p><h3 id="task-queue-todos-md" class="section-heading"><a href="#task-queue-todos-md" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Task Queue (TODOS.md)</span></h3><p>Le fichier <a href="TODOS.md">TODOS.md</a> sert de file d'attente pour les tâches :</p><ul><li><strong>TODO</strong> : Tâches ajoutées par les humains</li><li><strong>In Progress</strong> : Tâches avec issue/PR associée (maintenu par Claude)</li><li><strong>Done</strong> : Tâches terminées</li></ul><p>Lors du workflow, toujours vérifier TODOS.md pour :</p><ol><li>Synchroniser les tâches avec GitHub (issues/PRs)</li><li>Créer des issues pour les nouvelles tâches</li><li>Mettre à jour les statuts</li></ol><h3 id="résumé-du-workflow-issue-pr" class="section-heading"><a href="#résumé-du-workflow-issue-pr" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Résumé du Workflow (Issue → PR)</span></h3><h4>Phase 1: Analyser l'Issue</h4><pre><code class="makeup bash" translate="no"><span class=""># Récupérer issues ouvertes
+</span><span class="">gh issue list --state open --json number,title,labels,createdAt
+</span><span class="">
+</span><span class=""># Afficher détails d&#39;une issue
+</span><span class="">gh issue view &lt;number&gt;
+</span><span class="">
+</span><span class=""># Prioriser par: labels (phase-N, priority), age, réactions
+</span></code></pre><h4>Phase 2: Créer une Branche Feature</h4><pre><code class="makeup bash" translate="no"><span class="">git checkout main
+</span><span class="">git pull origin main
+</span><span class="">git checkout -b feature/issue-&lt;number&gt;-&lt;slugified-title&gt;
+</span><span class="">
+</span><span class=""># Exemple: feature/issue-9-add-playtoken-expiration
+</span></code></pre><h4>Phase 3: Implémenter avec Tests</h4><ul><li>Respecter CQRS/ES : <a href="docs/technical/CQRS_PATTERNS.md">docs/technical/CQRS_PATTERNS.md</a></li><li>Events immuables : toujours émettre nouveaux events</li><li>Ajouter tests pour nouveaux commands/events/projectors</li><li>Mettre à jour docs/ si changements d'architecture</li><li>Tester localement: <a href="https://hexdocs.pm/mix/Mix.Tasks.Test.html"><code class="inline">mix test</code></a></li><li>Appliquer migrations: <a href="Mix.Tasks.Db.Migrate.html"><code class="inline">mix db.migrate</code></a></li></ul><h4>Phase 4: Committer</h4><pre><code class="makeup bash" translate="no"><span class=""># Vérifier changements
+</span><span class="">git diff main
+</span><span class="">git status
+</span><span class="">
+</span><span class=""># Committer avec auteur Claude
+</span><span class="">git add -A
+</span><span class="">git commit --author=&quot;Claude &lt;noreply@anthropic.com&gt;&quot; -m &quot;feat: description
+</span><span class="">
+</span><span class="">- Changement 1
+</span><span class="">- Changement 2
+</span><span class="">
+</span><span class="">Closes #&lt;issue-number&gt;&quot;
+</span></code></pre><h4>Phase 5: Créer la PR</h4><pre><code class="makeup bash" translate="no"><span class=""># Pousser branche
+</span><span class="">git push -u origin feature/issue-&lt;number&gt;-&lt;title-slug&gt;
+</span><span class="">
+</span><span class=""># Créer PR
+</span><span class="">gh pr create --title &quot;feat: description (Closes #&lt;number&gt;)&quot; \
+</span><span class="">  --body &quot;## Summary
+</span><span class="">
+</span><span class="">Brief description
+</span><span class="">
+</span><span class="">## Test Plan
+</span><span class="">- Test 1
+</span><span class="">- Test 2&quot;
+</span></code></pre><h4>Phase 6: Post-Merge Follow-up (si PR mergee avec comments)</h4><pre><code class="makeup bash" translate="no"><span class=""># Verifier si la PR a des follow-ups necessaires
+</span><span class="">gh pr view &lt;number&gt; --comments
+</span><span class="">
+</span><span class=""># Criteres pour creer des issues de suivi:
+</span><span class=""># - MUST-FIX: tests manquants, logging absent, docs non a jour
+</span><span class=""># - SHOULD-FIX: error handling incomplet, TODOs dans le code
+</span><span class=""># - NICE-TO-HAVE: optimisations, refactoring suggere
+</span><span class="">
+</span><span class=""># Creer les issues de suivi
+</span><span class="">gh issue create \
+</span><span class="">  --title &quot;[Follow-up #&lt;PR&gt;] &lt;description&gt;&quot; \
+</span><span class="">  --label &quot;follow-up,from-pr-&lt;PR&gt;,&lt;priority-label&gt;&quot; \
+</span><span class="">  --body &quot;## Context
+</span><span class="">Follow-up from PR #&lt;PR&gt;: &lt;title&gt;
+</span><span class="">
+</span><span class="">## Original Finding
+</span><span class="">&gt; &lt;quote du commentaire&gt;
+</span><span class="">
+</span><span class="">## Acceptance Criteria
+</span><span class="">- [ ] Critere 1
+</span><span class="">- [ ] Critere 2
+</span><span class="">- [ ] Tests ajoutes&quot;
+</span></code></pre><h4>Phase 7: Boucler sur Main</h4><pre><code class="makeup bash" translate="no"><span class=""># Retourner a main
+</span><span class="">git checkout main
+</span><span class="">git pull origin main
+</span><span class="">
+</span><span class=""># Boucler: revenir a Phase 1 (issues/PRs)
+</span></code></pre><h3 id="post-merge-follow-up-issues" class="section-heading"><a href="#post-merge-follow-up-issues" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Post-Merge Follow-up Issues</span></h3><p><strong>Quand creer des issues de suivi:</strong>
+| Categorie | Labels | Exemples |
+|-----------|--------|----------|
+| <strong>must-fix</strong> | <code class="inline">priority-critical</code> | Tests manquants, logging absent, security |
+| <strong>should-fix</strong> | <code class="inline">priority-high</code> | Error handling, validation, TODOs |
+| <strong>nice-to-have</strong> | <code class="inline">enhancement</code> | Optimisations, refactoring, UX |</p><p><strong>Labels obligatoires:</strong> <code class="inline">follow-up</code>, <code class="inline">from-pr-&lt;N&gt;</code></p><p><strong>Triggers automatiques:</strong></p><ul><li>Commentaires avec &quot;TODO&quot;, &quot;FIXME&quot;, &quot;later&quot;, &quot;follow-up&quot;</li><li>Tests coverage &lt; 80% sur nouveau code</li><li>Threads non resolus dans la review</li><li>PR mergee avec &quot;approved with comments&quot;</li></ul><p><strong>Format titre:</strong> <code class="inline">[Follow-up #&lt;PR&gt;] &lt;type&gt;: &lt;description&gt;</code></p><p><strong>⚠️ RÈGLE IMPORTANTE: Pas de follow-up de follow-up !</strong></p><ul><li>Si tu travailles sur une issue de suivi (follow-up), tu dois la résoudre complètement</li><li>Ne jamais créer une issue de suivi pour une issue qui est déjà un follow-up</li><li>Si le problème est trop complexe, demander de l'aide ou simplifier l'approche</li><li>Les issues de suivi doivent être terminées, pas reportées</li></ul><h3 id="points-importants" class="section-heading"><a href="#points-importants" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Points Importants</span></h3><p><strong>Git &amp; Commits:</strong></p><ul><li>Auteur: <code class="inline">--author=&quot;Claude &lt;noreply@anthropic.com&gt;&quot;</code></li><li>Messages: commits atomiques, clairs, format conventionnel</li><li>Branches: <code class="inline">feature/issue-&lt;number&gt;-&lt;slug&gt;</code> (pas de long noms)</li><li>PR: créer toujours une PR (validation + traçabilité)</li><li><strong>⚠️ MERGE OBLIGATOIRE: <code class="inline">gh pr merge --merge --delete-branch</code> (JAMAIS --squash)</strong></li><li><strong>🚫 RÈGLE INVIOLABLE: JAMAIS de <code class="inline">git push --force</code> sans autorisation explicite de l'utilisateur</strong></li></ul><p><strong>Tests &amp; Database:</strong></p><ul><li>Migrations en test: <code class="inline">MIX_ENV=test mix db.migrate</code></li><li><p>Reset test DB: <code class="inline">echo &quot;DELETE ALL DATA&quot; | MIX_ENV=test mix db.reset --all</code></p></li><li>Tous les tests doivent passer avant PR</li><li>DataCase pour tests avec DB (créer si inexistant)</li></ul><p><strong>Code Quality:</strong></p><ul><li>Pas de modifications &quot;proactives&quot; au-delà de la tâche</li><li>CQRS/ES obligatoire pour les commands/events</li><li>Logging pour audit trail (ex: token expiration)</li><li>Backward compatibility si possible (champs optionnels)</li></ul><hr class="thin"/><h2 id="fonctionnalités-implémentées" class="section-heading"><a href="#fonctionnalités-implémentées" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">🎙️ Fonctionnalités Implémentées</span></h2><p><strong>👉 Détails complets</strong> : <a href="docs/FEATURES.md">docs/FEATURES.md</a></p><ul><li>Web Subscription Interface (v1.0)</li><li>Play Gateway avec Auto-token (v1.1+)</li><li>Live WebSocket Gateway (v1.2)</li><li>Subscription Pages Refactoring (v1.3)</li><li>Privacy Choice Modal (v1.4)</li><li>Privacy Manager Page (v1.5)</li><li>PlayToken Expiration &amp; Auto-cleanup (v1.6) ✅ <a href="https://github.com/podCloud/balados.sync/pull/30">#30</a></li><li>Public Timeline Page with Activity Feed (v1.7) ✅ <a href="https://github.com/podCloud/balados.sync/pull/40">#40</a></li><li>Collections &amp; Organization (v1.8) ✅ <a href="https://github.com/podCloud/balados.sync/pull/45">#45</a></li><li>RSS Aggregate Feeds (v1.9) ✅ <a href="https://github.com/podCloud/balados.sync/issues/64">#64</a></li><li>Playlists CRUD Web UI (v2.0) ✅ <a href="https://github.com/podCloud/balados.sync/issues/28">#28</a></li><li>Enriched Podcasts (v2.1) ✅ <a href="https://github.com/podCloud/balados.sync/issues/65">#65</a></li><li>Public User Profiles (v2.2) ✅ <a href="https://github.com/podCloud/balados.sync/issues/66">#66</a></li><li>Public Visibility for Playlists/Collections (v2.3) ✅ <a href="https://github.com/podCloud/balados.sync/issues/67">#67</a></li><li>Podcast Ownership &amp; Verification (v2.4) ✅ <a href="https://github.com/podCloud/balados.sync/issues/68">#68</a></li><li>Email Verification for Ownership (v2.5) ✅ <a href="https://github.com/podCloud/balados.sync/issues/69">#69</a></li></ul><hr class="thin"/><h2 id="ressources" class="section-heading"><a href="#ressources" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">📖 Ressources</span></h2><ul><li><a href="https://elixir-lang.org/docs.html">Elixir</a></li><li><a href="https://hexdocs.pm/phoenix/">Phoenix</a></li><li><a href="https://hexdocs.pm/commanded/">Commanded</a></li><li><a href="https://hexdocs.pm/eventstore/">EventStore</a></li></ul>
+
+</div>
+
+<div class="bottom-actions" id="bottom-actions">
+  <div class="bottom-actions-item">
+
+  </div>
+  <div class="bottom-actions-item">
+
+      <a href="api-overview.html" class="bottom-actions-button" rel="next">
+        <span class="subheader">
+          Next Page →
+        </span>
+        <span class="title">
+API Overview
+        </span>
+      </a>
+
+  </div>
+</div>
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

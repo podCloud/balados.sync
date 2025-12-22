@@ -11,7 +11,9 @@ defmodule BaladosSync.Umbrella.MixProject do
       name: "Balados Sync",
       source_url: "https://github.com/yourusername/balados-sync",
       homepage_url: "https://balados.sync",
-      docs: docs()
+      docs: docs(),
+      # Disable code path pruning for mix docs compatibility with Elixir 1.15+
+      prune_code_paths: false
     ]
   end
 
@@ -31,7 +33,7 @@ defmodule BaladosSync.Umbrella.MixProject do
     [
       # Required to run "mix format" on ~H/.heex files from the umbrella root
       {:phoenix_live_view, ">= 0.0.0"},
-      {:ex_doc, "~> 0.34", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.35", only: :dev},
       # Property-based testing
       {:stream_data, "~> 1.1", only: [:test, :dev]}
     ]
@@ -63,15 +65,19 @@ defmodule BaladosSync.Umbrella.MixProject do
   # ExDoc configuration
   defp docs do
     [
-      main: "readme",
+      main: "api-overview",
+      output: "docs/exdoc",
       extras: extras(),
       groups_for_extras: groups_for_extras(),
       groups_for_modules: groups_for_modules(),
       before_closing_body_tag: &before_closing_body_tag/1,
       # Filter out internal/test modules
       filter_modules: fn module_name, _ ->
-        not String.contains?(module_name, ["Test", "Support"])
-      end
+        module_str = to_string(module_name)
+        not String.contains?(module_str, ["Test", "Support"])
+      end,
+      logo: nil,
+      assets: %{}
     ]
   end
 
@@ -79,13 +85,20 @@ defmodule BaladosSync.Umbrella.MixProject do
     [
       "README.md",
       "CLAUDE.md": [title: "Developer Guide"],
-      "ORIGINAL_NOTE.md": [title: "Original Specification"]
+      # API Documentation
+      "guides/api/overview.md": [filename: "api-overview", title: "API Overview"],
+      "guides/api/subscriptions.md": [filename: "api-subscriptions", title: "Subscriptions API"],
+      "guides/api/playback.md": [filename: "api-playback", title: "Playback API"],
+      "guides/api/collections.md": [filename: "api-collections", title: "Collections API"],
+      "guides/api/sync.md": [filename: "api-sync", title: "Sync API"],
+      "guides/api/public.md": [filename: "api-public", title: "Public API"]
     ]
   end
 
   defp groups_for_extras do
     [
-      "Getting Started": ~r/README/
+      "Getting Started": ~r/README/,
+      "API Reference": ~r/api-/
     ]
   end
 

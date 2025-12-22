@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>API Reference — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-extra" id="main" data-type="extras">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>API Reference <small class="app-vsn">Balados Sync v#0.1.0</small></h1>
+
+      <a href="https://github.com/yourusername/balados-sync" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+    <section class="details-list">
+      <h2 id="modules" class="section-heading">Modules</h2>
+      <div class="summary">
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.html" translate="no">BaladosSyncCore</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>BaladosSyncCore keeps the contexts that define your domain
+and business logic.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Aggregates.User.html" translate="no">BaladosSyncCore.Aggregates.User</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>User aggregate for the CQRS/Event Sourcing system.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.AddFeedToCollection.html" translate="no">BaladosSyncCore.Commands.AddFeedToCollection</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Adds a podcast feed to a collection.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.ChangeCollectionVisibility.html" translate="no">BaladosSyncCore.Commands.ChangeCollectionVisibility</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Command to change the public visibility of a collection.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.ChangePlaylistVisibility.html" translate="no">BaladosSyncCore.Commands.ChangePlaylistVisibility</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Command to change the public visibility of a playlist.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.ChangePrivacy.html" translate="no">BaladosSyncCore.Commands.ChangePrivacy</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.CreateCollection.html" translate="no">BaladosSyncCore.Commands.CreateCollection</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Creates a new collection for organizing subscriptions.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.CreatePlaylist.html" translate="no">BaladosSyncCore.Commands.CreatePlaylist</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Creates a new playlist for organizing saved episodes.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.DeleteCollection.html" translate="no">BaladosSyncCore.Commands.DeleteCollection</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Deletes a collection.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.DeletePlaylist.html" translate="no">BaladosSyncCore.Commands.DeletePlaylist</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Deletes a playlist.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.RecordPlay.html" translate="no">BaladosSyncCore.Commands.RecordPlay</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Command to record a play event for an episode.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.RemoveEvents.html" translate="no">BaladosSyncCore.Commands.RemoveEvents</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.RemoveFeedFromCollection.html" translate="no">BaladosSyncCore.Commands.RemoveFeedFromCollection</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Removes a podcast feed from a collection.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.ReorderCollectionFeed.html" translate="no">BaladosSyncCore.Commands.ReorderCollectionFeed</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Command to reorder a feed within a collection.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.ReorderPlaylist.html" translate="no">BaladosSyncCore.Commands.ReorderPlaylist</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Command to reorder episodes in a playlist.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.SaveEpisode.html" translate="no">BaladosSyncCore.Commands.SaveEpisode</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Command to save an episode to a playlist.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.ShareEpisode.html" translate="no">BaladosSyncCore.Commands.ShareEpisode</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.Snapshot.html" translate="no">BaladosSyncCore.Commands.Snapshot</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.Subscribe.html" translate="no">BaladosSyncCore.Commands.Subscribe</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Command to subscribe a user to a podcast feed.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.SyncUserData.html" translate="no">BaladosSyncCore.Commands.SyncUserData</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.UnsaveEpisode.html" translate="no">BaladosSyncCore.Commands.UnsaveEpisode</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Command to remove an episode from a playlist.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.Unsubscribe.html" translate="no">BaladosSyncCore.Commands.Unsubscribe</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Command to unsubscribe a user from a podcast feed.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.UpdateCollection.html" translate="no">BaladosSyncCore.Commands.UpdateCollection</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Updates a collection's properties.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.UpdatePlaylist.html" translate="no">BaladosSyncCore.Commands.UpdatePlaylist</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Command to update playlist metadata.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Commands.UpdatePosition.html" translate="no">BaladosSyncCore.Commands.UpdatePosition</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Command to update only the playback position for an episode.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Dispatcher.html" translate="no">BaladosSyncCore.Dispatcher</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Main Commanded application for dispatching commands.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Dispatcher.Router.html" translate="no">BaladosSyncCore.Dispatcher.Router</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.EventStore.html" translate="no">BaladosSyncCore.EventStore</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.CollectionCreated.html" translate="no">BaladosSyncCore.Events.CollectionCreated</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Emitted when a new collection is created.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.CollectionDeleted.html" translate="no">BaladosSyncCore.Events.CollectionDeleted</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Emitted when a collection is deleted.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.CollectionFeedReordered.html" translate="no">BaladosSyncCore.Events.CollectionFeedReordered</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Emitted when a feed's position within a collection is changed.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.CollectionUpdated.html" translate="no">BaladosSyncCore.Events.CollectionUpdated</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Emitted when a collection's properties are updated.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.CollectionVisibilityChanged.html" translate="no">BaladosSyncCore.Events.CollectionVisibilityChanged</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Event emitted when a collection's visibility is changed.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.EpisodeSaved.html" translate="no">BaladosSyncCore.Events.EpisodeSaved</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.EpisodeShared.html" translate="no">BaladosSyncCore.Events.EpisodeShared</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.EpisodeUnsaved.html" translate="no">BaladosSyncCore.Events.EpisodeUnsaved</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.EventsRemoved.html" translate="no">BaladosSyncCore.Events.EventsRemoved</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.FeedAddedToCollection.html" translate="no">BaladosSyncCore.Events.FeedAddedToCollection</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Emitted when a feed is added to a collection.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.FeedRemovedFromCollection.html" translate="no">BaladosSyncCore.Events.FeedRemovedFromCollection</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Emitted when a feed is removed from a collection.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.PlayRecorded.html" translate="no">BaladosSyncCore.Events.PlayRecorded</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.PlaylistCreated.html" translate="no">BaladosSyncCore.Events.PlaylistCreated</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Emitted when a new playlist is explicitly created.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.PlaylistDeleted.html" translate="no">BaladosSyncCore.Events.PlaylistDeleted</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Emitted when a playlist is deleted.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.PlaylistReordered.html" translate="no">BaladosSyncCore.Events.PlaylistReordered</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.PlaylistUpdated.html" translate="no">BaladosSyncCore.Events.PlaylistUpdated</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.PlaylistVisibilityChanged.html" translate="no">BaladosSyncCore.Events.PlaylistVisibilityChanged</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Event emitted when a playlist's visibility is changed.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.PopularityRecalculated.html" translate="no">BaladosSyncCore.Events.PopularityRecalculated</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.PositionUpdated.html" translate="no">BaladosSyncCore.Events.PositionUpdated</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.PrivacyChanged.html" translate="no">BaladosSyncCore.Events.PrivacyChanged</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.UserCheckpoint.html" translate="no">BaladosSyncCore.Events.UserCheckpoint</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.UserSubscribed.html" translate="no">BaladosSyncCore.Events.UserSubscribed</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Events.UserUnsubscribed.html" translate="no">BaladosSyncCore.Events.UserUnsubscribed</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.Mailer.html" translate="no">BaladosSyncCore.Mailer</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.OwnershipEmails.html" translate="no">BaladosSyncCore.OwnershipEmails</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Email templates for podcast ownership verification.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollection.html" translate="no">BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollection</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Event Handler: Ensures feed is added to default collection on subscription.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.RssCache.html" translate="no">BaladosSyncCore.RssCache</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Module de cache LRU pour les flux RSS avec TTL de 5 minutes</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.RssParser.html" translate="no">BaladosSyncCore.RssParser</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Parses RSS/Atom podcast feeds and extracts metadata.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.SystemRepo.html" translate="no">BaladosSyncCore.SystemRepo</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncCore.UrlValidator.html" translate="no">BaladosSyncCore.UrlValidator</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>URL validation module for preventing SSRF (Server-Side Request Forgery) attacks.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncJobs.html" translate="no">BaladosSyncJobs</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>BaladosSyncCore keeps the contexts that define your domain
+and business logic.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncJobs.Application.html" translate="no">BaladosSyncJobs.Application</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncJobs.OwnershipClaimCleanupWorker.html" translate="no">BaladosSyncJobs.OwnershipClaimCleanupWorker</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Background worker for expiring and cleaning up old podcast ownership claims.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncJobs.PlayTokenCleanupWorker.html" translate="no">BaladosSyncJobs.PlayTokenCleanupWorker</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Background worker for cleaning up expired PlayTokens.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncJobs.Scheduler.html" translate="no">BaladosSyncJobs.Scheduler</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Defines a quantum Scheduler.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncJobs.SnapshotWorker.html" translate="no">BaladosSyncJobs.SnapshotWorker</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.html" translate="no">BaladosSyncProjections</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>BaladosSyncProjections keeps the contexts that define your domain
+and business logic.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Application.html" translate="no">BaladosSyncProjections.Application</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.ProjectionsRepo.html" translate="no">BaladosSyncProjections.ProjectionsRepo</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Projectors.CollectionsProjector.html" translate="no">BaladosSyncProjections.Projectors.CollectionsProjector</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Projector for Collection events.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Projectors.PlayStatusesProjector.html" translate="no">BaladosSyncProjections.Projectors.PlayStatusesProjector</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Projectors.PlaylistsProjector.html" translate="no">BaladosSyncProjections.Projectors.PlaylistsProjector</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Projectors.PopularityProjector.html" translate="no">BaladosSyncProjections.Projectors.PopularityProjector</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Projectors.PublicEventsProjector.html" translate="no">BaladosSyncProjections.Projectors.PublicEventsProjector</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Projectors.SubscriptionsProjector.html" translate="no">BaladosSyncProjections.Projectors.SubscriptionsProjector</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.AppToken.html" translate="no">BaladosSyncProjections.Schemas.AppToken</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Schema for third-party app authorizations using JWT-based authentication.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.Collection.html" translate="no">BaladosSyncProjections.Schemas.Collection</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Projection schema for user collections.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.CollectionSubscription.html" translate="no">BaladosSyncProjections.Schemas.CollectionSubscription</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Projection schema for collection-feed associations.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.EmailVerification.html" translate="no">BaladosSyncProjections.Schemas.EmailVerification</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Schema for email-based podcast ownership verification.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.EnrichedPodcast.html" translate="no">BaladosSyncProjections.Schemas.EnrichedPodcast</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Schema for enriched podcast entries.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.EpisodePopularity.html" translate="no">BaladosSyncProjections.Schemas.EpisodePopularity</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.PlayStatus.html" translate="no">BaladosSyncProjections.Schemas.PlayStatus</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.PlayToken.html" translate="no">BaladosSyncProjections.Schemas.PlayToken</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Schema for simple bearer tokens used for play gateway authentication.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.Playlist.html" translate="no">BaladosSyncProjections.Schemas.Playlist</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.PlaylistItem.html" translate="no">BaladosSyncProjections.Schemas.PlaylistItem</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.PodcastOwnershipClaim.html" translate="no">BaladosSyncProjections.Schemas.PodcastOwnershipClaim</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Schema for podcast ownership verification claims.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.PodcastPopularity.html" translate="no">BaladosSyncProjections.Schemas.PodcastPopularity</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.PublicEvent.html" translate="no">BaladosSyncProjections.Schemas.PublicEvent</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.Subscription.html" translate="no">BaladosSyncProjections.Schemas.Subscription</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.User.html" translate="no">BaladosSyncProjections.Schemas.User</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>User schema with Argon2id password hashing.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.UserPodcastSettings.html" translate="no">BaladosSyncProjections.Schemas.UserPodcastSettings</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Schema for user-specific podcast settings.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncProjections.Schemas.UserPrivacy.html" translate="no">BaladosSyncProjections.Schemas.UserPrivacy</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.html" translate="no">BaladosSyncWeb</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>The entrypoint for defining your web interface, such
+as controllers, components, channels, and so on.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.Accounts.html" translate="no">BaladosSyncWeb.Accounts</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>The Accounts context for user authentication and management.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.AdminController.html" translate="no">BaladosSyncWeb.AdminController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.AdminHTML.html" translate="no">BaladosSyncWeb.AdminHTML</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.AppAuth.html" translate="no">BaladosSyncWeb.AppAuth</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Handles app authorization logic using JWT tokens.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.AppAuthController.html" translate="no">BaladosSyncWeb.AppAuthController</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Controller for OAuth-style app authorization flow.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.AppAuthHTML.html" translate="no">BaladosSyncWeb.AppAuthHTML</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>HTML rendering for app authorization pages.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.CollectionsController.html" translate="no">BaladosSyncWeb.CollectionsController</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Controller for managing user collections.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.CoreComponents.html" translate="no">BaladosSyncWeb.CoreComponents</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Provides core UI components.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.DashboardController.html" translate="no">BaladosSyncWeb.DashboardController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.DashboardHTML.html" translate="no">BaladosSyncWeb.DashboardHTML</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module contains pages rendered by DashboardController.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.Endpoint.html" translate="no">BaladosSyncWeb.Endpoint</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.EnrichedPodcasts.html" translate="no">BaladosSyncWeb.EnrichedPodcasts</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Context for managing enriched podcast entries.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.EnrichedPodcastsController.html" translate="no">BaladosSyncWeb.EnrichedPodcastsController</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Admin controller for managing enriched podcast entries.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.EnrichedPodcastsHTML.html" translate="no">BaladosSyncWeb.EnrichedPodcastsHTML</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.EpisodeController.html" translate="no">BaladosSyncWeb.EpisodeController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.ErrorHTML.html" translate="no">BaladosSyncWeb.ErrorHTML</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module is invoked by your endpoint in case of errors on HTML requests.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.ErrorHelpers.html" translate="no">BaladosSyncWeb.ErrorHelpers</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Helper module for consistent and secure error handling in controllers.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.ErrorJSON.html" translate="no">BaladosSyncWeb.ErrorJSON</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module is invoked by your endpoint in case of errors on JSON requests.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.Gettext.html" translate="no">BaladosSyncWeb.Gettext</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>A module providing Internationalization with a gettext-based API.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.Layouts.html" translate="no">BaladosSyncWeb.Layouts</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module holds different layouts used by your application.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.LiveWebSocket.html" translate="no">BaladosSyncWeb.LiveWebSocket</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>WebSocket handler for real-time play gateway communication.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.LiveWebSocket.Auth.html" translate="no">BaladosSyncWeb.LiveWebSocket.Auth</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Authentication module for the LiveWebSocket.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.LiveWebSocket.MessageHandler.html" translate="no">BaladosSyncWeb.LiveWebSocket.MessageHandler</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Message handler for the LiveWebSocket.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.LiveWebSocket.RateLimiter.html" translate="no">BaladosSyncWeb.LiveWebSocket.RateLimiter</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Token bucket rate limiter for WebSocket connections.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.LiveWebSocket.State.html" translate="no">BaladosSyncWeb.LiveWebSocket.State</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Connection state for the LiveWebSocket handler.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.LiveWebSocketController.html" translate="no">BaladosSyncWeb.LiveWebSocketController</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Controller for WebSocket upgrade requests.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PageController.html" translate="no">BaladosSyncWeb.PageController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PageHTML.html" translate="no">BaladosSyncWeb.PageHTML</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module contains pages rendered by PageController.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PlayController.html" translate="no">BaladosSyncWeb.PlayController</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Controller for managing episode play status and playback position.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PlayGatewayController.html" translate="no">BaladosSyncWeb.PlayGatewayController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PlayTokenHelper.html" translate="no">BaladosSyncWeb.PlayTokenHelper</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Helper functions for managing PlayTokens used by the play gateway.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PlaylistEnricher.html" translate="no">BaladosSyncWeb.PlaylistEnricher</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Enriches playlist items with metadata fetched from RSS feeds.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PlaylistsController.html" translate="no">BaladosSyncWeb.PlaylistsController</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Web controller for managing user playlists.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PlaylistsHTML.html" translate="no">BaladosSyncWeb.PlaylistsHTML</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>HTML components for playlists pages.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.Plugs.JWTAuth.html" translate="no">BaladosSyncWeb.Plugs.JWTAuth</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Plug for JWT-based authentication for third-party apps.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.Plugs.RateLimiter.html" translate="no">BaladosSyncWeb.Plugs.RateLimiter</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Reusable rate limiting plug using Hammer.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.Plugs.UserAuth.html" translate="no">BaladosSyncWeb.Plugs.UserAuth</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Plugs for handling user authentication via Phoenix sessions.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PodcastOwnership.html" translate="no">BaladosSyncWeb.PodcastOwnership</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Context for podcast ownership claims and verification.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PodcastOwnershipController.html" translate="no">BaladosSyncWeb.PodcastOwnershipController</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Web controller for podcast ownership claims and verification.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PodcastOwnershipHTML.html" translate="no">BaladosSyncWeb.PodcastOwnershipHTML</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>HTML components for podcast ownership pages.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PrivacyController.html" translate="no">BaladosSyncWeb.PrivacyController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PrivacyManagerController.html" translate="no">BaladosSyncWeb.PrivacyManagerController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PrivacyManagerHTML.html" translate="no">BaladosSyncWeb.PrivacyManagerHTML</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module contains pages rendered by PrivacyManagerController.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.ProfileController.html" translate="no">BaladosSyncWeb.ProfileController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.ProfileHTML.html" translate="no">BaladosSyncWeb.ProfileHTML</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module contains pages rendered by ProfileController.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PublicController.html" translate="no">BaladosSyncWeb.PublicController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.PublicHTML.html" translate="no">BaladosSyncWeb.PublicHTML</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.Queries.html" translate="no">BaladosSyncWeb.Queries</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.Router.html" translate="no">BaladosSyncWeb.Router</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.RssAggregateController.html" translate="no">BaladosSyncWeb.RssAggregateController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.RssCache.html" translate="no">BaladosSyncWeb.RssCache</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Module de cache LRU pour les flux RSS avec TTL de 5 minutes</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.RssParser.html" translate="no">BaladosSyncWeb.RssParser</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Parses RSS/Atom podcast feeds and extracts metadata.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.RssProxyController.html" translate="no">BaladosSyncWeb.RssProxyController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.Scopes.html" translate="no">BaladosSyncWeb.Scopes</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Defines and manages API scopes for third-party app authorization.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.SetupController.html" translate="no">BaladosSyncWeb.SetupController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.SetupHTML.html" translate="no">BaladosSyncWeb.SetupHTML</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.SubscriptionController.html" translate="no">BaladosSyncWeb.SubscriptionController</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Controller for managing podcast subscriptions.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.SubscriptionsLive.html" translate="no">BaladosSyncWeb.SubscriptionsLive</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>LiveView for managing podcast subscriptions with collection filtering.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.SyncController.html" translate="no">BaladosSyncWeb.SyncController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.Telemetry.html" translate="no">BaladosSyncWeb.Telemetry</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.UserRegistrationController.html" translate="no">BaladosSyncWeb.UserRegistrationController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.UserRegistrationHTML.html" translate="no">BaladosSyncWeb.UserRegistrationHTML</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module contains pages rendered by UserRegistrationController.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.UserSessionController.html" translate="no">BaladosSyncWeb.UserSessionController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.UserSessionHTML.html" translate="no">BaladosSyncWeb.UserSessionHTML</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module contains pages rendered by UserSessionController.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.WebPrivacyController.html" translate="no">BaladosSyncWeb.WebPrivacyController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.WebSubscriptionsController.html" translate="no">BaladosSyncWeb.WebSubscriptionsController</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Web interface for managing podcast subscriptions.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="BaladosSyncWeb.WebSubscriptionsHTML.html" translate="no">BaladosSyncWeb.WebSubscriptionsHTML</a>
+
+  </div>
+
+</div>
+
+      </div>
+    </section>
+
+
+    <section class="details-list">
+      <h2 id="tasks" class="section-heading">Mix Tasks</h2>
+      <div class="summary">
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.Db.Drop.html" translate="no">mix db.drop</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Drops all databases and schemas.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.Db.Migrate.html" translate="no">mix db.migrate</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Runs migrations for specified schemas or all.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.Db.Reset.html" translate="no">mix db.reset</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Resets database schemas with required confirmation.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.Ecto.Confirm.Drop.html" translate="no">mix ecto.confirm.drop</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Safety wrapper that prevents direct use of ecto.drop.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.Ecto.Disabled.Create.html" translate="no">mix ecto.disabled.create</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.Ecto.Disabled.Drop.html" translate="no">mix ecto.disabled.drop</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Safety wrapper that prevents direct use of ecto.drop.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.Ecto.Disabled.Migrate.html" translate="no">mix ecto.disabled.migrate</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.Ecto.Disabled.Reset.html" translate="no">mix ecto.disabled.reset</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.Ecto.ResetConfirm.html" translate="no">mix ecto.reset_confirm</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Wrapper for <code class="inline">mix ecto.reset</code> that requires explicit confirmation.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.Projections.Migrate.html" translate="no">mix projections.migrate</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Runs migrations for the projection schemas (users, public).</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.ResetProjections.html" translate="no">mix reset_projections</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Resets all projection tables by truncating them and resetting projector subscriptions.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.ResetSystem.html" translate="no">mix reset_system</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Resets all system tables (users, app_tokens, play_tokens).</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.System.Migrate.html" translate="no">mix system.migrate</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Runs migrations for the <code class="inline">system</code> schema (users, app_tokens, play_tokens).</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.SystemDb.Create.html" translate="no">mix system_db.create</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Creates the system database and initializes the <code class="inline">system</code> schema prefix.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.SystemDb.InitSchema.html" translate="no">mix system_db.init_schema</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Creates the <code class="inline">system</code> schema in the database if it doesn't exist.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="Mix.Tasks.SystemDb.Migrate.html" translate="no">mix system_db.migrate</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Runs migrations for the <code class="inline">system</code> schema prefix.</p></div>
+
+</div>
+
+      </div>
+    </section>
+
+</div>
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

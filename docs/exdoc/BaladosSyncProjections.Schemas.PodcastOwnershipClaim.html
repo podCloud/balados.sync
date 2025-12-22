@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>BaladosSyncProjections.Schemas.PodcastOwnershipClaim — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">BaladosSyncProjections.Schemas.PodcastOwnershipClaim</span> 
+      <small class="app-vsn" translate="no">(Balados Sync v0.1.0)</small>
+
+    </h1>
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_projections/lib/balados_sync_projections/schemas/podcast_ownership_claim.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Schema for podcast ownership verification claims.</p><p>Tracks the verification flow for users claiming administrative ownership
+of a podcast by proving they control its RSS feed.</p><p>Status flow:</p><ul><li>pending: Initial state, awaiting verification</li><li>verified: Verification successful, user is now an admin</li><li>failed: Verification code not found in feed</li><li>expired: Verification code expired before successful verification</li><li>cancelled: User cancelled the claim request</li></ul><p>This is a system table (not event-sourced), managed directly via Ecto.</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#cancel_changeset/1" data-no-tooltip="" translate="no">cancel_changeset(claim)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Marks claim as cancelled.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_changeset/3" data-no-tooltip="" translate="no">create_changeset(user_id, feed_url, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Creates a new pending claim with auto-generated verification code.
+Default expiration: 48 hours from now.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#expire_changeset/1" data-no-tooltip="" translate="no">expire_changeset(claim)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Marks claim as expired.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#fail_changeset/2" data-no-tooltip="" translate="no">fail_changeset(claim, reason)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Marks claim as failed with reason.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#generate_verification_code/0" data-no-tooltip="" translate="no">generate_verification_code()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Generates a new verification code in the format: balados-verify-&lt;random_hex&gt;
+Uses cryptographically secure random generation.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#increment_attempts_changeset/1" data-no-tooltip="" translate="no">increment_attempts_changeset(claim)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Increments verification attempts without changing status.
+Used when verification fails but user can retry.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#valid_statuses/0" data-no-tooltip="" translate="no">valid_statuses()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the list of valid statuses.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#verify_changeset/2" data-no-tooltip="" translate="no">verify_changeset(claim, enriched_podcast_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Marks claim as verified with enriched podcast association.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+
+    <div class="functions-list">
+<section class="detail" id="cancel_changeset/1">
+
+  <div class="detail-header">
+    <a href="#cancel_changeset/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">cancel_changeset(claim)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_projections/lib/balados_sync_projections/schemas/podcast_ownership_claim.ex#L138" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Marks claim as cancelled.</p>
+  </section>
+</section>
+<section class="detail" id="create_changeset/3">
+
+    <span id="create_changeset/2"></span>
+
+  <div class="detail-header">
+    <a href="#create_changeset/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_changeset(user_id, feed_url, opts \\ [])</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_projections/lib/balados_sync_projections/schemas/podcast_ownership_claim.ex#L75" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Creates a new pending claim with auto-generated verification code.
+Default expiration: 48 hours from now.</p>
+  </section>
+</section>
+<section class="detail" id="expire_changeset/1">
+
+  <div class="detail-header">
+    <a href="#expire_changeset/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">expire_changeset(claim)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_projections/lib/balados_sync_projections/schemas/podcast_ownership_claim.ex#L130" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Marks claim as expired.</p>
+  </section>
+</section>
+<section class="detail" id="fail_changeset/2">
+
+  <div class="detail-header">
+    <a href="#fail_changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">fail_changeset(claim, reason)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_projections/lib/balados_sync_projections/schemas/podcast_ownership_claim.ex#L109" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Marks claim as failed with reason.</p>
+  </section>
+</section>
+<section class="detail" id="generate_verification_code/0">
+
+  <div class="detail-header">
+    <a href="#generate_verification_code/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">generate_verification_code()</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_projections/lib/balados_sync_projections/schemas/podcast_ownership_claim.ex#L65" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Generates a new verification code in the format: balados-verify-&lt;random_hex&gt;
+Uses cryptographically secure random generation.</p>
+  </section>
+</section>
+<section class="detail" id="increment_attempts_changeset/1">
+
+  <div class="detail-header">
+    <a href="#increment_attempts_changeset/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">increment_attempts_changeset(claim)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_projections/lib/balados_sync_projections/schemas/podcast_ownership_claim.ex#L122" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Increments verification attempts without changing status.
+Used when verification fails but user can retry.</p>
+  </section>
+</section>
+<section class="detail" id="valid_statuses/0">
+
+  <div class="detail-header">
+    <a href="#valid_statuses/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">valid_statuses()</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_projections/lib/balados_sync_projections/schemas/podcast_ownership_claim.ex#L146" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Returns the list of valid statuses.</p>
+  </section>
+</section>
+<section class="detail" id="verify_changeset/2">
+
+  <div class="detail-header">
+    <a href="#verify_changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">verify_changeset(claim, enriched_podcast_id)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_projections/lib/balados_sync_projections/schemas/podcast_ownership_claim.ex#L97" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Marks claim as verified with enriched podcast association.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>

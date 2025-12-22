@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="Balados Sync v0.1.0">
+
+
+    <title>BaladosSyncWeb.AppAuth — Balados Sync v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-1EDF96F0.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://balados.sync" class="sidebar-projectName" translate="no">
+Balados Sync
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of Balados Sync</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">BaladosSyncWeb.AppAuth</span> 
+      <small class="app-vsn" translate="no">(Balados Sync v0.1.0)</small>
+
+    </h1>
+
+      <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/app_auth.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Handles app authorization logic using JWT tokens.</p><p>Apps present a JWT containing their public key, app_id (in iss field), and metadata.
+Upon authorization, this information is stored in the app_tokens table.</p><h2 id="module-jwt-structure" class="section-heading"><a href="#module-jwt-structure" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">JWT Structure</span></h2><p>Apps must create JWTs with:</p><ul><li><code class="inline">iss</code> - App ID (mandatory, unique identifier for the app)</li><li><code class="inline">app</code> - App details (name, url, image, public_key)</li><li><code class="inline">scopes</code> - Requested scopes (optional, defaults to [])</li></ul><h2 id="module-authentication-flow" class="section-heading"><a href="#module-authentication-flow" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Authentication Flow</span></h2><ol><li>App creates authorization JWT with its metadata and public key</li><li>User authorizes the app via web interface</li><li>App creates request JWTs signed with its private key</li><li>API verifies JWTs using the stored public key for that app_id</li></ol>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#authorize_app/2" data-no-tooltip="" translate="no">authorize_app(user_id, decoded_token_data)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Authorizes an app by inserting or updating it in the app_tokens table.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#decode_app_token/1" data-no-tooltip="" translate="no">decode_app_token(token)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Decodes a JWT and verifies it using the public_key inside the JWT claims.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_app_usage_stats/2" data-no-tooltip="" translate="no">get_app_usage_stats(app_id, public_key)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Calculates the usage percentage for an app across all users.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_authorized_apps/1" data-no-tooltip="" translate="no">get_authorized_apps(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns all non-revoked app_tokens for a user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#revoke_app/2" data-no-tooltip="" translate="no">revoke_app(user_id, app_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Revokes an app authorization by setting revoked_at.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#verify_app_request/1" data-no-tooltip="" translate="no">verify_app_request(token)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Verifies a JWT from an authorized app.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+
+    <div class="functions-list">
+<section class="detail" id="authorize_app/2">
+
+  <div class="detail-header">
+    <a href="#authorize_app/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">authorize_app(user_id, decoded_token_data)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/app_auth.ex#L68" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Authorizes an app by inserting or updating it in the app_tokens table.</p><p>Takes:</p><ul><li>user_id: The user authorizing the app</li><li>decoded_token_data: The verified JWT claims</li></ul><p>Returns {:ok, app_token} or {:error, changeset}</p><p>If the same app (user_id + app_id combination) is already authorized,
+this updates the scopes and app metadata.</p>
+  </section>
+</section>
+<section class="detail" id="decode_app_token/1">
+
+  <div class="detail-header">
+    <a href="#decode_app_token/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">decode_app_token(token)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/app_auth.ex#L44" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Decodes a JWT and verifies it using the public_key inside the JWT claims.</p><p>Expected claims in the token:</p><ul><li>&quot;iss&quot;: App ID (mandatory)</li><li>&quot;app&quot;: app details<ul><li>&quot;public_key&quot;: PEM-encoded RSA public key</li><li>&quot;name&quot;: Application name</li><li>&quot;url&quot;: Application URL (optional)</li><li>&quot;image&quot;: Application image URL (optional)</li></ul></li><li>&quot;scopes&quot;: Array of requested scopes (optional)</li></ul><p>Returns {:ok, decoded_claims} or {:error, reason}</p>
+  </section>
+</section>
+<section class="detail" id="get_app_usage_stats/2">
+
+  <div class="detail-header">
+    <a href="#get_app_usage_stats/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_app_usage_stats(app_id, public_key)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/app_auth.ex#L190" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Calculates the usage percentage for an app across all users.</p><p>Uses app_id + public_key to identify unique apps.
+Returns a tuple {user_count, percentage, total_users}</p>
+  </section>
+</section>
+<section class="detail" id="get_authorized_apps/1">
+
+  <div class="detail-header">
+    <a href="#get_authorized_apps/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_authorized_apps(user_id)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/app_auth.ex#L122" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Returns all non-revoked app_tokens for a user.</p>
+  </section>
+</section>
+<section class="detail" id="revoke_app/2">
+
+  <div class="detail-header">
+    <a href="#revoke_app/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">revoke_app(user_id, app_id)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/app_auth.ex#L137" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Revokes an app authorization by setting revoked_at.</p><p>Returns {:ok, app_token} or {:error, :not_found}</p>
+  </section>
+</section>
+<section class="detail" id="verify_app_request/1">
+
+  <div class="detail-header">
+    <a href="#verify_app_request/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">verify_app_request(token)</h1>
+
+
+        <a href="https://github.com/yourusername/balados-sync/blob/main/apps/balados_sync_web/lib/balados_sync_web/app_auth.ex#L162" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Verifies a JWT from an authorized app.</p><p>Uses the app_id from the JWT's 'iss' claim to look up the stored public key,
+then verifies the JWT signature.</p><p>Returns {:ok, %{claims: claims, app_token: app_token}} or {:error, reason}</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="Balados Sync.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+<script>
+  // Add custom JavaScript for enhanced documentation experience
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add badges to module names
+    const moduleHeaders = document.querySelectorAll('.content h1');
+    moduleHeaders.forEach(header => {
+      if (header.textContent.includes('Command')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Command';
+        badge.className = 'badge badge-command';
+        badge.style = 'background: #4CAF50; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      } else if (header.textContent.includes('Event')) {
+        const badge = document.createElement('span');
+        badge.textContent = 'Event';
+        badge.className = 'badge badge-event';
+        badge.style = 'background: #2196F3; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-left: 10px;';
+        header.appendChild(badge);
+      }
+    });
+  });
+</script>
+
+  </body>
+</html>
