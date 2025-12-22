@@ -2,7 +2,7 @@
 
 This document captures ideas for future development, organized by priority and category.
 
-**Last Updated**: 2025-12-21
+**Last Updated**: 2025-12-22
 
 ---
 
@@ -17,7 +17,7 @@ These items address gaps identified in the [architectural audit](docs/ARCHITECTU
 | ~~Add tests for SyncController~~ | ~~Medium~~ | ~~High~~ | ✅ #132 - Comprehensive sync tests added |
 | ~~Add tests for PlayController~~ | ~~Medium~~ | ~~High~~ | ✅ Already has ~20 tests covering all endpoints |
 | ~~Add tests for PrivacyController~~ | ~~Low~~ | ~~Medium~~ | ✅ #127 - Privacy management tested |
-| Property-based tests with StreamData | Medium | Medium | Better edge case coverage |
+| ~~Property-based tests with StreamData~~ | ~~Medium~~ | ~~Medium~~ | ✅ #143 - StreamData tests for commands |
 
 ### Security Hardening
 
@@ -37,8 +37,8 @@ These items address gaps identified in the [architectural audit](docs/ARCHITECTU
 | Idea | Effort | Impact | Notes |
 |------|--------|--------|-------|
 | ~~Complete playlist sync~~ | ~~High~~ | ~~High~~ | ✅ #131 - Implemented direct projection merge |
-| Multi-device real-time sync | High | High | WebSocket exists, sync logic incomplete |
-| Conflict resolution strategy | Medium | High | Define merge semantics |
+| ~~Multi-device real-time sync~~ | ~~High~~ | ~~High~~ | ✅ #145 - Complete sync with conflict resolution |
+| ~~Conflict resolution strategy~~ | ~~Medium~~ | ~~High~~ | ✅ #145 - Last-write-wins with version vectors |
 | Offline-first support | High | Medium | Important for mobile apps |
 
 ### Architecture
@@ -54,7 +54,7 @@ These items address gaps identified in the [architectural audit](docs/ARCHITECTU
 
 | Idea | Effort | Impact | Notes |
 |------|--------|--------|-------|
-| API documentation (OpenAPI/Swagger) | Medium | High | Critical for third-party apps |
+| ~~API documentation (ExDoc)~~ | ~~Medium~~ | ~~High~~ | ✅ #144 - Comprehensive ExDoc guides |
 | Client SDKs (JS, Swift, Kotlin) | High | High | Easier app integration |
 | Postman/Insomnia collection | Low | Medium | Quick testing for devs |
 | ~~Better error codes~~ | ~~Low~~ | ~~Medium~~ | ✅ #136 - Added error_code field to all API errors |
@@ -137,7 +137,7 @@ Items from code analysis that should be addressed:
 | ~~TODO: implement sync structure~~ | ~~`sync_controller.ex:64`~~ | ~~High~~ ✅ #131 |
 | ~~TODO: playlists documentation~~ | ~~`user.ex:25`~~ | ~~Low~~ ✅ #131 |
 | ~~TODO: Sync playlists not implemented~~ | ~~`user.ex:349`~~ | ~~High~~ ✅ #131 |
-| TODO: Switch to Argon2 | `user.ex:88` | Medium |
+| ~~TODO: Switch to Argon2~~ | ~~`user.ex:88`~~ | ~~Medium~~ ✅ #142 |
 | TODO: EventStore API simplification | `snapshot_worker.ex:38` | Low |
 | Duplicate code in RSS aggregation | `rss_aggregate_controller.ex` | Low |
 | Large User aggregate | `user.ex` (1030 lines) | Medium |
@@ -153,10 +153,10 @@ Areas that need investigation before implementation:
    - Privacy in federated systems
    - Conflict resolution across instances
 
-2. **Real-time Sync Architecture**
-   - CRDTs for conflict-free sync
-   - Operational transforms
-   - Last-write-wins vs merge strategies
+2. ~~**Real-time Sync Architecture**~~ ✅ #145
+   - ~~CRDTs for conflict-free sync~~
+   - ~~Operational transforms~~
+   - ~~Last-write-wins vs merge strategies~~ → Implemented LWW with version vectors
 
 3. **Recommendation Engine**
    - Collaborative filtering
