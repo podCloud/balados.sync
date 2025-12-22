@@ -425,7 +425,7 @@ Key indexes identified:
 |-------|--------|--------|----------------|
 | Code duplication | Low | Low | Extract common RSS aggregation logic |
 | Missing indexes | Low | Low | Add indexes for common query patterns |
-| Argon2 migration | Low | Medium | Complete bcrypt to Argon2 switch |
+| ~~Argon2 migration~~ | ~~Low~~ | ~~Medium~~ | ✅ Completed - bcrypt to Argon2id switch |
 
 ---
 

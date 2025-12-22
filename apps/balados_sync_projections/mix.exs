@@ -46,7 +46,7 @@ defmodule BaladosSyncProjections.MixProject do
       {:jason, "~> 1.2"},
       {:swoosh, "~> 1.5"},
       {:finch, "~> 0.13"},
-      {:bcrypt_elixir, "~> 3.0"},
+      {:argon2_elixir, "~> 4.1"},
       {:balados_sync_core, in_umbrella: true}
     ]
   end
