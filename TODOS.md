@@ -76,7 +76,7 @@ git push
 
 Add tasks here. Claude will create GitHub issues for them.
 
-- Files de lecture par appareil (device queues) : réutiliser le système de playlists existant avec le nom du device comme titre. Permet de synchroniser la file d'attente de lecture entre appareils.
+(empty)
 
 ---
 
@@ -84,7 +84,7 @@ Add tasks here. Claude will create GitHub issues for them.
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
-(empty)
+- [ ] Device playback queues using playlist system - [#182](https://github.com/podCloud/balados.sync/issues/182) - OPEN
 
 ---
 
