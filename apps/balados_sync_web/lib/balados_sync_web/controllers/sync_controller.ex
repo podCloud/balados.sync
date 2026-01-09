@@ -295,6 +295,7 @@ defmodule BaladosSyncWeb.SyncController do
             user_id: user_id,
             name: client_playlist.name,
             description: client_playlist.description,
+            type: client_playlist.type || "playlist",
             is_public: client_playlist.is_public || false,
             deleted_at: nil,
             updated_at: now
@@ -304,7 +305,7 @@ defmodule BaladosSyncWeb.SyncController do
             acc_multi,
             {:playlist, playlist_id},
             %Playlist{} |> Ecto.Changeset.change(playlist_attrs),
-            on_conflict: {:replace, [:name, :description, :is_public, :deleted_at, :updated_at]},
+            on_conflict: {:replace, [:name, :description, :type, :is_public, :deleted_at, :updated_at]},
             conflict_target: [:id, :user_id]
           )
 
@@ -417,6 +418,7 @@ defmodule BaladosSyncWeb.SyncController do
         id: p.id,
         name: p.name,
         description: p.description,
+        type: p.type || "playlist",
         is_public: p.is_public,
         deleted_at: p.deleted_at,
         updated_at: p.updated_at,
@@ -500,6 +502,7 @@ defmodule BaladosSyncWeb.SyncController do
         Map.put(acc, playlist_id, %{
           name: playlist["name"],
           description: playlist["description"],
+          type: playlist["type"] || "playlist",
           is_public: playlist["is_public"] || false,
           items: parse_playlist_items(playlist["items"] || []),
           updated_at: parse_datetime(playlist["updated_at"]),
@@ -545,7 +548,8 @@ defmodule BaladosSyncWeb.SyncController do
     %{
       subscriptions: BaladosSyncWeb.Queries.get_user_subscriptions(user_id),
       plays: BaladosSyncWeb.Queries.get_user_play_statuses(user_id),
-      playlists: BaladosSyncWeb.Queries.get_user_playlists(user_id)
+      # Include all playlist types (regular playlists and queues) for sync
+      playlists: BaladosSyncWeb.Queries.get_user_playlists(user_id, include_all_types: true)
     }
   end
 end

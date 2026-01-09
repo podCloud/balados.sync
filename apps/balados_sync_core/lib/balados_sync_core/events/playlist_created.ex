@@ -9,6 +9,7 @@ defmodule BaladosSyncCore.Events.PlaylistCreated do
     :playlist_id,
     :name,
     :description,
+    :playlist_type,
     :timestamp,
     :event_infos
   ]
