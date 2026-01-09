@@ -4,11 +4,23 @@ Ce fichier fournit des instructions à Claude Code pour travailler sur ce reposi
 
 ## 📖 Vue d'Ensemble du Projet
 
-**Balados Sync** est une plateforme ouverte de synchronisation de podcasts utilisant **CQRS/Event Sourcing** avec Elixir.
+**Balados Sync** est un **serveur backend** de synchronisation de podcasts utilisant **CQRS/Event Sourcing** avec Elixir.
 
 ### Objectif Principal
 
-Créer une plateforme ouverte pour synchroniser les écoutes de podcasts entre applications et appareils, avec découverte communautaire et support self-hosted.
+Serveur de stockage et synchronisation des données podcast (abonnements, positions d'écoute, playlists) avec pages web de gestion basiques (CRUD).
+
+### ⚠️ Scope du Projet
+
+| Balados Sync (ce projet) | Balados App (projet séparé) |
+|--------------------------|----------------------------|
+| Backend API de sync | Lecteur de podcast |
+| Stockage des données | Support offline |
+| Pages web CRUD | Apps natives (iOS/Android) |
+| Export RSS | Playback audio/video |
+| Discovery/Timeline | Chapter markers, clips |
+
+**Règle** : Pas de fonctionnalités de lecture/player dans ce projet.
 
 **👉 Voir** : [docs/GOALS.md](docs/GOALS.md)
 

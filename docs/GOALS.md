@@ -2,7 +2,47 @@
 
 ## 🎯 Objectif Principal
 
-**Créer une plateforme ouverte pour la communauté** permettant la synchronisation de podcasts entre différentes applications et appareils, tout en offrant des fonctionnalités de découverte et de partage.
+**Balados Sync est un serveur backend de synchronisation de podcasts** - il stocke les abonnements, positions d'écoute, playlists et métadonnées, et expose une API pour synchroniser ces données entre différents appareils et applications.
+
+### Ce que Balados Sync EST
+
+- **Un serveur de stockage et synchronisation** : API REST/WebSocket pour sync bidirectionnelle
+- **Des pages web de gestion basiques** : Interface CRUD pour consulter/gérer ses données (abonnements, playlists, collections, timeline)
+- **Un générateur de flux RSS** : Export des playlists/collections en flux RSS agrégés
+- **Une plateforme de découverte** : Timeline publique, popularité, profils utilisateurs
+
+### Ce que Balados Sync N'EST PAS
+
+- **Pas un lecteur de podcast** : Aucune fonctionnalité de lecture audio
+- **Pas une app mobile/desktop** : Backend only, pas d'interface native
+- **Pas une solution offline** : Stockage serveur, pas local
+
+### Relation avec Balados App
+
+**Balados App** (`balados.app`) est un projet frontend séparé qui sera :
+- Un lecteur de podcast complet avec support offline
+- Une application autonome (fonctionne sans compte Sync)
+- Capable de se synchroniser **optionnellement** avec Balados Sync
+
+```
+┌─────────────────┐         ┌─────────────────┐
+│  Balados Sync   │◄──API──►│  Balados App    │
+│  (Backend)      │         │  (Frontend)     │
+│                 │         │                 │
+│ • Stockage      │         │ • Lecteur       │
+│ • Sync API      │         │ • Offline       │
+│ • Pages CRUD    │         │ • UI native     │
+│ • RSS exports   │         │ • Synchro opt.  │
+└─────────────────┘         └─────────────────┘
+        ▲
+        │ API
+        ▼
+┌─────────────────┐
+│  Apps tierces   │
+│  (AntennaPod,   │
+│   Pocket Casts) │
+└─────────────────┘
+```
 
 ## 👥 Public Cible
 
@@ -23,29 +63,32 @@ L'accent est mis sur la **stabilité et la fiabilité du système existant** :
 - Assurer la cohérence des données entre le Event Store et les projections
 - Tester les cas limites et les scénarios de récupération d'erreurs
 
-## 🎨 Fonctionnalités Clés
+## 🎨 Fonctionnalités Clés (Stockage & Sync)
 
-Toutes les fonctionnalités principales sont importantes et en développement actif :
-
-### 1. Synchronisation de la Position d'Écoute ✅
-- Reprendre un épisode là où on s'est arrêté, quel que soit l'appareil
-- Mise à jour en temps réel de la position
-- Gestion des conflits de synchronisation
+### 1. Synchronisation des Positions d'Écoute ✅
+- **Stockage** des positions d'écoute par épisode
+- **API** pour mise à jour temps réel (WebSocket)
+- **Résolution de conflits** multi-appareils (last-write-wins)
 
 ### 2. Gestion des Abonnements ✅
-- Partager les abonnements entre tous les appareils
-- Ajout/suppression synchronisés
-- Support des feeds RSS standards
+- **Stockage** des abonnements podcast (feed URLs)
+- **Sync bidirectionnelle** via API
+- **Métadonnées enrichies** (titre, artwork, ownership)
 
-### 3. Playlists Personnalisées 🚧
-- Création et gestion de listes de lecture
-- Organisation personnalisée des épisodes
-- Synchronisation entre appareils
+### 3. Playlists et Collections ✅
+- **Stockage** de playlists personnalisées et collections
+- **Export RSS** des playlists/collections (flux agrégés)
+- **Visibilité publique/privée** configurable
 
-### 4. Statistiques et Découverte 🚧
-- Popularité des podcasts et épisodes
-- Découverte basée sur les écoutes de la communauté
-- Système de recommandations
+### 4. Découverte et Social ✅
+- **Timeline publique** des écoutes de la communauté
+- **Profils utilisateurs** publics
+- **Popularité** basée sur les données agrégées
+
+### 5. Pages Web de Gestion ✅
+- Interface CRUD pour gérer ses données stockées
+- Consultation des abonnements, playlists, timeline
+- **Pas de lecteur audio** - juste consultation/gestion
 
 ## 🔒 Vie Privée
 
@@ -200,5 +243,5 @@ Le projet sert aussi de terrain d'apprentissage pour :
 
 ---
 
-**Dernière mise à jour** : 2025-12-21
-**Statut** : 🟢 En développement actif - Core features complete, stabilization ongoing
+**Dernière mise à jour** : 2026-01-09
+**Statut** : 🟢 En développement actif - Backend sync server, core features complete

@@ -1,8 +1,29 @@
 # Ideas & Future Features
 
-This document captures ideas for future development, organized by priority and category.
+This document captures ideas for future development of **Balados Sync** (backend).
 
-**Last Updated**: 2025-12-22
+**Last Updated**: 2026-01-09
+
+---
+
+## ⚠️ Scope Reminder
+
+**Balados Sync** = Backend server for sync, storage, and data management
+
+Features that belong here:
+- API endpoints and sync logic
+- Data storage (subscriptions, plays, playlists, collections)
+- RSS export/generation
+- Discovery features (timeline, popularity, profiles)
+- Web pages for CRUD management
+- Infrastructure, federation, SDKs
+
+Features that belong in **Balados App** (separate project):
+- Audio/video playback
+- Offline support
+- Native mobile/desktop apps
+- Chapter markers, clip creation
+- Any player UI
 
 ---
 
@@ -98,25 +119,19 @@ These items address gaps identified in the [architectural audit](docs/ARCHITECTU
 
 ## Priority 4: Long-term Vision (6+ Months)
 
-### Platform Expansion
+### Platform Integration (Sync-side)
 
 | Idea | Description | Notes |
 |------|-------------|-------|
-| Mobile apps (iOS/Android) | Native apps with offline | #169 - Consider Flutter or native |
-| Desktop app (Electron/Tauri) | Cross-platform desktop | #170 - Sync daemon possible |
-| Browser extension | Quick subscribe from any page | #171 - Chrome, Firefox, Safari |
-| CLI tool | Command-line podcast management | #172 - For power users |
-| Apple Watch companion | Quick controls and now playing | #173 - watchOS app |
+| Browser extension | Quick subscribe button from any page | #171 - Adds feed to Sync |
+| CLI tool | Command-line sync data management | #172 - For power users |
 
-### Content Features
+### Content Metadata (stored in Sync)
 
 | Idea | Description | Notes |
 |------|-------------|-------|
-| Video podcast support | YouTube/video RSS feeds | #174 - Different player UI |
-| Transcript search | Full-text search in episodes | #175 - Requires transcription |
-| Chapter markers | Native chapter support | #176 - From podcast feed |
-| Show notes enhancement | Rich text, links, images | #177 - Parse from RSS |
-| Clip creation | Save and share audio clips | #178 - Copyright considerations |
+| Transcript storage | Store transcripts for search | #175 - Requires transcription service |
+| Show notes enhancement | Parse and store rich metadata | #177 - From RSS parsing |
 
 ### Monetization (Optional)
 
@@ -175,6 +190,22 @@ Areas that need investigation before implementation:
 *(Add features requested by users here)*
 
 - [ ] *No community requests yet - project not public*
+
+---
+
+## Out of Scope (→ Balados App)
+
+These features belong in the **Balados App** frontend project, not in Sync:
+
+| Idea | Description | Issue | Reason |
+|------|-------------|-------|--------|
+| Mobile apps (iOS/Android) | Native apps with offline | #169 | Player/app feature |
+| Desktop app (Electron/Tauri) | Cross-platform desktop | #170 | Player/app feature |
+| Apple Watch companion | Quick controls and now playing | #173 | Player/app feature |
+| Video podcast support | YouTube/video RSS player | #174 | Player feature |
+| Chapter markers | Native chapter playback | #176 | Player feature |
+| Clip creation | Save and share audio clips | #178 | Player feature |
+| Offline-first support | Local storage for mobile | #152 | App feature |
 
 ---
 

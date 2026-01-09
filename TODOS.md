@@ -76,7 +76,7 @@ git push
 
 Add tasks here. Claude will create GitHub issues for them.
 
-(empty)
+- Files de lecture par appareil (device queues) : réutiliser le système de playlists existant avec le nom du device comme titre. Permet de synchroniser la file d'attente de lecture entre appareils.
 
 ---
 
