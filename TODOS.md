@@ -84,7 +84,7 @@ Add tasks here. Claude will create GitHub issues for them.
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
-- [ ] Device playback queues using playlist system - [#182](https://github.com/podCloud/balados.sync/issues/182) - OPEN
+- [ ] Device playback queues using playlist system - [#182](https://github.com/podCloud/balados.sync/issues/182) - REVIEW (PR #183)
 
 ---
 
