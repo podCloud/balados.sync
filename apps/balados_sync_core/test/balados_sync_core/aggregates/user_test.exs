@@ -51,7 +51,7 @@ defmodule BaladosSyncCore.Aggregates.UserTest do
       {_col_id, default_col} = default_collection
       assert default_col.title == "All Subscriptions"
       assert default_col.is_default == true
-      assert MapSet.member?(default_col.feed_ids, "feed-1")
+      assert "feed-1" in default_col.feed_ids
     end
   end
 end
