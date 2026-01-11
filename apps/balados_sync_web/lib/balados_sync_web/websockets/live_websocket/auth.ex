@@ -121,18 +121,28 @@ defmodule BaladosSyncWeb.LiveWebSocket.Auth do
 
   @doc false
   defp update_play_token_last_used(token) do
-    Task.start(fn ->
-      try do
-        from(t in PlayToken, where: t.token == ^token)
-        |> SystemRepo.update_all(
-          set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)]
-        )
+    # In test environment, async updates are disabled to avoid
+    # DBConnection.OwnershipError with Ecto Sandbox
+    if Application.get_env(:balados_sync_web, :async_token_updates, true) do
+      Task.start(fn ->
+        do_update_play_token_last_used(token)
+      end)
+    else
+      do_update_play_token_last_used(token)
+    end
+  end
 
-        Logger.debug("PlayToken last_used_at updated successfully for token")
-      rescue
-        e ->
-          Logger.warning("Failed to update PlayToken last_used_at: #{inspect(e)}")
-      end
-    end)
+  defp do_update_play_token_last_used(token) do
+    try do
+      from(t in PlayToken, where: t.token == ^token)
+      |> SystemRepo.update_all(
+        set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)]
+      )
+
+      Logger.debug("PlayToken last_used_at updated successfully for token")
+    rescue
+      e ->
+        Logger.warning("Failed to update PlayToken last_used_at: #{inspect(e)}")
+    end
   end
 end

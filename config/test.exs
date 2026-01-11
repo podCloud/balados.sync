@@ -21,6 +21,10 @@ config :balados_sync_projections, BaladosSyncProjections.ProjectionsRepo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 
+# Disable projectors in test environment to avoid DBConnection.OwnershipError
+# with Ecto Sandbox. Tests use fixtures or test projectors directly.
+config :balados_sync_projections, start_projectors: false
+
 # Configure Dispatcher with In-Memory EventStore for test isolation
 # This provides perfect isolation between tests - each test gets a fresh event store
 # See: https://github.com/commanded/commanded/blob/master/guides/Testing.md
@@ -57,3 +61,6 @@ config :phoenix_live_view,
 config :balados_sync_web, :rate_limiter,
   bucket_capacity: 100,
   refill_rate: 50
+
+# Disable async token updates in tests to avoid DBConnection.OwnershipError
+config :balados_sync_web, async_token_updates: false
