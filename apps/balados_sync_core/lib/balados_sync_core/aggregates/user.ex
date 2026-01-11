@@ -218,13 +218,20 @@ defmodule BaladosSyncCore.Aggregates.User do
     }
   end
 
+  # Valid playlist types
+  @valid_playlist_types ["playlist", "queue"]
+
   # CreatePlaylist
   def execute(%__MODULE__{} = user, %CreatePlaylist{} = cmd) do
     playlists = user.playlists || %{}
+    playlist_type = cmd.playlist_type || "playlist"
 
     cond do
       is_nil(cmd.name) || String.trim(cmd.name) == "" ->
         {:error, :name_required}
+
+      playlist_type not in @valid_playlist_types ->
+        {:error, :invalid_playlist_type}
 
       true ->
         # Use provided playlist_id if given, otherwise generate UUID
@@ -239,7 +246,7 @@ defmodule BaladosSyncCore.Aggregates.User do
             playlist_id: playlist_id,
             name: cmd.name,
             description: cmd.description,
-            playlist_type: cmd.playlist_type || "playlist",
+            playlist_type: playlist_type,
             timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
             event_infos: cmd.event_infos || %{}
           }
