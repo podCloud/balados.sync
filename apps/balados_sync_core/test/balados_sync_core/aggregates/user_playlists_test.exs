@@ -471,4 +471,83 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       assert updated_user == user
     end
   end
+
+  describe "Device Queues (playlist_type)" do
+    test "creates queue with playlist_type='queue'" do
+      user_id = "user-123"
+      user = %User{user_id: user_id, playlists: %{}}
+
+      cmd = %CreatePlaylist{
+        user_id: user_id,
+        name: "Device Queue",
+        playlist_type: "queue",
+        event_infos: %{device_id: "iphone-123"}
+      }
+
+      event = User.execute(user, cmd)
+
+      assert match?(%PlaylistCreated{}, event)
+      assert event.playlist_type == "queue"
+      assert event.name == "Device Queue"
+    end
+
+    test "defaults to playlist_type='playlist' when not specified" do
+      user_id = "user-123"
+      user = %User{user_id: user_id, playlists: %{}}
+
+      cmd = %CreatePlaylist{
+        user_id: user_id,
+        name: "Normal Playlist",
+        event_infos: %{}
+      }
+
+      event = User.execute(user, cmd)
+
+      assert match?(%PlaylistCreated{}, event)
+      assert event.playlist_type == "playlist"
+    end
+
+    test "apply PlaylistCreated stores type in aggregate state" do
+      user_id = "user-123"
+      user = %User{user_id: user_id, playlists: %{}}
+      playlist_id = Ecto.UUID.generate()
+
+      event = %PlaylistCreated{
+        user_id: user_id,
+        playlist_id: playlist_id,
+        name: "My Queue",
+        description: nil,
+        playlist_type: "queue",
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      updated_user = User.apply(user, event)
+
+      playlist = updated_user.playlists[playlist_id]
+      assert playlist.type == "queue"
+      assert playlist.name == "My Queue"
+    end
+
+    test "apply PlaylistCreated defaults type to 'playlist' when nil" do
+      user_id = "user-123"
+      user = %User{user_id: user_id, playlists: %{}}
+      playlist_id = Ecto.UUID.generate()
+
+      event = %PlaylistCreated{
+        user_id: user_id,
+        playlist_id: playlist_id,
+        name: "Legacy Playlist",
+        description: nil,
+        playlist_type: nil,
+        timestamp: DateTime.utc_now(),
+        event_infos: %{}
+      }
+
+      updated_user = User.apply(user, event)
+
+      playlist = updated_user.playlists[playlist_id]
+      assert playlist.type == "playlist"
+    end
+  end
 end

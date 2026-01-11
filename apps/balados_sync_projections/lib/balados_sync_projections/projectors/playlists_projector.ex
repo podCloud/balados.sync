@@ -32,14 +32,15 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
       id: event.playlist_id,
       user_id: event.user_id,
       name: event.name,
-      description: event.description
+      description: event.description,
+      type: event.playlist_type || "playlist"
     }
 
     Ecto.Multi.insert(
       multi,
       :playlist,
       %Playlist{} |> Ecto.Changeset.change(playlist_attrs),
-      on_conflict: {:replace, [:name, :description, :updated_at]},
+      on_conflict: {:replace, [:name, :description, :type, :updated_at]},
       conflict_target: [:id, :user_id]
     )
   end)
@@ -197,6 +198,7 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
           user_id: event.user_id,
           name: playlist.name,
           description: playlist.description,
+          type: Map.get(playlist, :type, "playlist"),
           is_public: Map.get(playlist, :is_public, false)
         }
 

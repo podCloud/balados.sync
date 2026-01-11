@@ -239,6 +239,7 @@ defmodule BaladosSyncCore.Aggregates.User do
             playlist_id: playlist_id,
             name: cmd.name,
             description: cmd.description,
+            playlist_type: cmd.playlist_type || "playlist",
             timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
             event_infos: cmd.event_infos || %{}
           }
@@ -621,6 +622,7 @@ defmodule BaladosSyncCore.Aggregates.User do
     new_playlist = %{
       name: event.name,
       description: event.description,
+      type: event.playlist_type || "playlist",
       items: []
     }
 

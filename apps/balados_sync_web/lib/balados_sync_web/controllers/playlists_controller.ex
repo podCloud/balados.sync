@@ -67,6 +67,7 @@ defmodule BaladosSyncWeb.PlaylistsController do
       from(p in Playlist, as: :playlist,
         where: p.user_id == ^user_id,
         where: is_nil(p.deleted_at),
+        where: coalesce(p.type, "playlist") == "playlist",
         order_by: [desc: p.updated_at],
         select_merge: %{items_count: subquery(items_count_subquery)}
       )

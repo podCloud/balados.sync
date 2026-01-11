@@ -22,16 +22,42 @@ defmodule BaladosSyncWeb.Queries do
     |> Enum.map(&format_play_status/1)
   end
 
-  def get_user_playlists(user_id) do
-    playlists =
+  @doc """
+  Get user playlists, optionally filtered by type.
+
+  Options:
+  - `:type` - Filter by playlist type ("playlist" or "queue"). Default: "playlist"
+  - `:include_all_types` - If true, returns all types. Default: false
+  """
+  def get_user_playlists(user_id, opts \\ []) do
+    include_all = Keyword.get(opts, :include_all_types, false)
+    type_filter = Keyword.get(opts, :type, "playlist")
+
+    query =
       from(p in Playlist,
         where: p.user_id == ^user_id,
+        where: is_nil(p.deleted_at),
         order_by: [desc: p.updated_at],
         preload: [items: ^active_playlist_items_query()]
       )
-      |> ProjectionsRepo.all()
 
-    Enum.map(playlists, &format_playlist/1)
+    query =
+      if include_all do
+        query
+      else
+        from(p in query, where: p.type == ^type_filter)
+      end
+
+    query
+    |> ProjectionsRepo.all()
+    |> Enum.map(&format_playlist/1)
+  end
+
+  @doc """
+  Get user queues (device playback queues).
+  """
+  def get_user_queues(user_id) do
+    get_user_playlists(user_id, type: "queue")
   end
 
   defp active_playlist_items_query do
@@ -69,6 +95,7 @@ defmodule BaladosSyncWeb.Queries do
       id: playlist.id,
       name: playlist.name,
       description: playlist.description,
+      type: playlist.type || "playlist",
       updated_at: playlist.updated_at,
       items: Enum.map(playlist.items, &format_playlist_item/1)
     }

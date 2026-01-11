@@ -8,6 +8,7 @@ defmodule BaladosSyncProjections.Schemas.Playlist do
     field :user_id, :string
     field :name, :string
     field :description, :string
+    field :type, :string, default: "playlist"
     field :is_public, :boolean, default: false
     field :deleted_at, :utc_datetime
 
@@ -21,7 +22,8 @@ defmodule BaladosSyncProjections.Schemas.Playlist do
 
   def changeset(playlist, attrs) do
     playlist
-    |> cast(attrs, [:user_id, :name, :description, :is_public])
+    |> cast(attrs, [:user_id, :name, :description, :type, :is_public])
     |> validate_required([:user_id, :name])
+    |> validate_inclusion(:type, ["playlist", "queue"])
   end
 end
