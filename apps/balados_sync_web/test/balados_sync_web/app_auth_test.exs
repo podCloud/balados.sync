@@ -1,5 +1,7 @@
 defmodule BaladosSyncWeb.AppAuthTest do
-  use BaladosSyncWeb.ConnCase, async: true
+  # async: false required because this test accesses the database
+  # and Ecto sandbox doesn't work well with async tests and spawned processes
+  use BaladosSyncWeb.ConnCase, async: false
 
   alias BaladosSyncWeb.AppAuth
   alias BaladosSyncProjections.Repo
