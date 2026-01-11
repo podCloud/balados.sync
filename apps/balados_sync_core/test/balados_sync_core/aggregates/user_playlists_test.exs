@@ -491,6 +491,23 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       assert event.name == "Device Queue"
     end
 
+    test "creates playlist with explicit playlist_type='playlist'" do
+      user_id = "user-123"
+      user = %User{user_id: user_id, playlists: %{}}
+
+      cmd = %CreatePlaylist{
+        user_id: user_id,
+        name: "Explicit Playlist",
+        playlist_type: "playlist",
+        event_infos: %{}
+      }
+
+      event = User.execute(user, cmd)
+
+      assert match?(%PlaylistCreated{}, event)
+      assert event.playlist_type == "playlist"
+    end
+
     test "defaults to playlist_type='playlist' when not specified" do
       user_id = "user-123"
       user = %User{user_id: user_id, playlists: %{}}
@@ -505,6 +522,54 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
 
       assert match?(%PlaylistCreated{}, event)
       assert event.playlist_type == "playlist"
+    end
+
+    test "rejects invalid playlist_type" do
+      user_id = "user-123"
+      user = %User{user_id: user_id, playlists: %{}}
+
+      cmd = %CreatePlaylist{
+        user_id: user_id,
+        name: "Invalid Type",
+        playlist_type: "invalid_type",
+        event_infos: %{}
+      }
+
+      result = User.execute(user, cmd)
+
+      assert match?({:error, :invalid_playlist_type}, result)
+    end
+
+    test "rejects empty string playlist_type" do
+      user_id = "user-123"
+      user = %User{user_id: user_id, playlists: %{}}
+
+      cmd = %CreatePlaylist{
+        user_id: user_id,
+        name: "Empty Type",
+        playlist_type: "",
+        event_infos: %{}
+      }
+
+      result = User.execute(user, cmd)
+
+      assert match?({:error, :invalid_playlist_type}, result)
+    end
+
+    test "rejects arbitrary string playlist_type" do
+      user_id = "user-123"
+      user = %User{user_id: user_id, playlists: %{}}
+
+      cmd = %CreatePlaylist{
+        user_id: user_id,
+        name: "Arbitrary Type",
+        playlist_type: "smart_playlist",
+        event_infos: %{}
+      }
+
+      result = User.execute(user, cmd)
+
+      assert match?({:error, :invalid_playlist_type}, result)
     end
 
     test "apply PlaylistCreated stores type in aggregate state" do
