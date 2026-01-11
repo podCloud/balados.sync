@@ -84,14 +84,13 @@ Add tasks here. Claude will create GitHub issues for them.
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
-- [ ] Device playback queues using playlist system - [#182](https://github.com/podCloud/balados.sync/issues/182) - REVIEW (PR #183)
-
 ---
 
 ## Done
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] Device playback queues using playlist system - [#182](https://github.com/podCloud/balados.sync/issues/182) - PR #183
 - [x] Add property-based tests with StreamData - [#139](https://github.com/podCloud/balados.sync/issues/139) - PR #143
 - [x] Migrate password hashing from bcrypt to Argon2id - [#138](https://github.com/podCloud/balados.sync/issues/138) - PR #142
 - [x] Add machine-readable error codes to API responses - [#136](https://github.com/podCloud/balados.sync/issues/136) - PR #137
