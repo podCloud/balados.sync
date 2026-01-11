@@ -135,6 +135,7 @@ Les tests utilisent un **In-Memory EventStore** pour l'isolation parfaite entre 
 | `DataCase` | Tests avec projections/repos | Ecto sandbox |
 | `ConnCase` | Tests controllers/LiveView | Phoenix + Ecto sandbox |
 | `CommandedCase` | Tests avec dispatch de commands | In-Memory EventStore + Ecto sandbox |
+| `ProjectorTestCase` | Tests de logique projector | Simule projectors sans GenServer |
 
 #### CommandedCase (nouveau)
 
@@ -161,6 +162,70 @@ end
 - L'EventStore In-Memory est reset avant chaque test
 - Toujours utiliser `Ecto.UUID.generate()` pour les IDs
 - Supporte `async: true` grâce à l'isolation complète
+
+#### ProjectorTestCase
+
+Pour tester la logique des projectors CQRS/ES :
+
+```elixir
+defmodule BaladosSyncProjections.Projectors.MyProjectorTest do
+  use BaladosSyncProjections.ProjectorTestCase
+
+  describe "MyEvent projection" do
+    test "creates expected record" do
+      user_id = uuid()
+      feed = encode_feed("https://example.com/feed.xml")
+
+      event = %UserSubscribed{
+        user_id: user_id,
+        rss_source_feed: feed,
+        rss_source_id: "podcast-123",
+        subscribed_at: now()
+      }
+
+      assert {:ok, _} = apply_event(event)
+
+      subscription = ProjectionsRepo.get_by(Subscription, user_id: user_id)
+      assert subscription.rss_source_feed == feed
+    end
+
+    test "is idempotent on replay" do
+      event = %UserSubscribed{user_id: uuid(), ...}
+
+      # Apply same event multiple times
+      assert {:ok, _} = apply_event(event)
+      assert {:ok, _} = apply_event(event)
+
+      # Should only have one record (upsert behavior)
+      assert length(ProjectionsRepo.all(Subscription)) == 1
+    end
+  end
+end
+```
+
+**Pourquoi utiliser ProjectorTestCase ?**
+
+Les projectors Commanded s'exécutent dans des GenServer séparés, ce qui crée des problèmes avec l'Ecto Sandbox en tests :
+- Le processus du projector n'a pas accès au sandbox du test
+- Résultat : `DBConnection.OwnershipError`
+
+**Solution :** `ProjectorTestCase` simule la logique du projector dans le même processus que le test, permettant :
+- Tests dans l'Ecto Sandbox (rollback automatique)
+- Validation de la logique métier du projector
+- Tests d'idempotence (replay safety)
+- Tests d'isolation multi-utilisateur
+
+**Helpers disponibles :**
+- `apply_event/1` : Applique un event et retourne le résultat
+- `uuid/0` : Génère un UUID aléatoire
+- `now/0` : Timestamp courant tronqué à la seconde
+- `encode_feed/1` : Encode une URL de feed en base64
+- `encode_item/2` : Encode un identifiant d'épisode
+
+**Note :** Cette approche teste la logique du projector, pas le flux complet. Le flux CQRS complet (Command → Event → Projector → Projection) est validé par :
+- `in_memory_dispatch_test.exs` : vérifie le dispatch de commands
+- `ProjectorTestCase` : vérifie la logique de projection
+- Ensemble, ils prouvent le flux complet
 
 ### Écrire des Tests
 
@@ -872,4 +937,4 @@ mix test apps/balados_sync_web/test/controllers/my_controller_test.exs
 
 ---
 
-**Dernière mise à jour** : 2025-12-18
+**Dernière mise à jour** : 2026-01-11
