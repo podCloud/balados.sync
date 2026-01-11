@@ -84,6 +84,8 @@ Add tasks here. Claude will create GitHub issues for them.
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
+- [ ] Add command-level validation for playlist_type - [#184](https://github.com/podCloud/balados.sync/issues/184) - REVIEW (PR #186)
+
 ---
 
 ## Done
