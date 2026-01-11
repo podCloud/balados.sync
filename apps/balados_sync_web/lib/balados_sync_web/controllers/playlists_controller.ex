@@ -114,6 +114,11 @@ defmodule BaladosSyncWeb.PlaylistsController do
         |> put_flash(:error, "A playlist with this name already exists.")
         |> render(:new)
 
+      {:error, :invalid_playlist_type} ->
+        conn
+        |> put_flash(:error, "Invalid playlist type. Must be 'playlist' or 'queue'.")
+        |> render(:new)
+
       {:error, reason} ->
         conn
         |> put_flash(:error, "Error creating playlist: #{inspect(reason)}")
