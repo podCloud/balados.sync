@@ -84,7 +84,7 @@ Add tasks here. Claude will create GitHub issues for them.
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
-- [ ] Add command-level validation for playlist_type - [#184](https://github.com/podCloud/balados.sync/issues/184) - REVIEW (PR #186)
+- [ ] Fix web tests DBConnection.OwnershipError - [#188](https://github.com/podCloud/balados.sync/issues/188) - OPEN
 
 ---
 
@@ -92,6 +92,8 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] Add command-level validation for playlist_type - [#184](https://github.com/podCloud/balados.sync/issues/184) - PR #186
+- [x] Fix user_test.exs MapSet.member? issue - [#187](https://github.com/podCloud/balados.sync/issues/187) - PR #189
 - [x] Device playback queues using playlist system - [#182](https://github.com/podCloud/balados.sync/issues/182) - PR #183
 - [x] Add property-based tests with StreamData - [#139](https://github.com/podCloud/balados.sync/issues/139) - PR #143
 - [x] Migrate password hashing from bcrypt to Argon2id - [#138](https://github.com/podCloud/balados.sync/issues/138) - PR #142
