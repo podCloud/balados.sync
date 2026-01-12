@@ -85,8 +85,10 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
             |> redirect(to: ~p"/subscriptions")
 
           {:error, reason} ->
+            Logger.warning("Subscription failed for user #{user_id}: #{inspect(reason)}")
+
             conn
-            |> put_flash(:error, "Failed to subscribe: #{inspect(reason)}")
+            |> put_flash(:error, "Failed to subscribe. Please try again.")
             |> render(:new, changeset: nil, preview: metadata)
         end
 
@@ -158,8 +160,10 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
         |> render(:import_opml)
 
       {:error, reason} ->
+        Logger.warning("File stat failed during OPML import: #{inspect(reason)}")
+
         conn
-        |> put_flash(:error, "Could not read file: #{inspect(reason)}")
+        |> put_flash(:error, "Could not read the uploaded file. Please try again.")
         |> render(:import_opml)
     end
   end
@@ -187,8 +191,10 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
                 |> redirect(to: ~p"/subscriptions")
 
               {:error, reason} ->
+                Logger.error("OPML import failed for user #{user_id}: #{inspect(reason)}")
+
                 conn
-                |> put_flash(:error, "Import failed: #{inspect(reason)}")
+                |> put_flash(:error, "Import failed. Please check your file and try again.")
                 |> render(:import_opml)
             end
 
@@ -198,14 +204,18 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
             |> render(:import_opml)
 
           {:error, reason} ->
+            Logger.warning("OPML parsing failed: #{inspect(reason)}")
+
             conn
-            |> put_flash(:error, "Invalid OPML file: #{inspect(reason)}")
+            |> put_flash(:error, "Invalid OPML file format")
             |> render(:import_opml)
         end
 
       {:error, reason} ->
+        Logger.warning("File read failed during OPML import: #{inspect(reason)}")
+
         conn
-        |> put_flash(:error, "Could not read file: #{inspect(reason)}")
+        |> put_flash(:error, "Could not read the uploaded file. Please try again.")
         |> render(:import_opml)
     end
   end
