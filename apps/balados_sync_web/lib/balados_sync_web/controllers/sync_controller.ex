@@ -544,6 +544,10 @@ defmodule BaladosSyncWeb.SyncController do
 
   defp parse_datetime(%DateTime{} = dt), do: dt
 
+  # Returns all user data for sync, including both playlists and queues.
+  # Unlike the Web UI (PlaylistsController), which only shows type="playlist",
+  # the Sync API returns all playlist types so client apps can sync their
+  # device-specific queues (type="queue"). See docs/FEATURES.md for details.
   defp get_user_data(user_id) do
     %{
       subscriptions: BaladosSyncWeb.Queries.get_user_subscriptions(user_id),
