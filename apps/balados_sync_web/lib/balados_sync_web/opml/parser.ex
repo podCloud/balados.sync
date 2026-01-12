@@ -31,9 +31,13 @@ defmodule BaladosSyncWeb.Opml.Parser do
   defp parse_xml(xml_string) do
     try do
       # Use xmerl for parsing - it's included in Erlang/OTP
+      # Security: Disable external entity loading to prevent XXE attacks
       {doc, _rest} = xml_string
         |> String.to_charlist()
-        |> :xmerl_scan.string(quiet: true)
+        |> :xmerl_scan.string(
+          quiet: true,
+          fetch_fun: &block_external_entities/2
+        )
 
       {:ok, doc}
     rescue
@@ -41,6 +45,12 @@ defmodule BaladosSyncWeb.Opml.Parser do
     catch
       :exit, _ -> {:error, :xml_parse_failed}
     end
+  end
+
+  # Security: Block all external entity requests to prevent XXE attacks
+  defp block_external_entities(_uri, state) do
+    # Return empty content and unchanged state - effectively disables external entities
+    {:ok, {~c"", state}}
   end
 
   # ===== Document Extraction =====

@@ -6,6 +6,36 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
   - Subscriptions: Last-Write-Wins based on dates
   - Play statuses: Merge based on updated_at, highest progress wins
   - Playlists/Collections: Merge based on updated_at
+
+  ## Architectural Note: CQRS Bypass for Bulk Import
+
+  This module uses a hybrid approach for performance and practicality:
+
+  **Via CQRS (Event-Sourced):**
+  - Subscriptions and privacy settings use proper Commands (Subscribe, ChangePrivacy)
+  - These are user identity-critical operations that benefit from audit trail
+  - Events are stored and can be replayed
+
+  **Direct Database Writes (Bypass CQRS):**
+  - Play statuses, playlists, and collections write directly to ProjectionsRepo
+  - Rationale:
+    1. **Performance**: Bulk imports can contain thousands of items. Processing each
+       through CQRS would be prohibitively slow (command dispatch + event store +
+       projector async processing per item).
+    2. **Idempotency**: OPML import is inherently idempotent with conflict resolution.
+       Re-importing produces the same result (highest progress wins, LWW).
+    3. **Data Recovery**: If projections are reset, users can re-import their OPML
+       file to restore play history, playlists, and collections.
+    4. **No Audit Need**: Play progress is not security-sensitive. Users don't need
+       an audit trail of "I was at position 300 then 400 then 500".
+
+  **Trade-offs Accepted:**
+  - Imported play statuses/playlists/collections won't appear in event store
+  - If projections are reset without OPML file, this data is lost
+  - No event replay for imported data (but original OPML serves as backup)
+
+  This architectural decision was reviewed and approved for the bulk import use case.
+  For incremental sync operations, the regular CQRS path (Sync API) should be used.
   """
 
   import Ecto.Query

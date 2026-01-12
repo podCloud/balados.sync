@@ -22,6 +22,9 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   alias BaladosSyncCore.RssParser
   alias BaladosSyncWeb.Opml
 
+  # Maximum OPML file size: 10MB
+  @max_opml_file_size 10 * 1024 * 1024
+
   # All actions require authenticated user
   plug :require_authenticated_user
 
@@ -142,6 +145,35 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   def import_opml(conn, %{"opml" => %Plug.Upload{path: path}}) do
     user_id = conn.assigns.current_user.id
 
+    # Security: Validate file size before reading to prevent memory exhaustion
+    with {:ok, %{size: size}} <- File.stat(path),
+         :ok <- validate_file_size(size) do
+      import_opml_file(conn, user_id, path)
+    else
+      {:error, :file_too_large} ->
+        max_mb = div(@max_opml_file_size, 1024 * 1024)
+
+        conn
+        |> put_flash(:error, "File too large. Maximum size is #{max_mb}MB.")
+        |> render(:import_opml)
+
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, "Could not read file: #{inspect(reason)}")
+        |> render(:import_opml)
+    end
+  end
+
+  def import_opml(conn, _params) do
+    conn
+    |> put_flash(:error, "Please select an OPML file to import")
+    |> render(:import_opml)
+  end
+
+  defp validate_file_size(size) when size <= @max_opml_file_size, do: :ok
+  defp validate_file_size(_size), do: {:error, :file_too_large}
+
+  defp import_opml_file(conn, user_id, path) do
     case File.read(path) do
       {:ok, content} ->
         case Opml.from_xml(content) do
@@ -176,12 +208,6 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
         |> put_flash(:error, "Could not read file: #{inspect(reason)}")
         |> render(:import_opml)
     end
-  end
-
-  def import_opml(conn, _params) do
-    conn
-    |> put_flash(:error, "Please select an OPML file to import")
-    |> render(:import_opml)
   end
 
   defp format_import_stats(stats) do
