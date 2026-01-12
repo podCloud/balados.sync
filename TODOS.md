@@ -76,7 +76,7 @@ git push
 
 Add tasks here. Claude will create GitHub issues for them.
 
-- Étudier et implémenter des tests E2E pour l'UI (Wallaby/Hound) - permettre à Claude de tester l'interface de manière autonome sans intervention humaine
+(empty)
 
 ---
 
@@ -84,7 +84,8 @@ Add tasks here. Claude will create GitHub issues for them.
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
-(empty)
+- [ ] Extended OPML format with balados namespace - [#195](https://github.com/podCloud/balados.sync/issues/195) - PR [#196](https://github.com/podCloud/balados.sync/pull/196) - REVIEW
+- [ ] E2E UI testing with Wallaby/Hound - [#197](https://github.com/podCloud/balados.sync/issues/197) - OPEN
 
 ---
 
