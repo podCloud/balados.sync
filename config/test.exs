@@ -53,6 +53,17 @@ config :swoosh, :api_client, false
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
+# Wallaby E2E testing configuration
+# Uses headless Chrome for browser automation
+config :wallaby,
+  otp_app: :balados_sync_web,
+  driver: Wallaby.Chrome,
+  screenshot_dir: "tmp/wallaby_screenshots",
+  screenshot_on_failure: true,
+  chromedriver: [
+    headless: System.get_env("WALLABY_HEADLESS", "true") == "true"
+  ]
+
 config :phoenix_live_view,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
