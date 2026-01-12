@@ -2,7 +2,7 @@
 
 Documentation complète de toutes les fonctionnalités implémentées, organisées par domaine.
 
-**Last Updated**: 2025-12-21 | **See also**: [Architectural Audit](ARCHITECTURAL_AUDIT.md) | [Ideas & Roadmap](../IDEAS.md)
+**Last Updated**: 2026-01-12 | **See also**: [Architectural Audit](ARCHITECTURAL_AUDIT.md) | [Ideas & Roadmap](../IDEAS.md)
 
 ---
 
@@ -585,6 +585,7 @@ API REST pour synchronisation bidirectionnelle des données utilisateur (subscri
       "id": "uuid",
       "name": "My Playlist",
       "description": "Optional description",
+      "type": "playlist",
       "is_public": false,
       "items": [
         {
@@ -614,6 +615,10 @@ API REST pour synchronisation bidirectionnelle des données utilisateur (subscri
 }
 ```
 
+**Playlist `type` Field** :
+- `"playlist"` (default) - Regular user-created playlists
+- `"queue"` - Device playback queues (see Device Playback Queues section below)
+
 **Merge Logic** :
 - Bidirectional merge based on timestamps
 - Client data with newer `updated_at` wins
@@ -625,6 +630,71 @@ API REST pour synchronisation bidirectionnelle des données utilisateur (subscri
 - `SyncController` - REST endpoint
 - Direct projection updates via `Ecto.Multi`
 - No event emission (direct DB merge)
+
+### Device Playback Queues (v2.7)
+
+Support for device-specific playback queues via the playlist `type` field.
+
+**Concept** :
+Queues are a special type of playlist used by client apps to manage "Up Next" / "Play Later" functionality. Unlike regular playlists:
+- Queues are device-specific and ephemeral
+- Queues are not shown in the Web UI
+- Queues sync across all devices via the Sync API
+
+**Type Values** :
+- `"playlist"` (default) - Regular playlists, visible in Web UI
+- `"queue"` - Device playback queues, hidden from Web UI
+
+**Naming Conventions** :
+Apps should use descriptive names that include the device identifier:
+- `"Queue - iPhone"`
+- `"Queue - iPad Pro"`
+- `"Queue - MacBook"`
+- `"Up Next - Living Room Sonos"`
+
+**Behavior Differences** :
+
+| Feature | Web UI (`/playlists`) | Sync API (`/api/v1/sync`) |
+|---------|----------------------|---------------------------|
+| Regular playlists | ✅ Shown | ✅ Included |
+| Queues | ❌ Hidden | ✅ Included |
+| Create queue | ❌ Not possible | ✅ Via `type: "queue"` |
+
+**Implementation** :
+- **Web UI** (`PlaylistsController`): Filters by `type = "playlist"` to exclude queues
+- **Sync API** (`SyncController`): Uses `include_all_types: true` to return both playlists and queues
+- **Database**: Single `playlists` table with `type` column (default: "playlist")
+
+**Client App Implementation Guide** :
+
+1. **Syncing queues**: Include `type: "queue"` when sending queue data:
+```json
+{
+  "playlists": [
+    {
+      "id": "device-unique-queue-id",
+      "name": "Queue - iPhone",
+      "type": "queue",
+      "items": [...]
+    }
+  ]
+}
+```
+
+2. **Receiving queues**: Filter response playlists by type:
+```javascript
+const playlists = response.playlists.filter(p => p.type === "playlist");
+const queues = response.playlists.filter(p => p.type === "queue");
+```
+
+3. **Queue ID strategy**: Use a deterministic ID per device (e.g., `device-uuid-queue`) to ensure the same queue is updated rather than duplicated.
+
+**CQRS Commands** :
+- `CreatePlaylist` - Accepts `type` field ("playlist" or "queue")
+- Validation: Rejects invalid type values
+
+**Migration** :
+- `20260110000001_add_type_to_playlists.exs` - Adds `type` column with default "playlist"
 
 ---
 

@@ -51,6 +51,10 @@ defmodule BaladosSyncWeb.PlaylistsController do
   @doc """
   Lists all playlists for the current user.
   Uses a subquery to count items efficiently (avoids N+1 queries).
+
+  Note: This endpoint only shows regular playlists (type="playlist").
+  Device playback queues (type="queue") are excluded from the Web UI
+  and are only accessible via the Sync API. See docs/FEATURES.md for details.
   """
   def index(conn, _params) do
     user_id = conn.assigns.current_user.id
@@ -67,6 +71,8 @@ defmodule BaladosSyncWeb.PlaylistsController do
       from(p in Playlist, as: :playlist,
         where: p.user_id == ^user_id,
         where: is_nil(p.deleted_at),
+        # Filter to show only regular playlists in Web UI.
+        # Queues (type="queue") are device-specific and sync-only.
         where: coalesce(p.type, "playlist") == "playlist",
         order_by: [desc: p.updated_at],
         select_merge: %{items_count: subquery(items_count_subquery)}
