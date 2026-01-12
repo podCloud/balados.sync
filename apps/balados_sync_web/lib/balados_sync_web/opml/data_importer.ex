@@ -90,28 +90,39 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
   defp do_import(user_id, doc, stats) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-    # Import subscriptions via CQRS commands
+    # Import subscriptions via CQRS commands (outside transaction - they have their own event sourcing)
     sub_stats = import_subscriptions(user_id, doc.subscriptions, now)
 
-    # Import play statuses directly (no CQRS for bulk operations)
-    ps_stats = import_play_statuses(user_id, doc.subscriptions, now)
+    # Wrap direct database writes in a transaction for data consistency
+    # If any step fails, all direct DB writes are rolled back
+    case ProjectionsRepo.transaction(fn ->
+      # Import play statuses directly (no CQRS for bulk operations)
+      ps_stats = import_play_statuses(user_id, doc.subscriptions, now)
 
-    # Import playlists
-    playlist_stats = import_playlists(user_id, doc.playlists, now)
+      # Import playlists
+      playlist_stats = import_playlists(user_id, doc.playlists, now)
 
-    # Import collections
-    collection_stats = import_collections(user_id, doc.collections, now)
+      # Import collections
+      collection_stats = import_collections(user_id, doc.collections, now)
 
-    final_stats = %{
-      stats |
-      subscriptions: sub_stats,
-      play_statuses: ps_stats,
-      playlists: playlist_stats,
-      collections: collection_stats
-    }
+      {ps_stats, playlist_stats, collection_stats}
+    end) do
+      {:ok, {ps_stats, playlist_stats, collection_stats}} ->
+        final_stats = %{
+          stats |
+          subscriptions: sub_stats,
+          play_statuses: ps_stats,
+          playlists: playlist_stats,
+          collections: collection_stats
+        }
 
-    Logger.info("OPML import completed for user #{user_id}: #{inspect(final_stats)}")
-    {:ok, final_stats}
+        Logger.info("OPML import completed for user #{user_id}: #{inspect(final_stats)}")
+        {:ok, final_stats}
+
+      {:error, reason} ->
+        Logger.error("OPML import transaction failed for user #{user_id}: #{inspect(reason)}")
+        {:error, :import_failed}
+    end
   end
 
   # ===== Subscriptions Import =====
@@ -324,18 +335,25 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
   end
 
   defp get_existing_playlist(user_id, playlist) do
-    query =
-      if playlist.id do
+    cond do
+      # Search by ID if available
+      playlist.id ->
         from(p in Playlist,
           where: p.user_id == ^user_id and p.id == ^playlist.id and is_nil(p.deleted_at)
         )
-      else
+        |> ProjectionsRepo.one()
+
+      # Search by name if ID not available and name is not nil
+      playlist.name && playlist.name != "" ->
         from(p in Playlist,
           where: p.user_id == ^user_id and p.name == ^playlist.name and is_nil(p.deleted_at)
         )
-      end
+        |> ProjectionsRepo.one()
 
-    ProjectionsRepo.one(query)
+      # Can't find playlist without ID or name
+      true ->
+        nil
+    end
   end
 
   defp should_update_playlist?(existing, incoming) do
@@ -443,18 +461,25 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
   end
 
   defp get_existing_collection(user_id, collection) do
-    query =
-      if collection.id do
+    cond do
+      # Search by ID if available
+      collection.id ->
         from(c in Collection,
           where: c.user_id == ^user_id and c.id == ^collection.id and is_nil(c.deleted_at)
         )
-      else
+        |> ProjectionsRepo.one()
+
+      # Search by title if ID not available and title is not nil
+      collection.title && collection.title != "" ->
         from(c in Collection,
           where: c.user_id == ^user_id and c.title == ^collection.title and is_nil(c.deleted_at)
         )
-      end
+        |> ProjectionsRepo.one()
 
-    ProjectionsRepo.one(query)
+      # Can't find collection without ID or title
+      true ->
+        nil
+    end
   end
 
   defp should_update_collection?(existing, incoming) do
