@@ -85,7 +85,7 @@ Add tasks here. Claude will create GitHub issues for them.
 Format: `- [ ] Description - [#N](url) - STATUS`
 
 - [ ] Extended OPML format with balados namespace - [#195](https://github.com/podCloud/balados.sync/issues/195) - PR [#196](https://github.com/podCloud/balados.sync/pull/196) - REVIEW
-- [ ] E2E UI testing with Wallaby/Hound - [#197](https://github.com/podCloud/balados.sync/issues/197) - OPEN
+- [ ] E2E UI testing with Wallaby - [#197](https://github.com/podCloud/balados.sync/issues/197) - PR [#198](https://github.com/podCloud/balados.sync/pull/198) - REVIEW
 
 ---
 
