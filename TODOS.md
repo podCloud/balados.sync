@@ -76,7 +76,7 @@ git push
 
 Add tasks here. Claude will create GitHub issues for them.
 
-(empty)
+- Étudier et implémenter des tests E2E pour l'UI (Wallaby/Hound) - permettre à Claude de tester l'interface de manière autonome sans intervention humaine
 
 ---
 
