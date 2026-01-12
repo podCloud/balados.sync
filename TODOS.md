@@ -84,7 +84,7 @@ Add tasks here. Claude will create GitHub issues for them.
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
-(empty)
+- [ ] Extended OPML format with balados namespace - [#195](https://github.com/podCloud/balados.sync/issues/195) - PR [#196](https://github.com/podCloud/balados.sync/pull/196) - REVIEW
 
 ---
 
