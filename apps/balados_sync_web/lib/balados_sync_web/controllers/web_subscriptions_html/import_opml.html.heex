@@ -1,0 +1,66 @@
+<div class="px-4 py-10 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-2xl">
+    <.header>
+      Import OPML
+      <:subtitle>Import your podcast subscriptions and data from an OPML file</:subtitle>
+    </.header>
+
+    <div class="mt-10 bg-white shadow rounded-lg p-6">
+      <.form for={%{}} action={~p"/subscriptions/import"} method="post" multipart>
+        <div class="space-y-4">
+          <div>
+            <label for="opml" class="block text-sm font-medium text-zinc-900">
+              OPML File
+            </label>
+            <input
+              type="file"
+              id="opml"
+              name="opml"
+              accept=".opml,.xml,application/xml,text/xml,text/x-opml"
+              required
+              class="mt-1 block w-full text-sm text-zinc-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            />
+            <p class="mt-2 text-sm text-zinc-500">
+              Select an OPML file exported from another podcast app or Balados Sync.
+            </p>
+          </div>
+
+          <div class="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
+            <h3 class="font-semibold text-zinc-900 text-sm">Supported Data</h3>
+            <ul class="mt-2 text-sm text-zinc-600 space-y-1">
+              <li>Podcast subscriptions (all OPML files)</li>
+              <li>Play progress and episode statuses (Balados extended format)</li>
+              <li>Playlists and queues (Balados extended format)</li>
+              <li>Collections (Balados extended format)</li>
+            </ul>
+            <p class="mt-3 text-xs text-zinc-500">
+              Standard OPML files from any podcast app will import subscriptions.
+              Balados extended format includes additional sync data.
+            </p>
+          </div>
+
+          <div class="flex gap-4 pt-4">
+            <button
+              type="submit"
+              class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              Import
+            </button>
+            <.link
+              navigate={~p"/subscriptions"}
+              class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+            >
+              Cancel
+            </.link>
+          </div>
+        </div>
+      </.form>
+    </div>
+
+    <div class="mt-6 text-center">
+      <.link navigate={~p"/subscriptions/export.opml"} class="text-sm text-blue-600 hover:underline">
+        Or export your subscriptions instead
+      </.link>
+    </div>
+  </div>
+</div>

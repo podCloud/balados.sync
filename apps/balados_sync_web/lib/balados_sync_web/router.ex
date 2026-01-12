@@ -88,6 +88,8 @@ defmodule BaladosSyncWeb.Router do
     get "/subscriptions/new", WebSubscriptionsController, :new
     post "/subscriptions", WebSubscriptionsController, :create
     get "/subscriptions/export.opml", WebSubscriptionsController, :export_opml
+    get "/subscriptions/import", WebSubscriptionsController, :import_opml_form
+    post "/subscriptions/import", WebSubscriptionsController, :import_opml
 
     # Redirect old subscription detail page to public podcast page
     get "/subscriptions/:feed", WebSubscriptionsController, :redirect_to_public
