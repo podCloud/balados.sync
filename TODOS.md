@@ -92,6 +92,7 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] Document playlist type field and queue feature - [#185](https://github.com/podCloud/balados.sync/issues/185) - PR #194
 - [x] Add ProjectorTestCase for CQRS/ES projector testing - [#191](https://github.com/podCloud/balados.sync/issues/191) - PR #193
 - [x] Fix web tests DBConnection.OwnershipError - [#188](https://github.com/podCloud/balados.sync/issues/188) - PR #190
 - [x] Add command-level validation for playlist_type - [#184](https://github.com/podCloud/balados.sync/issues/184) - PR #186
