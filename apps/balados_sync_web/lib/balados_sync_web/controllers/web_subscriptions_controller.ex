@@ -3,11 +3,11 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   Web interface for managing podcast subscriptions.
 
   Provides HTML views for users to manage their subscriptions, view feed details,
-  and export subscriptions to OPML format. This is separate from the JSON API
+  and import/export subscriptions to OPML format. This is separate from the JSON API
   controller to keep concerns separated.
 
   Note: The main subscriptions listing is handled by SubscriptionsLive.
-  This controller handles non-live actions: new, create, export_opml.
+  This controller handles non-live actions: new, create, export_opml, import_opml.
 
   All actions require authenticated users.
   """
@@ -20,7 +20,10 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
   alias BaladosSyncCore.Commands.Subscribe
   alias BaladosSyncCore.RssCache
   alias BaladosSyncCore.RssParser
-  alias BaladosSyncWeb.Queries
+  alias BaladosSyncWeb.Opml
+
+  # Maximum OPML file size: 10MB
+  @max_opml_file_size 10 * 1024 * 1024
 
   # All actions require authenticated user
   plug :require_authenticated_user
@@ -82,8 +85,10 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
             |> redirect(to: ~p"/subscriptions")
 
           {:error, reason} ->
+            Logger.warning("Subscription failed for user #{user_id}: #{inspect(reason)}")
+
             conn
-            |> put_flash(:error, "Failed to subscribe: #{inspect(reason)}")
+            |> put_flash(:error, "Failed to subscribe. Please try again.")
             |> render(:new, changeset: nil, preview: metadata)
         end
 
@@ -96,39 +101,168 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
 
   @doc """
   Export subscriptions to OPML file format.
+
+  ## Query Parameters
+
+  - `format` - "extended" (default) or "standard"
+    - extended: Full export with play statuses, playlists, collections
+    - standard: OPML 2.0 compatible (subscriptions only)
   """
-  def export_opml(conn, _params) do
+  def export_opml(conn, params) do
     user_id = conn.assigns.current_user.id
-    subscriptions = Queries.get_user_subscriptions(user_id)
+    user = conn.assigns.current_user
 
-    # Enrich subscriptions with metadata for better OPML titles
-    enriched_subscriptions =
-      Enum.map(subscriptions, fn sub ->
-        metadata = fetch_metadata_safe(sub.rss_source_feed)
-        Map.put(sub, :metadata, metadata)
-      end)
+    format =
+      case params["format"] do
+        "standard" -> :standard
+        _ -> :extended
+      end
 
-    opml_content = generate_opml(enriched_subscriptions, conn.assigns.current_user)
+    # Fetch all user data and convert to OPML document
+    document = Opml.fetch_user_data(user_id)
+    opml_content = Opml.to_xml(document, user, format: format)
+
+    filename =
+      case format do
+        :standard -> "balados-subscriptions.opml"
+        :extended -> "balados-sync-export.opml"
+      end
 
     conn
     |> put_resp_content_type("application/xml")
-    |> put_resp_header(
-      "content-disposition",
-      ~s(attachment; filename="balados-subscriptions.opml")
-    )
+    |> put_resp_header("content-disposition", ~s(attachment; filename="#{filename}"))
     |> send_resp(200, opml_content)
   end
 
-  # ===== Private Helpers =====
+  @doc """
+  Show OPML import form.
+  """
+  def import_opml_form(conn, _params) do
+    render(conn, :import_opml)
+  end
 
-  defp fetch_metadata_safe(encoded_feed) do
-    with {:ok, feed_url} <- Base.url_decode64(encoded_feed, padding: false),
-         {:ok, metadata} <- RssCache.get_feed_metadata(feed_url) do
-      metadata
+  @doc """
+  Import subscriptions from OPML file.
+  """
+  def import_opml(conn, %{"opml" => %Plug.Upload{path: path}}) do
+    user_id = conn.assigns.current_user.id
+
+    # Security: Validate file size before reading to prevent memory exhaustion
+    with {:ok, %{size: size}} <- File.stat(path),
+         :ok <- validate_file_size(size) do
+      import_opml_file(conn, user_id, path)
     else
-      _ -> nil
+      {:error, :file_too_large} ->
+        max_mb = div(@max_opml_file_size, 1024 * 1024)
+
+        conn
+        |> put_flash(:error, "File too large. Maximum size is #{max_mb}MB.")
+        |> render(:import_opml)
+
+      {:error, reason} ->
+        Logger.warning("File stat failed during OPML import: #{inspect(reason)}")
+
+        conn
+        |> put_flash(:error, "Could not read the uploaded file. Please try again.")
+        |> render(:import_opml)
     end
   end
+
+  def import_opml(conn, _params) do
+    conn
+    |> put_flash(:error, "Please select an OPML file to import")
+    |> render(:import_opml)
+  end
+
+  defp validate_file_size(size) when size <= @max_opml_file_size, do: :ok
+  defp validate_file_size(_size), do: {:error, :file_too_large}
+
+  defp import_opml_file(conn, user_id, path) do
+    case File.read(path) do
+      {:ok, content} ->
+        case Opml.from_xml(content) do
+          {:ok, document} ->
+            case Opml.import_user_data(user_id, document) do
+              {:ok, stats} ->
+                flash_message = format_import_stats(stats)
+
+                conn
+                |> put_flash(:info, flash_message)
+                |> redirect(to: ~p"/subscriptions")
+
+              {:error, reason} ->
+                Logger.error("OPML import failed for user #{user_id}: #{inspect(reason)}")
+
+                conn
+                |> put_flash(:error, "Import failed. Please check your file and try again.")
+                |> render(:import_opml)
+            end
+
+          {:error, :xml_parse_failed} ->
+            conn
+            |> put_flash(:error, "Invalid OPML file: could not parse XML")
+            |> render(:import_opml)
+
+          {:error, reason} ->
+            Logger.warning("OPML parsing failed: #{inspect(reason)}")
+
+            conn
+            |> put_flash(:error, "Invalid OPML file format")
+            |> render(:import_opml)
+        end
+
+      {:error, reason} ->
+        Logger.warning("File read failed during OPML import: #{inspect(reason)}")
+
+        conn
+        |> put_flash(:error, "Could not read the uploaded file. Please try again.")
+        |> render(:import_opml)
+    end
+  end
+
+  defp format_import_stats(stats) do
+    parts = []
+
+    parts =
+      if stats.subscriptions.imported > 0 or stats.subscriptions.merged > 0 do
+        count = stats.subscriptions.imported + stats.subscriptions.merged
+        parts ++ ["#{count} subscription(s)"]
+      else
+        parts
+      end
+
+    parts =
+      if stats.play_statuses.imported > 0 or stats.play_statuses.merged > 0 do
+        count = stats.play_statuses.imported + stats.play_statuses.merged
+        parts ++ ["#{count} play status(es)"]
+      else
+        parts
+      end
+
+    parts =
+      if stats.playlists.imported > 0 or stats.playlists.merged > 0 do
+        count = stats.playlists.imported + stats.playlists.merged
+        parts ++ ["#{count} playlist(s)"]
+      else
+        parts
+      end
+
+    parts =
+      if stats.collections.imported > 0 or stats.collections.merged > 0 do
+        count = stats.collections.imported + stats.collections.merged
+        parts ++ ["#{count} collection(s)"]
+      else
+        parts
+      end
+
+    if Enum.empty?(parts) do
+      "No new data to import"
+    else
+      "Successfully imported: " <> Enum.join(parts, ", ")
+    end
+  end
+
+  # ===== Private Helpers =====
 
   defp preview_feed(url) do
     with {:ok, xml} <- RssCache.fetch_feed(url),
@@ -147,53 +281,6 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
     |> Base.encode16(case: :lower)
     |> String.slice(0, 16)
   end
-
-  defp generate_opml(subscriptions, user) do
-    now = DateTime.utc_now() |> DateTime.to_iso8601()
-
-    outlines =
-      subscriptions
-      |> Enum.map(fn sub ->
-        with {:ok, feed_url} <- Base.url_decode64(sub.rss_source_feed, padding: false) do
-          title =
-            (sub.metadata && sub.metadata.title) ||
-              sub.rss_feed_title ||
-              "Unknown Podcast"
-
-          ~s(<outline type="rss" text="#{escape_xml(title)}" xmlUrl="#{escape_xml(feed_url)}" />)
-        else
-          _ -> ""
-        end
-      end)
-      |> Enum.reject(&(&1 == ""))
-      |> Enum.join("\n    ")
-
-    username = user.username || "User"
-
-    """
-    <?xml version="1.0" encoding="UTF-8"?>
-    <opml version="2.0">
-      <head>
-        <title>#{escape_xml(username)} - Balados Sync Subscriptions</title>
-        <dateCreated>#{now}</dateCreated>
-      </head>
-      <body>
-        #{outlines}
-      </body>
-    </opml>
-    """
-  end
-
-  defp escape_xml(str) when is_binary(str) do
-    str
-    |> String.replace("&", "&amp;")
-    |> String.replace("<", "&lt;")
-    |> String.replace(">", "&gt;")
-    |> String.replace("\"", "&quot;")
-    |> String.replace("'", "&apos;")
-  end
-
-  defp escape_xml(_), do: ""
 
   defp require_authenticated_user(conn, _opts) do
     if conn.assigns[:current_user] do
