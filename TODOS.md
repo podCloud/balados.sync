@@ -84,7 +84,6 @@ Add tasks here. Claude will create GitHub issues for them.
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
-- [ ] Extended OPML format with balados namespace - [#195](https://github.com/podCloud/balados.sync/issues/195) - PR [#196](https://github.com/podCloud/balados.sync/pull/196) - REVIEW
 - [ ] E2E UI testing with Wallaby - [#197](https://github.com/podCloud/balados.sync/issues/197) - PR [#198](https://github.com/podCloud/balados.sync/pull/198) - REVIEW
 
 ---
@@ -93,6 +92,7 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] Extended OPML format with balados namespace - [#195](https://github.com/podCloud/balados.sync/issues/195) - PR #196
 - [x] Document playlist type field and queue feature - [#185](https://github.com/podCloud/balados.sync/issues/185) - PR #194
 - [x] Add ProjectorTestCase for CQRS/ES projector testing - [#191](https://github.com/podCloud/balados.sync/issues/191) - PR #193
 - [x] Fix web tests DBConnection.OwnershipError - [#188](https://github.com/podCloud/balados.sync/issues/188) - PR #190
