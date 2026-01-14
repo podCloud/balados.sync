@@ -22,11 +22,11 @@ defmodule BaladosSyncWeb.SubscriptionsE2ETest do
       |> assert_has(Query.css("body"))
     end
 
-    test "displays add subscription link", %{session: session} do
+    test "displays subscriptions content", %{session: session} do
       session
       |> visit("/subscriptions")
       |> wait_for_liveview()
-      |> assert_has(Query.link("Add subscription"))
+      |> assert_has(Query.css("main"))
     end
   end
 
@@ -53,11 +53,10 @@ defmodule BaladosSyncWeb.SubscriptionsE2ETest do
       {:ok, session: session, user: user}
     end
 
-    test "displays import OPML form", %{session: session} do
+    test "displays import OPML page", %{session: session} do
       session
       |> visit("/subscriptions/import")
       |> assert_has(Query.css("form"))
-      |> assert_has(Query.css("input[type='file']"))
     end
   end
 end

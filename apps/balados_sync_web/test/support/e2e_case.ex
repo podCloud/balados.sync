@@ -25,6 +25,24 @@ defmodule BaladosSyncWeb.E2ECase do
   end
 
   setup tags do
+    # Check if ChromeDriver is available before running E2E tests
+    case System.find_executable("chromedriver") do
+      nil ->
+        raise """
+        ChromeDriver not found in PATH. E2E tests require ChromeDriver.
+
+        Install ChromeDriver:
+          Arch Linux: sudo pacman -S chromium
+          macOS:      brew install chromedriver
+          Ubuntu:     sudo apt install chromium-chromedriver
+
+        Then run: mix test --include e2e
+        """
+
+      _path ->
+        :ok
+    end
+
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(BaladosSyncCore.SystemRepo)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(BaladosSyncProjections.ProjectionsRepo)
 
@@ -54,7 +72,7 @@ defmodule BaladosSyncWeb.E2ECase do
       user_attrs = %{
         email: email,
         hashed_password: Argon2.hash_pwd_salt(password),
-        confirmed_at: DateTime.utc_now()
+        confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)
       }
 
       {:ok, user} =
@@ -69,9 +87,9 @@ defmodule BaladosSyncWeb.E2ECase do
     def login(session, email, password) do
       session
       |> Wallaby.Browser.visit("/users/log_in")
-      |> Wallaby.Browser.fill_in(Query.text_field("Email"), with: email)
-      |> Wallaby.Browser.fill_in(Query.text_field("Password"), with: password)
-      |> Wallaby.Browser.click(Query.button("Log in"))
+      |> Wallaby.Browser.fill_in(Query.text_field("Nom d'utilisateur"), with: email)
+      |> Wallaby.Browser.fill_in(Query.text_field("Mot de passe"), with: password)
+      |> Wallaby.Browser.click(Query.button("Se connecter"))
     end
 
     @doc "Wait for LiveView to connect."
