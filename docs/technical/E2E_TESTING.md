@@ -22,7 +22,7 @@ apt install chromium-chromedriver
 
 **Arch Linux:**
 ```bash
-pacman -S chromedriver
+sudo pacman -S chromium
 ```
 
 ### Verify Installation
@@ -74,9 +74,9 @@ end
 
 session
 |> visit("/users/log_in")
-|> fill_in(Query.text_field("Email"), with: email)
-|> fill_in(Query.text_field("Password"), with: password)
-|> click(Query.button("Log in"))
+|> fill_in(Query.text_field("Nom d'utilisateur"), with: email)
+|> fill_in(Query.text_field("Mot de passe"), with: password)
+|> click(Query.button("Se connecter"))
 ```
 
 ### Using the Login Helper
