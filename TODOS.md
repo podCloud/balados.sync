@@ -360,31 +360,123 @@ Améliorer les pages de découverte existantes tout en restant un simple annuair
 - Pointer vers les sources, pas les copier
 - Respecter le trafic des créateurs de podcasts
 
+## Architecture
+
+### Projection `podcast_popularity`
+
+Table mise à jour par les events (Play, Subscribe, Unsubscribe).
+À chaque event, on fetch le RSS via cache pour extraire les dates d'épisodes.
+
+```sql
+CREATE TABLE podcast_popularity (
+  feed_url TEXT PRIMARY KEY,
+  title TEXT,
+
+  -- Stats d'activité (mises à jour par events)
+  plays_8d INT DEFAULT 0,
+  plays_32d INT DEFAULT 0,
+  subscribers_count INT DEFAULT 0,
+  first_subscribed_at TIMESTAMPTZ,
+
+  -- Dates extraites du RSS (via cache)
+  oldest_episode_at TIMESTAMPTZ,
+  latest_episode_at TIMESTAMPTZ,
+  second_latest_at TIMESTAMPTZ,
+  third_latest_at TIMESTAMPTZ,
+
+  -- Score précalculé
+  popularity_score FLOAT,
+
+  updated_at TIMESTAMPTZ
+);
+
+CREATE INDEX idx_popularity_score ON podcast_popularity(popularity_score DESC);
+```
+
+### Projector
+
+```elixir
+defmodule BaladosSyncProjections.PodcastPopularityProjector do
+  use Commanded.Projections.Ecto
+
+  project %PlayRecorded{} = event, _metadata, fn multi ->
+    # 1. Fetch RSS via cache
+    rss_data = RssCache.get_or_fetch(event.feed_url)
+
+    # 2. Extraire dates épisodes
+    episode_dates = extract_episode_dates(rss_data)
+
+    # 3. Upsert podcast_popularity
+    multi
+    |> upsert_popularity(event.feed_url, rss_data.title, episode_dates)
+    |> increment_plays(event.feed_url)
+    |> recalculate_score(event.feed_url)
+  end
+
+  project %UserSubscribed{} = event, _metadata, fn multi ->
+    rss_data = RssCache.get_or_fetch(event.feed_url)
+    episode_dates = extract_episode_dates(rss_data)
+
+    multi
+    |> upsert_popularity(event.feed_url, rss_data.title, episode_dates)
+    |> increment_subscribers(event.feed_url)
+    |> maybe_set_first_subscribed(event.feed_url, event.subscribed_at)
+    |> recalculate_score(event.feed_url)
+  end
+
+  project %UserUnsubscribed{} = event, _metadata, fn multi ->
+    multi
+    |> decrement_subscribers(event.feed_url)
+    |> recalculate_score(event.feed_url)
+  end
+end
+```
+
+### Formule de popularité (inspirée podCloud)
+
+```elixir
+def calculate_score(stats) do
+  base = stats.plays_32d / max(stats.subscribers_count + days_since(stats.latest_episode_at), 1)
+  performance = (stats.plays_8d * 4) / max(stats.plays_32d, 1)
+  regularity = compute_regularity(stats)
+  age = days_since(stats.oldest_episode_at) |> max(1)
+
+  base * f((performance * regularity) / age)
+end
+
+defp f(x), do: 0.01 + (x / 100) + (2 * x * x) / (1 + x * x)
+```
+
 ## Fonctionnalités
 
 ### 1. Recherche par titre
-- Recherche dans les titres des podcasts connus (via subscriptions)
-- Résultats limités aux podcasts ayant au moins 1 abonné public
+- Recherche dans `podcast_popularity.title`
+- Résultats triés par `popularity_score`
 
 ### 2. Trending amélioré
 - Filtres par période : aujourd'hui / cette semaine / ce mois
-- Distinction podcasts vs épisodes
+- Utilise `plays_8d`, `plays_32d`, `popularity_score`
 - Pagination
 
 ### 3. Nouveaux podcasts populaires
-- Podcasts récemment découverts par la communauté
-- Basé sur first_subscribed_at ou activité récente
+- Basé sur `first_subscribed_at` récent + `popularity_score`
 - "Découvert cette semaine" / "Découvert ce mois"
 
-## Données utilisées
-- Uniquement ce qu'on a déjà : feed_url, title, activités (plays, subscribes)
-- Pas de description, pas de catégories, pas de métadonnées enrichies
+## Utilisation par les Recos
+
+Le job MinHash (background) lit `podcast_popularity` pour :
+- Calculer les scores mainstream/pépite
+- Appliquer le freshness boost
 
 ## Acceptance Criteria
+- [ ] Table `podcast_popularity` (projection)
+- [ ] Projector pour Play/Subscribe/Unsubscribe events
+- [ ] Intégration avec RssCache pour dates épisodes
+- [ ] Formule de popularité implémentée
 - [ ] Recherche par titre fonctionnelle
 - [ ] Filtres temporels sur /trending
 - [ ] Page "Nouveaux podcasts" basée sur découverte récente
-- [ ] Tests pour chaque fonctionnalité
+- [ ] Tests du projector et des calculs
 ```
 
 ---
