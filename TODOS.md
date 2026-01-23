@@ -80,6 +80,66 @@ Add tasks here. Claude will create GitHub issues for them.
 
 ---
 
+## Pending Issues to Create
+
+Issues à créer par Claude Code Desktop (gh disponible).
+
+### feat: Playlists collaboratives
+
+**Labels:** `enhancement`
+
+```markdown
+## Objectif
+Permettre à plusieurs utilisateurs de contribuer à une même playlist.
+
+## Fonctionnalités potentielles
+- Inviter des collaborateurs par username/email
+- Permissions (view/edit/admin)
+- Historique des modifications par collaborateur
+- Notifications d'ajouts/modifications
+
+## Questions ouvertes
+- Modèle de permissions (simple ou granulaire ?)
+- Limite de collaborateurs ?
+- Modération du contenu ajouté ?
+
+## Acceptance Criteria
+- [ ] Inviter un collaborateur à une playlist
+- [ ] Différents niveaux de permissions
+- [ ] Collaborateurs peuvent ajouter/retirer des épisodes
+- [ ] Propriétaire peut révoquer l'accès
+- [ ] Tests couvrant les cas de permissions
+```
+
+### feat: Historique d'écoute détaillé
+
+**Labels:** `enhancement`
+
+```markdown
+## Objectif
+Page permettant de voir son historique d'écoute complet avec filtres et statistiques.
+
+## Fonctionnalités potentielles
+- Liste chronologique des écoutes
+- Filtres par podcast, période, statut (terminé/en cours)
+- Statistiques (temps total écouté, podcasts les plus écoutés)
+- Export des données (CSV, JSON)
+
+## Questions ouvertes
+- Rétention des données (combien de temps garder l'historique ?)
+- Granularité des statistiques ?
+- Privacy : visible uniquement par l'utilisateur concerné
+
+## Acceptance Criteria
+- [ ] Page `/listening-history` accessible aux utilisateurs connectés
+- [ ] Liste paginée des écoutes récentes
+- [ ] Filtrage par podcast
+- [ ] Statistiques de base (nombre d'épisodes, temps total)
+- [ ] Tests de la page et des requêtes
+```
+
+---
+
 ## In Progress
 
 Format: `- [ ] Description - [#N](url) - STATUS`
