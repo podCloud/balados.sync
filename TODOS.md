@@ -237,15 +237,48 @@ def encode(sig), do: sig |> Enum.map(&<<&1::32>>) |> IO.iodata_to_binary()
 def decode(bin), do: for <<val::32 <- bin>>, do: val
 ```
 
-### LSH Banding (optionnel, pour > 10k users)
-Diviser signature en 32 bandes de 4 valeurs. Deux users sont "candidats" uniquement si au moins une bande est identique → filtre 95% des comparaisons inutiles.
+### LSH Banding avec Index Inversé SQL
 
-### Estimation ressources
-| Users | Signatures storage | Calcul similarité |
-|-------|-------------------|-------------------|
-| 1000  | 500 KB            | ~1 sec            |
-| 10000 | 5 MB              | ~10 sec           |
-| 100000| 50 MB             | ~2 min (avec LSH) |
+Au lieu de comparer toutes les paires, on indexe les signatures par bandes en DB.
+
+#### Schema SQL
+```sql
+CREATE TABLE user_band_buckets (
+  user_id INT REFERENCES users(id),
+  band_idx SMALLINT,      -- 0-63 (64 bandes de 2 valeurs)
+  bucket_hash INT,        -- hash de la bande
+  PRIMARY KEY (user_id, band_idx)
+);
+
+CREATE INDEX idx_bucket ON user_band_buckets(bucket_hash, band_idx);
+```
+
+#### Requête temps réel (< 50ms avec index)
+```sql
+SELECT other.user_id, COUNT(*) as shared_bands
+FROM user_band_buckets mine
+JOIN user_band_buckets other
+  ON mine.bucket_hash = other.bucket_hash
+  AND mine.band_idx = other.band_idx
+WHERE mine.user_id = $1 AND other.user_id != $1
+GROUP BY other.user_id
+ORDER BY shared_bands DESC
+LIMIT 20;
+```
+
+#### Pourquoi ça scale
+- Pas de comparaison O(n²) - utilisation de l'index SQL B-tree
+- Hash 32 bits → 4 milliards de buckets possibles
+- Seuls les candidats similaires sont joints
+
+### Estimation ressources (100k users × 500 abos max)
+
+| Métrique | Valeur |
+|----------|--------|
+| Table `user_band_buckets` | 6.4M lignes (~80 MB) |
+| Index `bucket_hash` | ~50 MB |
+| Calcul initial signatures | ~2 min (parallélisé) |
+| Requête temps réel | < 50ms |
 
 ## Privacy
 - Abonnement public = opt-in implicite pour les recommandations
@@ -254,13 +287,14 @@ Diviser signature en 32 bandes de 4 valeurs. Deux users sont "candidats" uniquem
 
 ## Acceptance Criteria
 - [ ] Module MinHash (hash functions, signatures, similarité)
-- [ ] Encodage/décodage binaire des signatures
-- [ ] Job de précalcul des similarités (BaladosSyncJobs)
+- [ ] Table `user_band_buckets` avec index
+- [ ] Job de précalcul des bandes (BaladosSyncJobs)
+- [ ] Requête SQL optimisée pour trouver les voisins
 - [ ] Endpoint `/recommendations` pour utilisateur connecté
 - [ ] Page web affichant les suggestions
-- [ ] Performance < 100ms pour requête temps réel
+- [ ] Performance < 50ms pour requête temps réel
 - [ ] Tests unitaires MinHash (propriétés Jaccard)
-- [ ] Tests d'intégration du workflow complet
+- [ ] Tests de charge (simulation 100k users)
 ```
 
 ### feat: Découverte communautaire améliorée
