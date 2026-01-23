@@ -1022,11 +1022,10 @@ mix db.reset --all          # ☢️☢️ EXTREME - TOUT détruit
 - [x] Playlists CRUD de base (v2.0 ✅)
 - [x] Public visibility for playlists (v2.2 ✅)
 - [x] Shareable public URLs (v2.2 ✅) - via `/u/:username/playlists/:id` et `/u/:username/collections/:id`
-- [ ] Public visibility for collections - partage comme les playlists
-- [ ] Playlists collaboratives
-- [ ] Historique d'écoute détaillé
-- [ ] Recommandations personnalisées - à évaluer (compatibilité open source / privacy first)
-- [ ] Découverte communautaire avancée - en attente de détails
+- [x] Public visibility for collections (v2.3 ✅) - via PR #109
+- [ ] Playlists collaboratives - [#153](https://github.com/podCloud/balados.sync/issues/153)
+- [ ] Historique d'écoute détaillé - [#200](https://github.com/podCloud/balados.sync/issues/200)
+- [ ] Découverte communautaire avec recommandations MinHash - [#201](https://github.com/podCloud/balados.sync/issues/201)
 
 ---
 

@@ -204,6 +204,7 @@ Le fichier [TODOS.md](TODOS.md) sert de file d'attente pour les tâches :
 - **TODO** : Tâches ajoutées par les humains
 - **In Progress** : Tâches avec issue/PR associée (maintenu par Claude)
 - **Done** : Tâches terminées
+- **Issues Futures** : Liens vers les issues GitHub pour fonctionnalités futures
 
 Lors du workflow, toujours vérifier TODOS.md pour :
 1. Synchroniser les tâches avec GitHub (issues/PRs)

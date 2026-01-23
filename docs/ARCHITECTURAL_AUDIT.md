@@ -1,6 +1,6 @@
 # Architectural Audit Report - Balados Sync
 
-**Audit Date**: 2025-12-21
+**Audit Date**: 2025-12-21 (Updated: 2026-01-23)
 **Auditor**: Claude (Opus 4.5)
 **Project Version**: 0.1.0
 
@@ -147,10 +147,10 @@ deps: [
 #### TODOs and FIXMEs Found
 
 ```
-apps/balados_sync_web/controllers/sync_controller.ex:64 - TODO: implement sync structure
-apps/balados_sync_core/aggregates/user.ex:25 - TODO: playlists documentation
-apps/balados_sync_core/aggregates/user.ex:349 - TODO: Sync playlists not implemented
-apps/balados_sync_projections/schemas/user.ex:88 - TODO: Switch to Argon2
+apps/balados_sync_web/controllers/sync_controller.ex:64 - ✅ DONE: sync structure implemented (#131)
+apps/balados_sync_core/aggregates/user.ex:25 - ✅ DONE: playlists documentation (#131)
+apps/balados_sync_core/aggregates/user.ex:349 - ✅ DONE: Sync playlists implemented (#131)
+apps/balados_sync_projections/schemas/user.ex:88 - ✅ DONE: Switch to Argon2 (#142)
 apps/balados_sync_jobs/snapshot_worker.ex:38 - TODO: EventStore API simplification
 ```
 
@@ -437,22 +437,19 @@ Based on `FEATURES.md` and `GOALS.md`:
 
 | Feature | Status | Priority | Notes |
 |---------|--------|----------|-------|
-| Playlist sync between devices | Not Started | High | TODO in codebase |
-| Multi-device real-time sync | Partial | High | WebSocket exists, sync logic incomplete |
+| ~~Playlist sync between devices~~ | ✅ Done | ~~High~~ | Implemented in #131 |
+| ~~Multi-device real-time sync~~ | ✅ Done | ~~High~~ | Implemented in #145 |
 | Federation between instances | Not Started | Medium | Vision goal |
 | Mobile app SDKs | Not Started | Medium | Needed for integrations |
-| Collaborative playlists | Not Started | Low | Future enhancement |
-| Advanced recommendations | Not Started | Low | Requires ML infrastructure |
+| Collaborative playlists | Issue Created | Low | [#153](https://github.com/podCloud/balados.sync/issues/153) |
+| Listening history page | Issue Created | Medium | [#200](https://github.com/podCloud/balados.sync/issues/200) |
+| Discovery + Recommendations | Issue Created | Medium | [#201](https://github.com/podCloud/balados.sync/issues/201) |
 
-### Sync Controller Gap
+### ~~Sync Controller Gap~~
 
-The `SyncController` has a critical TODO:
+~~The `SyncController` has a critical TODO:~~
 
-```elixir
-# TODO: implémenter selon votre structure
-```
-
-This means the core sync functionality is incomplete.
+✅ **Resolved in PR #131** - Full sync implementation with bidirectional merge.
 
 ---
 
@@ -460,17 +457,17 @@ This means the core sync functionality is incomplete.
 
 ### Immediate Actions (Next Sprint)
 
-1. **Add tests for SyncController** - Core functionality needs coverage
-2. **Implement input validation** - Especially for RSS URLs
-3. **Add rate limiting** - Use existing Hammer dependency more widely
-4. **Fix error handling** - Stop exposing `inspect(reason)`
+1. ~~**Add tests for SyncController**~~ ✅ Done (#132)
+2. ~~**Implement input validation**~~ ✅ Done - SSRF prevention (#122)
+3. ~~**Add rate limiting**~~ ✅ Done (#123)
+4. ~~**Fix error handling**~~ ✅ Done - ErrorHelpers module (#124)
 
 ### Short-term (1-3 Months)
 
-1. **Complete playlist sync** - Address TODO in aggregate
+1. ~~**Complete playlist sync**~~ ✅ Done (#131)
 2. **Split User aggregate** - Create bounded contexts
-3. **Add property-based tests** - Use StreamData for commands
-4. **Implement SSRF protection** - Validate and sanitize URLs
+3. ~~**Add property-based tests**~~ ✅ Done - StreamData (#143)
+4. ~~**Implement SSRF protection**~~ ✅ Done (#122)
 
 ### Long-term (3-6 Months)
 
@@ -478,6 +475,9 @@ This means the core sync functionality is incomplete.
 2. **Federation protocol** - Design inter-instance communication
 3. **SDK development** - Create client libraries for apps
 4. **Observability** - Add OpenTelemetry tracing
+5. **Discovery + Recommendations** - [#201](https://github.com/podCloud/balados.sync/issues/201)
+6. **Listening history** - [#200](https://github.com/podCloud/balados.sync/issues/200)
+7. **Collaborative playlists** - [#153](https://github.com/podCloud/balados.sync/issues/153)
 
 ---
 
