@@ -80,6 +80,16 @@ Add tasks here. Claude will create GitHub issues for them.
 
 ---
 
+## Issues Futures
+
+Issues créées pour les fonctionnalités futures :
+
+- [#153 - Playlists collaboratives](https://github.com/podCloud/balados.sync/issues/153)
+- [#200 - Historique d'écoute détaillé](https://github.com/podCloud/balados.sync/issues/200)
+- [#201 - Découverte communautaire avec recommandations MinHash](https://github.com/podCloud/balados.sync/issues/201)
+
+---
+
 ## In Progress
 
 Format: `- [ ] Description - [#N](url) - STATUS`

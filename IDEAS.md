@@ -88,11 +88,11 @@ These items address gaps identified in the [architectural audit](docs/ARCHITECTU
 
 | Idea | Description | Notes |
 |------|-------------|-------|
-| Collaborative playlists | Multiple users can contribute to a playlist | #153 - Requires permissions model |
+| Collaborative playlists | Multiple users can contribute to a playlist | [#153](https://github.com/podCloud/balados.sync/issues/153) - Requires permissions model |
+| Listening history page | Detailed history with filters and stats | [#200](https://github.com/podCloud/balados.sync/issues/200) - Privacy-respecting |
+| Discovery + Recommendations | Trending, search, MinHash recommendations | [#201](https://github.com/podCloud/balados.sync/issues/201) - Comprehensive discovery |
 | Podcast reviews/ratings | Users can rate and review podcasts | #154 - Privacy considerations |
 | Follow other users | See what friends are listening to | #155 - Social graph |
-| Trending algorithms | Improve popularity scoring | #156 - Time decay, engagement weights |
-| Personalized recommendations | ML-based suggestions | #157 - Requires usage data analysis |
 | Hashtags/topics | Categorize podcasts by topic | #158 - User-generated taxonomy |
 
 ### Federation
@@ -173,10 +173,10 @@ Areas that need investigation before implementation:
    - ~~Operational transforms~~
    - ~~Last-write-wins vs merge strategies~~ → Implemented LWW with version vectors
 
-3. **Recommendation Engine** - #180
-   - Collaborative filtering
-   - Content-based filtering
-   - Privacy-preserving recommendations
+3. ~~**Recommendation Engine**~~ → Superseded by [#201](https://github.com/podCloud/balados.sync/issues/201)
+   - ~~Collaborative filtering~~ → MinHash/LSH approach designed
+   - ~~Content-based filtering~~
+   - ~~Privacy-preserving recommendations~~ → Public subscriptions only
 
 4. **Transcription Services** - #181
    - Whisper API vs cloud services
