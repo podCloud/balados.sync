@@ -138,7 +138,7 @@ Page permettant de voir son historique d'écoute complet avec filtres et statist
 - [ ] Tests de la page et des requêtes
 ```
 
-### feat: Recommandations par collaborative filtering
+### feat: Recommandations par collaborative filtering (MinHash)
 
 **Labels:** `enhancement`
 
@@ -149,16 +149,56 @@ Suggérer des podcasts basés sur les abonnements d'utilisateurs aux goûts simi
 ## Principe
 "Les utilisateurs qui ont des abonnements similaires aux tiens écoutent aussi..."
 
-## Algorithme
-1. Pour l'utilisateur A, calculer le nombre d'abonnements communs avec chaque autre utilisateur (abonnements publics uniquement)
-2. Sélectionner les N utilisateurs avec le plus d'abonnements communs (ex: top 10-20)
-3. Parmi leurs abonnements publics, exclure ceux que A a déjà
-4. Retourner les plus populaires de ce groupe
+## Architecture technique : MinHash + LSH
 
-## Considérations performance
-- Requêtes SQL potentiellement coûteuses pour plusieurs centaines d'utilisateurs
-- Envisager précalcul périodique des similarités (job background)
-- Possibilité de limiter aux utilisateurs actifs récemment
+### Pourquoi MinHash ?
+- Complexité O(n) vs O(n²) pour comparaison naïve
+- Scalable dès le départ (pas de refactoring futur)
+- Mémoire fixe par utilisateur (~512 bytes pour 128 hash)
+- Approximation de Jaccard acceptable pour des recommandations (erreur < 5%)
+
+### Algorithme MinHash
+1. Générer K fonctions de hash (ex: K=128, fixées au démarrage)
+2. Pour chaque utilisateur, calculer sa "signature" :
+   - Pour chaque hash function, calculer min(hash(feed_url)) parmi ses abonnements
+   - Résultat : vecteur de K valeurs (la signature)
+3. Similarité entre 2 users ≈ % de signatures identiques
+
+### Workflow
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Job périodique (toutes les 6h ou quotidien)                │
+├─────────────────────────────────────────────────────────────┤
+│  1. Charger abonnements publics                             │
+│  2. Calculer signature MinHash par utilisateur              │
+│  3. Pour chaque user, trouver les K voisins les plus        │
+│     similaires (comparaison de signatures)                  │
+│  4. Stocker dans table user_similarities                    │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  GET /recommendations (temps réel)                          │
+├─────────────────────────────────────────────────────────────┤
+│  1. Récupérer les voisins précalculés                       │
+│  2. Charger leurs abonnements publics                       │
+│  3. Exclure ceux que le user a déjà                         │
+│  4. Agréger par popularité parmi les voisins                │
+│  5. Retourner top-10                                        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Stack technique
+- Nx (calcul vectoriel) ou implémentation pure Elixir
+- Table `user_signatures` : user_id, signature (binary), updated_at
+- Table `user_similarities` : user_id, similar_user_id, score, computed_at
+
+### Estimation ressources
+| Users | Signatures storage | Calcul similarité |
+|-------|-------------------|-------------------|
+| 1000  | 500 KB            | ~1 sec            |
+| 10000 | 5 MB              | ~10 sec           |
+| 100000| 50 MB             | ~2 min            |
 
 ## Privacy
 - Abonnement public = opt-in implicite pour les recommandations
@@ -166,11 +206,12 @@ Suggérer des podcasts basés sur les abonnements d'utilisateurs aux goûts simi
 - Résultats agrégés uniquement
 
 ## Acceptance Criteria
+- [ ] Module MinHash avec génération de signatures
+- [ ] Job de précalcul des similarités
 - [ ] Endpoint `/recommendations` pour utilisateur connecté
-- [ ] Algorithme de similarité basé sur abonnements communs
-- [ ] Performance acceptable (< 500ms) pour 500+ utilisateurs
 - [ ] Page web affichant les suggestions
-- [ ] Tests unitaires et d'intégration
+- [ ] Performance < 100ms pour requête temps réel
+- [ ] Tests unitaires (MinHash) et d'intégration
 ```
 
 ### feat: Découverte communautaire améliorée
