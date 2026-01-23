@@ -1019,18 +1019,14 @@ mix db.reset --all          # ☢️☢️ EXTREME - TOUT détruit
 
 ## 📋 Checklist Implémentation Future
 
-- [ ] Synchronisation temps réel multi-appareil
-- [ ] Support applications mobiles (API)
-- [ ] Fédération entre instances
-- [ ] Découverte communautaire avancée
 - [x] Playlists CRUD de base (v2.0 ✅)
+- [x] Public visibility for playlists (v2.2 ✅)
+- [x] Shareable public URLs (v2.2 ✅) - via `/u/:username/playlists/:id` et `/u/:username/collections/:id`
+- [ ] Public visibility for collections - partage comme les playlists
 - [ ] Playlists collaboratives
 - [ ] Historique d'écoute détaillé
-- [ ] Recommandations personnalisées
-- [x] Public visibility for playlists (v2.2 ✅)
-- [ ] Public visibility for collections
-- [ ] Shareable public URLs
-- [ ] Support formats additional (vidéo, etc.)
+- [ ] Recommandations personnalisées - à évaluer (compatibilité open source / privacy first)
+- [ ] Découverte communautaire avancée - en attente de détails
 
 ---
 
