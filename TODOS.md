@@ -189,16 +189,63 @@ Suggérer des podcasts basés sur les abonnements d'utilisateurs aux goûts simi
 ```
 
 ### Stack technique
-- Nx (calcul vectoriel) ou implémentation pure Elixir
-- Table `user_signatures` : user_id, signature (binary), updated_at
-- Table `user_similarities` : user_id, similar_user_id, score, computed_at
+- Implémentation pure Elixir (pas besoin de Nx pour MinHash)
+- Table `user_signatures` : user_id, signature (binary 512 bytes), updated_at
+- Table `user_similarities` : user_id, similar_user_id, score
+
+### Implémentation MinHash
+
+#### 1. Hash functions (générées une fois, stockées en config)
+```elixir
+# K fonctions de hash : h(x) = (a * x + b) mod prime
+@num_hashes 128
+@prime 4_294_967_311  # Premier > 2^32
+
+def generate_hash_functions do
+  for _ <- 1..@num_hashes do
+    {Enum.random(1..0xFFFFFFFF), Enum.random(0..0xFFFFFFFF)}
+  end
+end
+```
+
+#### 2. Calcul signature utilisateur
+```elixir
+def compute_signature(feed_urls, hash_fns) do
+  Enum.map(hash_fns, fn {a, b} ->
+    feed_urls
+    |> Enum.map(fn url ->
+      url_hash = :erlang.phash2(url, 0xFFFFFFFF)
+      rem(a * url_hash + b, @prime)
+    end)
+    |> Enum.min(fn -> 0xFFFFFFFF end)
+  end)
+end
+```
+
+#### 3. Similarité entre signatures
+```elixir
+def similarity(sig1, sig2) do
+  Enum.zip(sig1, sig2)
+  |> Enum.count(fn {a, b} -> a == b end)
+  |> Kernel./(length(sig1))
+end
+```
+
+#### 4. Stockage binaire (512 bytes par user)
+```elixir
+def encode(sig), do: sig |> Enum.map(&<<&1::32>>) |> IO.iodata_to_binary()
+def decode(bin), do: for <<val::32 <- bin>>, do: val
+```
+
+### LSH Banding (optionnel, pour > 10k users)
+Diviser signature en 32 bandes de 4 valeurs. Deux users sont "candidats" uniquement si au moins une bande est identique → filtre 95% des comparaisons inutiles.
 
 ### Estimation ressources
 | Users | Signatures storage | Calcul similarité |
 |-------|-------------------|-------------------|
 | 1000  | 500 KB            | ~1 sec            |
 | 10000 | 5 MB              | ~10 sec           |
-| 100000| 50 MB             | ~2 min            |
+| 100000| 50 MB             | ~2 min (avec LSH) |
 
 ## Privacy
 - Abonnement public = opt-in implicite pour les recommandations
@@ -206,12 +253,14 @@ Suggérer des podcasts basés sur les abonnements d'utilisateurs aux goûts simi
 - Résultats agrégés uniquement
 
 ## Acceptance Criteria
-- [ ] Module MinHash avec génération de signatures
-- [ ] Job de précalcul des similarités
+- [ ] Module MinHash (hash functions, signatures, similarité)
+- [ ] Encodage/décodage binaire des signatures
+- [ ] Job de précalcul des similarités (BaladosSyncJobs)
 - [ ] Endpoint `/recommendations` pour utilisateur connecté
 - [ ] Page web affichant les suggestions
 - [ ] Performance < 100ms pour requête temps réel
-- [ ] Tests unitaires (MinHash) et d'intégration
+- [ ] Tests unitaires MinHash (propriétés Jaccard)
+- [ ] Tests d'intégration du workflow complet
 ```
 
 ### feat: Découverte communautaire améliorée
