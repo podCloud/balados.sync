@@ -280,6 +280,54 @@ LIMIT 20;
 | Calcul initial signatures | ~2 min (parallélisé) |
 | Requête temps réel | < 50ms |
 
+### Deux types de recommandations
+
+Pour éviter le "cold start problem" (nouveaux podcasts jamais recommandés), on sépare :
+
+| Type | Description | Score |
+|------|-------------|-------|
+| **Mainstream** | Podcasts populaires que tu ne connais pas | `neighbor_ratio × log(total_subscribers)` |
+| **Pépite** | Podcasts niche avec forte affinité | `neighbor_ratio / log(total_subscribers)` |
+
+#### Calcul des scores
+```elixir
+def recommendation_scores(podcast, user_neighbors) do
+  # % de mes voisins abonnés à ce podcast
+  neighbor_ratio = neighbors_subscribed / total_neighbors
+
+  # Abonnés totaux (tous utilisateurs confondus)
+  total_subs = total_subscribers(podcast)
+
+  %{
+    mainstream: neighbor_ratio * :math.log(max(total_subs, 2)),
+    niche: neighbor_ratio / :math.log(max(total_subs, 2))
+  }
+end
+```
+
+#### Freshness boost
+Bonus temporaire pour les podcasts récemment découverts :
+```elixir
+def freshness_boost(podcast) do
+  case days_since(podcast.first_subscribed_at) do
+    d when d < 7 -> 1.5   # Découvert cette semaine
+    d when d < 30 -> 1.2  # Découvert ce mois
+    _ -> 1.0
+  end
+end
+```
+
+#### Affichage
+```
+📈 Populaires que tu pourrais aimer
+   • Podcast A (1.2k abonnés, 8/20 voisins)
+   • Podcast B (800 abonnés, 6/20 voisins)
+
+💎 Pépites à découvrir
+   • Podcast X (12 abonnés, 4/20 voisins) ← 33% affinité !
+   • Podcast Y (28 abonnés, 3/20 voisins)
+```
+
 ## Privacy
 - Abonnement public = opt-in implicite pour les recommandations
 - Ne jamais exposer "qui" a recommandé quoi
@@ -290,8 +338,10 @@ LIMIT 20;
 - [ ] Table `user_band_buckets` avec index
 - [ ] Job de précalcul des bandes (BaladosSyncJobs)
 - [ ] Requête SQL optimisée pour trouver les voisins
-- [ ] Endpoint `/recommendations` pour utilisateur connecté
-- [ ] Page web affichant les suggestions
+- [ ] Scoring mainstream vs pépite
+- [ ] Freshness boost pour nouveaux podcasts
+- [ ] Endpoint `/recommendations` avec les deux sections
+- [ ] Page web affichant les suggestions (2 sections)
 - [ ] Performance < 50ms pour requête temps réel
 - [ ] Tests unitaires MinHash (propriétés Jaccard)
 - [ ] Tests de charge (simulation 100k users)
