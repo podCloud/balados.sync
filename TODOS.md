@@ -138,6 +138,81 @@ Page permettant de voir son historique d'écoute complet avec filtres et statist
 - [ ] Tests de la page et des requêtes
 ```
 
+### feat: Recommandations par collaborative filtering
+
+**Labels:** `enhancement`
+
+```markdown
+## Objectif
+Suggérer des podcasts basés sur les abonnements d'utilisateurs aux goûts similaires.
+
+## Principe
+"Les utilisateurs qui ont des abonnements similaires aux tiens écoutent aussi..."
+
+## Algorithme
+1. Pour l'utilisateur A, calculer le nombre d'abonnements communs avec chaque autre utilisateur (abonnements publics uniquement)
+2. Sélectionner les N utilisateurs avec le plus d'abonnements communs (ex: top 10-20)
+3. Parmi leurs abonnements publics, exclure ceux que A a déjà
+4. Retourner les plus populaires de ce groupe
+
+## Considérations performance
+- Requêtes SQL potentiellement coûteuses pour plusieurs centaines d'utilisateurs
+- Envisager précalcul périodique des similarités (job background)
+- Possibilité de limiter aux utilisateurs actifs récemment
+
+## Privacy
+- Abonnement public = opt-in implicite pour les recommandations
+- Ne jamais exposer "qui" a recommandé quoi
+- Résultats agrégés uniquement
+
+## Acceptance Criteria
+- [ ] Endpoint `/recommendations` pour utilisateur connecté
+- [ ] Algorithme de similarité basé sur abonnements communs
+- [ ] Performance acceptable (< 500ms) pour 500+ utilisateurs
+- [ ] Page web affichant les suggestions
+- [ ] Tests unitaires et d'intégration
+```
+
+### feat: Découverte communautaire améliorée
+
+**Labels:** `enhancement`
+
+```markdown
+## Objectif
+Améliorer les pages de découverte existantes tout en restant un simple annuaire (pas de vampirisation de contenu).
+
+## Philosophie
+- Minimum d'infos stockées sur les podcasts (titre + feed URL uniquement)
+- Pointer vers les sources, pas les copier
+- Respecter le trafic des créateurs de podcasts
+
+## Fonctionnalités
+
+### 1. Recherche par titre
+- Recherche dans les titres des podcasts connus (via subscriptions)
+- Résultats limités aux podcasts ayant au moins 1 abonné public
+
+### 2. Trending amélioré
+- Filtres par période : aujourd'hui / cette semaine / ce mois
+- Distinction podcasts vs épisodes
+- Pagination
+
+### 3. Nouveaux podcasts populaires
+- Podcasts récemment découverts par la communauté
+- Basé sur first_subscribed_at ou activité récente
+- "Découvert cette semaine" / "Découvert ce mois"
+
+## Données utilisées
+- Uniquement ce qu'on a déjà : feed_url, title, activités (plays, subscribes)
+- Pas de description, pas de catégories, pas de métadonnées enrichies
+
+## Acceptance Criteria
+- [ ] Recherche par titre fonctionnelle
+- [ ] Filtres temporels sur /trending
+- [ ] Page "Nouveaux podcasts" basée sur découverte récente
+- [ ] Tests pour chaque fonctionnalité
+```
+
 ---
 
 ## In Progress
