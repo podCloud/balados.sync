@@ -1,8 +1,11 @@
 defmodule BaladosSyncWeb.HealthControllerTest do
   use BaladosSyncWeb.ConnCase
 
-  test "GET /api/v1/health returns ok", %{conn: conn} do
+  test "GET /api/v1/health returns ok with version", %{conn: conn} do
     conn = get(conn, ~p"/api/v1/health")
-    assert json_response(conn, 200) == %{"ok" => true}
+    response = json_response(conn, 200)
+    assert response["ok"] == true
+    assert is_binary(response["version"])
+    assert Map.keys(response) |> Enum.sort() == ["ok", "version"]
   end
 end
