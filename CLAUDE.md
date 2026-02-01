@@ -262,8 +262,10 @@ Closes #<issue-number>"
 # Pousser branche
 git push -u origin feature/issue-<number>-<title-slug>
 
-# Créer PR
-gh pr create --title "feat: description (Closes #<number>)" \
+# Créer PR avec label (IMPORTANT: utiliser GH_TOKEN injecté par le hook)
+GH_TOKEN=$(python3 /home/pof/.config/podclaude/get-token.py 2>/dev/null) gh pr create \
+  --title "feat: description (Closes #<number>)" \
+  --label "needs-claude-review" \
   --body "## Summary
 
 Brief description
@@ -272,6 +274,11 @@ Brief description
 - Test 1
 - Test 2"
 ```
+
+**⚠️ IMPORTANT: Attendre la review !**
+- Ne JAMAIS merger une PR sans review
+- Le label `needs-claude-review` déclenche une review par d'autres agents Claude
+- Attendre que la review soit complétée avant de passer à Phase 6
 
 #### Phase 6: Post-Merge Follow-up (si PR mergee avec comments)
 ```bash
@@ -342,6 +349,11 @@ git pull origin main
 - PR: créer toujours une PR (validation + traçabilité)
 - **⚠️ MERGE OBLIGATOIRE: `gh pr merge --merge --delete-branch` (JAMAIS --squash)**
 - **🚫 RÈGLE INVIOLABLE: JAMAIS de `git push --force` sans autorisation explicite de l'utilisateur**
+
+**GitHub CLI (gh):**
+- **TOUJOURS** préfixer les commandes `gh` avec le token: `GH_TOKEN=$(python3 /home/pof/.config/podclaude/get-token.py 2>/dev/null) gh ...`
+- À la création de PR: inclure `--label "needs-claude-review"`
+- **ATTENDRE la review** avant de merger - ne jamais merger sans review
 
 **Tests & Database:**
 - Migrations en test: `MIX_ENV=test mix db.migrate`

@@ -250,6 +250,13 @@ defmodule BaladosSyncWeb.Router do
     delete "/apps/:app_id", AppAuthController, :delete
   end
 
+  # Health check endpoint (separate from /public for brevity: /api/v1/health vs /api/v1/public/health)
+  scope "/api/v1", BaladosSyncWeb do
+    pipe_through :public_api
+
+    get "/health", HealthController, :check
+  end
+
   scope "/api/v1/public", BaladosSyncWeb do
     pipe_through :public_api
 
