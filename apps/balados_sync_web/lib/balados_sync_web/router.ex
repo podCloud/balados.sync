@@ -214,6 +214,9 @@ defmodule BaladosSyncWeb.Router do
   scope "/api/v1", BaladosSyncWeb do
     pipe_through :api
 
+    # Auth endpoints
+    post "/auth/refresh", AuthController, :refresh
+
     # Sync endpoints
     post "/sync", SyncController, :sync
 
