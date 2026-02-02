@@ -130,6 +130,15 @@ defmodule BaladosSyncWeb.AppAuth do
   end
 
   @doc """
+  Gets an active (non-revoked) app token for a user and app.
+
+  Returns {:ok, app_token} or {:error, :token_not_found}
+  """
+  def get_app_token(user_id, app_id) do
+    get_active_token(user_id, app_id)
+  end
+
+  @doc """
   Revokes an app authorization by setting revoked_at.
 
   Returns {:ok, app_token} or {:error, :not_found}
