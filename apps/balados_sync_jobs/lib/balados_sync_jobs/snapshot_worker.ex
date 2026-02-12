@@ -103,7 +103,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   defp read_events_before(cutoff_date, start_from, acc) do
     case event_store().read_all_streams_forward(start_from, @batch_size) do
       {:ok, []} ->
-        acc
+        Enum.reverse(acc)
 
       {:ok, events} ->
         # Check if the last event in this batch is still before the cutoff.
@@ -113,18 +113,18 @@ defmodule BaladosSyncJobs.SnapshotWorker do
         all_before_cutoff = DateTime.compare(last_event.created_at, cutoff_date) == :lt
 
         filtered = filter_events(events, cutoff_date)
-        new_acc = acc ++ filtered
+        new_acc = Enum.reverse(filtered) ++ acc
 
         if all_before_cutoff do
           next_position = last_event.event_number + 1
           read_events_before(cutoff_date, next_position, new_acc)
         else
-          new_acc
+          Enum.reverse(new_acc)
         end
 
       {:error, reason} ->
         Logger.error("Failed to read events from EventStore: #{inspect(reason)}")
-        acc
+        Enum.reverse(acc)
     end
   end
 
