@@ -1,63 +1,131 @@
 defmodule BaladosSyncJobs.SnapshotWorker do
+  @moduledoc """
+  Worker that creates periodic checkpoints for users with old events
+  and cleans up events older than the retention period.
+
+  Uses EventStore's native API (`read_all_streams_forward/3`) for reading events
+  instead of raw SQL queries. Event cleanup still uses raw SQL as the EventStore
+  library does not provide a native API for deleting individual events.
+  """
+
   require Logger
   import Ecto.Query
 
   alias BaladosSyncCore.Commands.Snapshot
-  alias BaladosSyncCore.EventStore
   alias BaladosSyncProjections.ProjectionsRepo
 
   @forty_five_days_ago_seconds 45 * 24 * 60 * 60
   @thirty_one_days_ago_seconds 31 * 24 * 60 * 60
+  @batch_size 1000
+
+  @target_event_types MapSet.new([
+                        "Elixir.BaladosSyncCore.Events.UserSubscribed",
+                        "Elixir.BaladosSyncCore.Events.PlayRecorded",
+                        "Elixir.BaladosSyncCore.Events.EpisodeSaved"
+                      ])
+
+  @doc """
+  Returns the EventStore module to use. Configurable via application env
+  for testability. Defaults to `BaladosSyncCore.EventStore`.
+  """
+  def event_store do
+    Application.get_env(:balados_sync_jobs, :event_store, BaladosSyncCore.EventStore)
+  end
 
   def perform do
     Logger.info("Starting snapshot worker...")
 
-    # Récupérer tous les événements de plus de 45 jours
-    forty_five_days_ago = DateTime.add(DateTime.utc_now(), -@forty_five_days_ago_seconds, :second)
+    forty_five_days_ago =
+      DateTime.add(DateTime.utc_now(), -@forty_five_days_ago_seconds, :second)
 
     old_events = get_old_events(forty_five_days_ago)
 
-    # Grouper par user_id
     events_by_user = Enum.group_by(old_events, & &1.user_id)
 
     Logger.info("Found #{map_size(events_by_user)} users with events older than 45 days")
 
-    # Pour chaque user, créer un checkpoint
     Enum.each(events_by_user, fn {user_id, _events} ->
       create_user_checkpoint(user_id, true)
     end)
 
-    # Recalculer la popularité pour tous les podcasts/épisodes affectés
     recalculate_popularity()
 
     Logger.info("Snapshot worker completed")
   end
 
-  defp get_old_events(cutoff_date) do
-    # Query EventStore pour récupérer les vieux events
-    # TODO: Ceci est une simplification - EventStore a sa propre API
-    #
-    query = """
-    SELECT 
-      data->>'user_id' as user_id,
-      event_type,
-      data->>'rss_source_feed' as feed,
-      data->>'rss_source_item' as item
-    FROM events.events
-    WHERE created_at < $1
-    AND event_type IN (
-      'Elixir.BaladosSyncCore.Events.UserSubscribed',
-      'Elixir.BaladosSyncCore.Events.PlayRecorded',
-      'Elixir.BaladosSyncCore.Events.EpisodeSaved'
-    )
-    """
+  @doc """
+  Reads old events from the EventStore using the native API with pagination.
 
-    # Execute raw query against EventStore
-    {:ok, result} = Ecto.Adapters.SQL.query(EventStore, query, [cutoff_date])
+  Uses `read_all_streams_forward/3` to iterate through events in batches,
+  filtering by cutoff date and target event types. Events are read in
+  chronological order (by event_number), and reading stops when events
+  newer than the cutoff date are encountered.
+  """
+  def get_old_events(cutoff_date) do
+    read_events_before(cutoff_date, 0, [])
+  end
 
-    Enum.map(result.rows, fn [user_id, event_type, feed, item] ->
-      %{user_id: user_id, event_type: event_type, feed: feed, item: item}
+  @doc """
+  Filters a list of RecordedEvent structs, keeping only events that are
+  older than `cutoff_date` and match the target event types.
+
+  Returns a list of maps with `:user_id`, `:event_type`, `:feed`, and `:item` keys.
+
+  This is a pure function extracted for testability.
+  """
+  def filter_events(events, cutoff_date) do
+    events
+    |> Enum.filter(fn event ->
+      DateTime.compare(event.created_at, cutoff_date) == :lt and
+        MapSet.member?(@target_event_types, event.event_type)
     end)
+    |> Enum.map(&extract_event_data/1)
+  end
+
+  @doc """
+  Returns the set of event types that the snapshot worker targets.
+  """
+  def target_event_types, do: @target_event_types
+
+  defp extract_event_data(event) do
+    %{
+      user_id: get_event_field(event.data, :user_id),
+      event_type: event.event_type,
+      feed: get_event_field(event.data, :rss_source_feed),
+      item: get_event_field(event.data, :rss_source_item)
+    }
+  end
+
+  defp get_event_field(data, field) when is_struct(data), do: Map.get(data, field)
+  defp get_event_field(data, field) when is_map(data), do: Map.get(data, field)
+  defp get_event_field(_data, _field), do: nil
+
+  defp read_events_before(cutoff_date, start_from, acc) do
+    case event_store().read_all_streams_forward(start_from, @batch_size) do
+      {:ok, []} ->
+        acc
+
+      {:ok, events} ->
+        # Check if the last event in this batch is still before the cutoff.
+        # Events are ordered by event_number (chronological), so once we see
+        # an event after the cutoff, all subsequent events will also be after it.
+        last_event = List.last(events)
+        all_before_cutoff = DateTime.compare(last_event.created_at, cutoff_date) == :lt
+
+        filtered = filter_events(events, cutoff_date)
+        new_acc = acc ++ filtered
+
+        if all_before_cutoff do
+          next_position = last_event.event_number + 1
+          read_events_before(cutoff_date, next_position, new_acc)
+        else
+          new_acc
+        end
+
+      {:error, reason} ->
+        Logger.error("Failed to read events from EventStore: #{inspect(reason)}")
+        acc
+    end
   end
 
   defp create_user_checkpoint(user_id, cleanup_old_events) do
@@ -72,7 +140,6 @@ defmodule BaladosSyncJobs.SnapshotWorker do
       :ok ->
         Logger.info("Checkpoint created for user #{user_id}")
 
-        # Si cleanup activé, supprimer les events > 31j après le checkpoint
         if cleanup_old_events do
           cleanup_old_user_events(user_id)
         end
@@ -83,16 +150,20 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   end
 
   defp cleanup_old_user_events(user_id) do
-    thirty_one_days_ago = DateTime.add(DateTime.utc_now(), -@thirty_one_days_ago_seconds, :second)
+    thirty_one_days_ago =
+      DateTime.add(DateTime.utc_now(), -@thirty_one_days_ago_seconds, :second)
 
-    # Supprimer les events de plus de 31 jours pour cet user
+    # Raw SQL is required here because the EventStore library does not provide
+    # a native API for deleting individual events from a stream. The only native
+    # option is `delete_stream/4` which removes the entire stream, but we need
+    # to keep recent events and the checkpoint event.
     query = """
     DELETE FROM events.events
     WHERE data->>'user_id' = $1
     AND created_at < $2
     """
 
-    case Ecto.Adapters.SQL.query(EventStore, query, [user_id, thirty_one_days_ago]) do
+    case Ecto.Adapters.SQL.query(event_store(), query, [user_id, thirty_one_days_ago]) do
       {:ok, result} ->
         Logger.info("Cleaned up #{result.num_rows} old events for user #{user_id}")
 
@@ -104,16 +175,13 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   defp recalculate_popularity do
     Logger.info("Recalculating popularity...")
 
-    # Récupérer tous les podcasts et épisodes depuis public_events
     feeds = get_distinct_feeds()
     items = get_distinct_items()
 
-    # Pour chaque feed, calculer la nouvelle popularité
     Enum.each(feeds, fn feed ->
       calculate_feed_popularity(feed)
     end)
 
-    # Pour chaque item, calculer la nouvelle popularité
     Enum.each(items, fn item ->
       calculate_item_popularity(item)
     end)
@@ -169,7 +237,6 @@ defmodule BaladosSyncJobs.SnapshotWorker do
         acc + score * count
       end)
 
-    # Mettre à jour podcast_popularity
     from(p in "public.podcast_popularity", where: p.rss_source_feed == ^feed)
     |> ProjectionsRepo.update_all(
       set: [
@@ -207,7 +274,6 @@ defmodule BaladosSyncJobs.SnapshotWorker do
         acc + score * count
       end)
 
-    # Mettre à jour episode_popularity
     from(e in "public.episode_popularity", where: e.rss_source_item == ^item)
     |> ProjectionsRepo.update_all(
       set: [
