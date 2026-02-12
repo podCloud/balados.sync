@@ -232,6 +232,7 @@ defmodule BaladosSyncWeb.EnrichedPodcastsController do
 
     # Get popularity data
     alias BaladosSyncProjections.ProjectionsRepo
+    alias BaladosSyncProjections.Schemas.Subscription
     import Ecto.Query
 
     popularity_query =
@@ -248,8 +249,9 @@ defmodule BaladosSyncWeb.EnrichedPodcastsController do
 
     # Get subscriber count
     subscriber_query =
-      from(s in "subscriptions",
-        where: s.feed == ^encoded_feed,
+      from(s in Subscription,
+        where: s.rss_source_feed == ^encoded_feed,
+        where: is_nil(s.unsubscribed_at) or s.subscribed_at > s.unsubscribed_at,
         select: count(s.user_id)
       )
 
