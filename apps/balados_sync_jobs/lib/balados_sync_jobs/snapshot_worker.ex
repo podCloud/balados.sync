@@ -62,7 +62,12 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   newer than the cutoff date are encountered.
   """
   def get_old_events(cutoff_date) do
-    read_events_before(cutoff_date, 0, [])
+    case read_events_before(cutoff_date, 0, []) do
+      {:ok, events} -> events
+      {:error, reason} ->
+        Logger.warning("Returning empty results due to EventStore error: #{inspect(reason)}")
+        []
+    end
   end
 
   @doc """
@@ -103,28 +108,21 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   defp read_events_before(cutoff_date, start_from, acc) do
     case event_store().read_all_streams_forward(start_from, @batch_size) do
       {:ok, []} ->
-        Enum.reverse(acc)
+        {:ok, Enum.reverse(acc)}
 
       {:ok, events} ->
-        # Check if the last event in this batch is still before the cutoff.
-        # Events are ordered by event_number (chronological), so once we see
-        # an event after the cutoff, all subsequent events will also be after it.
         last_event = List.last(events)
-        all_before_cutoff = DateTime.compare(last_event.created_at, cutoff_date) == :lt
-
         filtered = filter_events(events, cutoff_date)
         new_acc = Enum.reverse(filtered) ++ acc
 
-        if all_before_cutoff do
-          next_position = last_event.event_number + 1
-          read_events_before(cutoff_date, next_position, new_acc)
-        else
-          Enum.reverse(new_acc)
-        end
+        # Always continue reading to avoid missing out-of-order events
+        # (event_number order may not match created_at order)
+        next_position = last_event.event_number + 1
+        read_events_before(cutoff_date, next_position, new_acc)
 
       {:error, reason} ->
         Logger.error("Failed to read events from EventStore: #{inspect(reason)}")
-        Enum.reverse(acc)
+        {:error, reason}
     end
   end
 

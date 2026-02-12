@@ -340,6 +340,11 @@ git pull origin main
 - Si le problème est trop complexe, demander de l'aide ou simplifier l'approche
 - Les issues de suivi doivent être terminées, pas reportées
 
+**🚫 RÈGLE DE MERGE: Aucun MUST-FIX ou SHOULD-FIX en suspens !**
+- Une PR ne peut être mergée que si **tous** les points MUST-FIX et SHOULD-FIX de la review sont corrigés
+- Seuls les NICE-TO-HAVE peuvent être reportés en follow-up issues
+- Si la review dit "APPROVED WITH COMMENTS" avec des SHOULD-FIX, il faut corriger avant de merger
+
 ### Points Importants
 
 **Git & Commits:**
