@@ -7,7 +7,16 @@ defmodule BaladosSyncWeb.RssAggregateController do
   alias BaladosSyncWeb.Plugs.RateLimiter
   alias BaladosSyncCore.SystemRepo
   alias BaladosSyncProjections.ProjectionsRepo
-  alias BaladosSyncProjections.Schemas.{PlayToken, Subscription, Playlist, PlaylistItem, Collection, CollectionSubscription}
+
+  alias BaladosSyncProjections.Schemas.{
+    PlayToken,
+    Subscription,
+    Playlist,
+    PlaylistItem,
+    Collection,
+    CollectionSubscription
+  }
+
   import Ecto.Query
 
   # Rate limit RSS aggregate endpoints: 10 requests per minute per token
@@ -47,7 +56,8 @@ defmodule BaladosSyncWeb.RssAggregateController do
     with {:ok, user_id} <- verify_user_token(token),
          {:ok, collection} <- get_user_collection(user_id, collection_id),
          {:ok, subscriptions} <- get_collection_subscriptions(collection.id),
-         {:ok, aggregated_feed} <- aggregate_collection_feeds(user_id, token, collection, subscriptions) do
+         {:ok, aggregated_feed} <-
+           aggregate_collection_feeds(user_id, token, collection, subscriptions) do
       update_token_last_used(token)
 
       conn
@@ -171,39 +181,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
   end
 
   defp aggregate_subscription_feeds(_user_id, user_token, subscriptions) do
-    tasks =
-      Enum.map(subscriptions, fn sub ->
-        Task.async(fn ->
-          case decode_feed_url(sub.feed) do
-            {:ok, feed_url} ->
-              case RssCache.fetch_feed(feed_url) do
-                {:ok, xml} ->
-                  parse_and_transform_items(xml, sub.feed, sub.title || "Unknown Podcast", user_token)
-
-                error ->
-                  Logger.error("Failed to fetch feed #{sub.title}: #{inspect(error)}")
-                  {:error, :fetch_failed}
-              end
-
-            {:error, :invalid_encoding} ->
-              Logger.error("Invalid base64 feed encoding for #{sub.title}: #{sub.feed}")
-              {:error, :invalid_encoding}
-          end
-        end)
-      end)
-
-    results = Task.await_many(tasks, :timer.seconds(30))
-
-    # Collecter tous les items transformés
-    all_items =
-      results
-      |> Enum.filter(fn
-        {:ok, _} -> true
-        _ -> false
-      end)
-      |> Enum.flat_map(fn {:ok, items} -> items end)
-      |> Enum.sort_by(& &1.pub_date_parsed, {:desc, DateTime})
-      |> Enum.take(100)
+    all_items = fetch_and_collect_items(subscriptions, user_token, limit: 100)
 
     feed_xml =
       build_aggregated_feed(
@@ -216,39 +194,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
   end
 
   defp aggregate_collection_feeds(_user_id, user_token, collection, subscriptions) do
-    tasks =
-      Enum.map(subscriptions, fn sub ->
-        Task.async(fn ->
-          case decode_feed_url(sub.feed) do
-            {:ok, feed_url} ->
-              case RssCache.fetch_feed(feed_url) do
-                {:ok, xml} ->
-                  parse_and_transform_items(xml, sub.feed, sub.title || "Unknown Podcast", user_token)
-
-                error ->
-                  Logger.error("Failed to fetch feed #{sub.title}: #{inspect(error)}")
-                  {:error, :fetch_failed}
-              end
-
-            {:error, :invalid_encoding} ->
-              Logger.error("Invalid base64 feed encoding for #{sub.title}: #{sub.feed}")
-              {:error, :invalid_encoding}
-          end
-        end)
-      end)
-
-    results = Task.await_many(tasks, :timer.seconds(30))
-
-    # Collecter tous les items transformés
-    all_items =
-      results
-      |> Enum.filter(fn
-        {:ok, _} -> true
-        _ -> false
-      end)
-      |> Enum.flat_map(fn {:ok, items} -> items end)
-      |> Enum.sort_by(& &1.pub_date_parsed, {:desc, DateTime})
-      |> Enum.take(100)
+    all_items = fetch_and_collect_items(subscriptions, user_token, limit: 100)
 
     feed_xml =
       build_aggregated_feed(
@@ -263,39 +209,16 @@ defmodule BaladosSyncWeb.RssAggregateController do
   defp aggregate_playlist_feed(_user_id, user_token, playlist) do
     items_by_feed = Enum.group_by(playlist.items, & &1.rss_source_feed)
 
-    tasks =
+    feed_sources =
       Enum.map(items_by_feed, fn {feed, items} ->
-        Task.async(fn ->
-          feed_title = List.first(items).feed_title || "Unknown Podcast"
-          item_ids = Enum.map(items, & &1.rss_source_item)
-
-          case decode_feed_url(feed) do
-            {:ok, feed_url} ->
-              case RssCache.fetch_feed(feed_url) do
-                {:ok, xml} ->
-                  parse_and_transform_items(xml, feed, feed_title, user_token, item_ids)
-
-                error ->
-                  Logger.error("Failed to fetch playlist feed: #{inspect(error)}")
-                  {:error, :fetch_failed}
-              end
-
-            {:error, :invalid_encoding} ->
-              Logger.error("Invalid base64 feed encoding for playlist: #{feed}")
-              {:error, :invalid_encoding}
-          end
-        end)
+        %{
+          feed: feed,
+          title: List.first(items).feed_title || "Unknown Podcast",
+          filter_item_ids: Enum.map(items, & &1.rss_source_item)
+        }
       end)
 
-    results = Task.await_many(tasks, :timer.seconds(30))
-
-    all_items =
-      results
-      |> Enum.filter(fn
-        {:ok, _} -> true
-        _ -> false
-      end)
-      |> Enum.flat_map(fn {:ok, items} -> items end)
+    all_items = fetch_and_collect_items(feed_sources, user_token, [])
 
     feed_xml =
       build_aggregated_feed(
@@ -306,6 +229,64 @@ defmodule BaladosSyncWeb.RssAggregateController do
 
     {:ok, feed_xml}
   end
+
+  # Fetches RSS feeds concurrently, transforms items, and collects results.
+  # Each source must have :feed and :title keys. Optional :filter_item_ids for filtering.
+  # Options: limit: N to cap the number of returned items (sorted by pub_date desc).
+  defp fetch_and_collect_items(sources, user_token, opts) do
+    limit = Keyword.get(opts, :limit)
+
+    tasks =
+      Enum.map(sources, fn source ->
+        Task.async(fn ->
+          feed = source_feed(source)
+          title = source_title(source)
+          filter_ids = source_filter_ids(source)
+
+          case decode_feed_url(feed) do
+            {:ok, feed_url} ->
+              case RssCache.fetch_feed(feed_url) do
+                {:ok, xml} ->
+                  parse_and_transform_items(xml, feed, title, user_token, filter_ids)
+
+                error ->
+                  Logger.error("Failed to fetch feed #{title}: #{inspect(error)}")
+                  {:error, :fetch_failed}
+              end
+
+            {:error, :invalid_encoding} ->
+              Logger.error("Invalid base64 feed encoding for #{title}: #{feed}")
+              {:error, :invalid_encoding}
+          end
+        end)
+      end)
+
+    results = Task.await_many(tasks, :timer.seconds(30))
+
+    items =
+      results
+      |> Enum.filter(fn
+        {:ok, _} -> true
+        _ -> false
+      end)
+      |> Enum.flat_map(fn {:ok, items} -> items end)
+
+    items =
+      if limit do
+        items
+        |> Enum.sort_by(& &1.pub_date_parsed, {:desc, DateTime})
+        |> Enum.take(limit)
+      else
+        items
+      end
+
+    items
+  end
+
+  defp source_feed(%{feed: feed}), do: feed
+  defp source_title(%{title: title}), do: title || "Unknown Podcast"
+  defp source_filter_ids(%{filter_item_ids: ids}), do: ids
+  defp source_filter_ids(_), do: nil
 
   defp parse_and_transform_items(
          xml,
