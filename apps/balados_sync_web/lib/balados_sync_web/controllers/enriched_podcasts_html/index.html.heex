@@ -1,14 +1,14 @@
 <div class="px-4 py-10 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-7xl">
     <.header>
-      Enriched Podcasts
-      <:subtitle>Manage custom slugs, branding, and social links for featured podcasts</:subtitle>
+      <%= gettext("enriched.title") %>
+      <:subtitle><%= gettext("enriched.subtitle") %></:subtitle>
       <:actions>
         <.link
           navigate={~p"/admin/enriched-podcasts/new"}
           class="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
         >
-          New Enriched Podcast
+          <%= gettext("enriched.new") %>
         </.link>
       </:actions>
     </.header>
@@ -19,8 +19,8 @@
           <svg class="mx-auto h-12 w-12 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
           </svg>
-          <h3 class="mt-2 text-sm font-semibold text-zinc-900">No enriched podcasts</h3>
-          <p class="mt-1 text-sm text-zinc-500">Get started by creating a new enriched podcast entry.</p>
+          <h3 class="mt-2 text-sm font-semibold text-zinc-900"><%= gettext("enriched.empty_title") %></h3>
+          <p class="mt-1 text-sm text-zinc-500"><%= gettext("enriched.empty_hint") %></p>
           <div class="mt-6">
             <.link
               navigate={~p"/admin/enriched-podcasts/new"}
@@ -29,7 +29,7 @@
               <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
               </svg>
-              New Enriched Podcast
+              <%= gettext("enriched.new") %>
             </.link>
           </div>
         </div>
@@ -39,19 +39,19 @@
             <thead class="bg-zinc-50">
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Podcast
+                  <%= gettext("enriched.table.podcast") %>
                 </th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Slug
+                  <%= gettext("enriched.table.slug") %>
                 </th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Branding
+                  <%= gettext("enriched.table.branding") %>
                 </th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Links
+                  <%= gettext("enriched.table.links") %>
                 </th>
                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Actions
+                  <%= gettext("enriched.table.actions") %>
                 </th>
               </tr>
             </thead>
@@ -82,12 +82,12 @@
                         <span class="text-xs font-mono text-zinc-500"><%= enriched.background_color %></span>
                       </div>
                     <% else %>
-                      <span class="text-sm text-zinc-400">None</span>
+                      <span class="text-sm text-zinc-400"><%= gettext("enriched.none") %></span>
                     <% end %>
                   </td>
                   <td class="px-6 py-4">
                     <span class="text-sm text-zinc-500">
-                      <%= length(enriched.links || []) %> link(s)
+                      <%= length(enriched.links || []) %> <%= gettext("enriched.links_count") %>
                     </span>
                   </td>
                   <td class="px-6 py-4 text-right text-sm font-medium space-x-2">
@@ -95,21 +95,21 @@
                       navigate={~p"/admin/enriched-podcasts/#{enriched.id}"}
                       class="text-blue-600 hover:text-blue-900"
                     >
-                      View
+                      <%= gettext("enriched.view") %>
                     </.link>
                     <.link
                       navigate={~p"/admin/enriched-podcasts/#{enriched.id}/edit"}
                       class="text-indigo-600 hover:text-indigo-900"
                     >
-                      Edit
+                      <%= gettext("common.edit") %>
                     </.link>
                     <.link
                       href={~p"/admin/enriched-podcasts/#{enriched.id}"}
                       method="delete"
-                      data-confirm="Are you sure you want to delete this enriched podcast?"
+                      data-confirm={gettext("enriched.delete_confirm")}
                       class="text-red-600 hover:text-red-900"
                     >
-                      Delete
+                      <%= gettext("common.delete") %>
                     </.link>
                   </td>
                 </tr>
@@ -122,7 +122,7 @@
 
     <div class="mt-6">
       <.link navigate={~p"/admin"} class="text-sm text-zinc-600 hover:text-zinc-900">
-        &larr; Back to Admin Dashboard
+        &larr; <%= gettext("admin.back_to_dashboard") %>
       </.link>
     </div>
   </div>

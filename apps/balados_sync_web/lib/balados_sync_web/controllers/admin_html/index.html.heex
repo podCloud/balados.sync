@@ -1,14 +1,14 @@
 <div class="px-4 py-10 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-7xl">
     <.header>
-      Admin Dashboard
-      <:subtitle>System overview and management</:subtitle>
+      <%= gettext("admin.dashboard") %>
+      <:subtitle><%= gettext("admin.dashboard_subtitle") %></:subtitle>
       <:actions>
         <.link
           navigate={~p"/admin/rss-utility"}
           class="text-sm font-semibold text-blue-600 hover:text-blue-700"
         >
-          RSS Utility <span aria-hidden="true">&rarr;</span>
+          <%= gettext("admin.rss_utility") %> <span aria-hidden="true">&rarr;</span>
         </.link>
       </:actions>
     </.header>
@@ -18,7 +18,7 @@
       <div class="bg-white overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <dt class="text-sm font-medium text-zinc-500 truncate">
-            Total Users
+            <%= gettext("admin.total_users") %>
           </dt>
           <dd class="mt-1 text-3xl font-extrabold text-zinc-900">
             <%= @stats.total_users %>
@@ -29,7 +29,7 @@
       <div class="bg-white overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <dt class="text-sm font-medium text-zinc-500 truncate">
-            Distinct Podcast Feeds
+            <%= gettext("admin.distinct_feeds") %>
           </dt>
           <dd class="mt-1 text-3xl font-extrabold text-zinc-900">
             <%= @stats.distinct_feeds %>
@@ -40,7 +40,7 @@
       <div class="bg-white overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <dt class="text-sm font-medium text-zinc-500 truncate">
-            Events Rate (5 min)
+            <%= gettext("admin.events_rate_5min") %>
           </dt>
           <dd class="mt-1 text-3xl font-extrabold text-zinc-900">
             <%= if @stats.event_rates[:recent][:events_per_minute] do %>
@@ -52,9 +52,9 @@
           </dd>
           <dd class="mt-1 text-sm text-zinc-500">
             <%= if @stats.event_rates[:recent][:recent_events] do %>
-              <%= @stats.event_rates[:recent][:recent_events] %> events in last 5 minutes
+              <%= @stats.event_rates[:recent][:recent_events] %> <%= gettext("admin.events_in_5min") %>
             <% else %>
-              No data available
+              <%= gettext("admin.no_data") %>
             <% end %>
           </dd>
         </div>
@@ -64,33 +64,33 @@
     <div class="mt-6">
       <div class="bg-white shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg font-medium leading-6 text-zinc-900 mb-4">Event Rates</h3>
+          <h3 class="text-lg font-medium leading-6 text-zinc-900 mb-4"><%= gettext("admin.event_rates") %></h3>
 
           <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <!-- Global Rates -->
             <div>
-              <h4 class="text-sm font-semibold text-zinc-700 mb-3">Global (All Time)</h4>
+              <h4 class="text-sm font-semibold text-zinc-700 mb-3"><%= gettext("admin.global_all_time") %></h4>
               <dl class="space-y-2">
                 <div class="flex justify-between">
-                  <dt class="text-sm text-zinc-500">Total Events:</dt>
+                  <dt class="text-sm text-zinc-500"><%= gettext("admin.total_events") %></dt>
                   <dd class="text-sm font-medium text-zinc-900">
                     <%= @stats.event_rates[:global][:total_events] || "N/A" %>
                   </dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-sm text-zinc-500">Per Second:</dt>
+                  <dt class="text-sm text-zinc-500"><%= gettext("admin.per_second") %></dt>
                   <dd class="text-sm font-medium text-zinc-900">
                     <%= @stats.event_rates[:global][:events_per_second] || "N/A" %>
                   </dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-sm text-zinc-500">Per Minute:</dt>
+                  <dt class="text-sm text-zinc-500"><%= gettext("admin.per_minute") %></dt>
                   <dd class="text-sm font-medium text-zinc-900">
                     <%= @stats.event_rates[:global][:events_per_minute] || "N/A" %>
                   </dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-sm text-zinc-500">Per Hour:</dt>
+                  <dt class="text-sm text-zinc-500"><%= gettext("admin.per_hour") %></dt>
                   <dd class="text-sm font-medium text-zinc-900">
                     <%= @stats.event_rates[:global][:events_per_hour] || "N/A" %>
                   </dd>
@@ -100,29 +100,29 @@
             <!-- Recent Rates -->
             <div>
               <h4 class="text-sm font-semibold text-zinc-700 mb-3">
-                Recent (<%= @stats.event_rates[:recent][:period] %>)
+                <%= gettext("admin.recent") %> (<%= @stats.event_rates[:recent][:period] %>)
               </h4>
               <dl class="space-y-2">
                 <div class="flex justify-between">
-                  <dt class="text-sm text-zinc-500">Recent Events:</dt>
+                  <dt class="text-sm text-zinc-500"><%= gettext("admin.recent_events") %></dt>
                   <dd class="text-sm font-medium text-zinc-900">
                     <%= @stats.event_rates[:recent][:recent_events] || "N/A" %>
                   </dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-sm text-zinc-500">Per Second:</dt>
+                  <dt class="text-sm text-zinc-500"><%= gettext("admin.per_second") %></dt>
                   <dd class="text-sm font-medium text-zinc-900">
                     <%= @stats.event_rates[:recent][:events_per_second] || "N/A" %>
                   </dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-sm text-zinc-500">Per Minute:</dt>
+                  <dt class="text-sm text-zinc-500"><%= gettext("admin.per_minute") %></dt>
                   <dd class="text-sm font-medium text-zinc-900">
                     <%= @stats.event_rates[:recent][:events_per_minute] || "N/A" %>
                   </dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-sm text-zinc-500">Per Hour:</dt>
+                  <dt class="text-sm text-zinc-500"><%= gettext("admin.per_hour") %></dt>
                   <dd class="text-sm font-medium text-zinc-900">
                     <%= @stats.event_rates[:recent][:events_per_hour] || "N/A" %>
                   </dd>
@@ -135,7 +135,7 @@
     </div>
     <!-- Top Podcasts -->
     <div class="mt-10">
-      <h2 class="text-lg font-semibold text-zinc-900 mb-4">Top 10 Podcasts (by Popularity)</h2>
+      <h2 class="text-lg font-semibold text-zinc-900 mb-4"><%= gettext("admin.top_podcasts") %></h2>
       <div class="bg-white shadow rounded-lg overflow-hidden">
         <table class="min-w-full divide-y divide-zinc-200">
           <thead class="bg-zinc-50">
@@ -144,25 +144,25 @@
                 scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
               >
-                Podcast Title
+                <%= gettext("admin.podcast_title") %>
               </th>
               <th
                 scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
               >
-                Score
+                <%= gettext("trending.score") %>
               </th>
               <th
                 scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
               >
-                Plays
+                <%= gettext("trending.plays") %>
               </th>
               <th
                 scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
               >
-                Likes
+                <%= gettext("trending.likes") %>
               </th>
             </tr>
           </thead>
@@ -170,7 +170,7 @@
             <%= if Enum.empty?(@stats.top_podcasts) do %>
               <tr>
                 <td colspan="4" class="px-6 py-4 text-center text-sm text-zinc-500">
-                  No podcast data available yet
+                  <%= gettext("admin.no_podcast_data") %>
                 </td>
               </tr>
             <% else %>
@@ -178,7 +178,7 @@
                 <tr>
                   <td class="px-6 py-4 text-sm truncate max-w-md">
                     <div class="font-semibold text-zinc-900">
-                      <%= podcast.title || "Unknown Podcast" %>
+                      <%= podcast.title || gettext("common.unknown_podcast") %>
                     </div>
                     <div class="text-xs text-zinc-500 flex gap-2 mt-1">
                       <%= if podcast.website_link do %>
@@ -188,7 +188,7 @@
                           rel="noopener noreferrer"
                           class="text-blue-600 hover:underline"
                         >
-                          Website
+                          <%= gettext("admin.website") %>
                         </a>
                       <% end %>
                       <%= if podcast.feed_url do %>
@@ -221,7 +221,7 @@
     </div>
     <!-- Top Episodes -->
     <div class="mt-10">
-      <h2 class="text-lg font-semibold text-zinc-900 mb-4">Top 10 Episodes (by Popularity)</h2>
+      <h2 class="text-lg font-semibold text-zinc-900 mb-4"><%= gettext("admin.top_episodes") %></h2>
       <div class="bg-white shadow rounded-lg overflow-hidden">
         <table class="min-w-full divide-y divide-zinc-200">
           <thead class="bg-zinc-50">
@@ -230,25 +230,25 @@
                 scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
               >
-                Episode Title
+                <%= gettext("admin.episode_title") %>
               </th>
               <th
                 scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
               >
-                Score
+                <%= gettext("trending.score") %>
               </th>
               <th
                 scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
               >
-                Plays
+                <%= gettext("trending.plays") %>
               </th>
               <th
                 scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider"
               >
-                Likes
+                <%= gettext("trending.likes") %>
               </th>
             </tr>
           </thead>
@@ -256,7 +256,7 @@
             <%= if Enum.empty?(@stats.top_episodes) do %>
               <tr>
                 <td colspan="4" class="px-6 py-4 text-center text-sm text-zinc-500">
-                  No episode data available yet
+                  <%= gettext("admin.no_episode_data") %>
                 </td>
               </tr>
             <% else %>
@@ -264,11 +264,11 @@
                 <tr>
                   <td class="px-6 py-4 text-sm truncate max-w-md">
                     <div class="font-semibold text-zinc-900">
-                      <%= episode.title || "Unknown Episode" %>
+                      <%= episode.title || gettext("common.unknown_episode") %>
                     </div>
                     <%= if episode.podcast_title do %>
                       <div class="text-xs text-zinc-600 mt-1">
-                        from <strong><%= episode.podcast_title %></strong>
+                        <%= gettext("trending.from") %> <strong><%= episode.podcast_title %></strong>
                       </div>
                     <% end %>
                     <%= if episode.guid do %>
@@ -284,7 +284,7 @@
                           rel="noopener noreferrer"
                           class="text-blue-600 hover:underline"
                         >
-                          Episode Link
+                          <%= gettext("admin.episode_link") %>
                         </a>
                       <% end %>
                       <%= if episode.feed_url do %>

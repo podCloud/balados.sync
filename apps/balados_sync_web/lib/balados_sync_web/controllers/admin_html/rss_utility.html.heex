@@ -1,14 +1,14 @@
 <div class="px-4 py-10 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-4xl">
     <.header>
-      RSS Cache Link Generator
-      <:subtitle>Generate cached RSS proxy links for podcast feeds</:subtitle>
+      <%= gettext("admin.rss.title") %>
+      <:subtitle><%= gettext("admin.rss.subtitle") %></:subtitle>
       <:actions>
         <.link
           navigate={~p"/admin"}
           class="text-sm font-semibold text-blue-600 hover:text-blue-700"
         >
-          <span aria-hidden="true">&larr;</span> Back to Dashboard
+          <span aria-hidden="true">&larr;</span> <%= gettext("admin.rss.back_to_dashboard") %>
         </.link>
       </:actions>
     </.header>
@@ -22,9 +22,7 @@
           </div>
           <div class="ml-3">
             <p class="text-sm text-blue-800">
-              This utility generates cached RSS proxy links. The cache has a
-              <strong>5-minute TTL</strong>
-              and automatically validates feeds.
+              <%= gettext("admin.rss.info_text") %>
             </p>
           </div>
         </div>
@@ -35,7 +33,7 @@
           <div class="space-y-4">
             <div>
               <label for="feed_url" class="block text-sm font-medium text-zinc-700">
-                RSS Feed URL
+                <%= gettext("admin.rss.feed_url_label") %>
               </label>
               <div class="mt-1">
                 <input
@@ -48,7 +46,7 @@
                 />
               </div>
               <p class="mt-2 text-sm text-zinc-500">
-                Enter the RSS feed URL you want to generate cache links for
+                <%= gettext("admin.rss.feed_url_help") %>
               </p>
             </div>
 
@@ -57,7 +55,7 @@
                 type="submit"
                 class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Generate Links
+                <%= gettext("admin.rss.generate_links") %>
               </button>
             </div>
           </div>
@@ -66,11 +64,11 @@
       <!-- Results -->
       <div id="results" class="mt-6 hidden">
         <div class="bg-white shadow rounded-lg p-6">
-          <h3 class="text-lg font-medium text-zinc-900 mb-4">Generated Links</h3>
+          <h3 class="text-lg font-medium text-zinc-900 mb-4"><%= gettext("admin.rss.generated_links") %></h3>
           <!-- Proxy Link -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-zinc-700 mb-2">
-              Proxy Link (Full Feed, 5 min cache)
+              <%= gettext("admin.rss.proxy_link_label") %>
             </label>
             <div class="flex">
               <input
@@ -83,14 +81,14 @@
                 onclick="copyToClipboard('proxy-url')"
                 class="inline-flex items-center px-4 py-2 border border-l-0 border-zinc-300 text-sm font-medium rounded-r-md text-zinc-700 bg-zinc-50 hover:bg-zinc-100"
               >
-                Copy
+                <%= gettext("admin.rss.copy") %>
               </button>
             </div>
           </div>
           <!-- Encoded Feed -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-zinc-700 mb-2">
-              Encoded Feed ID (for episode links)
+              <%= gettext("admin.rss.encoded_feed_label") %>
             </label>
             <div class="flex">
               <input
@@ -103,11 +101,11 @@
                 onclick="copyToClipboard('encoded-feed')"
                 class="inline-flex items-center px-4 py-2 border border-l-0 border-zinc-300 text-sm font-medium rounded-r-md text-zinc-700 bg-zinc-50 hover:bg-zinc-100"
               >
-                Copy
+                <%= gettext("admin.rss.copy") %>
               </button>
             </div>
             <p class="mt-2 text-sm text-zinc-500">
-              Use this with episode IDs:
+              <%= gettext("admin.rss.encoded_feed_help") %>
               <code class="text-xs bg-zinc-100 px-1 py-0.5 rounded">
                 /api/v1/rss/proxy/{encoded_feed}/{encoded_episode}
               </code>
@@ -116,16 +114,16 @@
           <!-- Cache Stats -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-zinc-700 mb-2">
-              Cache Status
+              <%= gettext("admin.rss.cache_status") %>
             </label>
             <div class="bg-zinc-50 border border-zinc-200 rounded-md p-4">
               <dl class="space-y-2">
                 <div class="flex justify-between">
-                  <dt class="text-sm text-zinc-500">Cached:</dt>
+                  <dt class="text-sm text-zinc-500"><%= gettext("admin.rss.cached") %></dt>
                   <dd class="text-sm font-medium" id="cache-status">-</dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-sm text-zinc-500">TTL:</dt>
+                  <dt class="text-sm text-zinc-500"><%= gettext("admin.rss.ttl") %></dt>
                   <dd class="text-sm font-medium" id="cache-ttl">-</dd>
                 </div>
               </dl>
@@ -134,7 +132,7 @@
           <!-- Example Episode Link -->
           <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
             <p class="text-sm text-blue-800">
-              <strong>Episode link format:</strong>
+              <strong><%= gettext("admin.rss.episode_link_format") %></strong>
               <br />
               <code class="text-xs bg-white px-1 py-0.5 rounded mt-1 inline-block">
                 /api/v1/rss/proxy/{encoded_feed}/{base64(guid + "," + enclosure_url)}
@@ -146,12 +144,12 @@
       <!-- Base64 Encoder Section -->
       <div class="mt-10">
         <div class="bg-white shadow rounded-lg p-6">
-          <h3 class="text-lg font-medium text-zinc-900 mb-4">GUID & Enclosure Encoder</h3>
+          <h3 class="text-lg font-medium text-zinc-900 mb-4"><%= gettext("admin.rss.encoder_title") %></h3>
 
           <div class="space-y-4">
             <div>
               <label for="episode-guid" class="block text-sm font-medium text-zinc-700">
-                Episode GUID
+                <%= gettext("admin.rss.episode_guid_label") %>
               </label>
               <div class="mt-1">
                 <input
@@ -165,7 +163,7 @@
 
             <div>
               <label for="enclosure-url" class="block text-sm font-medium text-zinc-700">
-                Enclosure URL
+                <%= gettext("admin.rss.enclosure_url_label") %>
               </label>
               <div class="mt-1">
                 <input
@@ -182,14 +180,14 @@
                 onclick="encodeEpisode()"
                 class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
-                Encode Base64
+                <%= gettext("admin.rss.encode_base64") %>
               </button>
             </div>
 
             <div id="encoder-results" class="hidden">
               <div>
                 <label class="block text-sm font-medium text-zinc-700 mb-2">
-                  Encoded Episode ID
+                  <%= gettext("admin.rss.encoded_episode_label") %>
                 </label>
                 <div class="flex">
                   <input
@@ -202,11 +200,11 @@
                     onclick="copyToClipboard('encoded-episode')"
                     class="inline-flex items-center px-4 py-2 border border-l-0 border-zinc-300 text-sm font-medium rounded-r-md text-zinc-700 bg-zinc-50 hover:bg-zinc-100"
                   >
-                    Copy
+                    <%= gettext("admin.rss.copy") %>
                   </button>
                 </div>
                 <p class="mt-2 text-sm text-zinc-500">
-                  Use this in your episode link:
+                  <%= gettext("admin.rss.encoded_episode_help") %>
                   <code class="text-xs bg-zinc-100 px-1 py-0.5 rounded">
                     /api/v1/rss/proxy/{encoded_feed}/{encoded_episode_id}
                   </code>
@@ -215,7 +213,7 @@
 
               <div class="mt-4 bg-green-50 border border-green-200 rounded-md p-4">
                 <p class="text-sm text-green-800">
-                  <strong>Format:</strong>
+                  <strong><%= gettext("admin.rss.format_label") %></strong>
                   guid,enclosure_url <br />
                   <code
                     id="format-preview"
