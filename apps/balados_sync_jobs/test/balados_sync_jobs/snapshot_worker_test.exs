@@ -309,7 +309,7 @@ defmodule BaladosSyncJobs.SnapshotWorkerTest do
       assert Enum.at(result, 1).feed == "feed-2"
     end
 
-    test "error mid-pagination returns error (no partial results)" do
+    test "error mid-pagination returns empty list (graceful degradation)" do
       batch_1 = [
         build_recorded_event(
           event_number: 1,
