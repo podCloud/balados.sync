@@ -16,19 +16,21 @@
       </p>
     </div>
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
-      <span class="flex items-center gap-1 text-xs">
-        <%= if Gettext.get_locale(BaladosSyncWeb.Gettext) == "fr" do %>
-          <span class="font-bold text-blue-600">FR</span>
+      <% current_locale = Gettext.get_locale(BaladosSyncWeb.Gettext) %>
+      <% base_params = Map.drop(@conn.params || %{}, ["_csrf_token", "locale"]) %>
+      <nav class="flex items-center gap-1 text-xs" aria-label={gettext("nav.language_selector")}>
+        <%= if current_locale == "fr" do %>
+          <span class="font-bold text-blue-600" aria-current="true" lang="fr">FR</span>
         <% else %>
-          <a href={"?locale=fr"} class="hover:text-zinc-700">FR</a>
+          <a href={"?#{URI.encode_query(Map.put(base_params, "locale", "fr"))}"} class="hover:text-zinc-700" lang="fr">FR</a>
         <% end %>
-        <span class="text-zinc-300">|</span>
-        <%= if Gettext.get_locale(BaladosSyncWeb.Gettext) == "en" do %>
-          <span class="font-bold text-blue-600">EN</span>
+        <span class="text-zinc-300" aria-hidden="true">|</span>
+        <%= if current_locale == "en" do %>
+          <span class="font-bold text-blue-600" aria-current="true" lang="en">EN</span>
         <% else %>
-          <a href={"?locale=en"} class="hover:text-zinc-700">EN</a>
+          <a href={"?#{URI.encode_query(Map.put(base_params, "locale", "en"))}"} class="hover:text-zinc-700" lang="en">EN</a>
         <% end %>
-      </span>
+      </nav>
       <.link
         navigate={~p"/trending/podcasts"}
         class={

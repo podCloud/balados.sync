@@ -28,9 +28,14 @@ defmodule BaladosSyncWeb.Plugs.Locale do
 
     Gettext.put_locale(BaladosSyncWeb.Gettext, locale)
 
-    conn
-    |> put_session(:locale, locale)
-    |> assign(:locale, locale)
+    conn =
+      if get_session(conn, :locale) != locale do
+        put_session(conn, :locale, locale)
+      else
+        conn
+      end
+
+    assign(conn, :locale, locale)
   end
 
   defp locale_from_params(conn) do

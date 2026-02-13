@@ -286,6 +286,11 @@ msgstr "S'inscrire"
 msgid "nav.subscriptions"
 msgstr "Abonnements"
 
+#: lib/balados_sync_web/components/layouts/app.html.heex
+#, elixir-autogen, elixir-format
+msgid "nav.language_selector"
+msgstr "Sélecteur de langue"
+
 #: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:17
 #: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:108
 #, elixir-autogen, elixir-format
