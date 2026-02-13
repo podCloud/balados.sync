@@ -123,6 +123,68 @@ mix test --only integration
 mix test --exclude slow
 ```
 
+### Tests E2E (End-to-End)
+
+Les tests E2E utilisent **Wallaby** avec un navigateur Chrome headless pour tester l'application complète.
+
+#### Prérequis
+
+```bash
+# Arch Linux
+sudo pacman -S chromium
+
+# macOS
+brew install chromedriver
+
+# Ubuntu/Debian
+sudo apt install chromium-chromedriver
+```
+
+#### Exécuter les tests E2E
+
+```bash
+# Lancer les tests E2E (exclus par défaut)
+mix test --include e2e
+
+# Voir le navigateur (mode non-headless pour debug)
+WALLABY_HEADLESS=false mix test --include e2e
+
+# Un test E2E spécifique
+mix test apps/balados_sync_web/test/balados_sync_web/e2e/login_e2e_test.exs --include e2e
+```
+
+#### Écrire des tests E2E
+
+```elixir
+defmodule BaladosSyncWeb.MyFeatureE2ETest do
+  use BaladosSyncWeb.E2ECase, async: false
+
+  @moduletag :e2e
+
+  describe "feature" do
+    test "does something", %{session: session} do
+      session
+      |> visit("/path")
+      |> fill_in(Query.text_field("Field"), with: "value")
+      |> click(Query.button("Submit"))
+      |> assert_has(Query.css(".success"))
+    end
+  end
+end
+```
+
+#### Helpers disponibles
+
+- `create_test_user/1` : crée un utilisateur test avec credentials
+- `login/3` : connecte un utilisateur via le navigateur
+- `wait_for_liveview/2` : attend qu'un élément LiveView soit visible
+
+#### Fichiers
+
+- `apps/balados_sync_web/test/support/e2e_case.ex` : Case template de base
+- `apps/balados_sync_web/test/balados_sync_web/e2e/` : Fichiers de tests E2E
+- `config/test.exs` : Configuration Wallaby
+
 ### Infrastructure de Tests
 
 Les tests utilisent un **In-Memory EventStore** pour l'isolation parfaite entre tests.
