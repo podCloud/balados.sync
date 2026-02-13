@@ -106,6 +106,10 @@ defmodule BaladosSyncWeb.SubscriptionController do
     end
   end
 
+  def create(conn, _params) do
+    conn |> put_status(:bad_request) |> json(%{error: "missing_required_parameters"})
+  end
+
   @doc """
   Unsubscribes from a podcast feed.
 

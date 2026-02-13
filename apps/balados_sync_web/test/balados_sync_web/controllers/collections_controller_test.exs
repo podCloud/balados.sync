@@ -234,6 +234,32 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
     end
   end
 
+  describe "POST /api/v1/collections - input validation" do
+    test "returns 400 when title is missing", %{conn: conn, user_id: user_id} do
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id)
+        |> post("/api/v1/collections", %{})
+
+      response = json_response(conn, 400)
+      assert response["error"] == "missing_required_parameters"
+    end
+  end
+
+  describe "POST /api/v1/collections/:id/feeds - input validation" do
+    test "returns 400 when rss_source_feed is missing", %{conn: conn, user_id: user_id} do
+      collection = insert_collection(%{user_id: user_id, title: "News"})
+
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id)
+        |> post("/api/v1/collections/#{collection.id}/feeds", %{})
+
+      response = json_response(conn, 400)
+      assert response["error"] == "missing_required_parameters"
+    end
+  end
+
   describe "DELETE /api/v1/collections/:id/feeds/:feed_id" do
     test "removes a feed from collection", %{conn: conn, user_id: user_id, token: token} do
       # Subscribe to a feed

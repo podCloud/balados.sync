@@ -295,4 +295,72 @@ defmodule BaladosSyncWeb.PlayControllerTest do
       assert json_response(conn, 200) == %{"status" => "success"}
     end
   end
+
+  describe "POST /api/v1/play - input validation" do
+    test "returns 400 when required params are missing", %{conn: conn, user_id: user_id} do
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.plays.write"])
+        |> post("/api/v1/play", %{})
+
+      response = json_response(conn, 400)
+      assert response["error"] == "missing_required_parameters"
+    end
+
+    test "returns 400 when some required params are missing", %{conn: conn, user_id: user_id} do
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.plays.write"])
+        |> post("/api/v1/play", %{"rss_source_feed" => "dGVzdA"})
+
+      response = json_response(conn, 400)
+      assert response["error"] == "missing_required_parameters"
+    end
+  end
+
+  describe "PUT /api/v1/play/:item/position - input validation" do
+    test "returns 400 when position param is missing", %{conn: conn, user_id: user_id} do
+      item = "dGVzdC1pdGVt"
+
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.plays.write"])
+        |> put("/api/v1/play/#{item}/position", %{})
+
+      response = json_response(conn, 400)
+      assert response["error"] == "missing_required_parameters"
+    end
+  end
+
+  describe "GET /api/v1/play - pagination validation" do
+    test "handles non-integer limit gracefully", %{conn: conn, user_id: user_id} do
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.plays.read"])
+        |> get("/api/v1/play", %{"limit" => "abc"})
+
+      response = json_response(conn, 200)
+      assert response["pagination"]["limit"] == 50
+    end
+
+    test "handles negative limit gracefully", %{conn: conn, user_id: user_id} do
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.plays.read"])
+        |> get("/api/v1/play", %{"limit" => "-5"})
+
+      response = json_response(conn, 200)
+      assert response["pagination"]["limit"] == 50
+    end
+
+    test "handles non-integer offset gracefully", %{conn: conn, user_id: user_id} do
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.plays.read"])
+        |> get("/api/v1/play", %{"offset" => "xyz"})
+
+      response = json_response(conn, 200)
+      assert response["pagination"]["offset"] == 0
+    end
+  end
 end

@@ -105,6 +105,10 @@ defmodule BaladosSyncWeb.PlayController do
     end
   end
 
+  def record(conn, _params) do
+    conn |> put_status(:bad_request) |> json(%{error: "missing_required_parameters"})
+  end
+
   @doc """
   Updates only the playback position for an episode.
 
@@ -155,6 +159,10 @@ defmodule BaladosSyncWeb.PlayController do
       {:error, reason} ->
         handle_dispatch_error(conn, reason)
     end
+  end
+
+  def update_position(conn, _params) do
+    conn |> put_status(:bad_request) |> json(%{error: "missing_required_parameters"})
   end
 
   @doc """
@@ -223,8 +231,8 @@ defmodule BaladosSyncWeb.PlayController do
     query = from(ps in query, order_by: [desc: ps.updated_at])
 
     # Pagination
-    limit = min(String.to_integer(params["limit"] || "50"), 100)
-    offset = String.to_integer(params["offset"] || "0")
+    limit = min(safe_parse_int(params["limit"], 50), 100)
+    offset = safe_parse_int(params["offset"], 0)
 
     play_statuses =
       query
@@ -241,4 +249,13 @@ defmodule BaladosSyncWeb.PlayController do
       }
     })
   end
+
+  defp safe_parse_int(value, default) when is_binary(value) do
+    case Integer.parse(value) do
+      {val, _} when val >= 0 -> val
+      _ -> default
+    end
+  end
+
+  defp safe_parse_int(_, default), do: default
 end
