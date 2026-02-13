@@ -127,7 +127,7 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
           json(conn, %{status: "success", privacy: privacy_str})
         else
           conn
-          |> put_flash(:info, "Privacy level updated successfully")
+          |> put_flash(:info, gettext("privacy.updated"))
           |> redirect(to: ~p"/privacy-manager")
         end
 
@@ -139,7 +139,7 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
           |> json(%{status: "error", error: inspect(reason)})
         else
           conn
-          |> put_flash(:error, "Failed to update privacy: #{inspect(reason)}")
+          |> put_flash(:error, gettext("privacy.update_failed") <> ": #{inspect(reason)}")
           |> redirect(to: ~p"/privacy-manager")
         end
     end
@@ -167,7 +167,7 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
           json(conn, %{status: "success"})
         else
           conn
-          |> put_flash(:info, "Privacy setting removed successfully")
+          |> put_flash(:info, gettext("privacy.removed"))
           |> redirect(to: ~p"/privacy-manager")
         end
 
@@ -179,7 +179,7 @@ defmodule BaladosSyncWeb.PrivacyManagerController do
           |> json(%{status: "error", error: inspect(reason)})
         else
           conn
-          |> put_flash(:error, "Failed to remove privacy setting: #{inspect(reason)}")
+          |> put_flash(:error, gettext("privacy.remove_failed") <> ": #{inspect(reason)}")
           |> redirect(to: ~p"/privacy-manager")
         end
     end

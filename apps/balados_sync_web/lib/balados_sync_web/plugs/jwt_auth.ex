@@ -30,6 +30,7 @@ defmodule BaladosSyncWeb.Plugs.JWTAuth do
 
   import Plug.Conn
   import BaladosSyncWeb.ErrorHelpers, only: [unauthorized: 2, forbidden: 2]
+  use Gettext, backend: BaladosSyncWeb.Gettext
   require Logger
 
   alias BaladosSyncWeb.AppAuth
@@ -53,14 +54,14 @@ defmodule BaladosSyncWeb.Plugs.JWTAuth do
         Logger.debug("JWT auth failed: #{inspect(error)}")
 
         conn
-        |> forbidden("Insufficient permissions")
+        |> forbidden(gettext("auth.insufficient_permissions"))
         |> halt()
 
       error ->
         Logger.debug("JWT auth failed: #{inspect(error)}")
 
         conn
-        |> unauthorized("Unauthorized")
+        |> unauthorized(gettext("auth.unauthorized"))
         |> halt()
     end
   end

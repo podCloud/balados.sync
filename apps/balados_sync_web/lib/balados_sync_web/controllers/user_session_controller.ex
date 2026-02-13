@@ -15,19 +15,18 @@ defmodule BaladosSyncWeb.UserSessionController do
 
       {:error, :locked} ->
         render(conn, :new,
-          error_message:
-            "Votre compte a été verrouillé suite à trop de tentatives de connexion échouées. Veuillez contacter le support."
+          error_message: gettext("auth.account_locked")
         )
 
       {:error, :invalid_credentials} ->
         # In order to prevent user enumeration attacks, don't disclose whether the username is registered.
-        render(conn, :new, error_message: "Nom d'utilisateur ou mot de passe invalide")
+        render(conn, :new, error_message: gettext("auth.invalid_credentials"))
     end
   end
 
   def delete(conn, _params) do
     conn
-    |> put_flash(:info, "Logged out successfully.")
+    |> put_flash(:info, gettext("auth.logged_out"))
     |> UserAuth.log_out_user()
   end
 end

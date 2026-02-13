@@ -196,7 +196,7 @@ defmodule BaladosSyncWeb.PublicController do
 
       {:error, :invalid} ->
         conn
-        |> put_flash(:error, "Feed not found")
+        |> put_flash(:error, gettext("feed_page.not_found"))
         |> redirect(to: ~p"/trending/podcasts")
     end
   end
@@ -271,7 +271,7 @@ defmodule BaladosSyncWeb.PublicController do
     else
       _ ->
         conn
-        |> put_flash(:error, "Feed not found")
+        |> put_flash(:error, gettext("feed_page.not_found"))
         |> redirect(to: ~p"/trending/podcasts")
     end
   end
@@ -295,7 +295,7 @@ defmodule BaladosSyncWeb.PublicController do
     else
       _ ->
         conn
-        |> put_flash(:error, "Episode not found")
+        |> put_flash(:error, gettext("episode.not_found"))
         |> redirect(to: ~p"/trending/episodes")
     end
   end
@@ -356,7 +356,7 @@ defmodule BaladosSyncWeb.PublicController do
   def subscribe_to_feed(conn, %{"feed" => encoded_feed}) do
     unless conn.assigns[:current_user] do
       conn
-      |> put_flash(:error, "You must be logged in to subscribe")
+      |> put_flash(:error, gettext("feed_page.login_to_subscribe"))
       |> redirect(to: ~p"/users/log_in?return_to=/podcasts/#{encoded_feed}")
       |> halt()
     end
@@ -381,23 +381,23 @@ defmodule BaladosSyncWeb.PublicController do
         case Dispatcher.dispatch(command) do
           :ok ->
             conn
-            |> put_flash(:info, "Successfully subscribed")
+            |> put_flash(:info, gettext("feed_page.subscribed"))
             |> redirect(to: ~p"/podcasts/#{encoded_feed}")
 
           {:error, :already_subscribed} ->
             conn
-            |> put_flash(:warning, "Already subscribed")
+            |> put_flash(:warning, gettext("feed_page.already_subscribed"))
             |> redirect(to: ~p"/podcasts/#{encoded_feed}")
 
           {:error, reason} ->
             conn
-            |> put_flash(:error, "Failed to subscribe: #{inspect(reason)}")
+            |> put_flash(:error, gettext("feed_page.subscribe_failed") <> ": #{inspect(reason)}")
             |> redirect(to: ~p"/podcasts/#{encoded_feed}")
         end
 
       :error ->
         conn
-        |> put_flash(:error, "Invalid feed")
+        |> put_flash(:error, gettext("feed_page.invalid_feed"))
         |> redirect(to: ~p"/trending/podcasts")
     end
   end
@@ -409,7 +409,7 @@ defmodule BaladosSyncWeb.PublicController do
   def unsubscribe_from_feed(conn, %{"feed" => encoded_feed}) do
     unless conn.assigns[:current_user] do
       conn
-      |> put_flash(:error, "You must be logged in")
+      |> put_flash(:error, gettext("auth.must_log_in"))
       |> redirect(to: ~p"/users/log_in")
       |> halt()
     end
@@ -420,7 +420,7 @@ defmodule BaladosSyncWeb.PublicController do
 
     unless subscription do
       conn
-      |> put_flash(:error, "Not subscribed to this podcast")
+      |> put_flash(:error, gettext("feed_page.not_subscribed"))
       |> redirect(to: ~p"/podcasts/#{encoded_feed}")
       |> halt()
     end
@@ -439,12 +439,12 @@ defmodule BaladosSyncWeb.PublicController do
     case Dispatcher.dispatch(command) do
       :ok ->
         conn
-        |> put_flash(:info, "Successfully unsubscribed")
+        |> put_flash(:info, gettext("feed_page.unsubscribed"))
         |> redirect(to: ~p"/podcasts/#{encoded_feed}")
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Failed to unsubscribe: #{inspect(reason)}")
+        |> put_flash(:error, gettext("feed_page.unsubscribe_failed") <> ": #{inspect(reason)}")
         |> redirect(to: ~p"/podcasts/#{encoded_feed}")
     end
   end

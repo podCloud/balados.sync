@@ -12,7 +12,10 @@ defmodule BaladosSyncWeb.Plugs.Locale do
   import Plug.Conn
 
   @supported_locales ["fr", "en"]
-  @default_locale "fr"
+
+  defp default_locale do
+    Application.get_env(:balados_sync_web, :default_locale, "fr")
+  end
 
   def init(opts), do: opts
 
@@ -21,7 +24,7 @@ defmodule BaladosSyncWeb.Plugs.Locale do
       locale_from_params(conn) ||
         locale_from_session(conn) ||
         locale_from_header(conn) ||
-        @default_locale
+        default_locale()
 
     Gettext.put_locale(BaladosSyncWeb.Gettext, locale)
 

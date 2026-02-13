@@ -44,6 +44,9 @@ config :balados_sync_web, BaladosSyncWeb.Endpoint,
 # Enable SQL sandbox plug for Wallaby E2E metadata-based ownership
 config :balados_sync_web, :sql_sandbox, true
 
+# Use English locale in tests (existing tests assert English strings)
+config :balados_sync_web, default_locale: "en"
+
 # Print only warnings and errors during test
 config :logger, level: :warning
 

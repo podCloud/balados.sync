@@ -201,7 +201,7 @@ defmodule BaladosSyncWeb.ProfileControllerTest do
 
       conn = get(conn, ~p"/u/#{user.username}")
 
-      assert html_response(conn, 200) =~ "No public activity yet"
+      assert html_response(conn, 200) =~ "No recent activity"
     end
 
     test "shows public playlists on profile page", %{conn: conn, user: user} do

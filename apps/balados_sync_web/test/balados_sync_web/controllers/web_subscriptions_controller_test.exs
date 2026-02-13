@@ -124,7 +124,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsControllerTest do
       conn = post(conn, ~p"/subscriptions/import", %{"opml" => upload})
 
       assert redirected_to(conn) == ~p"/subscriptions"
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "imported"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Import successful"
     end
 
     test "imports extended OPML with play statuses", %{conn: conn, user: user} do
@@ -153,7 +153,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsControllerTest do
 
       assert redirected_to(conn) == ~p"/subscriptions"
       flash = Phoenix.Flash.get(conn.assigns.flash, :info)
-      assert flash =~ "imported" or flash =~ "subscription"
+      assert flash =~ "Import successful" or flash =~ "subscription"
     end
 
     test "shows error for invalid XML", %{conn: conn, user: user} do
@@ -165,7 +165,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsControllerTest do
 
       conn = post(conn, ~p"/subscriptions/import", %{"opml" => upload})
 
-      assert html_response(conn, 200) =~ "could not parse XML"
+      assert html_response(conn, 200) =~ "Error parsing OPML file"
     end
 
     test "handles non-OPML XML gracefully", %{conn: conn, user: user} do
@@ -197,7 +197,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsControllerTest do
 
       conn = post(conn, ~p"/subscriptions/import", %{})
 
-      assert html_response(conn, 200) =~ "Please select an OPML file"
+      assert html_response(conn, 200) =~ "No file selected"
     end
 
     test "rejects files larger than 10MB", %{conn: conn, user: user} do
@@ -209,7 +209,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsControllerTest do
 
       conn = post(conn, ~p"/subscriptions/import", %{"opml" => upload})
 
-      assert html_response(conn, 200) =~ "File too large"
+      assert html_response(conn, 200) =~ "File is too large"
     end
 
     test "imports playlists from extended OPML", %{conn: conn, user: user} do
@@ -233,7 +233,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsControllerTest do
 
       assert redirected_to(conn) == ~p"/subscriptions"
       flash = Phoenix.Flash.get(conn.assigns.flash, :info)
-      assert flash =~ "imported" or flash =~ "playlist"
+      assert flash =~ "Import successful" or flash =~ "playlist"
     end
 
     test "imports collections from extended OPML", %{conn: conn, user: user} do
@@ -257,7 +257,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsControllerTest do
 
       assert redirected_to(conn) == ~p"/subscriptions"
       flash = Phoenix.Flash.get(conn.assigns.flash, :info)
-      assert flash =~ "imported" or flash =~ "collection"
+      assert flash =~ "Import successful" or flash =~ "collection"
     end
 
     test "shows 'no new data' message when importing empty OPML", %{conn: conn, user: user} do

@@ -743,8 +743,6 @@ msgstr "← Retour aux tendances"
 
 #: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:115
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:67
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:67
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:71
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:71
 #: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:45
 #: lib/balados_sync_web/controllers/playlists_html/new.html.heex:46
@@ -767,8 +765,6 @@ msgid "common.change"
 msgstr "Modifier"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:112
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:112
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:23
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:23
 #: lib/balados_sync_web/controllers/playlists_html/show.html.heex:55
 #, elixir-autogen, elixir-format
@@ -776,8 +772,6 @@ msgid "common.delete"
 msgstr "Supprimer"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:104
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:104
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:15
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:15
 #: lib/balados_sync_web/controllers/playlists_html/show.html.heex:47
 #, elixir-autogen, elixir-format
@@ -785,8 +779,6 @@ msgid "common.edit"
 msgstr "Modifier"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:13
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:13
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:21
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:21
 #: lib/balados_sync_web/controllers/profile_html/edit.html.heex:11
 #, elixir-autogen, elixir-format
@@ -872,7 +864,6 @@ msgid "common.unknown"
 msgstr "Inconnu"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:267
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:267
 #: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:60
 #: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:21
 #, elixir-autogen, elixir-format
@@ -880,8 +871,6 @@ msgid "common.unknown_episode"
 msgstr "Épisode inconnu"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:181
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:181
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:35
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:35
 #: lib/balados_sync_web/controllers/profile_html/show.html.heex:124
 #: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:63
@@ -1968,15 +1957,12 @@ msgid "trending.episodes.title"
 msgstr "Épisodes tendances"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:271
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:271
 #: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:24
 #, elixir-autogen, elixir-format
 msgid "trending.from"
 msgstr "de"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:165
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:165
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:251
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:251
 #: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:45
 #: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:143
@@ -1992,8 +1978,6 @@ msgid "trending.no_cover"
 msgstr "Pas de pochette"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:159
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:159
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:245
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:245
 #: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:41
 #: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:139
@@ -2014,8 +1998,6 @@ msgid "trending.podcasts.title"
 msgstr "Podcasts tendances"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:153
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:153
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:239
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:239
 #: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:37
 #: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:135
@@ -2026,561 +2008,974 @@ msgid "trending.score"
 msgstr "Score"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:125
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:125
 #, elixir-autogen, elixir-format
 msgid "admin.back_to_dashboard"
 msgstr "← Retour au tableau de bord admin"
 
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:4
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "admin.dashboard"
 msgstr "Tableau de bord admin"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:5
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:5
 #, elixir-autogen, elixir-format
 msgid "admin.dashboard_subtitle"
 msgstr "Vue d'ensemble et gestion du système"
 
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:32
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:32
 #, elixir-autogen, elixir-format
 msgid "admin.distinct_feeds"
 msgstr "Flux de podcasts distincts"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:287
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:287
 #, elixir-autogen, elixir-format
 msgid "admin.episode_link"
 msgstr "Lien de l'épisode"
 
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:233
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:233
 #, elixir-autogen, elixir-format
 msgid "admin.episode_title"
 msgstr "Titre de l'épisode"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:67
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:67
 #, elixir-autogen, elixir-format
 msgid "admin.event_rates"
 msgstr "Taux d'événements"
 
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:55
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:55
 #, elixir-autogen, elixir-format
 msgid "admin.events_in_5min"
 msgstr "événements dans les 5 dernières minutes"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:43
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:43
 #, elixir-autogen, elixir-format
 msgid "admin.events_rate_5min"
 msgstr "Taux d'événements (5 min)"
 
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:72
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:72
 #, elixir-autogen, elixir-format
 msgid "admin.global_all_time"
 msgstr "Global (tout le temps)"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:57
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:57
 #, elixir-autogen, elixir-format
 msgid "admin.no_data"
 msgstr "Aucune donnée disponible"
 
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:259
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:259
 #, elixir-autogen, elixir-format
 msgid "admin.no_episode_data"
 msgstr "Aucune donnée d'épisode disponible"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:173
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:173
 #, elixir-autogen, elixir-format
 msgid "admin.no_podcast_data"
 msgstr "Aucune donnée de podcast disponible"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:93
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:93
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:125
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:125
 #, elixir-autogen, elixir-format
 msgid "admin.per_hour"
 msgstr "Par heure :"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:87
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:87
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:119
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:119
 #, elixir-autogen, elixir-format
 msgid "admin.per_minute"
 msgstr "Par minute :"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:81
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:81
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:113
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:113
 #, elixir-autogen, elixir-format
 msgid "admin.per_second"
 msgstr "Par seconde :"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:147
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:147
 #, elixir-autogen, elixir-format
 msgid "admin.podcast_title"
 msgstr "Titre du podcast"
 
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:103
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:103
 #, elixir-autogen, elixir-format
 msgid "admin.recent"
 msgstr "Récent"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:107
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:107
 #, elixir-autogen, elixir-format
 msgid "admin.recent_events"
 msgstr "Événements récents :"
 
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:11
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:11
 #, elixir-autogen, elixir-format
 msgid "admin.rss.back_to_dashboard"
 msgstr "← Retour au tableau de bord"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:117
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:117
 #, elixir-autogen, elixir-format
 msgid "admin.rss.cache_status"
 msgstr "Statut du cache"
 
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:122
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:122
 #, elixir-autogen, elixir-format
 msgid "admin.rss.cached"
 msgstr "En cache :"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:84
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:84
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:104
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:104
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:203
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:203
 #, elixir-autogen, elixir-format
 msgid "admin.rss.copy"
 msgstr "Copier"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:166
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:166
 #, elixir-autogen, elixir-format
 msgid "admin.rss.enclosure_url_label"
 msgstr "URL de l'enclosure"
 
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:183
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:183
 #, elixir-autogen, elixir-format
 msgid "admin.rss.encode_base64"
 msgstr "Encoder en Base64"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:207
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:207
 #, elixir-autogen, elixir-format
 msgid "admin.rss.encoded_episode_help"
 msgstr "Utilisez ceci dans votre lien d'épisode :"
 
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:190
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:190
 #, elixir-autogen, elixir-format
 msgid "admin.rss.encoded_episode_label"
 msgstr "Identifiant d'épisode encodé"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:108
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:108
 #, elixir-autogen, elixir-format
 msgid "admin.rss.encoded_feed_help"
 msgstr "Utilisez ceci avec les identifiants d'épisodes :"
 
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:91
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:91
 #, elixir-autogen, elixir-format
 msgid "admin.rss.encoded_feed_label"
 msgstr "Identifiant de flux encodé (pour les liens d'épisodes)"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:147
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:147
 #, elixir-autogen, elixir-format
 msgid "admin.rss.encoder_title"
 msgstr "Encodeur GUID et Enclosure"
 
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:152
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:152
 #, elixir-autogen, elixir-format
 msgid "admin.rss.episode_guid_label"
 msgstr "GUID de l'épisode"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:135
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:135
 #, elixir-autogen, elixir-format
 msgid "admin.rss.episode_link_format"
 msgstr "Format du lien d'épisode :"
 
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:49
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:49
 #, elixir-autogen, elixir-format
 msgid "admin.rss.feed_url_help"
 msgstr "Entrez l'URL du flux RSS pour lequel vous voulez générer des liens en cache"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:36
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:36
 #, elixir-autogen, elixir-format
 msgid "admin.rss.feed_url_label"
 msgstr "URL du flux RSS"
 
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:216
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:216
 #, elixir-autogen, elixir-format
 msgid "admin.rss.format_label"
 msgstr "Format :"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:58
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:58
 #, elixir-autogen, elixir-format
 msgid "admin.rss.generate_links"
 msgstr "Générer les liens"
 
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:67
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:67
 #, elixir-autogen, elixir-format
 msgid "admin.rss.generated_links"
 msgstr "Liens générés"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:25
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:25
 #, elixir-autogen, elixir-format
 msgid "admin.rss.info_text"
 msgstr "Cet utilitaire génère des liens proxy RSS en cache. Le cache a un TTL de 5 minutes et valide automatiquement les flux."
 
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:71
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:71
 #, elixir-autogen, elixir-format
 msgid "admin.rss.proxy_link_label"
 msgstr "Lien proxy (flux complet, cache 5 min)"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:5
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:5
 #, elixir-autogen, elixir-format
 msgid "admin.rss.subtitle"
 msgstr "Générez des liens proxy RSS en cache pour les flux de podcasts"
 
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:4
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "admin.rss.title"
 msgstr "Générateur de liens RSS en cache"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:126
-#: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:126
 #, elixir-autogen, elixir-format
 msgid "admin.rss.ttl"
 msgstr "TTL :"
 
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:11
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:11
 #, elixir-autogen, elixir-format
 msgid "admin.rss_utility"
 msgstr "Utilitaire RSS"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:224
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:224
 #, elixir-autogen, elixir-format
 msgid "admin.top_episodes"
 msgstr "Top 10 Épisodes (par popularité)"
 
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:138
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:138
 #, elixir-autogen, elixir-format
 msgid "admin.top_podcasts"
 msgstr "Top 10 Podcasts (par popularité)"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:75
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:75
 #, elixir-autogen, elixir-format
 msgid "admin.total_events"
 msgstr "Total d'événements :"
 
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:21
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:21
 #, elixir-autogen, elixir-format
 msgid "admin.total_users"
 msgstr "Utilisateurs totaux"
 
 #: lib/balados_sync_web/controllers/admin_html/index.html.heex:191
-#: lib/balados_sync_web/controllers/admin_html/index.html.heex:191
 #, elixir-autogen, elixir-format
 msgid "admin.website"
 msgstr "Site web"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:60
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:60
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:64
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:64
 #, elixir-autogen, elixir-format
 msgid "enriched.add_link"
 msgstr "Ajouter un lien"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:146
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:146
 #, elixir-autogen, elixir-format
 msgid "enriched.back_to_list"
 msgstr "← Retour aux podcasts enrichis"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:39
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:39
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:43
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:43
 #, elixir-autogen, elixir-format
 msgid "enriched.background_color_help"
 msgstr "Optionnel. Format hexadécimal (#RRGGBB) pour le branding de la page."
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:35
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:35
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:39
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:39
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:83
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:83
 #, elixir-autogen, elixir-format
 msgid "enriched.background_color_label"
 msgstr "Couleur de fond"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:73
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:73
 #, elixir-autogen, elixir-format
 msgid "enriched.configuration"
 msgstr "Configuration"
 
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:69
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:69
 #, elixir-autogen, elixir-format
 msgid "enriched.create"
 msgstr "Créer le podcast enrichi"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:129
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:129
 #, elixir-autogen, elixir-format
 msgid "enriched.created"
 msgstr "Créé le"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:109
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:109
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:20
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:20
 #, elixir-autogen, elixir-format
 msgid "enriched.delete_confirm"
 msgstr "Êtes-vous sûr de vouloir supprimer ce podcast enrichi ?"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:4
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "enriched.details"
 msgstr "Détails du podcast enrichi"
 
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:4
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "enriched.edit"
 msgstr "Modifier le podcast enrichi"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:23
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:23
 #, elixir-autogen, elixir-format
 msgid "enriched.empty_hint"
 msgstr "Commencez par créer une nouvelle entrée de podcast enrichi."
 
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:22
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:22
 #, elixir-autogen, elixir-format
 msgid "enriched.empty_title"
 msgstr "Aucun podcast enrichi"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:16
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:16
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:24
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:24
 #, elixir-autogen, elixir-format
 msgid "enriched.feed_url_label"
 msgstr "URL du flux"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:18
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:18
 #, elixir-autogen, elixir-format
 msgid "enriched.feed_url_readonly_help"
 msgstr "L'URL du flux ne peut pas être modifiée. Créez une nouvelle entrée si nécessaire."
 
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:135
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:135
 #, elixir-autogen, elixir-format
 msgid "enriched.last_updated"
 msgstr "Dernière mise à jour"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:90
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:90
 #, elixir-autogen, elixir-format
 msgid "enriched.links_count"
 msgstr "lien(s)"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:11
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:11
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:32
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:32
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:4
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "enriched.new"
 msgstr "Nouveau podcast enrichi"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:5
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:5
 #, elixir-autogen, elixir-format
 msgid "enriched.new_subtitle"
 msgstr "Créer une entrée personnalisée pour un podcast mis en avant"
 
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:124
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:124
 #, elixir-autogen, elixir-format
 msgid "enriched.no_links"
 msgstr "Aucun lien configuré"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:85
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:85
 #, elixir-autogen, elixir-format
 msgid "enriched.none"
 msgstr "Aucun"
 
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:95
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:95
 #, elixir-autogen, elixir-format
 msgid "enriched.not_set"
 msgstr "Non défini"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:10
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:10
 #, elixir-autogen, elixir-format
 msgid "enriched.podcast_preview"
 msgstr "Aperçu du podcast"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:29
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:29
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:33
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:33
 #, elixir-autogen, elixir-format
 msgid "enriched.slug_help"
 msgstr "3-50 caractères. Lettres minuscules, chiffres et tirets uniquement. Accessible à /podcasts/votre-slug"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:24
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:24
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:28
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:28
 #, elixir-autogen, elixir-format
 msgid "enriched.slug_label"
 msgstr "Slug personnalisé"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:45
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:45
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:49
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:49
 #, elixir-autogen, elixir-format
 msgid "enriched.social_links_help"
 msgstr "Ajoutez jusqu'à 10 liens. Les réseaux sociaux s'afficheront avec leurs icônes."
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:43
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:43
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:47
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/new.html.heex:47
 #, elixir-autogen, elixir-format
 msgid "enriched.social_links_label"
 msgstr "Liens sociaux et personnalisés"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:63
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:63
 #, elixir-autogen, elixir-format
 msgid "enriched.stats.popularity_score"
 msgstr "Score de popularité"
 
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:51
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:51
 #, elixir-autogen, elixir-format
 msgid "enriched.stats.subscribers"
 msgstr "Abonnés"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:57
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:57
 #, elixir-autogen, elixir-format
 msgid "enriched.stats.total_plays"
 msgstr "Écoutes totales"
 
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:5
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:5
 #, elixir-autogen, elixir-format
 msgid "enriched.subtitle"
 msgstr "Gérez les slugs personnalisés, le branding et les liens sociaux pour les podcasts mis en avant"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:54
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:54
 #, elixir-autogen, elixir-format
 msgid "enriched.table.actions"
 msgstr "Actions"
 
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:48
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:48
 #, elixir-autogen, elixir-format
 msgid "enriched.table.branding"
 msgstr "Branding"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:51
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:51
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:100
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:100
 #, elixir-autogen, elixir-format
 msgid "enriched.table.links"
 msgstr "Liens"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:42
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:42
 #, elixir-autogen, elixir-format
 msgid "enriched.table.podcast"
 msgstr "Podcast"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:45
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:45
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:77
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:77
 #, elixir-autogen, elixir-format
 msgid "enriched.table.slug"
 msgstr "Slug"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:4
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:4
 #, elixir-autogen, elixir-format
 msgid "enriched.title"
 msgstr "Podcasts enrichis"
 
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:65
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/edit.html.heex:65
 #, elixir-autogen, elixir-format
 msgid "enriched.update"
 msgstr "Mettre à jour le podcast enrichi"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:98
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/index.html.heex:98
 #, elixir-autogen, elixir-format
 msgid "enriched.view"
 msgstr "Voir"
 
 #: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:149
-#: lib/balados_sync_web/controllers/enriched_podcasts_html/show.html.heex:149
 #, elixir-autogen, elixir-format
 msgid "enriched.view_public_page"
 msgstr "Voir la page publique →"
+
+#: lib/balados_sync_web/controllers/admin_controller.ex:39
+#: lib/balados_sync_web/controllers/enriched_podcasts_controller.ex:187
+#, elixir-autogen, elixir-format
+msgid "admin.access_required"
+msgstr "Accès administrateur requis."
+
+#: lib/balados_sync_web/controllers/app_auth_controller.ex:158
+#, elixir-autogen, elixir-format
+msgid "app_auth.authorize_failed"
+msgstr "Échec de l'autorisation de l'application."
+
+#: lib/balados_sync_web/controllers/app_auth_controller.ex:148
+#, elixir-autogen, elixir-format
+msgid "app_auth.authorized_success"
+msgstr "Application autorisée avec succès."
+
+#: lib/balados_sync_web/controllers/app_auth_controller.ex:104
+#: lib/balados_sync_web/controllers/app_auth_controller.ex:167
+#, elixir-autogen, elixir-format
+msgid "app_auth.invalid_token"
+msgstr "Jeton d'application invalide."
+
+#: lib/balados_sync_web/controllers/app_auth_controller.ex:95
+#, elixir-autogen, elixir-format
+msgid "app_auth.login_required"
+msgstr "Connexion requise pour gérer les applications."
+
+#: lib/balados_sync_web/controllers/app_auth_controller.ex:324
+#, elixir-autogen, elixir-format
+msgid "app_auth.login_to_manage"
+msgstr "Connectez-vous pour gérer vos applications autorisées."
+
+#: lib/balados_sync_web/controllers/app_auth_controller.ex:112
+#: lib/balados_sync_web/controllers/app_auth_controller.ex:183
+#, elixir-autogen, elixir-format
+msgid "app_auth.missing_token"
+msgstr "Jeton d'application manquant."
+
+#: lib/balados_sync_web/controllers/app_auth_controller.ex:175
+#, elixir-autogen, elixir-format
+msgid "app_auth.must_be_logged_in"
+msgstr "Vous devez être connecté pour autoriser une application."
+
+#: lib/balados_sync_web/controllers/user_registration_controller.ex:17
+#, elixir-autogen, elixir-format
+msgid "auth.account_created"
+msgstr "Compte créé avec succès."
+
+#: lib/balados_sync_web/controllers/user_session_controller.ex:18
+#, elixir-autogen, elixir-format
+msgid "auth.account_locked"
+msgstr "Ce compte est verrouillé. Veuillez contacter l'administrateur."
+
+#: lib/balados_sync_web/plugs/jwt_auth.ex:57
+#, elixir-autogen, elixir-format
+msgid "auth.insufficient_permissions"
+msgstr "Permissions insuffisantes"
+
+#: lib/balados_sync_web/controllers/user_session_controller.ex:23
+#, elixir-autogen, elixir-format
+msgid "auth.invalid_credentials"
+msgstr "Nom d'utilisateur ou mot de passe invalide"
+
+#: lib/balados_sync_web/controllers/user_session_controller.ex:29
+#, elixir-autogen, elixir-format
+msgid "auth.logged_out"
+msgstr "Déconnexion réussie."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:24
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:24
+#: lib/balados_sync_web/controllers/public_controller.ex:415
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:290
+#: lib/balados_sync_web/plugs/user_auth.ex:185
+#: lib/balados_sync_web/plugs/user_auth.ex:234
+#, elixir-autogen, elixir-format
+msgid "auth.must_log_in"
+msgstr "Vous devez vous connecter pour accéder à cette page."
+
+#: lib/balados_sync_web/plugs/rate_limiter.ex:175
+#, elixir-autogen, elixir-format
+msgid "auth.rate_limited"
+msgstr "Trop de requêtes. Veuillez réessayer plus tard."
+
+#: lib/balados_sync_web/plugs/jwt_auth.ex:64
+#, elixir-autogen, elixir-format
+msgid "auth.unauthorized"
+msgstr "Non autorisé"
+
+#: lib/balados_sync_web/controllers/enriched_podcasts_controller.ex:53
+#, elixir-autogen, elixir-format
+msgid "enriched.created_success"
+msgstr "Podcast enrichi créé avec succès."
+
+#: lib/balados_sync_web/controllers/enriched_podcasts_controller.ex:170
+#, elixir-autogen, elixir-format
+msgid "enriched.deleted_success"
+msgstr "Podcast enrichi supprimé avec succès."
+
+#: lib/balados_sync_web/controllers/enriched_podcasts_controller.ex:80
+#: lib/balados_sync_web/controllers/enriched_podcasts_controller.ex:105
+#: lib/balados_sync_web/controllers/enriched_podcasts_controller.ex:130
+#: lib/balados_sync_web/controllers/enriched_podcasts_controller.ex:163
+#, elixir-autogen, elixir-format
+msgid "enriched.not_found"
+msgstr "Podcast enrichi introuvable."
+
+#: lib/balados_sync_web/controllers/enriched_podcasts_controller.ex:139
+#, elixir-autogen, elixir-format
+msgid "enriched.updated_success"
+msgstr "Podcast enrichi mis à jour avec succès."
+
+#: lib/balados_sync_web/controllers/public_controller.ex:301
+#, elixir-autogen, elixir-format
+msgid "episode.not_found"
+msgstr "Épisode introuvable."
+
+#: lib/balados_sync_web/controllers/public_controller.ex:392
+#, elixir-autogen, elixir-format
+msgid "feed_page.already_subscribed"
+msgstr "Déjà abonné à ce podcast."
+
+#: lib/balados_sync_web/controllers/public_controller.ex:403
+#, elixir-autogen, elixir-format
+msgid "feed_page.invalid_feed"
+msgstr "URL de flux invalide."
+
+#: lib/balados_sync_web/controllers/public_controller.ex:362
+#, elixir-autogen, elixir-format
+msgid "feed_page.login_to_subscribe"
+msgstr "Connectez-vous pour vous abonner."
+
+#: lib/balados_sync_web/controllers/public_controller.ex:202
+#: lib/balados_sync_web/controllers/public_controller.ex:277
+#, elixir-autogen, elixir-format
+msgid "feed_page.not_found"
+msgstr "Podcast introuvable."
+
+#: lib/balados_sync_web/controllers/public_controller.ex:426
+#, elixir-autogen, elixir-format
+msgid "feed_page.not_subscribed"
+msgstr "Vous n'êtes pas abonné à ce podcast."
+
+#: lib/balados_sync_web/controllers/public_controller.ex:397
+#, elixir-autogen, elixir-format
+msgid "feed_page.subscribe_failed"
+msgstr "Échec de l'abonnement."
+
+#: lib/balados_sync_web/controllers/public_controller.ex:387
+#, elixir-autogen, elixir-format
+msgid "feed_page.subscribed"
+msgstr "Abonné au podcast."
+
+#: lib/balados_sync_web/controllers/public_controller.ex:450
+#, elixir-autogen, elixir-format
+msgid "feed_page.unsubscribe_failed"
+msgstr "Échec du désabonnement."
+
+#: lib/balados_sync_web/controllers/public_controller.ex:445
+#, elixir-autogen, elixir-format
+msgid "feed_page.unsubscribed"
+msgstr "Désabonné du podcast."
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:253
+#, elixir-autogen, elixir-format
+msgid "import_opml.collections_count"
+msgstr "collections"
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:159
+#, elixir-autogen, elixir-format
+msgid "import_opml.file_too_large"
+msgstr "Le fichier est trop volumineux. Taille maximale :"
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:197
+#, elixir-autogen, elixir-format
+msgid "import_opml.import_failed"
+msgstr "Échec de l'importation."
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:210
+#, elixir-autogen, elixir-format
+msgid "import_opml.invalid_format"
+msgstr "Format de fichier invalide."
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:173
+#, elixir-autogen, elixir-format
+msgid "import_opml.no_file_selected"
+msgstr "Aucun fichier sélectionné."
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:259
+#, elixir-autogen, elixir-format
+msgid "import_opml.no_new_data"
+msgstr "Aucune nouvelle donnée à importer."
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:203
+#, elixir-autogen, elixir-format
+msgid "import_opml.parse_error"
+msgstr "Erreur d'analyse du fichier OPML."
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:237
+#, elixir-autogen, elixir-format
+msgid "import_opml.play_statuses_count"
+msgstr "positions de lecture"
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:245
+#, elixir-autogen, elixir-format
+msgid "import_opml.playlists_count"
+msgstr "playlists"
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:166
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:218
+#, elixir-autogen, elixir-format
+msgid "import_opml.read_error"
+msgstr "Erreur de lecture du fichier."
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:229
+#, elixir-autogen, elixir-format
+msgid "import_opml.subscriptions_count"
+msgstr "abonnements"
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:261
+#, elixir-autogen, elixir-format
+msgid "import_opml.success"
+msgstr "Importation réussie : "
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:67
+#, elixir-autogen, elixir-format
+msgid "ownership.already_pending"
+msgstr "Une demande de propriété est déjà en cours."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:260
+#, elixir-autogen, elixir-format
+msgid "ownership.cancel_error"
+msgstr "Échec de l'annulation de la demande."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:245
+#, elixir-autogen, elixir-format
+msgid "ownership.claim_cancelled"
+msgstr "Demande de propriété annulée."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:72
+#, elixir-autogen, elixir-format
+msgid "ownership.claim_error"
+msgstr "Échec de la demande de propriété."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:133
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:187
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:226
+#, elixir-autogen, elixir-format
+msgid "ownership.claim_expired"
+msgstr "La demande de propriété a expiré."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:62
+#, elixir-autogen, elixir-format
+msgid "ownership.claim_initiated"
+msgstr "Demande de propriété initiée."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:87
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:250
+#, elixir-autogen, elixir-format
+msgid "ownership.claim_not_found"
+msgstr "Demande de propriété introuvable."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:216
+#, elixir-autogen, elixir-format
+msgid "ownership.code_expired"
+msgstr "Le code de vérification a expiré."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:128
+#, elixir-autogen, elixir-format
+msgid "ownership.code_not_found"
+msgstr "Code de vérification introuvable."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:162
+#, elixir-autogen, elixir-format
+msgid "ownership.code_sent"
+msgstr "Code de vérification envoyé par email."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:167
+#, elixir-autogen, elixir-format
+msgid "ownership.email_not_listed"
+msgstr "Email non trouvé dans le flux du podcast."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:206
+#, elixir-autogen, elixir-format
+msgid "ownership.email_verification_success"
+msgstr "Vérification par email réussie."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:211
+#, elixir-autogen, elixir-format
+msgid "ownership.invalid_code"
+msgstr "Code de vérification invalide."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:92
+#, elixir-autogen, elixir-format
+msgid "ownership.no_access"
+msgstr "Accès non autorisé à ce podcast."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:221
+#, elixir-autogen, elixir-format
+msgid "ownership.no_pending_verification"
+msgstr "Aucune vérification en attente."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:334
+#, elixir-autogen, elixir-format
+msgid "ownership.not_admin"
+msgstr "Accès administrateur requis."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:143
+#, elixir-autogen, elixir-format
+msgid "ownership.not_pending"
+msgstr "La demande n'est pas en attente."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:255
+#, elixir-autogen, elixir-format
+msgid "ownership.only_pending_cancel"
+msgstr "Seules les demandes en attente peuvent être annulées."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:284
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:329
+#, elixir-autogen, elixir-format
+msgid "ownership.podcast_not_found"
+msgstr "Podcast introuvable."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:339
+#, elixir-autogen, elixir-format
+msgid "ownership.relinquish_error"
+msgstr "Échec de l'abandon de propriété."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:324
+#, elixir-autogen, elixir-format
+msgid "ownership.relinquished"
+msgstr "Propriété du podcast abandonnée."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:182
+#, elixir-autogen, elixir-format
+msgid "ownership.send_email_failed"
+msgstr "Échec de l'envoi de l'email."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:305
+#, elixir-autogen, elixir-format
+msgid "ownership.settings_not_found"
+msgstr "Paramètres du podcast introuvables."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:138
+#, elixir-autogen, elixir-format
+msgid "ownership.too_many_attempts"
+msgstr "Trop de tentatives. Veuillez réessayer plus tard."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:177
+#, elixir-autogen, elixir-format
+msgid "ownership.too_many_emails"
+msgstr "Trop d'emails envoyés. Veuillez réessayer plus tard."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:172
+#, elixir-autogen, elixir-format
+msgid "ownership.too_many_requests"
+msgstr "Trop de requêtes. Veuillez réessayer plus tard."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:148
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:192
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:231
+#, elixir-autogen, elixir-format
+msgid "ownership.verification_failed"
+msgstr "Échec de la vérification de propriété."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:123
+#, elixir-autogen, elixir-format
+msgid "ownership.verification_success"
+msgstr "Vérification de propriété réussie."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:300
+#, elixir-autogen, elixir-format
+msgid "ownership.visibility_changed"
+msgstr "Visibilité du podcast modifiée."
+
+#: lib/balados_sync_web/controllers/podcast_ownership_controller.ex:310
+#, elixir-autogen, elixir-format
+msgid "ownership.visibility_error"
+msgstr "Échec de la modification de la visibilité."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:130
+#, elixir-autogen, elixir-format
+msgid "playlists.create_error"
+msgstr "Échec de la création de la playlist."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:110
+#, elixir-autogen, elixir-format
+msgid "playlists.created_success"
+msgstr "Playlist créée avec succès."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:240
+#, elixir-autogen, elixir-format
+msgid "playlists.delete_error"
+msgstr "Échec de la suppression de la playlist."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:230
+#, elixir-autogen, elixir-format
+msgid "playlists.deleted_success"
+msgstr "Playlist supprimée avec succès."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:125
+#, elixir-autogen, elixir-format
+msgid "playlists.invalid_type"
+msgstr "Type de playlist invalide."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:115
+#, elixir-autogen, elixir-format
+msgid "playlists.name_required"
+msgstr "Le nom de la playlist est requis."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:120
+#, elixir-autogen, elixir-format
+msgid "playlists.name_taken"
+msgstr "Ce nom de playlist est déjà utilisé."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:160
+#: lib/balados_sync_web/controllers/playlists_controller.ex:176
+#: lib/balados_sync_web/controllers/playlists_controller.ex:210
+#: lib/balados_sync_web/controllers/playlists_controller.ex:235
+#: lib/balados_sync_web/controllers/playlists_controller.ex:278
+#, elixir-autogen, elixir-format
+msgid "playlists.not_found"
+msgstr "Playlist introuvable."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:205
+#, elixir-autogen, elixir-format
+msgid "playlists.update_error"
+msgstr "Échec de la mise à jour de la playlist."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:200
+#, elixir-autogen, elixir-format
+msgid "playlists.updated_success"
+msgstr "Playlist mise à jour avec succès."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:268
+#, elixir-autogen, elixir-format
+msgid "playlists.visibility_changed"
+msgstr "Visibilité de la playlist modifiée."
+
+#: lib/balados_sync_web/controllers/playlists_controller.ex:273
+#, elixir-autogen, elixir-format
+msgid "playlists.visibility_error"
+msgstr "Échec de la modification de la visibilité."
+
+#: lib/balados_sync_web/controllers/privacy_manager_controller.ex:182
+#, elixir-autogen, elixir-format
+msgid "privacy.remove_failed"
+msgstr "Échec de la suppression des données."
+
+#: lib/balados_sync_web/controllers/privacy_manager_controller.ex:170
+#, elixir-autogen, elixir-format
+msgid "privacy.removed"
+msgstr "Données de l'abonnement supprimées."
+
+#: lib/balados_sync_web/controllers/privacy_manager_controller.ex:142
+#, elixir-autogen, elixir-format
+msgid "privacy.update_failed"
+msgstr "Échec de la mise à jour du paramètre de confidentialité."
+
+#: lib/balados_sync_web/controllers/privacy_manager_controller.ex:130
+#, elixir-autogen, elixir-format
+msgid "privacy.updated"
+msgstr "Paramètre de confidentialité mis à jour."
+
+#: lib/balados_sync_web/controllers/profile_controller.ex:34
+#, elixir-autogen, elixir-format
+msgid "profile.updated"
+msgstr "Profil mis à jour avec succès."
+
+#: lib/balados_sync_web/controllers/setup_controller.ex:11
+#: lib/balados_sync_web/controllers/setup_controller.ex:24
+#, elixir-autogen, elixir-format
+msgid "setup.already_configured"
+msgstr "Le système est déjà configuré."
+
+#: lib/balados_sync_web/controllers/setup_controller.ex:54
+#, elixir-autogen, elixir-format
+msgid "setup.db_error"
+msgstr "Erreur de base de données"
+
+#: lib/balados_sync_web/controllers/setup_controller.ex:31
+#, elixir-autogen, elixir-format
+msgid "setup.welcome_admin"
+msgstr "Bienvenue ! Votre compte administrateur a été créé."
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:84
+#, elixir-autogen, elixir-format
+msgid "subscriptions.already_subscribed"
+msgstr "Déjà abonné à ce podcast."
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:272
+#, elixir-autogen, elixir-format
+msgid "subscriptions.fetch_failed"
+msgstr "Impossible de récupérer le flux."
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:97
+#, elixir-autogen, elixir-format
+msgid "subscriptions.invalid_feed"
+msgstr "Flux RSS invalide"
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:273
+#, elixir-autogen, elixir-format
+msgid "subscriptions.invalid_format"
+msgstr "Format de flux invalide."
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:91
+#, elixir-autogen, elixir-format
+msgid "subscriptions.subscribe_failed"
+msgstr "Échec de l'abonnement."
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:79
+#, elixir-autogen, elixir-format
+msgid "subscriptions.subscribed"
+msgstr "Abonné à"
+
+#: lib/balados_sync_web/controllers/web_subscriptions_controller.ex:274
+#, elixir-autogen, elixir-format
+msgid "subscriptions.unknown_error"
+msgstr "Erreur inconnue."

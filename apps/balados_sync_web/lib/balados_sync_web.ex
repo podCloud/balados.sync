@@ -43,7 +43,7 @@ defmodule BaladosSyncWeb do
         layouts: [html: BaladosSyncWeb.Layouts]
 
       import Plug.Conn
-      import BaladosSyncWeb.Gettext
+      use Gettext, backend: BaladosSyncWeb.Gettext
 
       unquote(verified_routes())
     end
