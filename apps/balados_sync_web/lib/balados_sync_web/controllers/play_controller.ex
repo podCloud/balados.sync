@@ -32,6 +32,7 @@ defmodule BaladosSyncWeb.PlayController do
   alias BaladosSyncWeb.Plugs.JWTAuth
   alias BaladosSyncWeb.Plugs.RateLimiter
   import BaladosSyncWeb.ErrorHelpers
+  import BaladosSyncWeb.Helpers.Pagination
   import Ecto.Query
 
   # Scope requirements for play status management
@@ -250,12 +251,4 @@ defmodule BaladosSyncWeb.PlayController do
     })
   end
 
-  defp safe_parse_int(value, default) when is_binary(value) do
-    case Integer.parse(value) do
-      {val, _} when val >= 0 -> val
-      _ -> default
-    end
-  end
-
-  defp safe_parse_int(_, default), do: default
 end
