@@ -324,7 +324,9 @@ defmodule BaladosSyncJobs.SnapshotWorkerTest do
 
       cutoff = ~U[2025-06-01 00:00:00Z]
 
-      # Error mid-pagination: get_old_events returns [] (graceful degradation)
+      # batch_1 is fetched successfully, then the second fetch errors.
+      # read_events_before returns {:error, ...} immediately, discarding
+      # all accumulated results. get_old_events converts this to [].
       result = SnapshotWorker.get_old_events(cutoff)
 
       assert result == []
