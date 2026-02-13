@@ -44,6 +44,8 @@ defmodule BaladosSyncWeb.CollectionsController do
   alias BaladosSyncProjections.Schemas.{Collection, Subscription}
   alias BaladosSyncWeb.Plugs.JWTAuth
   import Ecto.Query
+  import BaladosSyncWeb.ErrorHelpers
+  require Logger
 
   # Scope requirements for collection management
   plug JWTAuth, [scopes: ["user.collections.read"]] when action in [:index, :show]
@@ -138,9 +140,7 @@ defmodule BaladosSyncWeb.CollectionsController do
 
     case ProjectionsRepo.get(Collection, collection_id) do
       nil ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{error: "not_found"})
+        not_found(conn, "Collection not found")
 
       collection ->
         if collection.user_id == user_id && is_nil(collection.deleted_at) do
@@ -149,9 +149,7 @@ defmodule BaladosSyncWeb.CollectionsController do
 
           json(conn, %{collection: format_collection(collection)})
         else
-          conn
-          |> put_status(:not_found)
-          |> json(%{error: "not_found"})
+          not_found(conn, "Collection not found")
         end
     end
   end
@@ -234,20 +232,16 @@ defmodule BaladosSyncWeb.CollectionsController do
             collection: format_collection(collection)
           })
         else
-          conn
-          |> put_status(:internal_server_error)
-          |> json(%{error: "collection_creation_failed"})
+          internal_server_error(conn, :collection_creation_failed)
         end
 
       {:error, reason} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{error: inspect(reason)})
+        handle_dispatch_error(conn, reason)
     end
   end
 
   def create(conn, _params) do
-    conn |> put_status(:bad_request) |> json(%{error: "missing_required_parameters"})
+    bad_request(conn, "Missing required parameters: title")
   end
 
   @doc """
@@ -293,9 +287,7 @@ defmodule BaladosSyncWeb.CollectionsController do
 
     case ProjectionsRepo.get(Collection, collection_id) do
       nil ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{error: "not_found"})
+        not_found(conn, "Collection not found")
 
       collection ->
         if collection.user_id == user_id && is_nil(collection.deleted_at) do
@@ -312,9 +304,7 @@ defmodule BaladosSyncWeb.CollectionsController do
             :ok ->
               case ProjectionsRepo.get(Collection, collection_id) do
                 nil ->
-                  conn
-                  |> put_status(:internal_server_error)
-                  |> json(%{error: "collection_not_found_after_update"})
+                  internal_server_error(conn, :collection_not_found_after_update)
 
                 updated_collection ->
                   updated_collection =
@@ -326,14 +316,10 @@ defmodule BaladosSyncWeb.CollectionsController do
               end
 
             {:error, reason} ->
-              conn
-              |> put_status(:unprocessable_entity)
-              |> json(%{error: inspect(reason)})
+              handle_dispatch_error(conn, reason)
           end
         else
-          conn
-          |> put_status(:not_found)
-          |> json(%{error: "not_found"})
+          not_found(conn, "Collection not found")
         end
     end
   end
@@ -378,16 +364,12 @@ defmodule BaladosSyncWeb.CollectionsController do
 
     case ProjectionsRepo.get(Collection, collection_id) do
       nil ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{error: "not_found"})
+        not_found(conn, "Collection not found")
 
       collection ->
         if collection.user_id == user_id && is_nil(collection.deleted_at) do
           if collection.is_default do
-            conn
-            |> put_status(:forbidden)
-            |> json(%{error: "cannot_delete_default_collection"})
+            forbidden(conn, "Cannot delete default collection")
           else
             command = %DeleteCollection{
               user_id: user_id,
@@ -400,15 +382,11 @@ defmodule BaladosSyncWeb.CollectionsController do
                 json(conn, %{status: "success"})
 
               {:error, reason} ->
-                conn
-                |> put_status(:unprocessable_entity)
-                |> json(%{error: inspect(reason)})
+                handle_dispatch_error(conn, reason)
             end
           end
         else
-          conn
-          |> put_status(:not_found)
-          |> json(%{error: "not_found"})
+          not_found(conn, "Collection not found")
         end
     end
   end
@@ -458,9 +436,7 @@ defmodule BaladosSyncWeb.CollectionsController do
 
     case ProjectionsRepo.get(Collection, collection_id) do
       nil ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{error: "not_found"})
+        not_found(conn, "Collection not found")
 
       collection ->
         if collection.user_id == user_id && is_nil(collection.deleted_at) do
@@ -484,25 +460,19 @@ defmodule BaladosSyncWeb.CollectionsController do
                 json(conn, %{status: "success"})
 
               {:error, reason} ->
-                conn
-                |> put_status(:unprocessable_entity)
-                |> json(%{error: inspect(reason)})
+                handle_dispatch_error(conn, reason)
             end
           else
-            conn
-            |> put_status(:unprocessable_entity)
-            |> json(%{error: "feed_not_subscribed"})
+            validation_error(conn, "Feed not subscribed")
           end
         else
-          conn
-          |> put_status(:not_found)
-          |> json(%{error: "not_found"})
+          not_found(conn, "Collection not found")
         end
     end
   end
 
   def add_feed(conn, %{"id" => _collection_id}) do
-    conn |> put_status(:bad_request) |> json(%{error: "missing_required_parameters"})
+    bad_request(conn, "Missing required parameters: rss_source_feed")
   end
 
   @doc """
@@ -537,9 +507,7 @@ defmodule BaladosSyncWeb.CollectionsController do
 
     case ProjectionsRepo.get(Collection, collection_id) do
       nil ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{error: "not_found"})
+        not_found(conn, "Collection not found")
 
       collection ->
         if collection.user_id == user_id && is_nil(collection.deleted_at) do
@@ -555,14 +523,10 @@ defmodule BaladosSyncWeb.CollectionsController do
               json(conn, %{status: "success"})
 
             {:error, reason} ->
-              conn
-              |> put_status(:unprocessable_entity)
-              |> json(%{error: inspect(reason)})
+              handle_dispatch_error(conn, reason)
           end
         else
-          conn
-          |> put_status(:not_found)
-          |> json(%{error: "not_found"})
+          not_found(conn, "Collection not found")
         end
     end
   end

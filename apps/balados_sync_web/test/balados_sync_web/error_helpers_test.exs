@@ -50,15 +50,15 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
   end
 
   describe "handle_error/3" do
-    test "returns sanitized JSON error response with error_code" do
+    test "returns sanitized JSON error response with error code" do
       conn =
         build_conn(:post, "/test")
         |> handle_error(:invalid_input)
 
       assert conn.status == 422
       body = Jason.decode!(conn.resp_body)
-      assert body["error"] == "Invalid input"
-      assert body["error_code"] == "VALIDATION_ERROR"
+      assert body["error"] == "VALIDATION_ERROR"
+      assert body["message"] == "Invalid input"
     end
 
     test "uses custom status when provided" do
@@ -68,7 +68,7 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
 
       assert conn.status == 404
       body = Jason.decode!(conn.resp_body)
-      assert body["error_code"] == "NOT_FOUND"
+      assert body["error"] == "NOT_FOUND"
     end
 
     test "uses custom message when provided" do
@@ -77,7 +77,7 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
         |> handle_error(:some_error, message: "Custom error message")
 
       body = Jason.decode!(conn.resp_body)
-      assert body["error"] == "Custom error message"
+      assert body["message"] == "Custom error message"
     end
 
     test "uses explicit error code when provided" do
@@ -86,7 +86,7 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
         |> handle_error(:some_error, code: "CUSTOM_CODE")
 
       body = Jason.decode!(conn.resp_body)
-      assert body["error_code"] == "CUSTOM_CODE"
+      assert body["error"] == "CUSTOM_CODE"
     end
   end
 
@@ -98,8 +98,8 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
 
       assert conn.status == 422
       body = Jason.decode!(conn.resp_body)
-      assert body["error"] == "Command failed"
-      assert body["error_code"] == "VALIDATION_ERROR"
+      assert body["error"] == "VALIDATION_ERROR"
+      assert body["message"] == "Command failed"
     end
   end
 
@@ -111,8 +111,8 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
 
       assert conn.status == 500
       body = Jason.decode!(conn.resp_body)
-      assert body["error"] == "Internal server error"
-      assert body["error_code"] == "INTERNAL_ERROR"
+      assert body["error"] == "INTERNAL_ERROR"
+      assert body["message"] == "Internal server error"
     end
 
     test "logs the reason when provided" do
@@ -133,8 +133,8 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
 
       assert conn.status == 401
       body = Jason.decode!(conn.resp_body)
-      assert body["error"] == "Unauthorized"
-      assert body["error_code"] == "UNAUTHORIZED"
+      assert body["error"] == "UNAUTHORIZED"
+      assert body["message"] == "Unauthorized"
     end
 
     test "uses custom message" do
@@ -143,8 +143,8 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
         |> unauthorized("Invalid token")
 
       body = Jason.decode!(conn.resp_body)
-      assert body["error"] == "Invalid token"
-      assert body["error_code"] == "UNAUTHORIZED"
+      assert body["error"] == "UNAUTHORIZED"
+      assert body["message"] == "Invalid token"
     end
   end
 
@@ -156,8 +156,8 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
 
       assert conn.status == 403
       body = Jason.decode!(conn.resp_body)
-      assert body["error"] == "Insufficient permissions"
-      assert body["error_code"] == "FORBIDDEN"
+      assert body["error"] == "FORBIDDEN"
+      assert body["message"] == "Insufficient permissions"
     end
   end
 
@@ -169,8 +169,8 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
 
       assert conn.status == 404
       body = Jason.decode!(conn.resp_body)
-      assert body["error"] == "Not found"
-      assert body["error_code"] == "NOT_FOUND"
+      assert body["error"] == "NOT_FOUND"
+      assert body["message"] == "Not found"
     end
   end
 
@@ -182,8 +182,8 @@ defmodule BaladosSyncWeb.ErrorHelpersTest do
 
       assert conn.status == 429
       body = Jason.decode!(conn.resp_body)
-      assert body["error"] == "rate_limit_exceeded"
-      assert body["error_code"] == "RATE_LIMIT_EXCEEDED"
+      assert body["error"] == "RATE_LIMIT_EXCEEDED"
+      assert body["message"] == "Too many requests. Please try again later."
       assert get_resp_header(conn, "retry-after") == ["60"]
     end
 

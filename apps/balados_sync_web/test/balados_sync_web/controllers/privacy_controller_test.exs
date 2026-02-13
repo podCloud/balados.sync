@@ -28,7 +28,7 @@ defmodule BaladosSyncWeb.PrivacyControllerTest do
     test "returns 401 without authorization header", %{conn: conn} do
       conn = put(conn, "/api/v1/privacy", %{"privacy" => "public"})
 
-      assert json_response(conn, 401)["error"] == "Unauthorized"
+      assert json_response(conn, 401)["error"] == "UNAUTHORIZED"
     end
 
     test "returns 401 with invalid JWT", %{conn: conn} do
@@ -37,7 +37,7 @@ defmodule BaladosSyncWeb.PrivacyControllerTest do
         |> put_req_header("authorization", "Bearer invalid.jwt.token")
         |> put("/api/v1/privacy", %{"privacy" => "public"})
 
-      assert json_response(conn, 401)["error"] == "Unauthorized"
+      assert json_response(conn, 401)["error"] == "UNAUTHORIZED"
     end
 
     test "returns 403 with insufficient scopes (read-only)", %{conn: conn, user_id: user_id} do
@@ -46,7 +46,7 @@ defmodule BaladosSyncWeb.PrivacyControllerTest do
         |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.privacy.read"])
         |> put("/api/v1/privacy", %{"privacy" => "public"})
 
-      assert json_response(conn, 403)["error"] == "Insufficient permissions"
+      assert json_response(conn, 403)["error"] == "FORBIDDEN"
     end
 
     test "succeeds with user.privacy.write scope", %{conn: conn, user_id: user_id} do
@@ -141,7 +141,7 @@ defmodule BaladosSyncWeb.PrivacyControllerTest do
     test "returns 401 without authorization", %{conn: conn} do
       conn = get(conn, "/api/v1/privacy")
 
-      assert json_response(conn, 401)["error"] == "Unauthorized"
+      assert json_response(conn, 401)["error"] == "UNAUTHORIZED"
     end
 
     test "returns 403 with insufficient scopes (write-only)", %{conn: conn, user_id: user_id} do
@@ -150,7 +150,7 @@ defmodule BaladosSyncWeb.PrivacyControllerTest do
         |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.privacy.write"])
         |> get("/api/v1/privacy")
 
-      assert json_response(conn, 403)["error"] == "Insufficient permissions"
+      assert json_response(conn, 403)["error"] == "FORBIDDEN"
     end
 
     test "succeeds with user.privacy.read scope", %{conn: conn, user_id: user_id} do

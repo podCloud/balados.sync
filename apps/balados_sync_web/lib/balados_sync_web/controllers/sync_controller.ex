@@ -62,7 +62,10 @@ defmodule BaladosSyncWeb.SyncController do
     # Parse incoming client changes
     client_changes = params["changes"] || %{}
     subscriptions = parse_subscriptions(client_changes["subscriptions"] || [])
-    play_statuses = parse_play_statuses(client_changes["plays"] || client_changes["play_statuses"] || [])
+
+    play_statuses =
+      parse_play_statuses(client_changes["plays"] || client_changes["play_statuses"] || [])
+
     playlists = parse_playlists(client_changes["playlists"] || [])
 
     # Get server state for conflict detection
@@ -97,9 +100,10 @@ defmodule BaladosSyncWeb.SyncController do
 
       {:error, _operation, reason, _changes} ->
         Logger.error("Sync failed for user #{user_id}: #{inspect(reason)}")
+
         conn
         |> put_status(:unprocessable_entity)
-        |> json(%{error: "Sync failed", code: "SYNC_ERROR", details: inspect(reason)})
+        |> json(%{error: "SYNC_ERROR", message: "Sync failed"})
     end
   end
 
@@ -108,28 +112,45 @@ defmodule BaladosSyncWeb.SyncController do
     multi = Multi.new()
 
     # Sync subscriptions with LWW
-    {multi, sub_conflicts} = sync_subscriptions_with_resolution(
-      multi, user_id, client_data.subscriptions, server_data.subscriptions, now
-    )
+    {multi, sub_conflicts} =
+      sync_subscriptions_with_resolution(
+        multi,
+        user_id,
+        client_data.subscriptions,
+        server_data.subscriptions,
+        now
+      )
 
     # Sync play statuses with Highest-Progress-Wins
-    {multi, play_conflicts} = sync_play_statuses_with_resolution(
-      multi, user_id, client_data.play_statuses, server_data.play_statuses, now
-    )
+    {multi, play_conflicts} =
+      sync_play_statuses_with_resolution(
+        multi,
+        user_id,
+        client_data.play_statuses,
+        server_data.play_statuses,
+        now
+      )
 
     # Sync playlists with three-way merge
-    {multi, playlist_conflicts} = sync_playlists_with_resolution(
-      multi, user_id, client_data.playlists, server_data.playlists, now
-    )
+    {multi, playlist_conflicts} =
+      sync_playlists_with_resolution(
+        multi,
+        user_id,
+        client_data.playlists,
+        server_data.playlists,
+        now
+      )
 
-    all_conflicts = (sub_conflicts ++ play_conflicts ++ playlist_conflicts)
-                    |> Enum.filter(& &1)
+    all_conflicts =
+      (sub_conflicts ++ play_conflicts ++ playlist_conflicts)
+      |> Enum.filter(& &1)
 
     {multi, all_conflicts}
   end
 
   # Sync subscriptions with LWW conflict resolution
-  defp sync_subscriptions_with_resolution(multi, _user_id, subs, _server_subs, _now) when map_size(subs) == 0 do
+  defp sync_subscriptions_with_resolution(multi, _user_id, subs, _server_subs, _now)
+       when map_size(subs) == 0 do
     {multi, []}
   end
 
@@ -140,13 +161,17 @@ defmodule BaladosSyncWeb.SyncController do
       if is_nil(server_sub) do
         # No server version - just insert
         attrs = build_subscription_attrs(user_id, feed, client_sub, now)
-        new_multi = Multi.insert(
-          acc_multi,
-          {:subscription, feed},
-          Subscription.changeset(%Subscription{}, attrs),
-          on_conflict: {:replace, [:rss_source_id, :subscribed_at, :unsubscribed_at, :updated_at]},
-          conflict_target: [:user_id, :rss_source_feed]
-        )
+
+        new_multi =
+          Multi.insert(
+            acc_multi,
+            {:subscription, feed},
+            Subscription.changeset(%Subscription{}, attrs),
+            on_conflict:
+              {:replace, [:rss_source_id, :subscribed_at, :unsubscribed_at, :updated_at]},
+            conflict_target: [:user_id, :rss_source_feed]
+          )
+
         {new_multi, acc_conflicts}
       else
         # Conflict resolution using SyncResolver
@@ -155,23 +180,29 @@ defmodule BaladosSyncWeb.SyncController do
           unsubscribed_at: client_sub.unsubscribed_at,
           updated_at: get_effective_updated_at(client_sub)
         }
+
         server_map = %{
           subscribed_at: server_sub.subscribed_at,
           unsubscribed_at: server_sub.unsubscribed_at,
           updated_at: server_sub.updated_at
         }
 
-        {:ok, _winner, resolution, conflict_info} = SyncResolver.resolve_subscription(client_map, server_map)
+        {:ok, _winner, resolution, conflict_info} =
+          SyncResolver.resolve_subscription(client_map, server_map)
 
         if resolution in [:local_wins, :merged] do
           attrs = build_subscription_attrs(user_id, feed, client_sub, now)
-          new_multi = Multi.insert(
-            acc_multi,
-            {:subscription, feed},
-            Subscription.changeset(%Subscription{}, attrs),
-            on_conflict: {:replace, [:rss_source_id, :subscribed_at, :unsubscribed_at, :updated_at]},
-            conflict_target: [:user_id, :rss_source_feed]
-          )
+
+          new_multi =
+            Multi.insert(
+              acc_multi,
+              {:subscription, feed},
+              Subscription.changeset(%Subscription{}, attrs),
+              on_conflict:
+                {:replace, [:rss_source_id, :subscribed_at, :unsubscribed_at, :updated_at]},
+              conflict_target: [:user_id, :rss_source_feed]
+            )
+
           {new_multi, maybe_add_conflict(acc_conflicts, conflict_info)}
         else
           {acc_multi, maybe_add_conflict(acc_conflicts, conflict_info)}
@@ -192,7 +223,8 @@ defmodule BaladosSyncWeb.SyncController do
   end
 
   # Sync play statuses with Highest-Progress-Wins
-  defp sync_play_statuses_with_resolution(multi, _user_id, statuses, _server_statuses, _now) when map_size(statuses) == 0 do
+  defp sync_play_statuses_with_resolution(multi, _user_id, statuses, _server_statuses, _now)
+       when map_size(statuses) == 0 do
     {multi, []}
   end
 
@@ -203,13 +235,16 @@ defmodule BaladosSyncWeb.SyncController do
       if is_nil(server_status) do
         # No server version - just insert
         attrs = build_play_status_attrs(user_id, item, client_status, now)
-        new_multi = Multi.insert(
-          acc_multi,
-          {:play_status, item},
-          PlayStatus.changeset(%PlayStatus{}, attrs),
-          on_conflict: {:replace, [:rss_source_feed, :position, :played, :updated_at]},
-          conflict_target: [:user_id, :rss_source_item]
-        )
+
+        new_multi =
+          Multi.insert(
+            acc_multi,
+            {:play_status, item},
+            PlayStatus.changeset(%PlayStatus{}, attrs),
+            on_conflict: {:replace, [:rss_source_feed, :position, :played, :updated_at]},
+            conflict_target: [:user_id, :rss_source_item]
+          )
+
         {new_multi, acc_conflicts}
       else
         # Conflict resolution using Highest-Progress-Wins
@@ -219,27 +254,34 @@ defmodule BaladosSyncWeb.SyncController do
           updated_at: client_status.updated_at,
           reset: Map.get(client_status, :reset, false)
         }
+
         server_map = %{
           position: server_status.position || 0,
           played: server_status.played || false,
           updated_at: server_status.updated_at
         }
 
-        {:ok, winner, resolution, conflict_info} = SyncResolver.resolve_play_position(client_map, server_map)
+        {:ok, winner, resolution, conflict_info} =
+          SyncResolver.resolve_play_position(client_map, server_map)
 
         if resolution == :local_wins do
-          merged_status = Map.merge(client_status, %{
-            position: winner.position,
-            played: winner.played
-          })
+          merged_status =
+            Map.merge(client_status, %{
+              position: winner.position,
+              played: winner.played
+            })
+
           attrs = build_play_status_attrs(user_id, item, merged_status, now)
-          new_multi = Multi.insert(
-            acc_multi,
-            {:play_status, item},
-            PlayStatus.changeset(%PlayStatus{}, attrs),
-            on_conflict: {:replace, [:rss_source_feed, :position, :played, :updated_at]},
-            conflict_target: [:user_id, :rss_source_item]
-          )
+
+          new_multi =
+            Multi.insert(
+              acc_multi,
+              {:play_status, item},
+              PlayStatus.changeset(%PlayStatus{}, attrs),
+              on_conflict: {:replace, [:rss_source_feed, :position, :played, :updated_at]},
+              conflict_target: [:user_id, :rss_source_item]
+            )
+
           {new_multi, maybe_add_conflict(acc_conflicts, conflict_info)}
         else
           {acc_multi, maybe_add_conflict(acc_conflicts, conflict_info)}
@@ -260,33 +302,42 @@ defmodule BaladosSyncWeb.SyncController do
   end
 
   # Sync playlists with resolution
-  defp sync_playlists_with_resolution(multi, _user_id, playlists, _server_playlists, _now) when map_size(playlists) == 0 do
+  defp sync_playlists_with_resolution(multi, _user_id, playlists, _server_playlists, _now)
+       when map_size(playlists) == 0 do
     {multi, []}
   end
 
   defp sync_playlists_with_resolution(multi, user_id, playlists, server_playlists, now) do
-    Enum.reduce(playlists, {multi, []}, fn {playlist_id, client_playlist}, {acc_multi, acc_conflicts} ->
+    Enum.reduce(playlists, {multi, []}, fn {playlist_id, client_playlist},
+                                           {acc_multi, acc_conflicts} ->
       server_playlist = Map.get(server_playlists, playlist_id)
       client_updated_at = client_playlist.updated_at || now
 
       should_update =
         is_nil(server_playlist) or
-          DateTime.compare(client_updated_at, server_playlist.updated_at || ~U[1970-01-01 00:00:00Z]) == :gt
+          DateTime.compare(
+            client_updated_at,
+            server_playlist.updated_at || ~U[1970-01-01 00:00:00Z]
+          ) == :gt
 
       if should_update do
         if client_playlist.deleted_at do
           # Soft delete playlist and items
-          new_multi = acc_multi
-          |> Multi.update_all(
-            {:delete_playlist, playlist_id},
-            from(p in Playlist, where: p.id == ^playlist_id and p.user_id == ^user_id),
-            set: [deleted_at: client_playlist.deleted_at, updated_at: now]
-          )
-          |> Multi.update_all(
-            {:delete_playlist_items, playlist_id},
-            from(pi in PlaylistItem, where: pi.playlist_id == ^playlist_id and pi.user_id == ^user_id),
-            set: [deleted_at: client_playlist.deleted_at, updated_at: now]
-          )
+          new_multi =
+            acc_multi
+            |> Multi.update_all(
+              {:delete_playlist, playlist_id},
+              from(p in Playlist, where: p.id == ^playlist_id and p.user_id == ^user_id),
+              set: [deleted_at: client_playlist.deleted_at, updated_at: now]
+            )
+            |> Multi.update_all(
+              {:delete_playlist_items, playlist_id},
+              from(pi in PlaylistItem,
+                where: pi.playlist_id == ^playlist_id and pi.user_id == ^user_id
+              ),
+              set: [deleted_at: client_playlist.deleted_at, updated_at: now]
+            )
+
           {new_multi, acc_conflicts}
         else
           # Upsert playlist (clear deleted_at if previously deleted)
@@ -301,16 +352,20 @@ defmodule BaladosSyncWeb.SyncController do
             updated_at: now
           }
 
-          new_multi = Multi.insert(
-            acc_multi,
-            {:playlist, playlist_id},
-            %Playlist{} |> Ecto.Changeset.change(playlist_attrs),
-            on_conflict: {:replace, [:name, :description, :type, :is_public, :deleted_at, :updated_at]},
-            conflict_target: [:id, :user_id]
-          )
+          new_multi =
+            Multi.insert(
+              acc_multi,
+              {:playlist, playlist_id},
+              %Playlist{} |> Ecto.Changeset.change(playlist_attrs),
+              on_conflict:
+                {:replace, [:name, :description, :type, :is_public, :deleted_at, :updated_at]},
+              conflict_target: [:id, :user_id]
+            )
 
           # Sync playlist items
-          new_multi = sync_playlist_items(new_multi, user_id, playlist_id, client_playlist.items, now)
+          new_multi =
+            sync_playlist_items(new_multi, user_id, playlist_id, client_playlist.items, now)
+
           {new_multi, acc_conflicts}
         end
       else
@@ -408,7 +463,8 @@ defmodule BaladosSyncWeb.SyncController do
   defp get_playlists_since(user_id, since) do
     from(p in Playlist,
       where: p.user_id == ^user_id and p.updated_at > ^since,
-      left_join: pi in PlaylistItem, on: pi.playlist_id == p.id,
+      left_join: pi in PlaylistItem,
+      on: pi.playlist_id == p.id,
       preload: [items: pi],
       select: p
     )
@@ -422,15 +478,16 @@ defmodule BaladosSyncWeb.SyncController do
         is_public: p.is_public,
         deleted_at: p.deleted_at,
         updated_at: p.updated_at,
-        items: Enum.map(p.items || [], fn i ->
-          %{
-            rss_source_feed: i.rss_source_feed,
-            rss_source_item: i.rss_source_item,
-            item_title: i.item_title,
-            feed_title: i.feed_title,
-            position: i.position
-          }
-        end)
+        items:
+          Enum.map(p.items || [], fn i ->
+            %{
+              rss_source_feed: i.rss_source_feed,
+              rss_source_item: i.rss_source_item,
+              item_title: i.item_title,
+              feed_title: i.feed_title,
+              position: i.position
+            }
+          end)
       }
     end)
   end

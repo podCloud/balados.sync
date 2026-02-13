@@ -107,7 +107,7 @@ defmodule BaladosSyncWeb.SubscriptionController do
   end
 
   def create(conn, _params) do
-    conn |> put_status(:bad_request) |> json(%{error: "missing_required_parameters"})
+    bad_request(conn, "Missing required parameters: rss_source_feed, rss_source_id")
   end
 
   @doc """
@@ -248,15 +248,11 @@ defmodule BaladosSyncWeb.SubscriptionController do
             json(conn, %{metadata: metadata})
 
           {:error, _reason} ->
-            conn
-            |> put_status(:bad_gateway)
-            |> json(%{error: "Failed to fetch feed metadata"})
+            bad_gateway(conn, "Failed to fetch feed metadata")
         end
 
       :error ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "Invalid feed encoding"})
+        bad_request(conn, "Invalid feed encoding")
     end
   end
 end

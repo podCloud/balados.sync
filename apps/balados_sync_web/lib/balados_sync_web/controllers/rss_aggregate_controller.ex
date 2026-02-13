@@ -18,6 +18,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
   }
 
   import Ecto.Query
+  import BaladosSyncWeb.ErrorHelpers
 
   # Rate limit RSS aggregate endpoints: 10 requests per minute per token
   # These endpoints fetch external RSS feeds, so we need to be conservative
@@ -39,16 +40,11 @@ defmodule BaladosSyncWeb.RssAggregateController do
       |> send_resp(200, aggregated_feed)
     else
       {:error, :invalid_token} ->
-        conn
-        |> put_status(:unauthorized)
-        |> json(%{error: "Invalid or revoked token"})
+        unauthorized(conn, "Invalid or revoked token")
 
       {:error, reason} ->
         Logger.error("RSS aggregate error: #{inspect(reason)}")
-
-        conn
-        |> put_status(:internal_server_error)
-        |> json(%{error: "Internal server error"})
+        internal_server_error(conn, reason)
     end
   end
 
@@ -66,21 +62,14 @@ defmodule BaladosSyncWeb.RssAggregateController do
       |> send_resp(200, aggregated_feed)
     else
       {:error, :invalid_token} ->
-        conn
-        |> put_status(:unauthorized)
-        |> json(%{error: "Invalid or revoked token"})
+        unauthorized(conn, "Invalid or revoked token")
 
       {:error, :not_found} ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{error: "Collection not found"})
+        not_found(conn, "Collection not found")
 
       {:error, reason} ->
         Logger.error("RSS collection error: #{inspect(reason)}")
-
-        conn
-        |> put_status(:internal_server_error)
-        |> json(%{error: "Internal server error"})
+        internal_server_error(conn, reason)
     end
   end
 
@@ -96,21 +85,14 @@ defmodule BaladosSyncWeb.RssAggregateController do
       |> send_resp(200, aggregated_feed)
     else
       {:error, :invalid_token} ->
-        conn
-        |> put_status(:unauthorized)
-        |> json(%{error: "Invalid or revoked token"})
+        unauthorized(conn, "Invalid or revoked token")
 
       {:error, :not_found} ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{error: "Playlist not found"})
+        not_found(conn, "Playlist not found")
 
       {:error, reason} ->
         Logger.error("RSS playlist error: #{inspect(reason)}")
-
-        conn
-        |> put_status(:internal_server_error)
-        |> json(%{error: "Internal server error"})
+        internal_server_error(conn, reason)
     end
   end
 

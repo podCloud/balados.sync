@@ -30,6 +30,7 @@ defmodule BaladosSyncWeb.AppAuthController do
   alias BaladosSyncWeb.AppAuth
   alias BaladosSyncWeb.Scopes
   alias BaladosSyncWeb.Plugs.RateLimiter
+  import BaladosSyncWeb.ErrorHelpers, only: [not_found: 2]
 
   # Rate limit auth operations: 10 requests per minute per IP
   plug RateLimiter,
@@ -281,9 +282,7 @@ defmodule BaladosSyncWeb.AppAuthController do
         json(conn, %{status: "success", message: "App authorization revoked"})
 
       {:error, :not_found} ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{error: "App not found or already revoked"})
+        not_found(conn, "App not found or already revoked")
     end
   end
 

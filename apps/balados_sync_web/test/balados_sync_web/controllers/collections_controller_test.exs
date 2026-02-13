@@ -179,7 +179,7 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
         |> delete("/api/v1/collections/#{collection.id}")
 
       assert response(conn, 403)
-      assert json_response(conn, 403)["error"] == "cannot_delete_default_collection"
+      assert json_response(conn, 403)["error"] == "FORBIDDEN"
     end
   end
 
@@ -215,7 +215,7 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
         })
 
       assert response(conn, 422)
-      assert json_response(conn, 422)["error"] == "feed_not_subscribed"
+      assert json_response(conn, 422)["error"] == "VALIDATION_ERROR"
     end
   end
 
@@ -227,7 +227,7 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
         |> post("/api/v1/collections", %{})
 
       response = json_response(conn, 400)
-      assert response["error"] == "missing_required_parameters"
+      assert response["error"] == "BAD_REQUEST"
     end
   end
 
@@ -241,7 +241,7 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
         |> post("/api/v1/collections/#{collection.id}/feeds", %{})
 
       response = json_response(conn, 400)
-      assert response["error"] == "missing_required_parameters"
+      assert response["error"] == "BAD_REQUEST"
     end
   end
 

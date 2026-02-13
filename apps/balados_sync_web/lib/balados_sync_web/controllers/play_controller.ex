@@ -39,10 +39,12 @@ defmodule BaladosSyncWeb.PlayController do
   plug JWTAuth, [scopes: ["user.plays.write"]] when action in [:record, :update_position]
 
   # Rate limits per user
-  plug RateLimiter, [limit: 100, window_ms: 60_000, key: :user_id, namespace: "play_read"]
+  plug RateLimiter,
+       [limit: 100, window_ms: 60_000, key: :user_id, namespace: "play_read"]
        when action in [:index]
 
-  plug RateLimiter, [limit: 60, window_ms: 60_000, key: :user_id, namespace: "play_write"]
+  plug RateLimiter,
+       [limit: 60, window_ms: 60_000, key: :user_id, namespace: "play_write"]
        when action in [:record, :update_position]
 
   @doc """
@@ -106,7 +108,10 @@ defmodule BaladosSyncWeb.PlayController do
   end
 
   def record(conn, _params) do
-    conn |> put_status(:bad_request) |> json(%{error: "missing_required_parameters"})
+    bad_request(
+      conn,
+      "Missing required parameters: rss_source_feed, rss_source_item, position, played"
+    )
   end
 
   @doc """
@@ -162,7 +167,7 @@ defmodule BaladosSyncWeb.PlayController do
   end
 
   def update_position(conn, _params) do
-    conn |> put_status(:bad_request) |> json(%{error: "missing_required_parameters"})
+    bad_request(conn, "Missing required parameters: item, position")
   end
 
   @doc """
