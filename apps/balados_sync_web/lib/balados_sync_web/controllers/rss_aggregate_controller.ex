@@ -423,9 +423,15 @@ defmodule BaladosSyncWeb.RssAggregateController do
   end
 
   defp update_token_last_used(token) do
-    Task.start(fn ->
+    update_fn = fn ->
       from(t in PlayToken, where: t.token == ^token)
       |> SystemRepo.update_all(set: [last_used_at: DateTime.utc_now()])
-    end)
+    end
+
+    if Application.get_env(:balados_sync_web, :async_token_updates, true) do
+      Task.start(update_fn)
+    else
+      update_fn.()
+    end
   end
 end

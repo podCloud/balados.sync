@@ -256,6 +256,8 @@ defmodule BaladosSyncWeb.AppAuth do
     end
   end
 
+  defp get_token_by_user_and_app(_user_id, nil), do: nil
+
   defp get_token_by_user_and_app(user_id, app_id) do
     query =
       from(t in AppToken,
@@ -264,6 +266,8 @@ defmodule BaladosSyncWeb.AppAuth do
 
     SystemRepo.one(query)
   end
+
+  defp get_active_token(_user_id, nil), do: {:error, :missing_app_id}
 
   defp get_active_token(user_id, app_id) do
     query =
@@ -278,11 +282,17 @@ defmodule BaladosSyncWeb.AppAuth do
   end
 
   defp update_last_used(app_token) do
-    Task.start(fn ->
+    update_fn = fn ->
       from(t in AppToken, where: t.id == ^app_token.id)
       |> SystemRepo.update_all(
         set: [last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)]
       )
-    end)
+    end
+
+    if Application.get_env(:balados_sync_web, :async_token_updates, true) do
+      Task.start(update_fn)
+    else
+      update_fn.()
+    end
   end
 end

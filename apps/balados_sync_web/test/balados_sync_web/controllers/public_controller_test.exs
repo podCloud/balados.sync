@@ -20,11 +20,11 @@ defmodule BaladosSyncWeb.PublicControllerTest do
 
     response_data = json_response(conn, 200)
 
-    # Response should be a list
-    assert is_list(response_data)
+    # Response wraps episodes in a map
+    assert is_list(response_data["episodes"])
 
     # Limit should be respected (max 5 in this case)
-    assert length(response_data) <= 5
+    assert length(response_data["episodes"]) <= 5
   end
 
   test "GET /api/v1/public/trending/episodes returns episodes with correct structure", %{
@@ -33,10 +33,11 @@ defmodule BaladosSyncWeb.PublicControllerTest do
     conn = get(conn, ~p"/api/v1/public/trending/episodes?limit=1")
 
     response_data = json_response(conn, 200)
+    episodes = response_data["episodes"]
 
     # If episodes are returned, verify they have the expected structure
-    if Enum.any?(response_data) do
-      episode = List.first(response_data)
+    if Enum.any?(episodes) do
+      episode = List.first(episodes)
 
       # Verify required fields from EpisodePopularity schema
       assert Map.has_key?(episode, "rss_source_item")
@@ -54,7 +55,7 @@ defmodule BaladosSyncWeb.PublicControllerTest do
     response_data = json_response(conn, 200)
 
     # The controller should cap at 100
-    assert length(response_data) <= 100
+    assert length(response_data["episodes"]) <= 100
   end
 
   describe "pagination validation" do

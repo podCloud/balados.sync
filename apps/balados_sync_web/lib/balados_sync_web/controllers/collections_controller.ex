@@ -214,12 +214,17 @@ defmodule BaladosSyncWeb.CollectionsController do
         # Query the created collection from projections
         # Note: we need to query by user_id and title since we just dispatched
         collection =
-          ProjectionsRepo.get_by(Collection, user_id: user_id, title: title, deleted_at: nil) ||
+          ProjectionsRepo.one(
+            from(c in Collection,
+              where: c.user_id == ^user_id and c.title == ^title and is_nil(c.deleted_at)
+            )
+          ) ||
             ProjectionsRepo.one(
-              from(c in Collection)
-              |> where([c], c.user_id == ^user_id and is_nil(c.deleted_at))
-              |> order_by([c], desc: c.inserted_at)
-              |> limit(1)
+              from(c in Collection,
+                where: c.user_id == ^user_id and is_nil(c.deleted_at),
+                order_by: [desc: c.inserted_at],
+                limit: 1
+              )
             )
 
         if collection do
@@ -305,8 +310,20 @@ defmodule BaladosSyncWeb.CollectionsController do
 
           case Dispatcher.dispatch(command) do
             :ok ->
-              updated_collection = ProjectionsRepo.get(Collection, collection_id)
-              json(conn, %{collection: format_collection(updated_collection)})
+              case ProjectionsRepo.get(Collection, collection_id) do
+                nil ->
+                  conn
+                  |> put_status(:internal_server_error)
+                  |> json(%{error: "collection_not_found_after_update"})
+
+                updated_collection ->
+                  updated_collection =
+                    ProjectionsRepo.preload(updated_collection,
+                      collection_subscriptions: :subscription
+                    )
+
+                  json(conn, %{collection: format_collection(updated_collection)})
+              end
 
             {:error, reason} ->
               conn

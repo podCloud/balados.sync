@@ -4,8 +4,6 @@ defmodule BaladosSyncWeb.AppAuthTest do
   use BaladosSyncWeb.ConnCase, async: false
 
   alias BaladosSyncWeb.AppAuth
-  alias BaladosSyncProjections.Repo
-  alias BaladosSyncProjections.Schemas.ApiToken
 
   # Helper to generate a test RSA key pair
   defp generate_test_keypair do
@@ -29,15 +27,17 @@ defmodule BaladosSyncWeb.AppAuthTest do
     {private_pem, public_pem}
   end
 
-  # Helper to create a test JWT
+  # Helper to create a test JWT with correct structure for AppAuth
   defp create_test_jwt(private_pem, public_pem, claims \\ %{}) do
     default_claims = %{
-      "public_key" => public_pem,
-      "name" => "Test App",
-      "url" => "https://example.com",
-      "image" => "https://example.com/icon.png",
-      "jti" => "test-jti-#{System.unique_integer()}",
-      "scopes" => ["read:subscriptions", "write:subscriptions"]
+      "iss" => "test-app-#{System.unique_integer([:positive])}",
+      "app" => %{
+        "public_key" => public_pem,
+        "name" => "Test App",
+        "url" => "https://example.com",
+        "image" => "https://example.com/icon.png"
+      },
+      "scopes" => ["user.subscriptions"]
     }
 
     all_claims = Map.merge(default_claims, claims)
@@ -54,9 +54,9 @@ defmodule BaladosSyncWeb.AppAuthTest do
       {token, expected_claims} = create_test_jwt(private_pem, public_pem)
 
       assert {:ok, decoded_claims} = AppAuth.decode_app_token(token)
-      assert decoded_claims["name"] == expected_claims["name"]
-      assert decoded_claims["jti"] == expected_claims["jti"]
-      assert decoded_claims["public_key"] == public_pem
+      assert decoded_claims["app"]["name"] == expected_claims["app"]["name"]
+      assert decoded_claims["iss"] == expected_claims["iss"]
+      assert decoded_claims["app"]["public_key"] == public_pem
     end
 
     test "returns error for invalid token" do
@@ -67,8 +67,10 @@ defmodule BaladosSyncWeb.AppAuthTest do
       {private_pem, _public_pem} = generate_test_keypair()
 
       claims = %{
-        "name" => "Test App",
-        "jti" => "test-jti"
+        "iss" => "test-app",
+        "app" => %{
+          "name" => "Test App"
+        }
       }
 
       signer = Joken.Signer.create("RS256", %{"pem" => private_pem})
@@ -79,21 +81,19 @@ defmodule BaladosSyncWeb.AppAuthTest do
   end
 
   describe "authorize_app/2" do
-    test "creates a new api_token for a user" do
+    test "creates a new app_token for a user" do
       {private_pem, public_pem} = generate_test_keypair()
       {_token, claims} = create_test_jwt(private_pem, public_pem)
 
       user_id = Ecto.UUID.generate()
 
-      assert {:ok, api_token} = AppAuth.authorize_app(user_id, claims)
-      assert api_token.user_id == user_id
-      assert api_token.app_name == claims["name"]
-      assert api_token.app_url == claims["url"]
-      assert api_token.app_image == claims["image"]
-      assert api_token.public_key == public_pem
-      assert api_token.token_jti == claims["jti"]
-      assert api_token.scopes == claims["scopes"]
-      assert is_nil(api_token.revoked_at)
+      assert {:ok, app_token} = AppAuth.authorize_app(user_id, claims)
+      assert app_token.user_id == user_id
+      assert app_token.app_name == claims["app"]["name"]
+      assert app_token.public_key == public_pem
+      assert app_token.app_id == claims["iss"]
+      assert app_token.scopes == claims["scopes"]
+      assert is_nil(app_token.revoked_at)
     end
 
     test "returns existing token if already authorized" do
@@ -116,7 +116,7 @@ defmodule BaladosSyncWeb.AppAuthTest do
 
       # Create and revoke
       {:ok, token} = AppAuth.authorize_app(user_id, claims)
-      {:ok, _revoked} = AppAuth.revoke_app(user_id, token.token_jti)
+      {:ok, _revoked} = AppAuth.revoke_app(user_id, token.app_id)
 
       # Reauthorize
       {:ok, reactivated} = AppAuth.authorize_app(user_id, claims)
@@ -134,13 +134,22 @@ defmodule BaladosSyncWeb.AppAuthTest do
       {_token1, claims1} = create_test_jwt(private_pem1, public_pem1)
 
       {private_pem2, public_pem2} = generate_test_keypair()
-      {_token2, claims2} = create_test_jwt(private_pem2, public_pem2, %{"name" => "Second App"})
+
+      {_token2, claims2} =
+        create_test_jwt(private_pem2, public_pem2, %{
+          "app" => %{
+            "public_key" => public_pem2,
+            "name" => "Second App",
+            "url" => "https://example2.com",
+            "image" => "https://example2.com/icon.png"
+          }
+        })
 
       {:ok, _token1} = AppAuth.authorize_app(user_id, claims1)
       {:ok, token2} = AppAuth.authorize_app(user_id, claims2)
 
       # Revoke one
-      {:ok, _} = AppAuth.revoke_app(user_id, token2.token_jti)
+      {:ok, _} = AppAuth.revoke_app(user_id, token2.app_id)
 
       # Should only return the non-revoked one
       apps = AppAuth.get_authorized_apps(user_id)
@@ -164,14 +173,14 @@ defmodule BaladosSyncWeb.AppAuthTest do
 
       {:ok, token} = AppAuth.authorize_app(user_id, claims)
 
-      assert {:ok, revoked} = AppAuth.revoke_app(user_id, token.token_jti)
+      assert {:ok, revoked} = AppAuth.revoke_app(user_id, token.app_id)
       assert revoked.id == token.id
       assert revoked.revoked_at != nil
     end
 
     test "returns error for non-existent token" do
       user_id = Ecto.UUID.generate()
-      assert {:error, :not_found} = AppAuth.revoke_app(user_id, "non-existent-jti")
+      assert {:error, :not_found} = AppAuth.revoke_app(user_id, "non-existent-app-id")
     end
 
     test "returns error for already revoked token" do
@@ -181,57 +190,67 @@ defmodule BaladosSyncWeb.AppAuthTest do
       user_id = Ecto.UUID.generate()
 
       {:ok, token} = AppAuth.authorize_app(user_id, claims)
-      {:ok, _revoked} = AppAuth.revoke_app(user_id, token.token_jti)
+      {:ok, _revoked} = AppAuth.revoke_app(user_id, token.app_id)
 
-      assert {:error, :not_found} = AppAuth.revoke_app(user_id, token.token_jti)
+      assert {:error, :not_found} = AppAuth.revoke_app(user_id, token.app_id)
     end
   end
 
-  describe "verify_app_request/2" do
+  describe "verify_app_request/1" do
     test "verifies a valid request from an authorized app" do
       {private_pem, public_pem} = generate_test_keypair()
-      jti = "test-jti-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
+      app_id = "test-app-#{System.unique_integer([:positive])}"
 
-      claims = %{
-        "public_key" => public_pem,
-        "name" => "Test App",
-        "jti" => jti,
-        "sub" => "user-123"
+      auth_claims = %{
+        "iss" => app_id,
+        "app" => %{
+          "public_key" => public_pem,
+          "name" => "Test App",
+          "url" => "https://example.com",
+          "image" => "https://example.com/icon.png"
+        },
+        "scopes" => ["user.subscriptions"]
       }
 
-      user_id = Ecto.UUID.generate()
-
       # Authorize the app first
-      {:ok, _token} = AppAuth.authorize_app(user_id, claims)
+      {:ok, _token} = AppAuth.authorize_app(user_id, auth_claims)
 
-      # Create a request token
+      # Create a request token with iss (app_id) and sub (user_id)
       signer = Joken.Signer.create("RS256", %{"pem" => private_pem})
-      request_claims = %{"jti" => jti, "sub" => user_id}
+      request_claims = %{"iss" => app_id, "sub" => user_id}
       {:ok, request_token, _} = Joken.encode_and_sign(request_claims, signer)
 
-      assert {:ok, verified_claims} = AppAuth.verify_app_request(request_token)
-      assert verified_claims["jti"] == jti
+      assert {:ok, %{claims: verified_claims, app_token: _app_token}} =
+               AppAuth.verify_app_request(request_token)
+
+      assert verified_claims["iss"] == app_id
+      assert verified_claims["sub"] == user_id
     end
 
     test "returns error for revoked app" do
       {private_pem, public_pem} = generate_test_keypair()
-      jti = "test-jti-#{System.unique_integer()}"
+      user_id = Ecto.UUID.generate()
+      app_id = "test-app-#{System.unique_integer([:positive])}"
 
-      claims = %{
-        "public_key" => public_pem,
-        "name" => "Test App",
-        "jti" => jti
+      auth_claims = %{
+        "iss" => app_id,
+        "app" => %{
+          "public_key" => public_pem,
+          "name" => "Test App",
+          "url" => "https://example.com",
+          "image" => "https://example.com/icon.png"
+        },
+        "scopes" => ["user.subscriptions"]
       }
 
-      user_id = Ecto.UUID.generate()
-
       # Authorize and then revoke
-      {:ok, token} = AppAuth.authorize_app(user_id, claims)
-      {:ok, _} = AppAuth.revoke_app(user_id, token.token_jti)
+      {:ok, token} = AppAuth.authorize_app(user_id, auth_claims)
+      {:ok, _} = AppAuth.revoke_app(user_id, token.app_id)
 
       # Try to verify request
       signer = Joken.Signer.create("RS256", %{"pem" => private_pem})
-      request_claims = %{"jti" => jti}
+      request_claims = %{"iss" => app_id, "sub" => user_id}
       {:ok, request_token, _} = Joken.encode_and_sign(request_claims, signer)
 
       assert {:error, :token_not_found} = AppAuth.verify_app_request(request_token)

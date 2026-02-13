@@ -2,6 +2,7 @@ defmodule BaladosSyncProjections.Schemas.PodcastPopularity do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Jason.Encoder, except: [:__meta__]}
   @primary_key false
   @schema_prefix "public"
   schema "podcast_popularity" do
