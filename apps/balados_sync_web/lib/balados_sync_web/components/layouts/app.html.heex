@@ -37,7 +37,7 @@
             else: "hover:text-zinc-700"
         }
       >
-        Discover
+        <%= gettext("nav.discover") %>
       </.link>
       <%= if @current_user do %>
         <span class="text-zinc-600">
@@ -51,7 +51,7 @@
               else: "hover:text-zinc-700"
           }
         >
-          Dashboard
+          <%= gettext("nav.dashboard") %>
         </.link>
         <.link
           navigate={~p"/subscriptions"}
@@ -61,7 +61,7 @@
               else: "hover:text-zinc-700"
           }
         >
-          Subscriptions
+          <%= gettext("nav.subscriptions") %>
         </.link>
         <.link
           navigate={~p"/privacy-manager"}
@@ -71,7 +71,7 @@
               else: "hover:text-zinc-700"
           }
         >
-          Privacy
+          <%= gettext("nav.privacy") %>
         </.link>
         <%= if BaladosSyncWeb.Accounts.admin?(@current_user) do %>
           <.link
@@ -82,7 +82,7 @@
                 else: "hover:text-zinc-700"
             }
           >
-            Admin
+            <%= gettext("nav.admin") %>
           </.link>
         <% end %>
         <.link
@@ -90,17 +90,17 @@
           method="delete"
           class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
         >
-          Log out
+          <%= gettext("nav.log_out") %>
         </.link>
       <% else %>
         <.link navigate={~p"/users/register"} class="hover:text-zinc-700">
-          Register
+          <%= gettext("nav.register") %>
         </.link>
         <.link
           navigate={~p"/users/log_in"}
           class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
         >
-          Log in <span aria-hidden="true">&rarr;</span>
+          <%= gettext("nav.log_in") %> <span aria-hidden="true">&rarr;</span>
         </.link>
       <% end %>
     </div>

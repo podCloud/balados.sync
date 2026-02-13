@@ -245,3 +245,43 @@ msgstr "Everything you need to sync your podcasts"
 #, elixir-autogen, elixir-format
 msgid "home.hero.description"
 msgstr "Sync your subscriptions, listening history and podcast playlists across all your devices. An open source, reliable and secure solution."
+
+#: lib/balados_sync_web/components/layouts/app.html.heex:85
+#, elixir-autogen, elixir-format
+msgid "nav.admin"
+msgstr "Admin"
+
+#: lib/balados_sync_web/components/layouts/app.html.heex:54
+#, elixir-autogen, elixir-format
+msgid "nav.dashboard"
+msgstr "Dashboard"
+
+#: lib/balados_sync_web/components/layouts/app.html.heex:40
+#, elixir-autogen, elixir-format
+msgid "nav.discover"
+msgstr "Discover"
+
+#: lib/balados_sync_web/components/layouts/app.html.heex:103
+#, elixir-autogen, elixir-format
+msgid "nav.log_in"
+msgstr "Log in"
+
+#: lib/balados_sync_web/components/layouts/app.html.heex:93
+#, elixir-autogen, elixir-format
+msgid "nav.log_out"
+msgstr "Log out"
+
+#: lib/balados_sync_web/components/layouts/app.html.heex:74
+#, elixir-autogen, elixir-format
+msgid "nav.privacy"
+msgstr "Privacy"
+
+#: lib/balados_sync_web/components/layouts/app.html.heex:97
+#, elixir-autogen, elixir-format
+msgid "nav.register"
+msgstr "Register"
+
+#: lib/balados_sync_web/components/layouts/app.html.heex:64
+#, elixir-autogen, elixir-format
+msgid "nav.subscriptions"
+msgstr "Subscriptions"
