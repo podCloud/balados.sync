@@ -373,9 +373,12 @@
     <div
       id="privacy-change-modal"
       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="privacy-change-title"
     >
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-        <h2 class="text-2xl font-bold text-zinc-900 mb-4"><%= gettext("privacy.change_title") %></h2>
+        <h2 id="privacy-change-title" class="text-2xl font-bold text-zinc-900 mb-4"><%= gettext("privacy.change_title") %></h2>
 
         <p class="text-zinc-600 mb-6">
           <%= gettext("privacy.change_description") %>

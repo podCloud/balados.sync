@@ -17,7 +17,7 @@
       >
         <div class="px-4 py-6 sm:p-8 bg-gradient-to-r from-blue-50 to-transparent border-b border-blue-200">
           <div class="flex items-center gap-3">
-            <svg class="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path d="M13 7H7v6h6V7z" />
               <path
                 fill-rule="evenodd"
@@ -75,6 +75,7 @@
                   <button
                     class="edit-btn flex-shrink-0 p-2 hover:bg-white rounded-md transition"
                     aria-label="Edit privacy"
+                    aria-expanded="false"
                   >
                     <svg
                       class="h-5 w-5 text-zinc-600 hover:text-blue-600"
@@ -134,7 +135,7 @@
       >
         <div class="px-4 py-6 sm:p-8 bg-gradient-to-r from-purple-50 to-transparent border-b border-purple-200">
           <div class="flex items-center gap-3">
-            <svg class="h-6 w-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="h-6 w-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path
                 fill-rule="evenodd"
                 d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
@@ -191,6 +192,7 @@
                   <button
                     class="edit-btn flex-shrink-0 p-2 hover:bg-white rounded-md transition"
                     aria-label="Edit privacy"
+                    aria-expanded="false"
                   >
                     <svg
                       class="h-5 w-5 text-zinc-600 hover:text-purple-600"
@@ -250,7 +252,7 @@
       >
         <div class="px-4 py-6 sm:p-8 bg-gradient-to-r from-red-50 to-transparent border-b border-red-200">
           <div class="flex items-center gap-3">
-            <svg class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path
                 fill-rule="evenodd"
                 d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
@@ -307,6 +309,7 @@
                   <button
                     class="edit-btn flex-shrink-0 p-2 hover:bg-white rounded-md transition"
                     aria-label="Edit privacy"
+                    aria-expanded="false"
                   >
                     <svg
                       class="h-5 w-5 text-zinc-600 hover:text-red-600"
@@ -390,12 +393,15 @@
 <div
   id="privacy-warning-modal"
   class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="privacy-warning-title"
 >
   <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
     <!-- Warning Icon & Title -->
     <div class="flex items-center gap-3 mb-4">
       <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-amber-100">
-        <svg class="h-6 w-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="h-6 w-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -404,7 +410,7 @@
           />
         </svg>
       </div>
-      <h2 class="text-xl font-bold text-zinc-900"><%= gettext("privacy.modal.title") %></h2>
+      <h2 id="privacy-warning-title" class="text-xl font-bold text-zinc-900"><%= gettext("privacy.modal.title") %></h2>
     </div>
     <!-- Message -->
     <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
