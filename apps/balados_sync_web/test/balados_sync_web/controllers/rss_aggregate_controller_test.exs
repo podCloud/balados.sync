@@ -1,13 +1,39 @@
 defmodule BaladosSyncWeb.RssAggregateControllerTest do
   use BaladosSyncWeb.ConnCase
 
-  alias BaladosSyncCore.Dispatcher
-  alias BaladosSyncCore.Commands.{Subscribe, CreateCollection, AddFeedToCollection}
   alias BaladosSyncCore.SystemRepo
   alias BaladosSyncProjections.ProjectionsRepo
-  alias BaladosSyncProjections.Schemas.{PlayToken, Collection}
+  alias BaladosSyncProjections.Schemas.{PlayToken, Collection, Subscription, CollectionSubscription}
 
   import Ecto.Query
+
+  # Helper to insert a subscription projection directly (projectors disabled in test)
+  defp insert_subscription(user_id, feed, rss_source_id \\ "podcast-123") do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    %Subscription{}
+    |> Subscription.changeset(%{
+      user_id: user_id,
+      rss_source_feed: feed,
+      rss_source_id: rss_source_id,
+      subscribed_at: now
+    })
+    |> ProjectionsRepo.insert!()
+  end
+
+  # Helper to insert a collection projection directly
+  defp insert_collection(attrs) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    %Collection{}
+    |> Collection.changeset(
+      Map.merge(
+        %{is_default: false, inserted_at: now, updated_at: now},
+        attrs
+      )
+    )
+    |> ProjectionsRepo.insert!()
+  end
 
   setup do
     # Create a test user
@@ -24,18 +50,8 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
         expires_at: nil
       })
 
-    # Initialize the User aggregate by subscribing to a dummy feed
-    # This is required because the aggregate uses user_id from state
-    Dispatcher.dispatch(%Subscribe{
-      user_id: user_id,
-      rss_source_feed: "aHR0cHM6Ly9kdW1teS5pbml0aWFsaXplci5jb20vZmVlZA",
-      rss_source_id: "init-feed",
-      subscribed_at: DateTime.utc_now(),
-      event_infos: %{}
-    })
-
-    # Wait for projection
-    Process.sleep(50)
+    # Insert initial subscription projection directly
+    insert_subscription(user_id, "aHR0cHM6Ly9kdW1teS5pbml0aWFsaXplci5jb20vZmVlZA", "init-feed")
 
     {:ok, user_id: user_id, token: token}
   end
@@ -53,19 +69,8 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
       user_id: user_id,
       token: token
     } do
-      # Subscribe to a feed
-      feed = "aHR0cHM6Ly9mZWVkLmV4YW1wbGUuY29tL3BvZGNhc3Q="
-
-      Dispatcher.dispatch(%Subscribe{
-        user_id: user_id,
-        rss_source_feed: feed,
-        rss_source_id: "podcast-123",
-        subscribed_at: DateTime.utc_now(),
-        event_infos: %{}
-      })
-
-      # Wait for projection
-      Process.sleep(100)
+      # Insert subscription projection directly
+      insert_subscription(user_id, "aHR0cHM6Ly9mZWVkLmV4YW1wbGUuY29tL3BvZGNhc3Q=")
 
       conn = get(conn, "/rss/#{token}/subscriptions")
 
@@ -81,19 +86,8 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
     end
 
     test "updates token last_used_at", %{conn: conn, user_id: user_id, token: token} do
-      # Subscribe to a feed
-      feed = "aHR0cHM6Ly9mZWVkLmV4YW1wbGUuY29tL3BvZGNhc3Q="
-
-      Dispatcher.dispatch(%Subscribe{
-        user_id: user_id,
-        rss_source_feed: feed,
-        rss_source_id: "podcast-123",
-        subscribed_at: DateTime.utc_now(),
-        event_infos: %{}
-      })
-
-      # Wait for projection
-      Process.sleep(100)
+      # Insert subscription projection directly
+      insert_subscription(user_id, "aHR0cHM6Ly9mZWVkLmV4YW1wbGUuY29tL3BvZGNhc3Q=")
 
       # Get token before request
       token_before =
@@ -136,28 +130,8 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
     test "returns 404 for another user's collection", %{conn: conn, token: token} do
       other_user_id = Ecto.UUID.generate()
 
-      # First subscribe to initialize the aggregate for other user
-      Dispatcher.dispatch(%Subscribe{
-        user_id: other_user_id,
-        rss_source_feed: "aHR0cHM6Ly9vdGhlci5leGFtcGxlLmNvbS9mZWVk",
-        rss_source_id: "other-podcast",
-        subscribed_at: DateTime.utc_now(),
-        event_infos: %{}
-      })
-
-      # Create collection for another user
-      Dispatcher.dispatch(%CreateCollection{
-        user_id: other_user_id,
-        title: "Other User Collection",
-        is_default: false,
-        event_infos: %{}
-      })
-
-      # Wait for projection
-      Process.sleep(100)
-
-      collection =
-        ProjectionsRepo.get_by(Collection, user_id: other_user_id, title: "Other User Collection")
+      # Insert collection for another user directly
+      collection = insert_collection(%{user_id: other_user_id, title: "Other User Collection"})
 
       conn = get(conn, "/rss/#{token}/collections/#{collection.id}")
 
@@ -170,40 +144,19 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
       user_id: user_id,
       token: token
     } do
-      # Subscribe to a feed
       feed = "aHR0cHM6Ly9mZWVkLmV4YW1wbGUuY29tL3BvZGNhc3Q="
 
-      Dispatcher.dispatch(%Subscribe{
-        user_id: user_id,
-        rss_source_feed: feed,
-        rss_source_id: "podcast-123",
-        subscribed_at: DateTime.utc_now(),
-        event_infos: %{}
-      })
-
-      # Create a collection
-      Dispatcher.dispatch(%CreateCollection{
-        user_id: user_id,
-        title: "News Collection",
-        is_default: false,
-        event_infos: %{}
-      })
-
-      # Wait for projections
-      Process.sleep(100)
-
-      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, title: "News Collection")
+      # Insert subscription and collection projections directly
+      insert_subscription(user_id, feed)
+      collection = insert_collection(%{user_id: user_id, title: "News Collection"})
 
       # Add feed to collection
-      Dispatcher.dispatch(%AddFeedToCollection{
-        user_id: user_id,
+      %CollectionSubscription{}
+      |> CollectionSubscription.changeset(%{
         collection_id: collection.id,
-        rss_source_feed: feed,
-        event_infos: %{}
+        rss_source_feed: feed
       })
-
-      # Wait for projection
-      Process.sleep(100)
+      |> ProjectionsRepo.insert!()
 
       conn = get(conn, "/rss/#{token}/collections/#{collection.id}")
 
@@ -223,19 +176,13 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
       user_id: user_id,
       token: token
     } do
-      # Create a collection with description
-      Dispatcher.dispatch(%CreateCollection{
-        user_id: user_id,
-        title: "Tech News",
-        description: "Latest technology news and updates",
-        is_default: false,
-        event_infos: %{}
-      })
-
-      # Wait for projection
-      Process.sleep(100)
-
-      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, title: "Tech News")
+      # Insert collection with description directly
+      collection =
+        insert_collection(%{
+          user_id: user_id,
+          title: "Tech News",
+          description: "Latest technology news and updates"
+        })
 
       conn = get(conn, "/rss/#{token}/collections/#{collection.id}")
 
@@ -246,18 +193,8 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
     end
 
     test "updates token last_used_at", %{conn: conn, user_id: user_id, token: token} do
-      # Create a collection
-      Dispatcher.dispatch(%CreateCollection{
-        user_id: user_id,
-        title: "Test Collection",
-        is_default: false,
-        event_infos: %{}
-      })
-
-      # Wait for projection
-      Process.sleep(100)
-
-      collection = ProjectionsRepo.get_by(Collection, user_id: user_id, title: "Test Collection")
+      # Insert collection directly
+      collection = insert_collection(%{user_id: user_id, title: "Test Collection"})
 
       # Get token before request
       token_before =

@@ -45,14 +45,16 @@ defmodule BaladosSyncWeb.WebPrivacyController do
       user_id = conn.assigns.current_user.id
       device_id = generate_device_id(conn)
 
-      # Convert privacy string to atom
-      privacy_atom =
+      # Convert privacy string to validated value
+      validated_privacy =
         case privacy_str do
-          "public" -> :public
-          "anonymous" -> :anonymous
-          "private" -> :private
-          _ -> :public
+          "public" -> "public"
+          "anonymous" -> "anonymous"
+          "private" -> "private"
+          _ -> "public"
         end
+
+      privacy_atom = String.to_existing_atom(validated_privacy)
 
       # Dispatch ChangePrivacy command
       command = %ChangePrivacy{
@@ -68,7 +70,7 @@ defmodule BaladosSyncWeb.WebPrivacyController do
 
       case Dispatcher.dispatch(command) do
         :ok ->
-          json(conn, %{status: "success", privacy: privacy_str})
+          json(conn, %{status: "success", privacy: validated_privacy})
 
         {:error, reason} ->
           conn
