@@ -34,6 +34,13 @@ defmodule BaladosSyncWeb.Endpoint do
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :balados_sync_web
   end
 
+  # Enable SQL sandbox for Wallaby E2E tests.
+  # Allows browser requests to use the same DB connection as the test process
+  # via metadata-based sandbox ownership instead of shared mode.
+  if Application.compile_env(:balados_sync_web, :sql_sandbox) do
+    plug Phoenix.Ecto.SQL.Sandbox
+  end
+
   plug Phoenix.LiveDashboard.RequestLogger,
     param_key: "request_logger",
     cookie_key: "request_logger"
