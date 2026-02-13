@@ -83,18 +83,29 @@ defmodule BaladosSyncWeb.E2ECase do
       %{user: user, email: email, password: password}
     end
 
-    @doc "Log in a user through the browser."
+    @doc "Log in a user through the browser and wait for navigation to complete."
     def login(session, email, password) do
       session
       |> Wallaby.Browser.visit("/users/log_in")
       |> Wallaby.Browser.fill_in(Query.text_field("Nom d'utilisateur"), with: email)
       |> Wallaby.Browser.fill_in(Query.text_field("Mot de passe"), with: password)
       |> Wallaby.Browser.click(Query.button("Se connecter"))
+      |> Wallaby.Browser.assert_has(Query.link("Log out"))
     end
 
-    @doc "Wait for LiveView to connect."
-    def wait_for_liveview(session, timeout \\ 1000) do
-      :timer.sleep(min(timeout, 1000))
+    @doc """
+    Wait for LiveView to mount and connect by asserting on a visible element.
+
+    Instead of using an arbitrary sleep, this relies on Wallaby's built-in
+    retry/wait mechanism through `assert_has`. Wallaby will poll the DOM
+    until the element appears or the timeout is reached.
+
+    The `selector` argument defaults to `"main"` which is present in the app
+    layout once the page has rendered. Pass a more specific CSS selector to
+    wait for a particular LiveView element.
+    """
+    def wait_for_liveview(session, selector \\ "main") do
+      Wallaby.Browser.assert_has(session, Query.css(selector))
       session
     end
   end

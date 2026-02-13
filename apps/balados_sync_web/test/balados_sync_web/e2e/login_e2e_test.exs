@@ -11,8 +11,7 @@ defmodule BaladosSyncWeb.LoginE2ETest do
     test "displays login form", %{session: session} do
       session
       |> visit("/users/log_in")
-      |> wait_for_liveview()
-      |> assert_has(Query.css("form"))
+      |> wait_for_liveview("form")
       |> assert_has(Query.text_field("Nom d'utilisateur"))
       |> assert_has(Query.text_field("Mot de passe"))
       |> assert_has(Query.button("Se connecter"))
@@ -21,16 +20,13 @@ defmodule BaladosSyncWeb.LoginE2ETest do
     test "shows error with invalid credentials", %{session: session} do
       session
       |> visit("/users/log_in")
-      |> wait_for_liveview()
+      |> wait_for_liveview("form")
       |> fill_in(Query.text_field("Nom d'utilisateur"), with: "nonexistent@example.com")
       |> fill_in(Query.text_field("Mot de passe"), with: "wrongpassword")
       |> click(Query.button("Se connecter"))
-
-      # Wait for form submission and error message
-      :timer.sleep(500)
-
-      # Check for error in flash or form (the actual error format may vary)
-      session |> assert_has(Query.css("body"))
+      |> assert_has(
+        Query.css(".text-rose-600", text: "Nom d'utilisateur ou mot de passe invalide")
+      )
     end
 
     test "logs in with valid credentials", %{session: session} do
@@ -38,13 +34,11 @@ defmodule BaladosSyncWeb.LoginE2ETest do
 
       session
       |> visit("/users/log_in")
-      |> wait_for_liveview()
+      |> wait_for_liveview("form")
       |> fill_in(Query.text_field("Nom d'utilisateur"), with: email)
       |> fill_in(Query.text_field("Mot de passe"), with: password)
       |> click(Query.button("Se connecter"))
-
-      :timer.sleep(500)
-      session |> assert_has(Query.css("body"))
+      |> assert_has(Query.link("Log out"))
     end
   end
 
@@ -52,9 +46,7 @@ defmodule BaladosSyncWeb.LoginE2ETest do
     test "redirects unauthenticated users to login", %{session: session} do
       session
       |> visit("/subscriptions")
-
-      :timer.sleep(300)
-      session |> assert_has(Query.css("form[action*='log_in']"))
+      |> assert_has(Query.css("form[action*='log_in']"))
     end
   end
 end

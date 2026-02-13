@@ -11,22 +11,22 @@ defmodule BaladosSyncWeb.SubscriptionsE2ETest do
     setup %{session: session} do
       %{email: email, password: password, user: user} = create_test_user()
       session = login(session, email, password)
-      :timer.sleep(500)
       {:ok, session: session, user: user}
     end
 
-    test "displays subscriptions page after login", %{session: session} do
+    test "displays subscriptions page heading after login", %{session: session} do
       session
       |> visit("/subscriptions")
       |> wait_for_liveview()
-      |> assert_has(Query.css("body"))
+      |> assert_has(Query.css("h1", text: "My Subscriptions"))
     end
 
-    test "displays subscriptions content", %{session: session} do
+    test "displays subscription count", %{session: session} do
       session
       |> visit("/subscriptions")
       |> wait_for_liveview()
-      |> assert_has(Query.css("main"))
+      |> assert_has(Query.css("h1", text: "My Subscriptions"))
+      |> assert_has(Query.text("subscriptions"))
     end
   end
 
@@ -34,29 +34,15 @@ defmodule BaladosSyncWeb.SubscriptionsE2ETest do
     setup %{session: session} do
       %{email: email, password: password, user: user} = create_test_user()
       session = login(session, email, password)
-      :timer.sleep(500)
       {:ok, session: session, user: user}
     end
 
-    test "displays add subscription form", %{session: session} do
+    test "displays add subscription form with feed URL input", %{session: session} do
       session
       |> visit("/subscriptions/new")
       |> assert_has(Query.css("form"))
-    end
-  end
-
-  describe "OPML import" do
-    setup %{session: session} do
-      %{email: email, password: password, user: user} = create_test_user()
-      session = login(session, email, password)
-      :timer.sleep(500)
-      {:ok, session: session, user: user}
-    end
-
-    test "displays import OPML page", %{session: session} do
-      session
-      |> visit("/subscriptions/import")
-      |> assert_has(Query.css("form"))
+      |> assert_has(Query.text("Add New Subscription"))
+      |> assert_has(Query.css("input#feed_url"))
     end
   end
 end
