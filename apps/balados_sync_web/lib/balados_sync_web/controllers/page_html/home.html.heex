@@ -16,7 +16,7 @@
         Balados Sync
       </h1>
       <p class="mt-6 text-lg leading-8 text-zinc-600">
-        Synchronisez vos abonnements, votre historique d'écoute et vos playlists de podcasts entre tous vos appareils. Une solution open source, fiable et sécurisée.
+        <%= gettext("home.hero.description") %>
       </p>
       <div class="mt-10 flex items-center justify-center gap-x-6">
         <%= if @current_user do %>
@@ -24,20 +24,20 @@
             navigate={~p"/dashboard"}
             class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            Accéder au dashboard
+            <%= gettext("home.cta.go_to_dashboard") %>
           </.link>
         <% else %>
           <.link
             navigate={~p"/users/register"}
             class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            Créer un compte
+            <%= gettext("home.cta.create_account") %>
           </.link>
           <.link
             navigate={~p"/users/log_in"}
             class="text-sm font-semibold leading-6 text-zinc-900"
           >
-            Se connecter <span aria-hidden="true">→</span>
+            <%= gettext("home.cta.log_in") %> <span aria-hidden="true">→</span>
           </.link>
         <% end %>
       </div>
@@ -59,13 +59,13 @@
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
     <div class="mx-auto max-w-2xl lg:text-center">
       <h2 class="text-base font-semibold leading-7 text-indigo-600">
-        Synchronisation en temps réel
+        <%= gettext("home.features.subtitle") %>
       </h2>
       <p class="mt-2 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
-        Tout ce dont vous avez besoin pour synchroniser vos podcasts
+        <%= gettext("home.features.title") %>
       </p>
       <p class="mt-6 text-lg leading-8 text-zinc-600">
-        Technologie open source conçue pour la fiabilité et la protection de vos données.
+        <%= gettext("home.features.description") %>
       </p>
     </div>
     <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
@@ -87,10 +87,10 @@
                 />
               </svg>
             </div>
-            API REST complète
+            <%= gettext("home.feature.api.title") %>
           </dt>
           <dd class="mt-2 text-base leading-7 text-zinc-600">
-            Synchronisez vos abonnements, positions d'écoute et playlists via notre API sécurisée.
+            <%= gettext("home.feature.api.description") %>
           </dd>
         </div>
         <div class="relative pl-16">
@@ -110,10 +110,10 @@
                 />
               </svg>
             </div>
-            Sécurité renforcée
+            <%= gettext("home.feature.security.title") %>
           </dt>
           <dd class="mt-2 text-base leading-7 text-zinc-600">
-            Authentification JWT (RS256), hachage Argon2id (OWASP 2025), et verrouillage automatique après 5 tentatives échouées.
+            <%= gettext("home.feature.security.description") %>
           </dd>
         </div>
         <div class="relative pl-16">
@@ -138,10 +138,10 @@
                 />
               </svg>
             </div>
-            Contrôle de la confidentialité
+            <%= gettext("home.feature.privacy.title") %>
           </dt>
           <dd class="mt-2 text-base leading-7 text-zinc-600">
-            Gérez finement la visibilité de votre activité : public, anonyme ou privé par podcast ou épisode.
+            <%= gettext("home.feature.privacy.description") %>
           </dd>
         </div>
         <div class="relative pl-16">
@@ -161,10 +161,10 @@
                 />
               </svg>
             </div>
-            Statistiques et popularité
+            <%= gettext("home.feature.stats.title") %>
           </dt>
           <dd class="mt-2 text-base leading-7 text-zinc-600">
-            Découvrez les podcasts et épisodes tendances basés sur l'activité de la communauté.
+            <%= gettext("home.feature.stats.description") %>
           </dd>
         </div>
       </dl>

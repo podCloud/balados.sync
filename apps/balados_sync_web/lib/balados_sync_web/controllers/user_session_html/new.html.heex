@@ -1,12 +1,12 @@
 <div class="mx-auto max-w-sm">
   <.header class="text-center">
-    Se connecter
+    <%= gettext("auth.login.title") %>
     <:subtitle>
-      Pas encore de compte ?
+      <%= gettext("auth.login.no_account") %>
       <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
-        Inscrivez-vous
+        <%= gettext("auth.login.register_link") %>
       </.link>
-      dès maintenant.
+      <%= gettext("auth.login.register_suffix") %>
     </:subtitle>
   </.header>
 
@@ -14,13 +14,13 @@
     <.error :if={@error_message}>
       <%= @error_message %>
     </.error>
-    <.input field={f[:username]} type="text" label="Nom d'utilisateur" required />
-    <.input field={f[:password]} type="password" label="Mot de passe" required />
-    <.input field={f[:remember_me]} type="checkbox" label="Rester connecté" />
+    <.input field={f[:username]} type="text" label={gettext("auth.login.username_label")} required />
+    <.input field={f[:password]} type="password" label={gettext("auth.login.password_label")} required />
+    <.input field={f[:remember_me]} type="checkbox" label={gettext("auth.login.remember_me")} />
 
     <:actions>
-      <.button phx-disable-with="Connexion..." class="w-full">
-        Se connecter <span aria-hidden="true">→</span>
+      <.button phx-disable-with={gettext("auth.login.submitting")} class="w-full">
+        <%= gettext("auth.login.submit") %> <span aria-hidden="true">→</span>
       </.button>
     </:actions>
   </.simple_form>

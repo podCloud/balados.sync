@@ -1,247 +1,248 @@
-## `msgid`s in this file come from POT (.pot) files.
+## This file is a PO Template file.
 ##
-## Do not add, change, or remove `msgid`s manually here as
-## they're tied to the ones in the corresponding POT file
-## (with the same domain).
+## "msgid"s here are often extracted from source code.
+## Add new messages manually only if they're dynamic
+## messages that can't be statically extracted.
 ##
-## Use `mix gettext.extract --merge` or `mix gettext.merge`
-## to merge POT files into PO files.
+## Run "mix gettext.extract" to bring this file up to
+## date. Leave "msgstr"s empty as changing them here has no
+## effect: edit them in PO (.po) files instead.
+#
 msgid ""
 msgstr ""
-"Language: fr\n"
 
 #: lib/balados_sync_web/components/core_components.ex:487
 #, elixir-autogen, elixir-format
 msgid "Actions"
-msgstr "Actions"
+msgstr ""
 
 #: lib/balados_sync_web/components/core_components.ex:163
 #, elixir-autogen, elixir-format
 msgid "Attempting to reconnect"
-msgstr "Tentative de reconnexion"
+msgstr ""
 
 #: lib/balados_sync_web/components/core_components.ex:154
 #, elixir-autogen, elixir-format
 msgid "Error!"
-msgstr "Erreur !"
+msgstr ""
 
 #: lib/balados_sync_web/components/core_components.ex:175
 #, elixir-autogen, elixir-format
 msgid "Hang in there while we get back on track"
-msgstr "Patientez pendant que nous rétablissons la connexion"
+msgstr ""
 
 #: lib/balados_sync_web/components/core_components.ex:153
 #, elixir-autogen, elixir-format
 msgid "Info!"
-msgstr "Info !"
+msgstr ""
 
 #: lib/balados_sync_web/components/core_components.ex:170
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
-msgstr "Une erreur est survenue !"
+msgstr ""
 
 #: lib/balados_sync_web/components/core_components.ex:152
 #, elixir-autogen, elixir-format
 msgid "Success"
-msgstr "Succès"
+msgstr ""
 
 #: lib/balados_sync_web/components/core_components.ex:158
 #, elixir-autogen, elixir-format
 msgid "We can't find the internet"
-msgstr "Connexion internet introuvable"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_session_html/new.html.heex:5
 #, elixir-autogen, elixir-format
 msgid "auth.login.no_account"
-msgstr "Pas encore de compte ?"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_session_html/new.html.heex:18
 #, elixir-autogen, elixir-format
 msgid "auth.login.password_label"
-msgstr "Mot de passe"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_session_html/new.html.heex:7
 #, elixir-autogen, elixir-format
 msgid "auth.login.register_link"
-msgstr "Inscrivez-vous"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_session_html/new.html.heex:9
 #, elixir-autogen, elixir-format
 msgid "auth.login.register_suffix"
-msgstr "dès maintenant."
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_session_html/new.html.heex:19
 #, elixir-autogen, elixir-format
 msgid "auth.login.remember_me"
-msgstr "Rester connecté"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_session_html/new.html.heex:23
 #, elixir-autogen, elixir-format
 msgid "auth.login.submit"
-msgstr "Se connecter"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_session_html/new.html.heex:22
 #, elixir-autogen, elixir-format
 msgid "auth.login.submitting"
-msgstr "Connexion..."
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_session_html/new.html.heex:3
 #, elixir-autogen, elixir-format
 msgid "auth.login.title"
-msgstr "Se connecter"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_session_html/new.html.heex:17
 #, elixir-autogen, elixir-format
 msgid "auth.login.username_label"
-msgstr "Nom d'utilisateur"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:22
 #, elixir-autogen, elixir-format
 msgid "auth.register.email_info"
-msgstr "L'email est utilisé uniquement pour vous informer des événements importants :"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:19
 #, elixir-autogen, elixir-format
 msgid "auth.register.email_label"
-msgstr "Email (optionnel)"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:25
 #, elixir-autogen, elixir-format
 msgid "auth.register.email_reason.deprecation"
-msgstr "Abandon de fonctionnalités"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:26
 #, elixir-autogen, elixir-format
 msgid "auth.register.email_reason.features"
-msgstr "Nouvelles fonctionnalités majeures"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:24
 #, elixir-autogen, elixir-format
 msgid "auth.register.email_reason.maintenance"
-msgstr "Maintenance planifiée du service"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:15
 #, elixir-autogen, elixir-format
 msgid "auth.register.error"
-msgstr "Oups, quelque chose s'est mal passé ! Veuillez vérifier les erreurs ci-dessous."
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:5
 #, elixir-autogen, elixir-format
 msgid "auth.register.has_account"
-msgstr "Déjà inscrit ?"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:7
 #, elixir-autogen, elixir-format
 msgid "auth.register.login_link"
-msgstr "Connectez-vous"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:9
 #, elixir-autogen, elixir-format
 msgid "auth.register.login_suffix"
-msgstr "à votre compte."
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:18
 #, elixir-autogen, elixir-format
 msgid "auth.register.password_label"
-msgstr "Mot de passe"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:31
 #, elixir-autogen, elixir-format
 msgid "auth.register.submit"
-msgstr "Créer un compte"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:31
 #, elixir-autogen, elixir-format
 msgid "auth.register.submitting"
-msgstr "Création du compte..."
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:3
 #, elixir-autogen, elixir-format
 msgid "auth.register.title"
-msgstr "Créer un compte"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/user_registration_html/new.html.heex:17
 #, elixir-autogen, elixir-format
 msgid "auth.register.username_label"
-msgstr "Nom d'utilisateur"
+msgstr ""
 
 #: lib/balados_sync_web/components/core_components.ex:76
 #: lib/balados_sync_web/components/core_components.ex:132
 #, elixir-autogen, elixir-format
 msgid "close"
-msgstr "fermer"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:34
 #, elixir-autogen, elixir-format
 msgid "home.cta.create_account"
-msgstr "Créer un compte"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:27
 #, elixir-autogen, elixir-format
 msgid "home.cta.go_to_dashboard"
-msgstr "Accéder au dashboard"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:40
 #, elixir-autogen, elixir-format
 msgid "home.cta.log_in"
-msgstr "Se connecter"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:93
 #, elixir-autogen, elixir-format
 msgid "home.feature.api.description"
-msgstr "Synchronisez vos abonnements, positions d'écoute et playlists via notre API sécurisée."
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:90
 #, elixir-autogen, elixir-format
 msgid "home.feature.api.title"
-msgstr "API REST complète"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:144
 #, elixir-autogen, elixir-format
 msgid "home.feature.privacy.description"
-msgstr "Gérez finement la visibilité de votre activité : public, anonyme ou privé par podcast ou épisode."
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:141
 #, elixir-autogen, elixir-format
 msgid "home.feature.privacy.title"
-msgstr "Contrôle de la confidentialité"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:116
 #, elixir-autogen, elixir-format
 msgid "home.feature.security.description"
-msgstr "Authentification JWT (RS256), hachage Argon2id (OWASP 2025), et verrouillage automatique après 5 tentatives échouées."
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:113
 #, elixir-autogen, elixir-format
 msgid "home.feature.security.title"
-msgstr "Sécurité renforcée"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:167
 #, elixir-autogen, elixir-format
 msgid "home.feature.stats.description"
-msgstr "Découvrez les podcasts et épisodes tendances basés sur l'activité de la communauté."
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:164
 #, elixir-autogen, elixir-format
 msgid "home.feature.stats.title"
-msgstr "Statistiques et popularité"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:68
 #, elixir-autogen, elixir-format
 msgid "home.features.description"
-msgstr "Technologie open source conçue pour la fiabilité et la protection de vos données."
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:62
 #, elixir-autogen, elixir-format
 msgid "home.features.subtitle"
-msgstr "Synchronisation en temps réel"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:65
 #, elixir-autogen, elixir-format
 msgid "home.features.title"
-msgstr "Tout ce dont vous avez besoin pour synchroniser vos podcasts"
+msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:19
 #, elixir-autogen, elixir-format
 msgid "home.hero.description"
-msgstr "Synchronisez vos abonnements, votre historique d'écoute et vos playlists de podcasts entre tous vos appareils. Une solution open source, fiable et sécurisée."
+msgstr ""
