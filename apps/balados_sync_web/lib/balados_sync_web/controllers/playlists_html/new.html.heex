@@ -3,9 +3,9 @@
     <!-- Header -->
     <div class="mb-8">
       <.link navigate={~p"/playlists"} class="text-blue-600 hover:underline text-sm">
-        &larr; Back to Playlists
+        &larr; <%= gettext("playlists.back") %>
       </.link>
-      <h1 class="text-3xl font-bold text-zinc-900 mt-4">New Playlist</h1>
+      <h1 class="text-3xl font-bold text-zinc-900 mt-4"><%= gettext("playlists.new_title") %></h1>
     </div>
 
     <!-- Form -->
@@ -13,7 +13,7 @@
       <.form for={%{}} action={~p"/playlists"} method="post" class="space-y-6">
         <div>
           <label for="playlist_name" class="block text-sm font-medium text-zinc-700">
-            Name
+            <%= gettext("playlists.name_label") %>
           </label>
           <input
             type="text"
@@ -21,20 +21,20 @@
             id="playlist_name"
             required
             class="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            placeholder="My Awesome Playlist"
+            placeholder={gettext("playlists.name_placeholder")}
           />
         </div>
 
         <div>
           <label for="playlist_description" class="block text-sm font-medium text-zinc-700">
-            Description (optional)
+            <%= gettext("playlists.description_label") %>
           </label>
           <textarea
             name="playlist[description]"
             id="playlist_description"
             rows="3"
             class="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            placeholder="A short description of this playlist..."
+            placeholder={gettext("playlists.description_placeholder")}
           ></textarea>
         </div>
 
@@ -43,13 +43,13 @@
             navigate={~p"/playlists"}
             class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-zinc-700 border border-zinc-300 hover:bg-zinc-50 transition"
           >
-            Cancel
+            <%= gettext("common.cancel") %>
           </.link>
           <button
             type="submit"
             class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
           >
-            Create Playlist
+            <%= gettext("playlists.create") %>
           </button>
         </div>
       </.form>

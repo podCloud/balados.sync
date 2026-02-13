@@ -1,8 +1,8 @@
 <div class="px-4 py-10 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-2xl">
     <.header>
-      Add New Subscription
-      <:subtitle>Enter the RSS feed URL of the podcast you want to subscribe to</:subtitle>
+      <%= gettext("subscriptions.add_title") %>
+      <:subtitle><%= gettext("subscriptions.add_subtitle") %></:subtitle>
     </.header>
 
     <div class="mt-10 bg-white shadow rounded-lg p-6">
@@ -10,7 +10,7 @@
         <div class="space-y-4">
           <div>
             <label for="feed_url" class="block text-sm font-medium text-zinc-900">
-              RSS Feed URL
+              <%= gettext("subscriptions.feed_url_label") %>
             </label>
             <input
               type="url"
@@ -35,13 +35,13 @@
               type="submit"
               class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
             >
-              Subscribe
+              <%= gettext("subscriptions.subscribe") %>
             </button>
             <.link
               navigate={~p"/subscriptions"}
               class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
             >
-              Cancel
+              <%= gettext("common.cancel") %>
             </.link>
           </div>
         </div>

@@ -5,7 +5,7 @@
       navigate={~p"/trending/episodes"}
       class="text-sm font-semibold text-blue-600 hover:text-blue-700 mb-6 inline-block"
     >
-      ← Back to Trending
+      ← <%= gettext("common.back_to_trending") %>
     </.link>
     <!-- Episode Header -->
     <div class="bg-white shadow rounded-lg p-6">
@@ -13,7 +13,7 @@
 
       <div class="flex gap-4 text-sm text-zinc-600 mt-3">
         <%= if @episode.author do %>
-          <span>by <span class="font-medium"><%= @episode.author %></span></span>
+          <span><%= gettext("episode.by") %> <span class="font-medium"><%= @episode.author %></span></span>
         <% end %>
         <%= if @episode.pub_date do %>
           <span title={Calendar.strftime(@episode.pub_date, "%B %d, %Y at %H:%M")}>
@@ -31,18 +31,18 @@
       <!-- Popularity Stats -->
       <%= if @popularity do %>
         <div class="mt-6 p-4 bg-zinc-50 rounded-lg">
-          <h3 class="font-semibold text-zinc-900 mb-2">Popularity Stats</h3>
+          <h3 class="font-semibold text-zinc-900 mb-2"><%= gettext("common.popularity_stats") %></h3>
           <div class="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <div class="text-zinc-600">Score</div>
+              <div class="text-zinc-600"><%= gettext("trending.score") %></div>
               <div class="font-semibold text-lg"><%= @popularity.score %></div>
             </div>
             <div>
-              <div class="text-zinc-600">Plays</div>
+              <div class="text-zinc-600"><%= gettext("trending.plays") %></div>
               <div class="font-semibold text-lg"><%= @popularity.plays %></div>
             </div>
             <div>
-              <div class="text-zinc-600">Likes</div>
+              <div class="text-zinc-600"><%= gettext("trending.likes") %></div>
               <div class="font-semibold text-lg"><%= @popularity.likes %></div>
             </div>
           </div>
@@ -64,7 +64,7 @@
             rel="noopener noreferrer"
             class="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
-            Download/Play Episode →
+            <%= gettext("episode.download_play") %> →
           </a>
         </div>
       <% end %>

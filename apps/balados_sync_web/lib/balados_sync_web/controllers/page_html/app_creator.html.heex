@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang={Gettext.get_locale(BaladosSyncWeb.Gettext)}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>App Authorization Token Generator</title>
+    <title><%= gettext("app_creator.title") %></title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js">
     </script>
     <style>
@@ -208,40 +208,39 @@
   </head>
   <body>
     <div class="container">
-      <h1>App Authorization Token Generator</h1>
+      <h1><%= gettext("app_creator.title") %></h1>
       <p class="description">
-        This is a utility page for app developers to create authorization request tokens.
-        All operations happen in your browser - no data is sent to the server.
+        <%= gettext("app_creator.description") %>
       </p>
 
       <div class="info-box">
-        <p><strong>How it works:</strong></p>
-        <p>1. Fill in your app details below</p>
-        <p>2. Select the permissions (scopes) your app needs</p>
-        <p>3. Generate an RS256 key pair (or paste your existing keys)</p>
-        <p>4. Generate a JWT token containing your app information</p>
-        <p>5. Use the token in an authorization URL to request user permission</p>
+        <p><strong><%= gettext("app_creator.how_it_works") %></strong></p>
+        <p><%= gettext("app_creator.step_1") %></p>
+        <p><%= gettext("app_creator.step_2") %></p>
+        <p><%= gettext("app_creator.step_3") %></p>
+        <p><%= gettext("app_creator.step_4") %></p>
+        <p><%= gettext("app_creator.step_5") %></p>
       </div>
 
       <div id="alert" class="alert"></div>
 
       <form id="appForm">
         <div class="form-group">
-          <label for="app_id" class="required">App ID</label>
+          <label for="app_id" class="required"><%= gettext("app_creator.app_id_label") %></label>
           <input type="text" id="app_id" name="app_id" placeholder="com.example.myapp" required />
           <div class="help-text">
-            Unique identifier for your app (reverse domain notation recommended)
+            <%= gettext("app_creator.app_id_hint") %>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="name" class="required">App Name</label>
+          <label for="name" class="required"><%= gettext("app_creator.app_name_label") %></label>
           <input type="text" id="name" name="name" placeholder="My Awesome App" required />
-          <div class="help-text">The name users will see when authorizing your app</div>
+          <div class="help-text"><%= gettext("app_creator.app_name_hint") %></div>
         </div>
 
         <div class="form-group">
-          <label for="image">App Image URL</label>
+          <label for="image"><%= gettext("app_creator.app_image_label") %></label>
           <input
             type="text"
             id="image"
@@ -249,25 +248,25 @@
             placeholder="https://example.com/app-icon.png"
           />
           <div class="help-text">
-            URL to your app's icon or logo (displayed if 10% of users have authorized your app)
+            <%= gettext("app_creator.app_image_hint") %>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="url">App Homepage URL</label>
+          <label for="url"><%= gettext("app_creator.app_url_label") %></label>
           <input type="text" id="url" name="url" placeholder="https://example.com" />
-          <div class="help-text">Your app's website or homepage</div>
+          <div class="help-text"><%= gettext("app_creator.app_url_hint") %></div>
         </div>
 
         <div class="form-group">
-          <label>Requested Scopes</label>
+          <label><%= gettext("app_creator.scopes_label") %></label>
           <div class="help-text" style="margin-bottom: 10px;">
-            Select the permissions your app needs. Wildcards are supported (*, *.read, user.*, etc.)
+            <%= gettext("app_creator.scopes_hint") %>
             <button type="button" id="selectAllScopes" class="btn-link" style="margin-left: 10px;">
-              Select All
+              <%= gettext("app_creator.select_all") %>
             </button>
             <button type="button" id="selectNone" class="btn-link" style="margin-left: 5px;">
-              Select None
+              <%= gettext("app_creator.select_none") %>
             </button>
           </div>
           <div class="scopes-grid" id="scopesGrid">
@@ -276,7 +275,7 @@
         </div>
 
         <div class="form-group">
-          <label for="public_key" class="required">Public Key (PEM format)</label>
+          <label for="public_key" class="required"><%= gettext("app_creator.public_key_label") %></label>
           <textarea
             id="public_key"
             name="public_key"
@@ -285,12 +284,12 @@
             required
           ></textarea>
           <div class="help-text">
-            Your RSA public key in PEM format (share this with the authorization server)
+            <%= gettext("app_creator.public_key_hint") %>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="private_key" class="required">Private Key (PEM format)</label>
+          <label for="private_key" class="required"><%= gettext("app_creator.private_key_label") %></label>
           <textarea
             id="private_key"
             name="private_key"
@@ -298,55 +297,70 @@
             placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"
             required
           ></textarea>
-          <div class="help-text">Your RSA private key in PEM format (keep this secret!)</div>
+          <div class="help-text"><%= gettext("app_creator.private_key_hint") %></div>
         </div>
 
         <div class="button-group">
           <button type="button" id="generateKeysBtn" class="btn-secondary">
-            Generate Key Pair
+            <%= gettext("app_creator.generate_key_pair") %>
           </button>
-          <button type="button" id="generateTokenBtn" class="btn-primary">Generate Token</button>
+          <button type="button" id="generateTokenBtn" class="btn-primary"><%= gettext("app_creator.generate_token") %></button>
         </div>
       </form>
 
       <div id="outputSection" class="output-section" style="display: none;">
-        <div class="output-label">Generated JWT Token</div>
+        <div class="output-label"><%= gettext("app_creator.generated_token") %></div>
         <textarea id="tokenOutput" class="textarea-small" readonly></textarea>
 
         <div class="button-group">
-          <button type="button" id="copyBtn" class="btn-success">Copy to Clipboard</button>
+          <button type="button" id="copyBtn" class="btn-success"><%= gettext("app_creator.copy_to_clipboard") %></button>
         </div>
 
-        <div class="output-label" style="margin-top: 20px;">Authorization URL Example</div>
+        <div class="output-label" style="margin-top: 20px;"><%= gettext("app_creator.auth_url_example") %></div>
         <div class="url-example" id="authUrlExample"></div>
         <div class="help-text" style="margin-top: 10px;">
-          Send users to this URL to request authorization
+          <%= gettext("app_creator.auth_url_hint") %>
         </div>
       </div>
     </div>
 
     <script>
-      // Available scopes with descriptions
+      // Translated scope descriptions (server-rendered)
       const SCOPES = {
-        "*": "Full access to all data and operations",
-        "*.read": "Read access to all data",
-        "*.write": "Write access to all data",
-        "user": "Full access to user profile",
-        "user.read": "Read user profile information",
-        "user.write": "Update user profile information",
-        "user.subscriptions": "Full access to subscriptions",
-        "user.subscriptions.read": "List podcast subscriptions",
-        "user.subscriptions.write": "Add and remove podcast subscriptions",
-        "user.plays": "Full access to play status and positions",
-        "user.plays.read": "Read playback positions and play status",
-        "user.plays.write": "Update playback positions and mark episodes as played",
-        "user.playlists": "Full access to playlists",
-        "user.playlists.read": "List playlists and their contents",
-        "user.playlists.write": "Create, update, and delete playlists",
-        "user.privacy": "Full access to privacy settings",
-        "user.privacy.read": "View privacy settings",
-        "user.privacy.write": "Update privacy settings",
-        "user.sync": "Full synchronization access (all user data)"
+        "*": "<%= gettext("app_creator.scope.full_access") %>",
+        "*.read": "<%= gettext("app_creator.scope.read_all") %>",
+        "*.write": "<%= gettext("app_creator.scope.write_all") %>",
+        "user": "<%= gettext("app_creator.scope.user_full") %>",
+        "user.read": "<%= gettext("app_creator.scope.user_read") %>",
+        "user.write": "<%= gettext("app_creator.scope.user_write") %>",
+        "user.subscriptions": "<%= gettext("app_creator.scope.subscriptions_full") %>",
+        "user.subscriptions.read": "<%= gettext("app_creator.scope.subscriptions_read") %>",
+        "user.subscriptions.write": "<%= gettext("app_creator.scope.subscriptions_write") %>",
+        "user.plays": "<%= gettext("app_creator.scope.plays_full") %>",
+        "user.plays.read": "<%= gettext("app_creator.scope.plays_read") %>",
+        "user.plays.write": "<%= gettext("app_creator.scope.plays_write") %>",
+        "user.playlists": "<%= gettext("app_creator.scope.playlists_full") %>",
+        "user.playlists.read": "<%= gettext("app_creator.scope.playlists_read") %>",
+        "user.playlists.write": "<%= gettext("app_creator.scope.playlists_write") %>",
+        "user.privacy": "<%= gettext("app_creator.scope.privacy_full") %>",
+        "user.privacy.read": "<%= gettext("app_creator.scope.privacy_read") %>",
+        "user.privacy.write": "<%= gettext("app_creator.scope.privacy_write") %>",
+        "user.sync": "<%= gettext("app_creator.scope.sync") %>"
+      };
+
+      // Translated JS messages (server-rendered)
+      const I18N = {
+        keyPairGenerated: "<%= gettext("app_creator.js.key_pair_generated") %>",
+        errorGeneratingKeys: "<%= gettext("app_creator.js.error_generating_keys") %>",
+        appIdRequired: "<%= gettext("app_creator.js.app_id_required") %>",
+        appNameRequired: "<%= gettext("app_creator.js.app_name_required") %>",
+        publicKeyRequired: "<%= gettext("app_creator.js.public_key_required") %>",
+        privateKeyRequired: "<%= gettext("app_creator.js.private_key_required") %>",
+        selectAtLeastOneScope: "<%= gettext("app_creator.js.select_at_least_one_scope") %>",
+        tokenGenerated: "<%= gettext("app_creator.js.token_generated") %>",
+        errorGeneratingToken: "<%= gettext("app_creator.js.error_generating_token") %>",
+        tokenCopied: "<%= gettext("app_creator.js.token_copied") %>",
+        copied: "<%= gettext("app_creator.js.copied") %>"
       };
 
       // Populate scopes grid on page load
@@ -416,9 +430,9 @@
           document.getElementById('public_key').value = publicKeyPem;
           document.getElementById('private_key').value = privateKeyPem;
 
-          showAlert('Key pair generated successfully!', 'success');
+          showAlert(I18N.keyPairGenerated, 'success');
         } catch (error) {
-          showAlert('Error generating keys: ' + error.message, 'error');
+          showAlert(I18N.errorGeneratingKeys + error.message, 'error');
         }
       });
 
@@ -436,23 +450,23 @@
 
           // Validate required fields
           if (!formData.app_id) {
-            showAlert('App ID is required', 'error');
+            showAlert(I18N.appIdRequired, 'error');
             return;
           }
 
           if (!formData.name) {
-            showAlert('App Name is required', 'error');
+            showAlert(I18N.appNameRequired, 'error');
             return;
           }
 
           if (!formData.public_key) {
-            showAlert('Public Key is required', 'error');
+            showAlert(I18N.publicKeyRequired, 'error');
             return;
           }
 
           const privateKey = document.getElementById('private_key').value.trim();
           if (!privateKey) {
-            showAlert('Private Key is required to sign the token', 'error');
+            showAlert(I18N.privateKeyRequired, 'error');
             return;
           }
 
@@ -462,7 +476,7 @@
           ).map(cb => cb.value);
 
           if (selectedScopes.length === 0) {
-            showAlert('Please select at least one scope', 'error');
+            showAlert(I18N.selectAtLeastOneScope, 'error');
             return;
           }
 
@@ -501,12 +515,12 @@
             `${document.location.protocol}//${document.location.host}/authorize?token=${token}`;
           document.getElementById('outputSection').style.display = 'block';
 
-          showAlert('Token generated successfully!', 'success');
+          showAlert(I18N.tokenGenerated, 'success');
 
           // Scroll to output
           document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } catch (error) {
-          showAlert('Error generating token: ' + error.message, 'error');
+          showAlert(I18N.errorGeneratingToken + error.message, 'error');
         }
       });
 
@@ -516,12 +530,12 @@
         tokenOutput.select();
         document.execCommand('copy');
 
-        showAlert('Token copied to clipboard!', 'success');
+        showAlert(I18N.tokenCopied, 'success');
 
         // Change button text temporarily
         const btn = this;
         const originalText = btn.textContent;
-        btn.textContent = 'Copied!';
+        btn.textContent = I18N.copied;
         setTimeout(() => {
           btn.textContent = originalText;
         }, 2000);

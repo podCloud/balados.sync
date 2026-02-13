@@ -173,75 +173,90 @@ msgid "close"
 msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:34
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:34
 #, elixir-autogen, elixir-format
 msgid "home.cta.create_account"
 msgstr ""
 
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:27
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:27
 #, elixir-autogen, elixir-format
 msgid "home.cta.go_to_dashboard"
 msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:40
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:40
 #, elixir-autogen, elixir-format
 msgid "home.cta.log_in"
 msgstr ""
 
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:93
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:93
 #, elixir-autogen, elixir-format
 msgid "home.feature.api.description"
 msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:90
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:90
 #, elixir-autogen, elixir-format
 msgid "home.feature.api.title"
 msgstr ""
 
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:144
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:144
 #, elixir-autogen, elixir-format
 msgid "home.feature.privacy.description"
 msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:141
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:141
 #, elixir-autogen, elixir-format
 msgid "home.feature.privacy.title"
 msgstr ""
 
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:116
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:116
 #, elixir-autogen, elixir-format
 msgid "home.feature.security.description"
 msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:113
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:113
 #, elixir-autogen, elixir-format
 msgid "home.feature.security.title"
 msgstr ""
 
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:167
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:167
 #, elixir-autogen, elixir-format
 msgid "home.feature.stats.description"
 msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:164
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:164
 #, elixir-autogen, elixir-format
 msgid "home.feature.stats.title"
 msgstr ""
 
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:68
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:68
 #, elixir-autogen, elixir-format
 msgid "home.features.description"
 msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:62
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:62
 #, elixir-autogen, elixir-format
 msgid "home.features.subtitle"
 msgstr ""
 
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:65
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:65
 #, elixir-autogen, elixir-format
 msgid "home.features.title"
 msgstr ""
 
+#: lib/balados_sync_web/controllers/page_html/home.html.heex:19
 #: lib/balados_sync_web/controllers/page_html/home.html.heex:19
 #, elixir-autogen, elixir-format
 msgid "home.hero.description"
@@ -285,4 +300,2110 @@ msgstr ""
 #: lib/balados_sync_web/components/layouts/app.html.heex:64
 #, elixir-autogen, elixir-format
 msgid "nav.subscriptions"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:17
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:17
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:108
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:108
+#, elixir-autogen, elixir-format
+msgid "app_auth.authorize_title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:94
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:94
+#, elixir-autogen, elixir-format
+msgid "app_auth.authorize_warning"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:7
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "app_auth.authorized_apps_subtitle"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:4
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "app_auth.authorized_apps_title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:92
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:92
+#, elixir-autogen, elixir-format
+msgid "app_auth.authorized_on"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:20
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:20
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:136
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:136
+#, elixir-autogen, elixir-format
+msgid "app_auth.create_credentials"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:76
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:76
+#, elixir-autogen, elixir-format
+msgid "app_auth.granted_permissions"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:92
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:92
+#, elixir-autogen, elixir-format
+msgid "app_auth.important"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:96
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:96
+#, elixir-autogen, elixir-format
+msgid "app_auth.last_used_on"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:4
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "app_auth.my_apps_subtitle"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:3
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:3
+#, elixir-autogen, elixir-format
+msgid "app_auth.my_apps_title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:14
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:14
+#, elixir-autogen, elixir-format
+msgid "app_auth.no_apps_description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:12
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:12
+#, elixir-autogen, elixir-format
+msgid "app_auth.no_apps_yet"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:17
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:17
+#, elixir-autogen, elixir-format
+msgid "app_auth.no_authorized_apps"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:20
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:20
+#, elixir-autogen, elixir-format
+msgid "app_auth.no_authorized_description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:45
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:45
+#, elixir-autogen, elixir-format
+msgid "app_auth.no_specific_permissions"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:40
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:40
+#, elixir-autogen, elixir-format
+msgid "app_auth.requesting_permission"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:121
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:121
+#, elixir-autogen, elixir-format
+msgid "app_auth.revoke"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:66
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:66
+#, elixir-autogen, elixir-format
+msgid "app_auth.revoke_access"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:119
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:119
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:64
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:64
+#, elixir-autogen, elixir-format
+msgid "app_auth.revoke_confirm"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:56
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:56
+#, elixir-autogen, elixir-format
+msgid "app_auth.table.actions"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:32
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "app_auth.table.app"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:44
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:44
+#, elixir-autogen, elixir-format
+msgid "app_auth.table.authorized"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:50
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:50
+#, elixir-autogen, elixir-format
+msgid "app_auth.table.last_used"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:38
+#: lib/balados_sync_web/controllers/app_auth_html/index.html.heex:38
+#, elixir-autogen, elixir-format
+msgid "app_auth.table.scopes"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:34
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:34
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:71
+#: lib/balados_sync_web/controllers/app_auth_html/manage_apps.html.heex:71
+#, elixir-autogen, elixir-format
+msgid "app_auth.used_by"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:232
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:232
+#, elixir-autogen, elixir-format
+msgid "app_creator.app_id_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:229
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:229
+#, elixir-autogen, elixir-format
+msgid "app_creator.app_id_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:251
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:251
+#, elixir-autogen, elixir-format
+msgid "app_creator.app_image_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:243
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:243
+#, elixir-autogen, elixir-format
+msgid "app_creator.app_image_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:239
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:239
+#, elixir-autogen, elixir-format
+msgid "app_creator.app_name_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:237
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:237
+#, elixir-autogen, elixir-format
+msgid "app_creator.app_name_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:258
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:258
+#, elixir-autogen, elixir-format
+msgid "app_creator.app_url_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:256
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:256
+#, elixir-autogen, elixir-format
+msgid "app_creator.app_url_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:319
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:319
+#, elixir-autogen, elixir-format
+msgid "app_creator.auth_url_example"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:322
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:322
+#, elixir-autogen, elixir-format
+msgid "app_creator.auth_url_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:316
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:316
+#, elixir-autogen, elixir-format
+msgid "app_creator.copy_to_clipboard"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:213
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:213
+#, elixir-autogen, elixir-format
+msgid "app_creator.description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:305
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:305
+#, elixir-autogen, elixir-format
+msgid "app_creator.generate_key_pair"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:307
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:307
+#, elixir-autogen, elixir-format
+msgid "app_creator.generate_token"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:312
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:312
+#, elixir-autogen, elixir-format
+msgid "app_creator.generated_token"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:217
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:217
+#, elixir-autogen, elixir-format
+msgid "app_creator.how_it_works"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:355
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:355
+#, elixir-autogen, elixir-format
+msgid "app_creator.js.app_id_required"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:356
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:356
+#, elixir-autogen, elixir-format
+msgid "app_creator.js.app_name_required"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:363
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:363
+#, elixir-autogen, elixir-format
+msgid "app_creator.js.copied"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:354
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:354
+#, elixir-autogen, elixir-format
+msgid "app_creator.js.error_generating_keys"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:361
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:361
+#, elixir-autogen, elixir-format
+msgid "app_creator.js.error_generating_token"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:353
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:353
+#, elixir-autogen, elixir-format
+msgid "app_creator.js.key_pair_generated"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:358
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:358
+#, elixir-autogen, elixir-format
+msgid "app_creator.js.private_key_required"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:357
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:357
+#, elixir-autogen, elixir-format
+msgid "app_creator.js.public_key_required"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:359
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:359
+#, elixir-autogen, elixir-format
+msgid "app_creator.js.select_at_least_one_scope"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:362
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:362
+#, elixir-autogen, elixir-format
+msgid "app_creator.js.token_copied"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:360
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:360
+#, elixir-autogen, elixir-format
+msgid "app_creator.js.token_generated"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:300
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:300
+#, elixir-autogen, elixir-format
+msgid "app_creator.private_key_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:292
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:292
+#, elixir-autogen, elixir-format
+msgid "app_creator.private_key_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:287
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:287
+#, elixir-autogen, elixir-format
+msgid "app_creator.public_key_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:278
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:278
+#, elixir-autogen, elixir-format
+msgid "app_creator.public_key_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:330
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:330
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.full_access"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:342
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:342
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.playlists_full"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:343
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:343
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.playlists_read"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:344
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:344
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.playlists_write"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:339
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:339
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.plays_full"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:340
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:340
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.plays_read"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:341
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:341
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.plays_write"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:345
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:345
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.privacy_full"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:346
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:346
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.privacy_read"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:347
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:347
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.privacy_write"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:331
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:331
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.read_all"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:336
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:336
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.subscriptions_full"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:337
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:337
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.subscriptions_read"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:338
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:338
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.subscriptions_write"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:348
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:348
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.sync"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:333
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:333
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.user_full"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:334
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:334
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.user_read"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:335
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:335
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.user_write"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:332
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:332
+#, elixir-autogen, elixir-format
+msgid "app_creator.scope.write_all"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:264
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:264
+#, elixir-autogen, elixir-format
+msgid "app_creator.scopes_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:262
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:262
+#, elixir-autogen, elixir-format
+msgid "app_creator.scopes_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:266
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:266
+#, elixir-autogen, elixir-format
+msgid "app_creator.select_all"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:269
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:269
+#, elixir-autogen, elixir-format
+msgid "app_creator.select_none"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:218
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:218
+#, elixir-autogen, elixir-format
+msgid "app_creator.step_1"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:219
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:219
+#, elixir-autogen, elixir-format
+msgid "app_creator.step_2"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:220
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:220
+#, elixir-autogen, elixir-format
+msgid "app_creator.step_3"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:221
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:221
+#, elixir-autogen, elixir-format
+msgid "app_creator.step_4"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:222
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:222
+#, elixir-autogen, elixir-format
+msgid "app_creator.step_5"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:6
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:6
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:211
+#: lib/balados_sync_web/controllers/page_html/app_creator.html.heex:211
+#, elixir-autogen, elixir-format
+msgid "app_creator.title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:145
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:145
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:377
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:377
+#: lib/balados_sync_web/controllers/public_html.ex:60
+#: lib/balados_sync_web/controllers/public_html.ex:60
+#: lib/balados_sync_web/controllers/public_html.ex:61
+#: lib/balados_sync_web/controllers/public_html.ex:61
+#: lib/balados_sync_web/controllers/public_html.ex:63
+#: lib/balados_sync_web/controllers/public_html.ex:63
+#, elixir-autogen, elixir-format
+msgid "common.anonymous"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:39
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:39
+#, elixir-autogen, elixir-format
+msgid "common.back_to_dashboard"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:8
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:8
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:12
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:12
+#, elixir-autogen, elixir-format
+msgid "common.back_to_trending"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:115
+#: lib/balados_sync_web/controllers/app_auth_html/authorize.html.heex:115
+#: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:45
+#: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:45
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:46
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:46
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:106
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:106
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:222
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:222
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:338
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:338
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:444
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:444
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:434
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:434
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:52
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:52
+#: lib/balados_sync_web/controllers/web_subscriptions_html/new.html.heex:44
+#: lib/balados_sync_web/controllers/web_subscriptions_html/new.html.heex:44
+#, elixir-autogen, elixir-format
+msgid "common.cancel"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:103
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:103
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:219
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:219
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:335
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:335
+#, elixir-autogen, elixir-format
+msgid "common.change"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:55
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:55
+#, elixir-autogen, elixir-format
+msgid "common.delete"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:47
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:47
+#, elixir-autogen, elixir-format
+msgid "common.edit"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:11
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:11
+#, elixir-autogen, elixir-format
+msgid "common.form_error"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:141
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:141
+#, elixir-autogen, elixir-format
+msgid "common.next"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:111
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:111
+#: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:56
+#: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:56
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:53
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:53
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:28
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:28
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:79
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:79
+#, elixir-autogen, elixir-format
+msgid "common.no_cover"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:134
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:134
+#, elixir-autogen, elixir-format
+msgid "common.page"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:167
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:167
+#, elixir-autogen, elixir-format
+msgid "common.play"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:34
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:34
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:132
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:132
+#, elixir-autogen, elixir-format
+msgid "common.popularity_stats"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:128
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:128
+#, elixir-autogen, elixir-format
+msgid "common.previous"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:40
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:40
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:107
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:107
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:261
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:261
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:383
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:383
+#, elixir-autogen, elixir-format
+msgid "common.private"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:35
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:35
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:77
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:77
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:29
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:29
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:371
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:371
+#, elixir-autogen, elixir-format
+msgid "common.public"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:121
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:121
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:237
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:237
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:353
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:353
+#, elixir-autogen, elixir-format
+msgid "common.remove"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:51
+#: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:51
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:441
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:441
+#, elixir-autogen, elixir-format
+msgid "common.save_changes"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:33
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:33
+#, elixir-autogen, elixir-format
+msgid "common.saving"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html.ex:10
+#: lib/balados_sync_web/controllers/public_html.ex:10
+#: lib/balados_sync_web/controllers/public_html.ex:24
+#: lib/balados_sync_web/controllers/public_html.ex:24
+#: lib/balados_sync_web/controllers/public_html.ex:29
+#: lib/balados_sync_web/controllers/public_html.ex:29
+#: lib/balados_sync_web/controllers/public_html.ex:47
+#: lib/balados_sync_web/controllers/public_html.ex:47
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:33
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:33
+#, elixir-autogen, elixir-format
+msgid "common.unknown"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:60
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:60
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:21
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:21
+#, elixir-autogen, elixir-format
+msgid "common.unknown_episode"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:124
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:124
+#: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:63
+#: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:63
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:63
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:63
+#: lib/balados_sync_web/controllers/public_html.ex:78
+#: lib/balados_sync_web/controllers/public_html.ex:78
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:25
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "common.unknown_podcast"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:13
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:13
+#, elixir-autogen, elixir-format
+msgid "dashboard.account_description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:11
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:11
+#, elixir-autogen, elixir-format
+msgid "dashboard.account_info"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:42
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:42
+#, elixir-autogen, elixir-format
+msgid "dashboard.account_status_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:19
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:19
+#, elixir-autogen, elixir-format
+msgid "dashboard.email_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:66
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:66
+#, elixir-autogen, elixir-format
+msgid "dashboard.member_since_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:48
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:48
+#, elixir-autogen, elixir-format
+msgid "dashboard.status.confirmed"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:58
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:58
+#, elixir-autogen, elixir-format
+msgid "dashboard.status.locked"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:52
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:52
+#, elixir-autogen, elixir-format
+msgid "dashboard.status.pending"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:90
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:90
+#, elixir-autogen, elixir-format
+msgid "dashboard.tip_text"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:34
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:34
+#, elixir-autogen, elixir-format
+msgid "dashboard.user_id_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:27
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:27
+#, elixir-autogen, elixir-format
+msgid "dashboard.username_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:5
+#: lib/balados_sync_web/controllers/dashboard_html/index.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "dashboard.welcome"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:16
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "episode.by"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:67
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:67
+#, elixir-autogen, elixir-format
+msgid "episode.download_play"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:117
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:117
+#, elixir-autogen, elixir-format
+msgid "feed_page.activities_are"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:184
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:184
+#, elixir-autogen, elixir-format
+msgid "feed_page.add_custom_rss"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:35
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:35
+#, elixir-autogen, elixir-format
+msgid "feed_page.by"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:125
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:125
+#, elixir-autogen, elixir-format
+msgid "feed_page.change_privacy"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:201
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:201
+#, elixir-autogen, elixir-format
+msgid "feed_page.create_account"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:85
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:85
+#, elixir-autogen, elixir-format
+msgid "feed_page.create_enrichment"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:339
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:339
+#, elixir-autogen, elixir-format
+msgid "feed_page.download_play"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:78
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:78
+#, elixir-autogen, elixir-format
+msgid "feed_page.edit_enrichment"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:359
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:359
+#, elixir-autogen, elixir-format
+msgid "feed_page.login_modal_text"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:166
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:166
+#, elixir-autogen, elixir-format
+msgid "feed_page.manage_subscriptions"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:232
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:232
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:233
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:233
+#, elixir-autogen, elixir-format
+msgid "feed_page.mark_played"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:215
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:215
+#, elixir-autogen, elixir-format
+msgid "feed_page.no_episodes"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:321
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:321
+#, elixir-autogen, elixir-format
+msgid "feed_page.read_article"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:210
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:210
+#, elixir-autogen, elixir-format
+msgid "feed_page.recent_episodes"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:176
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:176
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:195
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:195
+#, elixir-autogen, elixir-format
+msgid "feed_page.subscribe"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:367
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:367
+#, elixir-autogen, elixir-format
+msgid "feed_page.subscribe_modal_text"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:160
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:160
+#, elixir-autogen, elixir-format
+msgid "feed_page.unsubscribe"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:157
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:157
+#, elixir-autogen, elixir-format
+msgid "feed_page.unsubscribe_confirm"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:34
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:34
+#, elixir-autogen, elixir-format
+msgid "import_opml.data.collections"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:32
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "import_opml.data.play_progress"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:33
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:33
+#, elixir-autogen, elixir-format
+msgid "import_opml.data.playlists"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:31
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:31
+#, elixir-autogen, elixir-format
+msgid "import_opml.data.subscriptions"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:61
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:61
+#, elixir-autogen, elixir-format
+msgid "import_opml.export_instead"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:24
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "import_opml.file_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:13
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:13
+#, elixir-autogen, elixir-format
+msgid "import_opml.file_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:37
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:37
+#, elixir-autogen, elixir-format
+msgid "import_opml.format_note"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:46
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:46
+#, elixir-autogen, elixir-format
+msgid "import_opml.import"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:5
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "import_opml.subtitle"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:29
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:29
+#, elixir-autogen, elixir-format
+msgid "import_opml.supported_data"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:4
+#: lib/balados_sync_web/controllers/web_subscriptions_html/import_opml.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "import_opml.title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:36
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "ownership.administrators"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:132
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:132
+#, elixir-autogen, elixir-format
+msgid "ownership.attempts"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:12
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:12
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:12
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:12
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:12
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:12
+#, elixir-autogen, elixir-format
+msgid "ownership.back"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:196
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:196
+#, elixir-autogen, elixir-format
+msgid "ownership.cancel_claim"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:194
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:194
+#, elixir-autogen, elixir-format
+msgid "ownership.cancel_confirm"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:224
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:224
+#, elixir-autogen, elixir-format
+msgid "ownership.cancelled_message"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:50
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:50
+#, elixir-autogen, elixir-format
+msgid "ownership.choose_method"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:19
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:19
+#, elixir-autogen, elixir-format
+msgid "ownership.claim_description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:75
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:75
+#, elixir-autogen, elixir-format
+msgid "ownership.claim_first"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:18
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:18
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:16
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "ownership.claim_podcast"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:62
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:62
+#, elixir-autogen, elixir-format
+msgid "ownership.claimed_podcasts"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:104
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:104
+#, elixir-autogen, elixir-format
+msgid "ownership.code_expires"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:62
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:62
+#, elixir-autogen, elixir-format
+msgid "ownership.code_removal_note"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:101
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:101
+#, elixir-autogen, elixir-format
+msgid "ownership.code_sent_to"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:213
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:213
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:220
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:220
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:227
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:227
+#, elixir-autogen, elixir-format
+msgid "ownership.create_new_claim"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:40
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:40
+#, elixir-autogen, elixir-format
+msgid "ownership.created"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:82
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:82
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:112
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:112
+#, elixir-autogen, elixir-format
+msgid "ownership.current"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:121
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:121
+#, elixir-autogen, elixir-format
+msgid "ownership.danger_zone"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:137
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:137
+#, elixir-autogen, elixir-format
+msgid "ownership.didnt_receive"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:93
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:93
+#, elixir-autogen, elixir-format
+msgid "ownership.email_verification"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:111
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:111
+#, elixir-autogen, elixir-format
+msgid "ownership.enter_code"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:217
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:217
+#, elixir-autogen, elixir-format
+msgid "ownership.expired_message"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:42
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:42
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:85
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:85
+#, elixir-autogen, elixir-format
+msgid "ownership.expires"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:210
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:210
+#, elixir-autogen, elixir-format
+msgid "ownership.failed_message"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:39
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:39
+#, elixir-autogen, elixir-format
+msgid "ownership.feed_url_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:28
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:28
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:32
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "ownership.feed_url_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:163
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:163
+#, elixir-autogen, elixir-format
+msgid "ownership.from_source"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:47
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:47
+#, elixir-autogen, elixir-format
+msgid "ownership.generate_code"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:108
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:108
+#, elixir-autogen, elixir-format
+msgid "ownership.hidden_from_profile"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:53
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:53
+#, elixir-autogen, elixir-format
+msgid "ownership.how_it_works"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:70
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:70
+#, elixir-autogen, elixir-format
+msgid "ownership.no_claimed"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:176
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:176
+#, elixir-autogen, elixir-format
+msgid "ownership.no_emails_found"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:26
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:26
+#, elixir-autogen, elixir-format
+msgid "ownership.pending_verification"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:24
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "ownership.podcast_info"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:48
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:48
+#, elixir-autogen, elixir-format
+msgid "ownership.profile_visibility"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:134
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:134
+#, elixir-autogen, elixir-format
+msgid "ownership.relinquish"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:132
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:132
+#, elixir-autogen, elixir-format
+msgid "ownership.relinquish_confirm"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:124
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:124
+#, elixir-autogen, elixir-format
+msgid "ownership.relinquish_warning"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:142
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:142
+#, elixir-autogen, elixir-format
+msgid "ownership.resend_email"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:65
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:65
+#, elixir-autogen, elixir-format
+msgid "ownership.rss_instructions"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:69
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:69
+#, elixir-autogen, elixir-format
+msgid "ownership.rss_option_comment"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:70
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:70
+#, elixir-autogen, elixir-format
+msgid "ownership.rss_option_description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:71
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:71
+#, elixir-autogen, elixir-format
+msgid "ownership.rss_option_tag"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:57
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "ownership.rss_verification"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:149
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:149
+#, elixir-autogen, elixir-format
+msgid "ownership.select_email"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:166
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:166
+#, elixir-autogen, elixir-format
+msgid "ownership.send_code"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:42
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:42
+#, elixir-autogen, elixir-format
+msgid "ownership.status.cancelled"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:38
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:38
+#, elixir-autogen, elixir-format
+msgid "ownership.status.expired"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:34
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:34
+#, elixir-autogen, elixir-format
+msgid "ownership.status.failed"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:26
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:26
+#, elixir-autogen, elixir-format
+msgid "ownership.status.pending"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:30
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:30
+#, elixir-autogen, elixir-format
+msgid "ownership.status.verified"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:55
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:55
+#, elixir-autogen, elixir-format
+msgid "ownership.step_1"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:56
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:56
+#, elixir-autogen, elixir-format
+msgid "ownership.step_2"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:57
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "ownership.step_3"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:58
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:58
+#, elixir-autogen, elixir-format
+msgid "ownership.step_4"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:59
+#: lib/balados_sync_web/controllers/podcast_ownership_html/new.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "ownership.step_5"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:11
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:11
+#, elixir-autogen, elixir-format
+msgid "ownership.subtitle"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:8
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "ownership.title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:28
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:28
+#, elixir-autogen, elixir-format
+msgid "ownership.url_slug"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:206
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:206
+#, elixir-autogen, elixir-format
+msgid "ownership.verified_message"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:126
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:126
+#, elixir-autogen, elixir-format
+msgid "ownership.verify_code"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:80
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:80
+#, elixir-autogen, elixir-format
+msgid "ownership.verify_rss"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:16
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_claim.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "ownership.verify_title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:49
+#: lib/balados_sync_web/controllers/podcast_ownership_html/index.html.heex:49
+#, elixir-autogen, elixir-format
+msgid "ownership.view_instructions"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:51
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "ownership.visibility_description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:78
+#: lib/balados_sync_web/controllers/podcast_ownership_html/show_podcast.html.heex:78
+#, elixir-autogen, elixir-format
+msgid "ownership.visible_on_profile"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:6
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:6
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:6
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:6
+#, elixir-autogen, elixir-format
+msgid "playlists.back"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:6
+#: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:6
+#, elixir-autogen, elixir-format
+msgid "playlists.back_to_playlist"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:143
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:143
+#, elixir-autogen, elixir-format
+msgid "playlists.cached"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:29
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:29
+#, elixir-autogen, elixir-format
+msgid "playlists.click_make_private"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:29
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:29
+#, elixir-autogen, elixir-format
+msgid "playlists.click_make_public"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/index.html.heex:31
+#: lib/balados_sync_web/controllers/playlists_html/index.html.heex:31
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:52
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:52
+#, elixir-autogen, elixir-format
+msgid "playlists.create"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:52
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:52
+#, elixir-autogen, elixir-format
+msgid "playlists.delete_confirm"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:30
+#: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:30
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:30
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:30
+#, elixir-autogen, elixir-format
+msgid "playlists.description_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:37
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:37
+#, elixir-autogen, elixir-format
+msgid "playlists.description_placeholder"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:8
+#: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "playlists.edit_title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/index.html.heex:26
+#: lib/balados_sync_web/controllers/playlists_html/index.html.heex:26
+#, elixir-autogen, elixir-format
+msgid "playlists.empty_state"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:16
+#: lib/balados_sync_web/controllers/playlists_html/edit.html.heex:16
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:16
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "playlists.name_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:24
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "playlists.name_placeholder"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/index.html.heex:15
+#: lib/balados_sync_web/controllers/playlists_html/index.html.heex:15
+#, elixir-autogen, elixir-format
+msgid "playlists.new"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:8
+#: lib/balados_sync_web/controllers/playlists_html/new.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "playlists.new_title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:68
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:68
+#, elixir-autogen, elixir-format
+msgid "playlists.show_empty"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:70
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:70
+#, elixir-autogen, elixir-format
+msgid "playlists.show_empty_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/index.html.heex:8
+#: lib/balados_sync_web/controllers/playlists_html/index.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "playlists.subtitle"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/index.html.heex:6
+#: lib/balados_sync_web/controllers/playlists_html/index.html.heex:6
+#, elixir-autogen, elixir-format
+msgid "playlists.title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:105
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:105
+#, elixir-autogen, elixir-format
+msgid "playlists.unknown_episode"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:108
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:108
+#, elixir-autogen, elixir-format
+msgid "playlists.unknown_podcast"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:177
+#: lib/balados_sync_web/controllers/playlists_html/show.html.heex:177
+#, elixir-autogen, elixir-format
+msgid "playlists.view_episode"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:408
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:408
+#, elixir-autogen, elixir-format
+msgid "privacy.anonymous"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:152
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:152
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:409
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:409
+#, elixir-autogen, elixir-format
+msgid "privacy.anonymous_description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:381
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:381
+#, elixir-autogen, elixir-format
+msgid "privacy.change_description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:378
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:378
+#, elixir-autogen, elixir-format
+msgid "privacy.change_title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:112
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:112
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:228
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:228
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:344
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:344
+#, elixir-autogen, elixir-format
+msgid "privacy.delete_privacy"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:115
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:115
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:231
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:231
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:347
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:347
+#, elixir-autogen, elixir-format
+msgid "privacy.delete_privacy_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:9
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:9
+#, elixir-autogen, elixir-format
+msgid "privacy.description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:412
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:412
+#, elixir-autogen, elixir-format
+msgid "privacy.modal.changing_to"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:451
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:451
+#, elixir-autogen, elixir-format
+msgid "privacy.modal.confirm_button"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:435
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:435
+#, elixir-autogen, elixir-format
+msgid "privacy.modal.confirm_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:419
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:419
+#, elixir-autogen, elixir-format
+msgid "privacy.modal.hide_activity"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:423
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:423
+#, elixir-autogen, elixir-format
+msgid "privacy.modal.remove_trending"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:427
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:427
+#, elixir-autogen, elixir-format
+msgid "privacy.modal.still_contribute"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:407
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:407
+#, elixir-autogen, elixir-format
+msgid "privacy.modal.title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:414
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:414
+#, elixir-autogen, elixir-format
+msgid "privacy.modal.will"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:159
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:159
+#, elixir-autogen, elixir-format
+msgid "privacy.no_anonymous"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:275
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:275
+#, elixir-autogen, elixir-format
+msgid "privacy.no_private"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:43
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:43
+#, elixir-autogen, elixir-format
+msgid "privacy.no_public"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:422
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:422
+#, elixir-autogen, elixir-format
+msgid "privacy.private"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:268
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:268
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:423
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:423
+#, elixir-autogen, elixir-format
+msgid "privacy.private_description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:394
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:394
+#, elixir-autogen, elixir-format
+msgid "privacy.public"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:36
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:36
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:395
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:395
+#, elixir-autogen, elixir-format
+msgid "privacy.public_description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:365
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:365
+#, elixir-autogen, elixir-format
+msgid "privacy.summary"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:6
+#: lib/balados_sync_web/controllers/privacy_manager_html/index.html.heex:6
+#, elixir-autogen, elixir-format
+msgid "privacy.title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:6
+#: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:6
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:6
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:6
+#, elixir-autogen, elixir-format
+msgid "profile.back_to_profile_of"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:21
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:21
+#, elixir-autogen, elixir-format
+msgid "profile.bio_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:19
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:19
+#, elixir-autogen, elixir-format
+msgid "profile.bio_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:19
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:19
+#, elixir-autogen, elixir-format
+msgid "profile.bio_placeholder"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:21
+#: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:21
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:21
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:21
+#, elixir-autogen, elixir-format
+msgid "profile.by"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:36
+#: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "profile.collection_empty"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:16
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:16
+#, elixir-autogen, elixir-format
+msgid "profile.display_name_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:14
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:14
+#, elixir-autogen, elixir-format
+msgid "profile.display_name_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:24
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "profile.enable_public"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:22
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:22
+#, elixir-autogen, elixir-format
+msgid "profile.episodes_count"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:119
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:119
+#, elixir-autogen, elixir-format
+msgid "profile.listened_to"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:94
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:94
+#, elixir-autogen, elixir-format
+msgid "profile.no_activity"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:36
+#: lib/balados_sync_web/controllers/profile_html/show_playlist.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "profile.playlist_empty"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:22
+#: lib/balados_sync_web/controllers/profile_html/show_collection.html.heex:22
+#, elixir-autogen, elixir-format
+msgid "profile.podcasts_count"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:62
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:62
+#, elixir-autogen, elixir-format
+msgid "profile.public_collections"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:26
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:26
+#, elixir-autogen, elixir-format
+msgid "profile.public_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:35
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:35
+#, elixir-autogen, elixir-format
+msgid "profile.public_playlists"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:88
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:88
+#, elixir-autogen, elixir-format
+msgid "profile.recent_activity"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:33
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:33
+#, elixir-autogen, elixir-format
+msgid "profile.save"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:5
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "profile.settings_subtitle"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:3
+#: lib/balados_sync_web/controllers/profile_html/edit.html.heex:3
+#, elixir-autogen, elixir-format
+msgid "profile.settings_title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:40
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:40
+#, elixir-autogen, elixir-format
+msgid "setup.admin_info"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:29
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:29
+#, elixir-autogen, elixir-format
+msgid "setup.description"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:63
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:63
+#, elixir-autogen, elixir-format
+msgid "setup.email_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:48
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:48
+#, elixir-autogen, elixir-format
+msgid "setup.error"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:98
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:98
+#, elixir-autogen, elixir-format
+msgid "setup.footer"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:79
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:79
+#, elixir-autogen, elixir-format
+msgid "setup.password_confirm_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:85
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:85
+#, elixir-autogen, elixir-format
+msgid "setup.password_hint"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:71
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:71
+#, elixir-autogen, elixir-format
+msgid "setup.password_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:90
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:90
+#, elixir-autogen, elixir-format
+msgid "setup.submit"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:89
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:89
+#, elixir-autogen, elixir-format
+msgid "setup.submitting"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:7
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:7
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:19
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:19
+#, elixir-autogen, elixir-format
+msgid "setup.subtitle"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:54
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:54
+#, elixir-autogen, elixir-format
+msgid "setup.username_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:26
+#: lib/balados_sync_web/controllers/setup_html/show.html.heex:26
+#, elixir-autogen, elixir-format
+msgid "setup.welcome"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/new.html.heex:5
+#: lib/balados_sync_web/controllers/web_subscriptions_html/new.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "subscriptions.add_subtitle"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/new.html.heex:4
+#: lib/balados_sync_web/controllers/web_subscriptions_html/new.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "subscriptions.add_title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/new.html.heex:13
+#: lib/balados_sync_web/controllers/web_subscriptions_html/new.html.heex:13
+#, elixir-autogen, elixir-format
+msgid "subscriptions.feed_url_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/web_subscriptions_html/new.html.heex:38
+#: lib/balados_sync_web/controllers/web_subscriptions_html/new.html.heex:38
+#, elixir-autogen, elixir-format
+msgid "subscriptions.subscribe"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html.ex:36
+#: lib/balados_sync_web/controllers/public_html.ex:36
+#, elixir-autogen, elixir-format
+msgid "time.in_the_future"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html.ex:37
+#: lib/balados_sync_web/controllers/public_html.ex:37
+#, elixir-autogen, elixir-format
+msgid "time.just_now"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html.ex:71
+#: lib/balados_sync_web/controllers/public_html.ex:71
+#, elixir-autogen, elixir-format
+msgid "timeline.action.interacted"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html.ex:69
+#: lib/balados_sync_web/controllers/public_html.ex:69
+#, elixir-autogen, elixir-format
+msgid "timeline.action.listened"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html.ex:68
+#: lib/balados_sync_web/controllers/public_html.ex:68
+#, elixir-autogen, elixir-format
+msgid "timeline.action.subscribed"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html.ex:70
+#: lib/balados_sync_web/controllers/public_html.ex:70
+#, elixir-autogen, elixir-format
+msgid "timeline.action.unsubscribed"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:53
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:53
+#, elixir-autogen, elixir-format
+msgid "timeline.empty"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:129
+#: lib/balados_sync_web/controllers/profile_html/show.html.heex:129
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:105
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:105
+#, elixir-autogen, elixir-format
+msgid "timeline.episode_label"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:18
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "timeline.filter.all"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:36
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "timeline.filter.plays"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:24
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "timeline.filter.public_only"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:45
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:45
+#, elixir-autogen, elixir-format
+msgid "timeline.filter.subscriptions"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:7
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "timeline.subtitle"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:5
+#: lib/balados_sync_web/controllers/public_html/timeline.html.heex:5
+#, elixir-autogen, elixir-format
+msgid "timeline.title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:4
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "trending.episodes.subtitle"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:3
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:3
+#, elixir-autogen, elixir-format
+msgid "trending.episodes.title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:24
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "trending.from"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:45
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:45
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:143
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:143
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:31
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:31
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:39
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:39
+#, elixir-autogen, elixir-format
+msgid "trending.likes"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:24
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "trending.no_cover"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:41
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:41
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:139
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:139
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:30
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:30
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:38
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:38
+#, elixir-autogen, elixir-format
+msgid "trending.plays"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:4
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "trending.podcasts.subtitle"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:3
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:3
+#, elixir-autogen, elixir-format
+msgid "trending.podcasts.title"
+msgstr ""
+
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:37
+#: lib/balados_sync_web/controllers/public_html/episode_page.html.heex:37
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:135
+#: lib/balados_sync_web/controllers/public_html/feed_page.html.heex:135
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:29
+#: lib/balados_sync_web/controllers/public_html/trending_episodes.html.heex:29
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:37
+#: lib/balados_sync_web/controllers/public_html/trending_podcasts.html.heex:37
+#, elixir-autogen, elixir-format
+msgid "trending.score"
 msgstr ""
