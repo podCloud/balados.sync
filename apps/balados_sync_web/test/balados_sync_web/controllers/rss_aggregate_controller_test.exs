@@ -3,7 +3,13 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
 
   alias BaladosSyncCore.SystemRepo
   alias BaladosSyncProjections.ProjectionsRepo
-  alias BaladosSyncProjections.Schemas.{PlayToken, Collection, Subscription, CollectionSubscription}
+
+  alias BaladosSyncProjections.Schemas.{
+    PlayToken,
+    Collection,
+    Subscription,
+    CollectionSubscription
+  }
 
   import Ecto.Query
 
@@ -61,7 +67,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
       conn = get(conn, "/rss/invalid_token/subscriptions")
 
       assert response(conn, 401)
-      assert json_response(conn, 401)["error"] == "Invalid or revoked token"
+      assert json_response(conn, 401)["error"] == "UNAUTHORIZED"
     end
 
     test "returns aggregated feed for user subscriptions", %{
@@ -116,7 +122,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
       conn = get(conn, "/rss/invalid_token/collections/#{collection_id}")
 
       assert response(conn, 401)
-      assert json_response(conn, 401)["error"] == "Invalid or revoked token"
+      assert json_response(conn, 401)["error"] == "UNAUTHORIZED"
     end
 
     test "returns 404 for non-existent collection", %{conn: conn, token: token} do
@@ -124,7 +130,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
       conn = get(conn, "/rss/#{token}/collections/#{collection_id}")
 
       assert response(conn, 404)
-      assert json_response(conn, 404)["error"] == "Collection not found"
+      assert json_response(conn, 404)["error"] == "NOT_FOUND"
     end
 
     test "returns 404 for another user's collection", %{conn: conn, token: token} do
@@ -136,7 +142,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
       conn = get(conn, "/rss/#{token}/collections/#{collection.id}")
 
       assert response(conn, 404)
-      assert json_response(conn, 404)["error"] == "Collection not found"
+      assert json_response(conn, 404)["error"] == "NOT_FOUND"
     end
 
     test "returns aggregated feed for collection subscriptions", %{
@@ -223,7 +229,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
       conn = get(conn, "/rss/invalid_token/playlists/#{playlist_id}")
 
       assert response(conn, 401)
-      assert json_response(conn, 401)["error"] == "Invalid or revoked token"
+      assert json_response(conn, 401)["error"] == "UNAUTHORIZED"
     end
 
     test "returns 404 for non-existent playlist", %{conn: conn, token: token} do
@@ -231,7 +237,7 @@ defmodule BaladosSyncWeb.RssAggregateControllerTest do
       conn = get(conn, "/rss/#{token}/playlists/#{playlist_id}")
 
       assert response(conn, 404)
-      assert json_response(conn, 404)["error"] == "Playlist not found"
+      assert json_response(conn, 404)["error"] == "NOT_FOUND"
     end
   end
 end

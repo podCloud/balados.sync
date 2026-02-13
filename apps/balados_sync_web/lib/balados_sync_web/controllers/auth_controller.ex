@@ -30,6 +30,7 @@ defmodule BaladosSyncWeb.AuthController do
 
   alias BaladosSyncWeb.AppAuth
   alias BaladosSyncWeb.Plugs.RateLimiter
+  import BaladosSyncWeb.ErrorHelpers, only: [unauthorized: 2]
 
   # Rate limit refresh operations: 100 requests per hour per user
   plug RateLimiter,
@@ -91,14 +92,11 @@ defmodule BaladosSyncWeb.AuthController do
         })
 
       {:error, :token_not_found} ->
-        Logger.info("Token refresh failed: app #{app_id} not found or revoked for user #{user_id}")
+        Logger.info(
+          "Token refresh failed: app #{app_id} not found or revoked for user #{user_id}"
+        )
 
-        conn
-        |> put_status(:unauthorized)
-        |> json(%{
-          error: "unauthorized",
-          message: "App authorization has been revoked"
-        })
+        unauthorized(conn, "App authorization has been revoked")
     end
   end
 end

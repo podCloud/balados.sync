@@ -8,6 +8,7 @@ defmodule BaladosSyncWeb.PlayGatewayController do
   alias BaladosSyncProjections.Schemas.PlayToken
   alias BaladosSyncWeb.Plugs.RateLimiter
   import Ecto.Query
+  import BaladosSyncWeb.ErrorHelpers
 
   # Rate limit play gateway: 60 requests per minute per token
   # Higher limit since podcast players make frequent requests
@@ -32,21 +33,14 @@ defmodule BaladosSyncWeb.PlayGatewayController do
       |> redirect(external: final_enclosure_url)
     else
       {:error, :invalid_token} ->
-        conn
-        |> put_status(:unauthorized)
-        |> json(%{error: "Invalid or revoked token"})
+        unauthorized(conn, "Invalid or revoked token")
 
       {:error, :invalid_base64} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "Invalid ID encoding"})
+        bad_request(conn, "Invalid ID encoding")
 
       {:error, reason} ->
         Logger.error("Play gateway error: #{inspect(reason)}")
-
-        conn
-        |> put_status(:internal_server_error)
-        |> json(%{error: "Internal server error"})
+        internal_server_error(conn, reason)
     end
   end
 

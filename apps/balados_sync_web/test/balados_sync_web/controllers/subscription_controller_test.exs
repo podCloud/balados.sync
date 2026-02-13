@@ -30,7 +30,7 @@ defmodule BaladosSyncWeb.SubscriptionControllerTest do
         |> post("/api/v1/subscriptions", %{})
 
       response = json_response(conn, 400)
-      assert response["error"] == "missing_required_parameters"
+      assert response["error"] == "BAD_REQUEST"
     end
 
     test "returns 400 when rss_source_id is missing", %{conn: conn, user_id: user_id} do
@@ -40,7 +40,7 @@ defmodule BaladosSyncWeb.SubscriptionControllerTest do
         |> post("/api/v1/subscriptions", %{"rss_source_feed" => "dGVzdA"})
 
       response = json_response(conn, 400)
-      assert response["error"] == "missing_required_parameters"
+      assert response["error"] == "BAD_REQUEST"
     end
   end
 end

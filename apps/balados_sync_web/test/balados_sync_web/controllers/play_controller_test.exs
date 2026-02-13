@@ -30,8 +30,8 @@ defmodule BaladosSyncWeb.PlayControllerTest do
       conn = post(conn, "/api/v1/play", %{})
 
       response = json_response(conn, 401)
-      assert response["error"] == "Unauthorized"
-      assert response["error_code"] == "UNAUTHORIZED"
+      assert response["error"] == "UNAUTHORIZED"
+      assert response["message"] == "Unauthorized"
     end
 
     test "returns 401 with invalid JWT and error code", %{conn: conn} do
@@ -41,11 +41,14 @@ defmodule BaladosSyncWeb.PlayControllerTest do
         |> post("/api/v1/play", %{})
 
       response = json_response(conn, 401)
-      assert response["error"] == "Unauthorized"
-      assert response["error_code"] == "UNAUTHORIZED"
+      assert response["error"] == "UNAUTHORIZED"
+      assert response["message"] == "Unauthorized"
     end
 
-    test "returns 403 with FORBIDDEN error code (read-only scope)", %{conn: conn, user_id: user_id} do
+    test "returns 403 with FORBIDDEN error code (read-only scope)", %{
+      conn: conn,
+      user_id: user_id
+    } do
       conn =
         conn
         |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.plays.read"])
@@ -57,8 +60,8 @@ defmodule BaladosSyncWeb.PlayControllerTest do
         })
 
       response = json_response(conn, 403)
-      assert response["error"] == "Insufficient permissions"
-      assert response["error_code"] == "FORBIDDEN"
+      assert response["error"] == "FORBIDDEN"
+      assert response["message"] == "Insufficient permissions"
     end
 
     test "succeeds with user.plays.write scope", %{conn: conn, user_id: user_id} do
@@ -139,7 +142,7 @@ defmodule BaladosSyncWeb.PlayControllerTest do
       item = "dGVzdC1pdGVt"
       conn = put(conn, "/api/v1/play/#{item}/position", %{"position" => 200})
 
-      assert json_response(conn, 401)["error"] == "Unauthorized"
+      assert json_response(conn, 401)["error"] == "UNAUTHORIZED"
     end
 
     test "returns 403 with insufficient scopes", %{conn: conn, user_id: user_id} do
@@ -150,7 +153,7 @@ defmodule BaladosSyncWeb.PlayControllerTest do
         |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.plays.read"])
         |> put("/api/v1/play/#{item}/position", %{"position" => 200})
 
-      assert json_response(conn, 403)["error"] == "Insufficient permissions"
+      assert json_response(conn, 403)["error"] == "FORBIDDEN"
     end
 
     test "updates position successfully", %{conn: conn, user_id: user_id} do
@@ -182,7 +185,7 @@ defmodule BaladosSyncWeb.PlayControllerTest do
     test "returns 401 without authorization", %{conn: conn} do
       conn = get(conn, "/api/v1/play")
 
-      assert json_response(conn, 401)["error"] == "Unauthorized"
+      assert json_response(conn, 401)["error"] == "UNAUTHORIZED"
     end
 
     test "returns 403 with insufficient scopes (write-only)", %{conn: conn, user_id: user_id} do
@@ -191,7 +194,7 @@ defmodule BaladosSyncWeb.PlayControllerTest do
         |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.plays.write"])
         |> get("/api/v1/play")
 
-      assert json_response(conn, 403)["error"] == "Insufficient permissions"
+      assert json_response(conn, 403)["error"] == "FORBIDDEN"
     end
 
     test "returns empty list for new user", %{conn: conn, user_id: user_id} do
@@ -288,7 +291,8 @@ defmodule BaladosSyncWeb.PlayControllerTest do
         |> post("/api/v1/play", %{
           "rss_source_feed" => "aHR0cHM6Ly9sYXJnZS5leGFtcGxlLmNvbS9mZWVk",
           "rss_source_item" => "aHR0cHM6Ly9sYXJnZS5leGFtcGxlLmNvbS9lcGlzb2RlMQ==",
-          "position" => 36000,  # 10 hours in seconds
+          # 10 hours in seconds
+          "position" => 36000,
           "played" => true
         })
 
@@ -304,7 +308,7 @@ defmodule BaladosSyncWeb.PlayControllerTest do
         |> post("/api/v1/play", %{})
 
       response = json_response(conn, 400)
-      assert response["error"] == "missing_required_parameters"
+      assert response["error"] == "BAD_REQUEST"
     end
 
     test "returns 400 when some required params are missing", %{conn: conn, user_id: user_id} do
@@ -314,7 +318,7 @@ defmodule BaladosSyncWeb.PlayControllerTest do
         |> post("/api/v1/play", %{"rss_source_feed" => "dGVzdA"})
 
       response = json_response(conn, 400)
-      assert response["error"] == "missing_required_parameters"
+      assert response["error"] == "BAD_REQUEST"
     end
   end
 
@@ -328,7 +332,7 @@ defmodule BaladosSyncWeb.PlayControllerTest do
         |> put("/api/v1/play/#{item}/position", %{})
 
       response = json_response(conn, 400)
-      assert response["error"] == "missing_required_parameters"
+      assert response["error"] == "BAD_REQUEST"
     end
   end
 

@@ -79,7 +79,7 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
       assert get_resp_header(conn3, "retry-after") == ["60"]
 
       body = Jason.decode!(conn3.resp_body)
-      assert body["error"] == "rate_limit_exceeded"
+      assert body["error"] == "RATE_LIMIT_EXCEEDED"
     end
 
     test "uses x-forwarded-for header when present" do

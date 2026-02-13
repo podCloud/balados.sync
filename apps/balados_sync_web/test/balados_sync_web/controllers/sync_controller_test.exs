@@ -52,7 +52,7 @@ defmodule BaladosSyncWeb.SyncControllerTest do
     test "returns 401 without authorization header", %{conn: conn} do
       conn = post(conn, "/api/v1/sync", %{})
 
-      assert json_response(conn, 401)["error"] == "Unauthorized"
+      assert json_response(conn, 401)["error"] == "UNAUTHORIZED"
     end
 
     test "returns 401 with invalid JWT", %{conn: conn} do
@@ -61,7 +61,7 @@ defmodule BaladosSyncWeb.SyncControllerTest do
         |> put_req_header("authorization", "Bearer invalid.jwt.token")
         |> post("/api/v1/sync", %{})
 
-      assert json_response(conn, 401)["error"] == "Unauthorized"
+      assert json_response(conn, 401)["error"] == "UNAUTHORIZED"
     end
 
     test "returns 403 with insufficient scopes", %{conn: conn, user_id: user_id} do
@@ -71,7 +71,7 @@ defmodule BaladosSyncWeb.SyncControllerTest do
         |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.subscriptions.read"])
         |> post("/api/v1/sync", %{})
 
-      assert json_response(conn, 403)["error"] == "Insufficient permissions"
+      assert json_response(conn, 403)["error"] == "FORBIDDEN"
     end
 
     test "succeeds with user.sync scope", %{conn: conn, user_id: user_id} do
@@ -137,7 +137,10 @@ defmodule BaladosSyncWeb.SyncControllerTest do
   end
 
   describe "POST /api/v1/sync - subscription sync" do
-    test "accepts new subscription from client and returns success", %{conn: conn, user_id: user_id} do
+    test "accepts new subscription from client and returns success", %{
+      conn: conn,
+      user_id: user_id
+    } do
       new_feed = "aHR0cHM6Ly9uZXcuZXhhbXBsZS5jb20vZmVlZA=="
 
       conn =
@@ -187,7 +190,8 @@ defmodule BaladosSyncWeb.SyncControllerTest do
               %{
                 "rss_source_feed" => feed,
                 "rss_source_id" => "to-unsubscribe",
-                "subscribed_at" => DateTime.add(DateTime.utc_now(), -3600, :second) |> DateTime.to_iso8601(),
+                "subscribed_at" =>
+                  DateTime.add(DateTime.utc_now(), -3600, :second) |> DateTime.to_iso8601(),
                 "unsubscribed_at" => DateTime.utc_now() |> DateTime.to_iso8601()
               }
             ]
@@ -498,11 +502,17 @@ defmodule BaladosSyncWeb.SyncControllerTest do
 
       # Verify playlist is no longer in active list (deleted playlists may still appear with deleted_at set)
       playlists = response["changes"]["playlists"]
-      deleted_playlist = Enum.find(playlists, fn p -> p["id"] == playlist_id and is_nil(p["deleted_at"]) end)
+
+      deleted_playlist =
+        Enum.find(playlists, fn p -> p["id"] == playlist_id and is_nil(p["deleted_at"]) end)
+
       assert deleted_playlist == nil
     end
 
-    test "older client update does not overwrite newer server data", %{conn: conn, user_id: user_id} do
+    test "older client update does not overwrite newer server data", %{
+      conn: conn,
+      user_id: user_id
+    } do
       # Create a playlist directly in projections (server-side data)
       playlist_id = Ecto.UUID.generate()
       now = DateTime.utc_now() |> DateTime.truncate(:second)
@@ -552,7 +562,10 @@ defmodule BaladosSyncWeb.SyncControllerTest do
       assert playlist["name"] == "Server Playlist"
     end
 
-    test "handles playlist sync with subscriptions and play statuses", %{conn: conn, user_id: user_id} do
+    test "handles playlist sync with subscriptions and play statuses", %{
+      conn: conn,
+      user_id: user_id
+    } do
       playlist_id = Ecto.UUID.generate()
       feed = "aHR0cHM6Ly9jb21iaW5lZC5leGFtcGxlLmNvbS9mZWVk"
       item = "aHR0cHM6Ly9jb21iaW5lZC5leGFtcGxlLmNvbS9lcGlzb2RlMQ=="

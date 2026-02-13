@@ -3,6 +3,7 @@ defmodule BaladosSyncWeb.RssProxyController do
   require Logger
 
   alias BaladosSyncCore.RssCache
+  import BaladosSyncWeb.ErrorHelpers
 
   def proxy(conn, %{"encoded_feed_id" => encoded_feed_id}) do
     with {:ok, feed_url} <- decode_feed_id(encoded_feed_id),
@@ -16,21 +17,14 @@ defmodule BaladosSyncWeb.RssProxyController do
       |> send_resp(200, feed_xml)
     else
       {:error, :invalid_base64} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "Invalid feed ID encoding"})
+        bad_request(conn, "Invalid feed ID encoding")
 
       {:error, :fetch_failed} ->
-        conn
-        |> put_status(:bad_gateway)
-        |> json(%{error: "Failed to fetch RSS feed"})
+        bad_gateway(conn, "Failed to fetch RSS feed")
 
       {:error, reason} ->
         Logger.error("RSS proxy error: #{inspect(reason)}")
-
-        conn
-        |> put_status(:internal_server_error)
-        |> json(%{error: "Internal server error"})
+        internal_server_error(conn, reason)
     end
   end
 
@@ -51,16 +45,11 @@ defmodule BaladosSyncWeb.RssProxyController do
       |> send_resp(200, filtered_xml)
     else
       {:error, :episode_not_found} ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{error: "Episode not found in feed"})
+        not_found(conn, "Episode not found in feed")
 
       {:error, reason} ->
         Logger.error("RSS proxy episode error: #{inspect(reason)}")
-
-        conn
-        |> put_status(:internal_server_error)
-        |> json(%{error: "Internal server error"})
+        internal_server_error(conn, reason)
     end
   end
 

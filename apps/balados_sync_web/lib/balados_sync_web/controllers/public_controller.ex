@@ -19,6 +19,7 @@ defmodule BaladosSyncWeb.PublicController do
   }
 
   import Ecto.Query
+  import BaladosSyncWeb.ErrorHelpers, only: [not_found: 2]
   import BaladosSyncWeb.Helpers.Pagination
 
   def trending_podcasts(conn, params) do
@@ -61,9 +62,7 @@ defmodule BaladosSyncWeb.PublicController do
   def feed_popularity(conn, %{"feed" => feed}) do
     case ProjectionsRepo.get(PodcastPopularity, feed) do
       nil ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{error: "Podcast not found"})
+        not_found(conn, "Podcast not found")
 
       podcast ->
         json(conn, %{podcast: podcast})
@@ -73,9 +72,7 @@ defmodule BaladosSyncWeb.PublicController do
   def episode_popularity(conn, %{"item" => item}) do
     case ProjectionsRepo.get(EpisodePopularity, item) do
       nil ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{error: "Episode not found"})
+        not_found(conn, "Episode not found")
 
       episode ->
         json(conn, %{episode: episode})
