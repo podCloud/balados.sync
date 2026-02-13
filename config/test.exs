@@ -34,12 +34,15 @@ config :balados_sync_core, BaladosSyncCore.Dispatcher,
     serializer: Commanded.Serialization.JsonSerializer
   ]
 
-# We don't run a server during test. If one is required,
-# you can enable the server option below.
+# We don't run a server during test. E2E tests start it dynamically
+# via test_helper.exs when --include e2e is passed.
 config :balados_sync_web, BaladosSyncWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4042],
   secret_key_base: "3XB80yPu1D0OvXl1GesHIg8x2HCyDzrfMB9AlScl7PnNU+T8gbDpzAQgW7OyM14z",
-  server: true
+  server: false
+
+# Enable SQL sandbox plug for Wallaby E2E metadata-based ownership
+config :balados_sync_web, :sql_sandbox, true
 
 # Print only warnings and errors during test
 config :logger, level: :warning
