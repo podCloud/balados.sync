@@ -4,7 +4,7 @@ defmodule BaladosSyncWeb.PlayGatewayController do
 
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.RecordPlay
-  alias BaladosSyncProjections.ProjectionsRepo
+  alias BaladosSyncCore.SystemRepo
   alias BaladosSyncProjections.Schemas.PlayToken
   alias BaladosSyncWeb.Plugs.RateLimiter
   import Ecto.Query
@@ -51,7 +51,7 @@ defmodule BaladosSyncWeb.PlayGatewayController do
         select: t.user_id
       )
 
-    case ProjectionsRepo.one(query) do
+    case SystemRepo.one(query) do
       nil -> {:error, :invalid_token}
       user_id -> {:ok, user_id}
     end
@@ -104,9 +104,15 @@ defmodule BaladosSyncWeb.PlayGatewayController do
   end
 
   defp update_token_last_used(token) do
-    Task.start(fn ->
+    update_fn = fn ->
       from(t in PlayToken, where: t.token == ^token)
-      |> ProjectionsRepo.update_all(set: [last_used_at: DateTime.utc_now()])
-    end)
+      |> SystemRepo.update_all(set: [last_used_at: DateTime.utc_now()])
+    end
+
+    if Application.get_env(:balados_sync_web, :async_token_updates, true) do
+      Task.start(update_fn)
+    else
+      update_fn.()
+    end
   end
 end
