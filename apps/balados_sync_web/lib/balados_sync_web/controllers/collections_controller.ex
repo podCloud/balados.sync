@@ -306,11 +306,20 @@ defmodule BaladosSyncWeb.CollectionsController do
 
           case Dispatcher.dispatch(command) do
             :ok ->
-              updated_collection =
-                ProjectionsRepo.get(Collection, collection_id)
-                |> ProjectionsRepo.preload(collection_subscriptions: :subscription)
+              case ProjectionsRepo.get(Collection, collection_id) do
+                nil ->
+                  conn
+                  |> put_status(:internal_server_error)
+                  |> json(%{error: "collection_not_found_after_update"})
 
-              json(conn, %{collection: format_collection(updated_collection)})
+                updated_collection ->
+                  updated_collection =
+                    ProjectionsRepo.preload(updated_collection,
+                      collection_subscriptions: :subscription
+                    )
+
+                  json(conn, %{collection: format_collection(updated_collection)})
+              end
 
             {:error, reason} ->
               conn
