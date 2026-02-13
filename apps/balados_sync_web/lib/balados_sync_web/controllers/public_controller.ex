@@ -20,6 +20,7 @@ defmodule BaladosSyncWeb.PublicController do
 
   import Ecto.Query
   import BaladosSyncWeb.ErrorHelpers, only: [not_found: 2]
+  import BaladosSyncWeb.Helpers.Pagination
 
   def trending_podcasts(conn, params) do
     limit = min(safe_parse_int(params["limit"], 20), 100)
@@ -525,12 +526,4 @@ defmodule BaladosSyncWeb.PublicController do
     end)
   end
 
-  defp safe_parse_int(value, default) when is_binary(value) do
-    case Integer.parse(value) do
-      {val, _} when val >= 0 -> val
-      _ -> default
-    end
-  end
-
-  defp safe_parse_int(_, default), do: default
 end

@@ -25,8 +25,13 @@ if System.get_env("INCLUDE_E2E") == "true" or "--include" in System.argv() do
   )
 
   # Restart the endpoint so it picks up server: true
-  Supervisor.terminate_child(BaladosSyncWeb.Supervisor, BaladosSyncWeb.Endpoint)
-  Supervisor.restart_child(BaladosSyncWeb.Supervisor, BaladosSyncWeb.Endpoint)
+  case Supervisor.terminate_child(BaladosSyncWeb.Supervisor, BaladosSyncWeb.Endpoint) do
+    :ok ->
+      Supervisor.restart_child(BaladosSyncWeb.Supervisor, BaladosSyncWeb.Endpoint)
+
+    {:error, :not_found} ->
+      IO.warn("Endpoint not found in BaladosSyncWeb.Supervisor, cannot restart for E2E tests")
+  end
 
   case Application.ensure_all_started(:wallaby) do
     {:ok, _} ->
