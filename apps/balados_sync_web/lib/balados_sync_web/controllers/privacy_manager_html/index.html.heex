@@ -100,7 +100,7 @@
                       <option value="anonymous">Anonymous</option>
                       <option value="private">Private</option>
                     </select>
-                    <button class="change-btn rounded-md bg-blue-600 px-4 py-2 text-white text-sm font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    <button class="change-btn rounded-md bg-blue-600 px-4 py-2 text-white text-sm font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" aria-label="Change subscription privacy">
                       <%= gettext("common.change") %>
                     </button>
                     <button class="cancel-btn text-sm text-zinc-600 hover:text-zinc-900">
@@ -109,7 +109,7 @@
                   </div>
                   <!-- Delete Privacy Section -->
                   <div class="border-t border-orange-200 pt-3">
-                    <button class="delete-privacy-btn text-sm text-orange-700 hover:text-orange-800 font-semibold transition">
+                    <button class="delete-privacy-btn text-sm text-orange-700 hover:text-orange-800 font-semibold transition" aria-label="Delete privacy setting">
                       ✕ <%= gettext("privacy.delete_privacy") %>
                     </button>
                     <p class="text-xs text-orange-600 mt-1">
@@ -118,7 +118,7 @@
                   </div>
                   <!-- Unsubscribe Section -->
                   <div class="border-t border-red-200 pt-3">
-                    <button class="unsubscribe-btn text-sm text-red-600 hover:text-red-700 font-semibold">
+                    <button class="unsubscribe-btn text-sm text-red-600 hover:text-red-700 font-semibold" aria-label="Remove subscription">
                       <%= gettext("common.remove") %>
                     </button>
                   </div>
@@ -217,7 +217,7 @@
                       <option value="anonymous">Anonymous</option>
                       <option value="private">Private</option>
                     </select>
-                    <button class="change-btn rounded-md bg-purple-600 px-4 py-2 text-white text-sm font-semibold hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                    <button class="change-btn rounded-md bg-purple-600 px-4 py-2 text-white text-sm font-semibold hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2" aria-label="Change play privacy">
                       <%= gettext("common.change") %>
                     </button>
                     <button class="cancel-btn text-sm text-zinc-600 hover:text-zinc-900">
@@ -226,7 +226,7 @@
                   </div>
                   <!-- Delete Privacy Section -->
                   <div class="border-t border-orange-200 pt-3">
-                    <button class="delete-privacy-btn text-sm text-orange-700 hover:text-orange-800 font-semibold transition">
+                    <button class="delete-privacy-btn text-sm text-orange-700 hover:text-orange-800 font-semibold transition" aria-label="Delete privacy setting">
                       ✕ <%= gettext("privacy.delete_privacy") %>
                     </button>
                     <p class="text-xs text-orange-600 mt-1">
@@ -235,7 +235,7 @@
                   </div>
                   <!-- Unsubscribe Section -->
                   <div class="border-t border-red-200 pt-3">
-                    <button class="unsubscribe-btn text-sm text-red-600 hover:text-red-700 font-semibold">
+                    <button class="unsubscribe-btn text-sm text-red-600 hover:text-red-700 font-semibold" aria-label="Remove subscription">
                       <%= gettext("common.remove") %>
                     </button>
                   </div>
@@ -334,7 +334,7 @@
                       <option value="anonymous">Anonymous</option>
                       <option value="private">Private</option>
                     </select>
-                    <button class="change-btn rounded-md bg-red-600 px-4 py-2 text-white text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                    <button class="change-btn rounded-md bg-red-600 px-4 py-2 text-white text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2" aria-label="Change unsubscribe privacy">
                       <%= gettext("common.change") %>
                     </button>
                     <button class="cancel-btn text-sm text-zinc-600 hover:text-zinc-900">
@@ -343,7 +343,7 @@
                   </div>
                   <!-- Delete Privacy Section -->
                   <div class="border-t border-orange-200 pt-3">
-                    <button class="delete-privacy-btn text-sm text-orange-700 hover:text-orange-800 font-semibold transition">
+                    <button class="delete-privacy-btn text-sm text-orange-700 hover:text-orange-800 font-semibold transition" aria-label="Delete privacy setting">
                       ✕ <%= gettext("privacy.delete_privacy") %>
                     </button>
                     <p class="text-xs text-orange-600 mt-1">
@@ -352,7 +352,7 @@
                   </div>
                   <!-- Unsubscribe Section -->
                   <div class="border-t border-red-200 pt-3">
-                    <button class="unsubscribe-btn text-sm text-red-600 hover:text-red-700 font-semibold">
+                    <button class="unsubscribe-btn text-sm text-red-600 hover:text-red-700 font-semibold" aria-label="Remove subscription">
                       <%= gettext("common.remove") %>
                     </button>
                   </div>
@@ -396,6 +396,7 @@
   role="dialog"
   aria-modal="true"
   aria-labelledby="privacy-warning-title"
+  aria-describedby="privacy-warning-desc"
 >
   <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
     <!-- Warning Icon & Title -->
@@ -413,7 +414,7 @@
       <h2 id="privacy-warning-title" class="text-xl font-bold text-zinc-900"><%= gettext("privacy.modal.title") %></h2>
     </div>
     <!-- Message -->
-    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+    <div id="privacy-warning-desc" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
       <p class="text-zinc-800 font-medium mb-3">
         <%= gettext("privacy.modal.changing_to") %>
         <span id="privacy-warning-level" class="font-bold text-amber-700">Anonymous</span>
