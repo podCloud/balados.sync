@@ -46,6 +46,13 @@ defmodule BaladosSyncWeb.E2ECase do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(BaladosSyncCore.SystemRepo)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(BaladosSyncProjections.ProjectionsRepo)
 
+    # Defense-in-depth DB sandbox strategy:
+    # 1. Shared mode: allows any process (LiveView, controllers) to use the test connection
+    # 2. Metadata-based ownership (via Phoenix.Ecto.SQL.Sandbox plug in endpoint.ex):
+    #    Wallaby passes sandbox metadata in browser requests, allowing the endpoint
+    #    to associate HTTP requests with the test process's DB connection.
+    # Both are used together for reliability - shared mode covers server-side processes
+    # while metadata covers browser-initiated HTTP requests.
     unless tags[:async] do
       Ecto.Adapters.SQL.Sandbox.mode(BaladosSyncCore.SystemRepo, {:shared, self()})
       Ecto.Adapters.SQL.Sandbox.mode(BaladosSyncProjections.ProjectionsRepo, {:shared, self()})
