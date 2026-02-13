@@ -21,7 +21,7 @@ defmodule BaladosSyncWeb.PublicController do
   import Ecto.Query
 
   def trending_podcasts(conn, params) do
-    limit = min(String.to_integer(params["limit"] || "20"), 100)
+    limit = min(safe_parse_int(params["limit"], 20), 100)
 
     # Podcasts avec le meilleur delta score
     query =
@@ -36,7 +36,7 @@ defmodule BaladosSyncWeb.PublicController do
   end
 
   def trending_episodes(conn, params) do
-    limit = min(String.to_integer(params["limit"] || "20"), 100)
+    limit = min(safe_parse_int(params["limit"], 20), 100)
     feed = params["feed"]
 
     query =
@@ -82,8 +82,8 @@ defmodule BaladosSyncWeb.PublicController do
   end
 
   def timeline(conn, params) do
-    limit = min(String.to_integer(params["limit"] || "50"), 100)
-    offset = String.to_integer(params["offset"] || "0")
+    limit = min(safe_parse_int(params["limit"], 50), 100)
+    offset = safe_parse_int(params["offset"], 0)
 
     # Filtres optionnels
     query =
@@ -307,8 +307,8 @@ defmodule BaladosSyncWeb.PublicController do
   Shows subscriptions and plays from all users (respecting privacy settings).
   """
   def timeline_html(conn, params) do
-    limit = min(String.to_integer(params["limit"] || "50"), 100)
-    offset = String.to_integer(params["offset"] || "0")
+    limit = min(safe_parse_int(params["limit"], 50), 100)
+    offset = safe_parse_int(params["offset"], 0)
 
     # Query events with username resolution
     events =
@@ -527,4 +527,13 @@ defmodule BaladosSyncWeb.PublicController do
       end
     end)
   end
+
+  defp safe_parse_int(value, default) when is_binary(value) do
+    case Integer.parse(value) do
+      {val, _} when val >= 0 -> val
+      _ -> default
+    end
+  end
+
+  defp safe_parse_int(_, default), do: default
 end

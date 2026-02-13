@@ -241,6 +241,10 @@ defmodule BaladosSyncWeb.CollectionsController do
     end
   end
 
+  def create(conn, _params) do
+    conn |> put_status(:bad_request) |> json(%{error: "missing_required_parameters"})
+  end
+
   @doc """
   Updates a collection.
 
@@ -478,6 +482,10 @@ defmodule BaladosSyncWeb.CollectionsController do
           |> json(%{error: "not_found"})
         end
     end
+  end
+
+  def add_feed(conn, %{"id" => _collection_id}) do
+    conn |> put_status(:bad_request) |> json(%{error: "missing_required_parameters"})
   end
 
   @doc """

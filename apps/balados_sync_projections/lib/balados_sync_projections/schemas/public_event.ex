@@ -2,6 +2,18 @@ defmodule BaladosSyncProjections.Schemas.PublicEvent do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :user_id,
+             :event_type,
+             :rss_source_feed,
+             :rss_source_item,
+             :privacy,
+             :event_data,
+             :event_timestamp,
+             :inserted_at
+           ]}
   @primary_key {:id, :binary_id, autogenerate: true}
   @schema_prefix "public"
   schema "public_events" do

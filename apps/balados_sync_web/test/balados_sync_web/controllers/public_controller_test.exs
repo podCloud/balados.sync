@@ -56,4 +56,31 @@ defmodule BaladosSyncWeb.PublicControllerTest do
     # The controller should cap at 100
     assert length(response_data) <= 100
   end
+
+  describe "pagination validation" do
+    test "trending_podcasts handles non-integer limit", %{conn: conn} do
+      conn = get(conn, ~p"/api/v1/public/trending/podcasts?limit=abc")
+      assert json_response(conn, 200)
+    end
+
+    test "trending_episodes handles non-integer limit", %{conn: conn} do
+      conn = get(conn, ~p"/api/v1/public/trending/episodes?limit=abc")
+      assert json_response(conn, 200)
+    end
+
+    test "trending_podcasts handles negative limit", %{conn: conn} do
+      conn = get(conn, ~p"/api/v1/public/trending/podcasts?limit=-10")
+      assert json_response(conn, 200)
+    end
+
+    test "trending_episodes handles negative limit", %{conn: conn} do
+      conn = get(conn, ~p"/api/v1/public/trending/episodes?limit=-10")
+      assert json_response(conn, 200)
+    end
+
+    test "timeline handles non-integer limit and offset", %{conn: conn} do
+      conn = get(conn, ~p"/api/v1/public/timeline?limit=abc&offset=xyz")
+      assert json_response(conn, 200)
+    end
+  end
 end
