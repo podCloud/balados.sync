@@ -16,6 +16,19 @@
       </p>
     </div>
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
+      <span class="flex items-center gap-1 text-xs">
+        <%= if Gettext.get_locale(BaladosSyncWeb.Gettext) == "fr" do %>
+          <span class="font-bold text-blue-600">FR</span>
+        <% else %>
+          <a href={"?locale=fr"} class="hover:text-zinc-700">FR</a>
+        <% end %>
+        <span class="text-zinc-300">|</span>
+        <%= if Gettext.get_locale(BaladosSyncWeb.Gettext) == "en" do %>
+          <span class="font-bold text-blue-600">EN</span>
+        <% else %>
+          <a href={"?locale=en"} class="hover:text-zinc-700">EN</a>
+        <% end %>
+      </span>
       <.link
         navigate={~p"/trending/podcasts"}
         class={

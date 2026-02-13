@@ -29,6 +29,9 @@ config :balados_sync_web,
   ecto_repos: [BaladosSyncCore.SystemRepo, BaladosSyncProjections.ProjectionsRepo],
   generators: [context_app: :balados_sync_core]
 
+# Configure Gettext default locale
+config :balados_sync_web, BaladosSyncWeb.Gettext, default_locale: "fr"
+
 # Configures the endpoint
 config :balados_sync_web, BaladosSyncWeb.Endpoint,
   url: [host: "localhost"],
