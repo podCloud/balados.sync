@@ -2,11 +2,25 @@ defmodule BaladosSyncWeb.Plugs.Locale do
   @moduledoc """
   Plug to set the locale for the current request.
 
+  Works in two modes depending on whether a session is available:
+
+  ## Browser mode (session available)
+
   Locale resolution order:
   1. `?locale=` query parameter (and persisted to session)
   2. Session `:locale`
   3. `Accept-Language` header
   4. Default locale ("fr")
+
+  ## API mode (no session)
+
+  Locale resolution order:
+  1. `?locale=` query parameter
+  2. `Accept-Language` header
+  3. Default locale ("fr")
+
+  API mode is automatically detected when the connection has no session
+  (e.g., in the `:api` pipeline which does not call `:fetch_session`).
   """
 
   import Plug.Conn
@@ -20,22 +34,30 @@ defmodule BaladosSyncWeb.Plugs.Locale do
   def init(opts), do: opts
 
   def call(conn, _opts) do
+    has_session = session_available?(conn)
+
     locale =
       locale_from_params(conn) ||
-        locale_from_session(conn) ||
+        (has_session && locale_from_session(conn)) ||
         locale_from_header(conn) ||
         default_locale()
 
     Gettext.put_locale(BaladosSyncWeb.Gettext, locale)
 
     conn =
-      if get_session(conn, :locale) != locale do
+      if has_session && get_session(conn, :locale) != locale do
         put_session(conn, :locale, locale)
       else
         conn
       end
 
     assign(conn, :locale, locale)
+  end
+
+  defp session_available?(conn) do
+    # The session is only available if :fetch_session was called upstream.
+    # We check for the private key that Plug.Session sets after fetching.
+    Map.has_key?(conn.private, :plug_session)
   end
 
   defp locale_from_params(conn) do
