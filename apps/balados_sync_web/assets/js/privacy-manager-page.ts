@@ -292,7 +292,7 @@ function showPrivacyWarning(newPrivacy: string): Promise<boolean> {
       // Trap Tab within the modal
       if (e.key === 'Tab' && !modal.classList.contains('hidden')) {
         const focusableElements = modal.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
         )
         if (focusableElements.length === 0) return
 
