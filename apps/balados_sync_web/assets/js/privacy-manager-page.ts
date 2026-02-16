@@ -303,7 +303,7 @@ function showPrivacyWarning(newPrivacy: string): Promise<boolean> {
       document.removeEventListener('keydown', onEscapeKey)
     }
 
-    // Focus the confirm button
+    // Focus the cancel button (safe default for destructive action)
     setTimeout(() => {
       cancelBtn?.focus()
     }, 0)

@@ -2,6 +2,10 @@ defmodule BaladosSyncWeb.AccessibilityTest do
   @moduledoc """
   Tests verifying ARIA attributes are present in rendered templates.
   Ensures accessibility improvements aren't accidentally removed.
+
+  Note: JavaScript behavior (e.g. aria-expanded toggling in privacy-manager-page.ts)
+  cannot be tested here. These require manual testing or E2E tests (Wallaby).
+  Manual test: click edit button → verify aria-expanded="true", click cancel → "false".
   """
   use BaladosSyncWeb.ConnCase, async: true
 
