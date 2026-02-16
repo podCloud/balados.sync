@@ -188,6 +188,7 @@ defmodule BaladosSyncWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug BaladosSyncWeb.Plugs.Locale
     plug BaladosSyncWeb.Plugs.JWTAuth
   end
 
