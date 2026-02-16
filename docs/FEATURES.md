@@ -1146,8 +1146,9 @@ Full French/English i18n for the entire Web UI using Elixir Gettext.
 4. Default: `"fr"`
 
 **Locale Plug** (`BaladosSyncWeb.Plugs.Locale`):
-- Inserted in `:browser` pipeline
-- Persists locale in session across navigation
+- Inserted in both `:browser` and `:api` pipelines
+- Browser mode: persists locale in session across navigation
+- API mode: stateless, reads `Accept-Language` header or `?locale=` param per-request
 - Sets `Gettext.put_locale/1` for each request
 
 **Coverage** :
@@ -1162,9 +1163,9 @@ Full French/English i18n for the entire Web UI using Elixir Gettext.
 - `priv/gettext/fr/LC_MESSAGES/default.po` — French translations
 - `priv/gettext/en/LC_MESSAGES/default.po` — English translations
 - `lib/balados_sync_web/plugs/locale.ex` — Locale detection plug
+- [docs/technical/I18N.md](technical/I18N.md) — i18n developer guide
 
 **Not Translated** (by design):
-- JSON API responses (consumed by apps, not users)
 - Brand name "Balados Sync"
 - Technical terms (RSS, OPML, JWT, Base64)
 

@@ -65,6 +65,7 @@ mix phx.server    # http://localhost:4000
 | [**docs/technical/CQRS_PATTERNS.md**](docs/technical/CQRS_PATTERNS.md) | Patterns CQRS/ES |
 | [**docs/technical/DATABASE_SCHEMA.md**](docs/technical/DATABASE_SCHEMA.md) | Architecture BD |
 | [**docs/technical/ACCESSIBILITY.md**](docs/technical/ACCESSIBILITY.md) | WCAG compliance & testing |
+| [**docs/technical/I18N.md**](docs/technical/I18N.md) | Guide i18n / traductions |
 | [**docs/technical/POST_MERGE_FOLLOWUPS.md**](docs/technical/POST_MERGE_FOLLOWUPS.md) | Issues de suivi post-merge |
 
 ---
