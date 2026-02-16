@@ -3,61 +3,34 @@ defmodule BaladosSyncWeb.AccessibilityTest do
   Tests verifying ARIA attributes are present in rendered templates.
   Ensures accessibility improvements aren't accidentally removed.
 
+  Component tests use rendered_to_string for fast, isolated verification.
+  Page-level tests verify the full template renders with accessible structure.
+
   Note: JavaScript behavior (e.g. aria-expanded toggling in privacy-manager-page.ts)
   cannot be tested here. These require manual testing or E2E tests (Wallaby).
   Manual test: click edit button → verify aria-expanded="true", click cancel → "false".
   """
   use BaladosSyncWeb.ConnCase, async: true
 
-  describe "root layout" do
-    test "html tag has dynamic lang attribute", %{conn: conn} do
+  describe "page-level accessibility" do
+    test "trending page renders with lang, alt text, and aria-hidden icons", %{conn: conn} do
       conn = get(conn, ~p"/trending/podcasts")
       html = html_response(conn, 200)
 
-      # Should have a lang attribute (value depends on locale resolution)
       assert html =~ ~r/<html lang="(en|fr)"/
-    end
-
-    test "logo has alt text", %{conn: conn} do
-      conn = get(conn, ~p"/trending/podcasts")
-      html = html_response(conn, 200)
-
       assert html =~ ~s(alt="Balados Sync")
-    end
-  end
-
-  describe "public pages have accessible elements" do
-    test "decorative icons have aria-hidden", %{conn: conn} do
-      conn = get(conn, ~p"/trending/podcasts")
-      html = html_response(conn, 200)
-
       assert html =~ ~s(aria-hidden="true")
     end
-
-    test "page renders successfully with accessible structure", %{conn: conn} do
-      conn = get(conn, ~p"/trending/podcasts")
-      html = html_response(conn, 200)
-
-      # Page renders with proper HTML structure
-      assert html =~ ~r/<html lang="(en|fr)"/
-      assert html =~ ~s(alt="Balados Sync")
-    end
   end
 
-  describe "core components" do
-    test "login_modal renders with dialog semantics" do
-      # Render the login_modal component and verify ARIA attributes
-      assigns = %{
+  describe "component accessibility - modal dialog semantics" do
+    test "login_modal has role, aria-modal, and aria-labelledby" do
+      html = render_component(:login_modal, %{
         id: "test-login-modal",
         login_url: "/users/log_in",
         register_url: "/users/register",
         inner_block: []
-      }
-
-      html =
-        Phoenix.LiveViewTest.rendered_to_string(
-          BaladosSyncWeb.CoreComponents.login_modal(assigns)
-        )
+      })
 
       assert html =~ ~s(role="dialog")
       assert html =~ ~s(aria-modal="true")
@@ -65,18 +38,13 @@ defmodule BaladosSyncWeb.AccessibilityTest do
       assert html =~ ~s(id="test-login-modal-title")
     end
 
-    test "subscribe_modal renders with dialog semantics" do
-      assigns = %{
+    test "subscribe_modal has role, aria-modal, and aria-labelledby" do
+      html = render_component(:subscribe_modal, %{
         id: "test-subscribe-modal",
         subscribe_url: "/subscriptions",
         feed_url: "https://example.com/feed.xml",
         inner_block: []
-      }
-
-      html =
-        Phoenix.LiveViewTest.rendered_to_string(
-          BaladosSyncWeb.CoreComponents.subscribe_modal(assigns)
-        )
+      })
 
       assert html =~ ~s(role="dialog")
       assert html =~ ~s(aria-modal="true")
@@ -84,18 +52,13 @@ defmodule BaladosSyncWeb.AccessibilityTest do
       assert html =~ ~s(id="test-subscribe-modal-title")
     end
 
-    test "privacy_modal renders with dialog semantics and description" do
-      assigns = %{
+    test "privacy_modal has role, aria-modal, aria-labelledby, and aria-describedby" do
+      html = render_component(:privacy_modal, %{
         id: "test-privacy-modal",
         feed: "test-feed",
         context: "subscribe",
         inner_block: []
-      }
-
-      html =
-        Phoenix.LiveViewTest.rendered_to_string(
-          BaladosSyncWeb.CoreComponents.privacy_modal(assigns)
-        )
+      })
 
       assert html =~ ~s(role="dialog")
       assert html =~ ~s(aria-modal="true")
@@ -104,37 +67,35 @@ defmodule BaladosSyncWeb.AccessibilityTest do
       assert html =~ ~s(id="test-privacy-modal-title")
       assert html =~ ~s(id="test-privacy-modal-desc")
     end
+  end
 
+  describe "component accessibility - interactive elements" do
     test "modal close buttons have aria-label" do
-      assigns = %{
+      html = render_component(:login_modal, %{
         id: "test-modal",
         login_url: "/users/log_in",
         register_url: "/users/register",
         inner_block: []
-      }
-
-      html =
-        Phoenix.LiveViewTest.rendered_to_string(
-          BaladosSyncWeb.CoreComponents.login_modal(assigns)
-        )
+      })
 
       assert html =~ ~s(aria-label="Close")
     end
 
     test "decorative SVGs in modals have aria-hidden" do
-      assigns = %{
+      html = render_component(:login_modal, %{
         id: "test-modal",
         login_url: "/users/log_in",
         register_url: "/users/register",
         inner_block: []
-      }
-
-      html =
-        Phoenix.LiveViewTest.rendered_to_string(
-          BaladosSyncWeb.CoreComponents.login_modal(assigns)
-        )
+      })
 
       assert html =~ ~s(aria-hidden="true")
     end
+  end
+
+  defp render_component(component, assigns) do
+    Phoenix.LiveViewTest.rendered_to_string(
+      apply(BaladosSyncWeb.CoreComponents, component, [assigns])
+    )
   end
 end
