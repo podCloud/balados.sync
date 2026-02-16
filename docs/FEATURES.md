@@ -996,10 +996,17 @@ mix db.reset --all          # ☢️☢️ EXTREME - TOUT détruit
 
 ### Accessibility
 
-- Modals avec support clavier (Escape, Tab, focus)
-- ARIA labels sur buttons
-- Contrast colors conformes WCAG
-- Skip links si besoin
+WCAG 2.1 Level AA compliance (partial). See [docs/technical/ACCESSIBILITY.md](technical/ACCESSIBILITY.md) for full details.
+
+- Modal dialogs with WAI-ARIA pattern: `role="dialog"`, `aria-modal`, `aria-labelledby`, focus trap, Escape to close
+- Decorative SVGs hidden with `aria-hidden="true"`
+- Logo and informative images have `alt` text
+- Semantic HTML structure: `<header>`, `<nav>`, `<main>`
+- Dynamic `lang` attribute from Gettext locale
+- Form labels properly associated with inputs
+- Alert role on flash messages
+- Language navigation with `aria-current`
+- Focus management: `JS.focus_first()` / `JS.pop_focus()` for modals
 
 ### TypeScript
 
