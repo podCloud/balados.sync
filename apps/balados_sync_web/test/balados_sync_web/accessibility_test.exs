@@ -22,23 +22,21 @@ defmodule BaladosSyncWeb.AccessibilityTest do
     end
   end
 
-  describe "public pages have accessible modals" do
-    test "login modal has dialog role and aria attributes", %{conn: conn} do
-      # Public feed pages render the login_modal for unauthenticated users
+  describe "public pages have accessible elements" do
+    test "decorative icons have aria-hidden", %{conn: conn} do
       conn = get(conn, ~p"/trending/podcasts")
       html = html_response(conn, 200)
 
-      # The page itself should have decorative icons hidden
       assert html =~ ~s(aria-hidden="true")
     end
 
-    test "trending page pagination has aria-labels", %{conn: conn} do
+    test "page renders successfully with accessible structure", %{conn: conn} do
       conn = get(conn, ~p"/trending/podcasts")
       html = html_response(conn, 200)
 
-      # Pagination links should have accessible labels
-      # (only present if there are multiple pages)
-      assert html =~ "Balados Sync"
+      # Page renders with proper HTML structure
+      assert html =~ ~r/<html lang="(en|fr)"/
+      assert html =~ ~s(alt="Balados Sync")
     end
   end
 

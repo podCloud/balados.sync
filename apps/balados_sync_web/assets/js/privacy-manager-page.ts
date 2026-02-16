@@ -41,6 +41,7 @@ function attachPodcastItemListeners(item: PodcastItem): void {
   editBtn?.addEventListener('click', (e) => {
     e.preventDefault()
     editControls?.classList.remove('hidden')
+    editBtn.setAttribute('aria-expanded', 'true')
     privacySelect?.focus()
   })
 
@@ -48,6 +49,7 @@ function attachPodcastItemListeners(item: PodcastItem): void {
   cancelBtn?.addEventListener('click', (e) => {
     e.preventDefault()
     editControls?.classList.add('hidden')
+    editBtn?.setAttribute('aria-expanded', 'false')
     // Reset select to current value
     if (privacySelect) {
       privacySelect.value = currentPrivacy
@@ -99,6 +101,7 @@ function attachPodcastItemListeners(item: PodcastItem): void {
 
     if (!newPrivacy || newPrivacy === currentPrivacy) {
       editControls?.classList.add('hidden')
+      editBtn?.setAttribute('aria-expanded', 'false')
       return
     }
 
@@ -137,6 +140,7 @@ function attachPodcastItemListeners(item: PodcastItem): void {
 
       // Hide edit controls
       editControls?.classList.add('hidden')
+      editBtn?.setAttribute('aria-expanded', 'false')
     } catch (error) {
       console.error('Error updating privacy:', error)
       alert('Error updating privacy level. Please try again.')
@@ -176,6 +180,7 @@ function attachPodcastItemListeners(item: PodcastItem): void {
 
       // Hide edit controls
       editControls?.classList.add('hidden')
+      editBtn?.setAttribute('aria-expanded', 'false')
     } catch (error) {
       console.error('Error deleting privacy:', error)
       alert('Error deleting privacy setting. Please try again.')
