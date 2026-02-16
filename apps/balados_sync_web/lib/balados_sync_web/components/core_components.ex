@@ -621,17 +621,20 @@ defmodule BaladosSyncWeb.CoreComponents do
     <div
       id={@id}
       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={"#{@id}-title"}
     >
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="p-6">
           <div class="flex justify-between items-start mb-4">
-            <h2 class="text-2xl font-bold text-zinc-900">Log In to Subscribe</h2>
+            <h2 id={"#{@id}-title"} class="text-2xl font-bold text-zinc-900">Log In to Subscribe</h2>
             <button
               type="button"
               class="text-zinc-400 hover:text-zinc-600 js-hide-modal"
               aria-label="Close"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -715,17 +718,20 @@ defmodule BaladosSyncWeb.CoreComponents do
     <div
       id={@id}
       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={"#{@id}-title"}
     >
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="p-6">
           <div class="flex justify-between items-start mb-4">
-            <h2 class="text-2xl font-bold text-zinc-900">Add Subscription</h2>
+            <h2 id={"#{@id}-title"} class="text-2xl font-bold text-zinc-900">Add Subscription</h2>
             <button
               type="button"
               class="text-zinc-400 hover:text-zinc-600 js-hide-modal"
               aria-label="Close"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -794,11 +800,15 @@ defmodule BaladosSyncWeb.CoreComponents do
       data-feed={@feed}
       data-context={@context}
       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={"#{@id}-title"}
+      aria-describedby={"#{@id}-desc"}
     >
       <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
         <div class="p-6">
           <div class="flex justify-between items-start mb-4">
-            <h2 class="text-2xl font-bold text-zinc-900">
+            <h2 id={"#{@id}-title"} class="text-2xl font-bold text-zinc-900">
               <%= if @context == "subscribe" do %>
                 Privacy Settings for This Podcast
               <% else %>
@@ -810,7 +820,7 @@ defmodule BaladosSyncWeb.CoreComponents do
               class="text-zinc-400 hover:text-zinc-600 js-hide-modal"
               aria-label="Close"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -823,7 +833,7 @@ defmodule BaladosSyncWeb.CoreComponents do
 
           <%= render_slot(@inner_block) %>
 
-          <p class="text-sm text-zinc-600 mb-6">
+          <p id={"#{@id}-desc"} class="text-sm text-zinc-600 mb-6">
             <%= if @context == "subscribe" do %>
               Choose how your activity for this podcast will be shared. This can be changed later.
             <% else %>

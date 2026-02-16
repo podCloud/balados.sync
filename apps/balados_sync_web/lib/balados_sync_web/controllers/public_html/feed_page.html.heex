@@ -121,6 +121,7 @@
               type="button"
               id="change-privacy-btn"
               class="ml-2 text-sm opacity-75 hover:opacity-100 cursor-pointer transition"
+              aria-label="Change privacy level"
             >
               <%= gettext("feed_page.change_privacy") %>
             </button>
@@ -373,11 +374,15 @@
     <div
       id="privacy-change-modal"
       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="privacy-change-title"
+      aria-describedby="privacy-change-desc"
     >
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-        <h2 class="text-2xl font-bold text-zinc-900 mb-4"><%= gettext("privacy.change_title") %></h2>
+        <h2 id="privacy-change-title" class="text-2xl font-bold text-zinc-900 mb-4"><%= gettext("privacy.change_title") %></h2>
 
-        <p class="text-zinc-600 mb-6">
+        <p id="privacy-change-desc" class="text-zinc-600 mb-6">
           <%= gettext("privacy.change_description") %>
         </p>
         <!-- Privacy Options -->

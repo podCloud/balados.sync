@@ -41,6 +41,7 @@ function attachPodcastItemListeners(item: PodcastItem): void {
   editBtn?.addEventListener('click', (e) => {
     e.preventDefault()
     editControls?.classList.remove('hidden')
+    editBtn.setAttribute('aria-expanded', 'true')
     privacySelect?.focus()
   })
 
@@ -48,6 +49,7 @@ function attachPodcastItemListeners(item: PodcastItem): void {
   cancelBtn?.addEventListener('click', (e) => {
     e.preventDefault()
     editControls?.classList.add('hidden')
+    editBtn?.setAttribute('aria-expanded', 'false')
     // Reset select to current value
     if (privacySelect) {
       privacySelect.value = currentPrivacy
@@ -99,6 +101,7 @@ function attachPodcastItemListeners(item: PodcastItem): void {
 
     if (!newPrivacy || newPrivacy === currentPrivacy) {
       editControls?.classList.add('hidden')
+      editBtn?.setAttribute('aria-expanded', 'false')
       return
     }
 
@@ -137,6 +140,7 @@ function attachPodcastItemListeners(item: PodcastItem): void {
 
       // Hide edit controls
       editControls?.classList.add('hidden')
+      editBtn?.setAttribute('aria-expanded', 'false')
     } catch (error) {
       console.error('Error updating privacy:', error)
       alert('Error updating privacy level. Please try again.')
@@ -176,6 +180,7 @@ function attachPodcastItemListeners(item: PodcastItem): void {
 
       // Hide edit controls
       editControls?.classList.add('hidden')
+      editBtn?.setAttribute('aria-expanded', 'false')
     } catch (error) {
       console.error('Error deleting privacy:', error)
       alert('Error deleting privacy setting. Please try again.')
@@ -214,6 +219,9 @@ function showPrivacyWarning(newPrivacy: string): Promise<boolean> {
     const cancelBtn = document.getElementById('privacy-warning-cancel-btn') as HTMLButtonElement
     const statsItem = document.getElementById('privacy-warning-stats')
 
+    // Save trigger element for focus restoration
+    const triggerElement = document.activeElement as HTMLElement | null
+
     // Update modal text
     if (levelEl) {
       levelEl.textContent = newPrivacy.charAt(0).toUpperCase() + newPrivacy.slice(1)
@@ -246,39 +254,58 @@ function showPrivacyWarning(newPrivacy: string): Promise<boolean> {
       }
     }
 
+    function closeModal(result: boolean) {
+      cleanup()
+      modal.classList.add('hidden')
+      triggerElement?.focus()
+      resolve(result)
+    }
+
     // Handle confirm button
     const onConfirmClick = (e: Event) => {
       e.preventDefault()
-      cleanup()
-      modal.classList.add('hidden')
-      resolve(true)
+      closeModal(true)
     }
 
     // Handle cancel button
     const onCancelClick = (e: Event) => {
       e.preventDefault()
-      cleanup()
-      modal.classList.add('hidden')
-      resolve(false)
+      closeModal(false)
     }
 
     // Handle backdrop click
     const onBackdropClick = (e: MouseEvent) => {
       if (e.target === modal) {
         e.preventDefault()
-        cleanup()
-        modal.classList.add('hidden')
-        resolve(false)
+        closeModal(false)
       }
     }
 
-    // Handle escape key
-    const onEscapeKey = (e: KeyboardEvent) => {
+    // Handle keyboard events (Escape to close, Tab trapping)
+    const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
         e.preventDefault()
-        cleanup()
-        modal.classList.add('hidden')
-        resolve(false)
+        closeModal(false)
+        return
+      }
+
+      // Trap Tab within the modal
+      if (e.key === 'Tab' && !modal.classList.contains('hidden')) {
+        const focusableElements = modal.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusableElements.length === 0) return
+
+        const first = focusableElements[0]
+        const last = focusableElements[focusableElements.length - 1]
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
       }
     }
 
@@ -287,7 +314,7 @@ function showPrivacyWarning(newPrivacy: string): Promise<boolean> {
     confirmBtn?.addEventListener('click', onConfirmClick)
     cancelBtn?.addEventListener('click', onCancelClick)
     modal.addEventListener('click', onBackdropClick)
-    document.addEventListener('keydown', onEscapeKey)
+    document.addEventListener('keydown', onKeyDown)
 
     // Cleanup function
     function cleanup() {
@@ -295,10 +322,10 @@ function showPrivacyWarning(newPrivacy: string): Promise<boolean> {
       confirmBtn?.removeEventListener('click', onConfirmClick)
       cancelBtn?.removeEventListener('click', onCancelClick)
       modal.removeEventListener('click', onBackdropClick)
-      document.removeEventListener('keydown', onEscapeKey)
+      document.removeEventListener('keydown', onKeyDown)
     }
 
-    // Focus the confirm button
+    // Focus the cancel button (safe default for destructive action)
     setTimeout(() => {
       cancelBtn?.focus()
     }, 0)
