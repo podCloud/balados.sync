@@ -31,7 +31,7 @@ defmodule BaladosSyncWeb.ProfileController do
     case SystemRepo.update(changeset) do
       {:ok, _updated_user} ->
         conn
-        |> put_flash(:info, "Profile updated successfully.")
+        |> put_flash(:info, gettext("profile.updated"))
         |> redirect(to: ~p"/settings/profile")
 
       {:error, %Ecto.Changeset{} = changeset} ->

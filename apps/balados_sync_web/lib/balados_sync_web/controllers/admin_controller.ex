@@ -36,7 +36,7 @@ defmodule BaladosSyncWeb.AdminController do
       conn
     else
       conn
-      |> put_flash(:error, "Admin access required")
+      |> put_flash(:error, gettext("admin.access_required"))
       |> redirect(to: ~p"/")
       |> halt()
     end

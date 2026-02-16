@@ -93,7 +93,7 @@ defmodule BaladosSyncWeb.AppAuthController do
           # Not authenticated, redirect to login
           conn
           |> put_session(:user_return_to, current_path(conn))
-          |> put_flash(:info, "Please log in to authorize this application.")
+          |> put_flash(:info, gettext("app_auth.login_required"))
           |> redirect(to: ~p"/users/log_in")
         end
 
@@ -102,7 +102,7 @@ defmodule BaladosSyncWeb.AppAuthController do
 
         conn
         |> put_status(:bad_request)
-        |> put_flash(:error, "Invalid authorization token : #{reason}")
+        |> put_flash(:error, gettext("app_auth.invalid_token") <> " : #{reason}")
         |> redirect(to: ~p"/")
     end
   end
@@ -110,7 +110,7 @@ defmodule BaladosSyncWeb.AppAuthController do
   def authorize(conn, _params) do
     conn
     |> put_status(:bad_request)
-    |> put_flash(:error, "Missing authorization token.")
+    |> put_flash(:error, gettext("app_auth.missing_token"))
     |> redirect(to: ~p"/")
   end
 
@@ -146,7 +146,7 @@ defmodule BaladosSyncWeb.AppAuthController do
           case AppAuth.authorize_app(user.id, decoded_data) do
             {:ok, _api_token} ->
               conn
-              |> put_flash(:info, "Application authorized successfully!")
+              |> put_flash(:info, gettext("app_auth.authorized_success"))
               |> redirect(to: ~p"/dashboard")
 
             {:error, changeset} ->
@@ -156,7 +156,7 @@ defmodule BaladosSyncWeb.AppAuthController do
 
               conn
               |> put_status(:unprocessable_entity)
-              |> put_flash(:error, "Failed to authorize application: #{format_errors(changeset)}")
+              |> put_flash(:error, gettext("app_auth.authorize_failed") <> ": #{format_errors(changeset)}")
               |> redirect(to: ~p"/dashboard")
           end
 
@@ -165,7 +165,7 @@ defmodule BaladosSyncWeb.AppAuthController do
 
           conn
           |> put_status(:bad_request)
-          |> put_flash(:error, "Invalid authorization token.")
+          |> put_flash(:error, gettext("app_auth.invalid_token"))
           |> redirect(to: ~p"/dashboard")
       end
     else
@@ -173,7 +173,7 @@ defmodule BaladosSyncWeb.AppAuthController do
 
       conn
       |> put_status(:unauthorized)
-      |> put_flash(:error, "You must be logged in to authorize applications.")
+      |> put_flash(:error, gettext("app_auth.must_be_logged_in"))
       |> redirect(to: ~p"/users/log_in")
     end
   end
@@ -181,7 +181,7 @@ defmodule BaladosSyncWeb.AppAuthController do
   def create_authorization(conn, _params) do
     conn
     |> put_status(:bad_request)
-    |> put_flash(:error, "Missing authorization token.")
+    |> put_flash(:error, gettext("app_auth.missing_token"))
     |> redirect(to: ~p"/dashboard")
   end
 
@@ -320,7 +320,7 @@ defmodule BaladosSyncWeb.AppAuthController do
       render(conn, :manage_apps, apps: apps_with_stats)
     else
       conn
-      |> put_flash(:error, "Please log in to manage your authorized apps.")
+      |> put_flash(:error, gettext("app_auth.login_to_manage"))
       |> redirect(to: ~p"/users/log_in")
     end
   end

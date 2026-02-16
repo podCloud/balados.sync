@@ -9,11 +9,11 @@
       <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
       </svg>
-      Back to Podcast Ownership
+      <%= gettext("ownership.back") %>
     </a>
 
     <h1 class="text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl">
-      Verify Ownership
+      <%= gettext("ownership.verify_title") %>
     </h1>
 
     <div class="mt-4 mb-8">
@@ -23,23 +23,23 @@
       <%= case @claim.status do %>
         <% "pending" -> %>
           <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 mt-2">
-            Pending Verification
+            <%= gettext("ownership.status.pending") %>
           </span>
         <% "verified" -> %>
           <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-2">
-            Verified
+            <%= gettext("ownership.status.verified") %>
           </span>
         <% "failed" -> %>
           <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-2">
-            Failed
+            <%= gettext("ownership.status.failed") %>
           </span>
         <% "expired" -> %>
           <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-800 mt-2">
-            Expired
+            <%= gettext("ownership.status.expired") %>
           </span>
         <% "cancelled" -> %>
           <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-800 mt-2">
-            Cancelled
+            <%= gettext("ownership.status.cancelled") %>
           </span>
         <% _ -> %>
       <% end %>
@@ -47,14 +47,14 @@
 
     <%= if @claim.status == "pending" do %>
       <p class="text-sm text-zinc-600 mb-6">
-        Choose one of the verification methods below to prove you own this podcast.
+        <%= gettext("ownership.choose_method") %>
       </p>
 
       <!-- Method 1: RSS Verification -->
       <div class="bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8 mb-6">
         <h2 class="text-lg font-semibold text-zinc-900 mb-4">
           <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-200 text-sm font-bold mr-2">1</span>
-          RSS Feed Verification
+          <%= gettext("ownership.rss_verification") %>
         </h2>
 
         <div class="bg-zinc-900 text-green-400 rounded-lg p-4 font-mono text-center mb-4 select-all text-sm">
@@ -62,13 +62,13 @@
         </div>
 
         <p class="text-sm text-zinc-600 mb-4">
-          Copy this code and add it anywhere in your podcast's RSS feed. You can add it as:
+          <%= gettext("ownership.rss_instructions") %>
         </p>
 
         <ul class="list-disc list-inside text-sm text-zinc-600 space-y-1 mb-4">
-          <li>An XML comment: <code class="bg-zinc-100 px-1 rounded text-xs">&lt;!-- <%= @claim.verification_code %> --&gt;</code></li>
-          <li>In your podcast description</li>
-          <li>As a custom tag in your feed</li>
+          <li><%= gettext("ownership.rss_option_comment") %>: <code class="bg-zinc-100 px-1 rounded text-xs">&lt;!-- <%= @claim.verification_code %> --&gt;</code></li>
+          <li><%= gettext("ownership.rss_option_description") %></li>
+          <li><%= gettext("ownership.rss_option_tag") %></li>
         </ul>
 
         <form action={~p"/podcast-ownership/claims/#{@claim.id}/verify"} method="post">
@@ -77,12 +77,12 @@
             type="submit"
             class="w-full rounded-md bg-blue-600 px-4 py-3 text-white font-semibold hover:bg-blue-700 transition"
           >
-            Verify RSS Feed
+            <%= gettext("ownership.verify_rss") %>
           </button>
         </form>
 
         <p class="text-xs text-zinc-500 mt-2 text-center">
-          Expires: <%= Calendar.strftime(@claim.expires_at, "%Y-%m-%d %H:%M UTC") %>
+          <%= gettext("ownership.expires") %>: <%= Calendar.strftime(@claim.expires_at, "%Y-%m-%d %H:%M UTC") %>
         </p>
       </div>
 
@@ -90,7 +90,7 @@
       <div class="bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8 mb-6">
         <h2 class="text-lg font-semibold text-zinc-900 mb-4">
           <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-200 text-sm font-bold mr-2">2</span>
-          Email Verification
+          <%= gettext("ownership.email_verification") %>
         </h2>
 
         <%= if length(@available_emails) > 0 do %>
@@ -98,17 +98,17 @@
             <!-- Email verification in progress -->
             <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
               <p class="text-sm text-green-800 font-medium mb-2">
-                Verification code sent to: <%= @email_verification.email %>
+                <%= gettext("ownership.code_sent_to") %>: <%= @email_verification.email %>
               </p>
               <p class="text-xs text-green-700">
-                Code expires: <%= Calendar.strftime(@email_verification.expires_at, "%Y-%m-%d %H:%M UTC") %>
+                <%= gettext("ownership.code_expires") %>: <%= Calendar.strftime(@email_verification.expires_at, "%Y-%m-%d %H:%M UTC") %>
               </p>
             </div>
 
             <form action={~p"/podcast-ownership/claims/#{@claim.id}/email-code"} method="post" class="mb-4">
               <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
               <label class="block text-sm font-medium text-zinc-700 mb-2">
-                Enter the 6-digit code from your email:
+                <%= gettext("ownership.enter_code") %>
               </label>
               <input
                 type="text"
@@ -123,30 +123,30 @@
                 type="submit"
                 class="w-full rounded-md bg-green-600 px-4 py-3 text-white font-semibold hover:bg-green-700 transition"
               >
-                Verify Code
+                <%= gettext("ownership.verify_code") %>
               </button>
             </form>
 
             <%= if @email_verification.attempts > 0 do %>
               <p class="text-sm text-zinc-500 text-center mb-4">
-                Attempts: <%= @email_verification.attempts %> / 5
+                <%= gettext("ownership.attempts") %>: <%= @email_verification.attempts %> / 5
               </p>
             <% end %>
 
             <div class="text-center">
-              <p class="text-sm text-zinc-600 mb-2">Didn't receive the email?</p>
+              <p class="text-sm text-zinc-600 mb-2"><%= gettext("ownership.didnt_receive") %></p>
               <form action={~p"/podcast-ownership/claims/#{@claim.id}/email-verify"} method="post" class="inline">
                 <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
                 <input type="hidden" name="email" value={@email_verification.email} />
                 <button type="submit" class="text-sm text-blue-600 hover:text-blue-700">
-                  Resend verification email
+                  <%= gettext("ownership.resend_email") %>
                 </button>
               </form>
             </div>
           <% else %>
             <!-- Select email to verify -->
             <p class="text-sm text-zinc-600 mb-4">
-              We found the following email addresses in your podcast's RSS feed. Select one to receive a verification code:
+              <%= gettext("ownership.select_email") %>
             </p>
 
             <div class="space-y-2 mb-4">
@@ -160,10 +160,10 @@
                   >
                     <span>
                       <span class="font-medium"><%= email_info.email %></span>
-                      <span class="text-xs text-zinc-500 ml-2">from &lt;<%= email_info.source %>&gt;</span>
+                      <span class="text-xs text-zinc-500 ml-2"><%= gettext("ownership.from_source") %> &lt;<%= email_info.source %>&gt;</span>
                     </span>
                     <span class="text-blue-600 text-sm group-hover:underline">
-                      Send code &rarr;
+                      <%= gettext("ownership.send_code") %> &rarr;
                     </span>
                   </button>
                 </form>
@@ -173,7 +173,7 @@
         <% else %>
           <div class="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
             <p class="text-sm text-zinc-600">
-              No email addresses found in your podcast's RSS feed. To use email verification, add an email to one of these fields:
+              <%= gettext("ownership.no_emails_found") %>
             </p>
             <ul class="list-disc list-inside text-sm text-zinc-500 mt-2 space-y-1">
               <li><code class="bg-zinc-100 px-1 rounded">&lt;itunes:owner&gt;&lt;itunes:email&gt;</code></li>
@@ -191,9 +191,9 @@
           <button
             type="submit"
             class="text-sm text-red-600 hover:text-red-700"
-            onclick="return confirm('Are you sure you want to cancel this claim?')"
+            onclick={"return confirm('#{gettext("ownership.cancel_confirm")}')"}
           >
-            Cancel this claim
+            <%= gettext("ownership.cancel_claim") %>
           </button>
         </form>
       </div>
@@ -203,28 +203,28 @@
         <%= case @claim.status do %>
           <% "verified" -> %>
             <p class="text-green-700 font-medium">
-              This claim has been verified. You can manage your podcast from the ownership dashboard.
+              <%= gettext("ownership.verified_message") %>
             </p>
           <% "failed" -> %>
             <p class="text-red-700 font-medium mb-2">
-              Verification failed: <%= @claim.failure_reason %>
+              <%= gettext("ownership.failed_message") %>: <%= @claim.failure_reason %>
             </p>
             <a href={~p"/podcast-ownership/new"} class="text-blue-600 hover:text-blue-700">
-              Create a new claim
+              <%= gettext("ownership.create_new_claim") %>
             </a>
           <% "expired" -> %>
             <p class="text-zinc-700 font-medium mb-2">
-              This claim has expired. Please create a new one.
+              <%= gettext("ownership.expired_message") %>
             </p>
             <a href={~p"/podcast-ownership/new"} class="text-blue-600 hover:text-blue-700">
-              Create a new claim
+              <%= gettext("ownership.create_new_claim") %>
             </a>
           <% "cancelled" -> %>
             <p class="text-zinc-700 font-medium mb-2">
-              This claim was cancelled.
+              <%= gettext("ownership.cancelled_message") %>
             </p>
             <a href={~p"/podcast-ownership/new"} class="text-blue-600 hover:text-blue-700">
-              Create a new claim
+              <%= gettext("ownership.create_new_claim") %>
             </a>
           <% _ -> %>
         <% end %>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" class="[scrollbar-gutter:stable]">
+<html lang={Gettext.get_locale(BaladosSyncWeb.Gettext)} class="[scrollbar-gutter:stable]">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <title>Initial Setup - Balados Sync</title>
+    <title><%= gettext("setup.subtitle") %> - Balados Sync</title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
   </head>
   <body class="bg-zinc-50 antialiased">
@@ -16,17 +16,17 @@
             Balados Sync
           </h1>
           <p class="text-lg text-zinc-600">
-            Initial Setup
+            <%= gettext("setup.subtitle") %>
           </p>
         </div>
         <!-- Card de setup -->
         <div class="bg-white shadow-lg rounded-lg p-8">
           <div class="mb-6">
             <h2 class="text-xl font-semibold text-zinc-900 mb-2">
-              Welcome!
+              <%= gettext("setup.welcome") %>
             </h2>
             <p class="text-sm text-zinc-600">
-              Let's create the first administrator account for this Balados Sync instance.
+              <%= gettext("setup.description") %>
             </p>
           </div>
           <!-- Info box -->
@@ -37,8 +37,7 @@
               </div>
               <div class="ml-3">
                 <p class="text-sm text-blue-800">
-                  This account will have <strong>administrator privileges</strong>
-                  and full access to all system features.
+                  <%= gettext("setup.admin_info") %>
                 </p>
               </div>
             </div>
@@ -46,13 +45,13 @@
           <!-- Formulaire -->
           <.simple_form :let={f} for={@changeset} action={~p"/setup"}>
             <.error :if={@changeset.action}>
-              Setup failed. Please check the errors below.
+              <%= gettext("setup.error") %>
             </.error>
 
             <.input
               field={f[:username]}
               type="text"
-              label="Username"
+              label={gettext("setup.username_label")}
               placeholder="admin"
               required
               autocomplete="username"
@@ -61,7 +60,7 @@
             <.input
               field={f[:email]}
               type="email"
-              label="Email"
+              label={gettext("setup.email_label")}
               placeholder="admin@example.com"
               autocomplete="email"
             />
@@ -69,7 +68,7 @@
             <.input
               field={f[:password]}
               type="password"
-              label="Password"
+              label={gettext("setup.password_label")}
               required
               autocomplete="new-password"
             />
@@ -77,18 +76,18 @@
             <.input
               field={f[:password_confirmation]}
               type="password"
-              label="Confirm Password"
+              label={gettext("setup.password_confirm_label")}
               required
               autocomplete="new-password"
             />
 
             <div class="text-xs text-zinc-500 mt-2">
-              Password must be at least 12 characters and include uppercase, lowercase, digit, and special character.
+              <%= gettext("setup.password_hint") %>
             </div>
 
             <:actions>
-              <.button class="w-full" phx-disable-with="Creating admin account...">
-                Complete Setup
+              <.button class="w-full" phx-disable-with={gettext("setup.submitting")}>
+                <%= gettext("setup.submit") %>
               </.button>
             </:actions>
           </.simple_form>
@@ -96,7 +95,7 @@
         <!-- Footer -->
         <div class="mt-6 text-center text-sm text-zinc-500">
           <p>
-            Self-hosted podcast synchronization platform
+            <%= gettext("setup.footer") %>
           </p>
         </div>
       </div>

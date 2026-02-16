@@ -48,6 +48,7 @@ defmodule BaladosSyncWeb.Plugs.RateLimiter do
   """
 
   import Plug.Conn
+  use Gettext, backend: BaladosSyncWeb.Gettext
   require Logger
 
   @behaviour Plug
@@ -172,7 +173,7 @@ defmodule BaladosSyncWeb.Plugs.RateLimiter do
       429,
       Jason.encode!(%{
         error: "RATE_LIMIT_EXCEEDED",
-        message: "Too many requests. Please try again later.",
+        message: gettext("auth.rate_limited"),
         retry_after_seconds: retry_after_seconds
       })
     )

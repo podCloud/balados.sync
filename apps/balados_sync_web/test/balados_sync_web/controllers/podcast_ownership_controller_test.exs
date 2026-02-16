@@ -142,7 +142,7 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
         |> post(~p"/podcast-ownership/claims/#{claim.id}/email-code", %{"code" => "123456"})
 
       assert redirected_to(conn) == ~p"/podcast-ownership/claims/#{claim.id}"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "pending email verification"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "No pending verification"
     end
 
     test "redirects with error for expired verification", %{conn: conn, user: user, user_id: user_id} do
@@ -212,7 +212,7 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
         |> get(~p"/podcast-ownership/claims/#{fake_id}")
 
       assert redirected_to(conn) == ~p"/podcast-ownership"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Claim not found."
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Ownership claim not found."
     end
 
     test "redirects for claim owned by another user", %{conn: conn, user: user} do
@@ -225,7 +225,7 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
         |> get(~p"/podcast-ownership/claims/#{claim.id}")
 
       assert redirected_to(conn) == ~p"/podcast-ownership"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You don't have access to this claim."
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Access denied for this podcast."
     end
   end
 
@@ -239,7 +239,7 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
         |> post(~p"/podcast-ownership/claims/#{claim.id}/cancel")
 
       assert redirected_to(conn) == ~p"/podcast-ownership"
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Claim cancelled."
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Ownership claim cancelled."
 
       # Verify claim is cancelled
       updated_claim = SystemRepo.get!(PodcastOwnershipClaim, claim.id)

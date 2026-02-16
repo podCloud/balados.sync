@@ -33,6 +33,7 @@ defmodule BaladosSyncWeb.ConnCase do
 
   setup tags do
     BaladosSyncWeb.DataCase.setup_sandbox(tags)
+    Gettext.put_locale(BaladosSyncWeb.Gettext, "en")
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

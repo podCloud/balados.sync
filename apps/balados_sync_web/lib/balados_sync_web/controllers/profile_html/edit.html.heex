@@ -1,42 +1,42 @@
 <div class="mx-auto max-w-sm">
   <.header class="text-center">
-    Profile Settings
+    <%= gettext("profile.settings_title") %>
     <:subtitle>
-      Customize your public profile.
+      <%= gettext("profile.settings_subtitle") %>
     </:subtitle>
   </.header>
 
   <.simple_form :let={f} for={@changeset} action={~p"/settings/profile"}>
     <.error :if={@changeset.action}>
-      Oops, something went wrong! Please check the errors below.
+      <%= gettext("common.form_error") %>
     </.error>
 
-    <.input field={f[:public_name]} type="text" label="Display Name" placeholder={@user.username} />
+    <.input field={f[:public_name]} type="text" label={gettext("profile.display_name_label")} placeholder={@user.username} />
     <div class="text-sm text-zinc-500 -mt-4 mb-2">
-      This name will be shown instead of your username on your public profile.
+      <%= gettext("profile.display_name_hint") %>
     </div>
 
-    <.input field={f[:bio]} type="textarea" label="Bio" placeholder="Tell us about yourself..." />
+    <.input field={f[:bio]} type="textarea" label={gettext("profile.bio_label")} placeholder={gettext("profile.bio_placeholder")} />
     <div class="text-sm text-zinc-500 -mt-4 mb-2">
-      A short description that appears on your profile page.
+      <%= gettext("profile.bio_hint") %>
     </div>
 
-    <.input field={f[:public_profile_enabled]} type="checkbox" label="Enable public profile" />
+    <.input field={f[:public_profile_enabled]} type="checkbox" label={gettext("profile.enable_public")} />
     <div class="text-sm text-zinc-500 -mt-2 mb-4">
-      When enabled, your profile page will be visible at
+      <%= gettext("profile.public_hint") %>
       <.link navigate={~p"/u/#{@user.username}"} class="font-mono text-brand hover:underline">
         /u/<%= @user.username %>
       </.link>
     </div>
 
     <:actions>
-      <.button phx-disable-with="Saving..." class="w-full">Save Profile</.button>
+      <.button phx-disable-with={gettext("common.saving")} class="w-full"><%= gettext("profile.save") %></.button>
     </:actions>
   </.simple_form>
 
   <div class="mt-8 pt-8 border-t border-zinc-200">
     <.link navigate={~p"/dashboard"} class="text-sm text-zinc-600 hover:text-zinc-900">
-      ← Back to Dashboard
+      ← <%= gettext("common.back_to_dashboard") %>
     </.link>
   </div>
 </div>

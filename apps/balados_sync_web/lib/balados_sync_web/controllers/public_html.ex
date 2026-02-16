@@ -6,7 +6,7 @@ defmodule BaladosSyncWeb.PublicHTML do
   @doc """
   Format duration in seconds to human readable string.
   """
-  def format_duration(nil), do: "Unknown"
+  def format_duration(nil), do: gettext("common.unknown")
 
   def format_duration(seconds) when is_integer(seconds) and seconds >= 0 do
     hours = div(seconds, 3600)
@@ -20,20 +20,20 @@ defmodule BaladosSyncWeb.PublicHTML do
     end
   end
 
-  def format_duration(_), do: "Unknown"
+  def format_duration(_), do: gettext("common.unknown")
 
   @doc """
   Format a DateTime to a relative time string (e.g., "2 days ago", "just now").
   """
-  def time_ago_in_words(nil), do: "Unknown"
+  def time_ago_in_words(nil), do: gettext("common.unknown")
 
   def time_ago_in_words(%DateTime{} = datetime) do
     now = DateTime.utc_now()
     seconds_diff = DateTime.diff(now, datetime, :second)
 
     cond do
-      seconds_diff < 0 -> "in the future"
-      seconds_diff < 60 -> "just now"
+      seconds_diff < 0 -> gettext("time.in_the_future")
+      seconds_diff < 60 -> gettext("time.just_now")
       seconds_diff < 3600 -> "#{div(seconds_diff, 60)}m ago"
       seconds_diff < 86400 -> "#{div(seconds_diff, 3600)}h ago"
       seconds_diff < 604_800 -> "#{div(seconds_diff, 86400)}d ago"
@@ -43,7 +43,7 @@ defmodule BaladosSyncWeb.PublicHTML do
     end
   end
 
-  def time_ago_in_words(_), do: "Unknown"
+  def time_ago_in_words(_), do: gettext("common.unknown")
 
   @doc """
   Get event type color for border styling.
@@ -56,23 +56,23 @@ defmodule BaladosSyncWeb.PublicHTML do
   @doc """
   Display username or "Anonymous" based on privacy level.
   """
-  def display_username(%{"privacy" => "anonymous"}), do: "Anonymous"
-  def display_username(%{"username" => nil}), do: "Anonymous"
+  def display_username(%{"privacy" => "anonymous"}), do: gettext("common.anonymous")
+  def display_username(%{"username" => nil}), do: gettext("common.anonymous")
   def display_username(%{"username" => username}), do: "@#{username}"
-  def display_username(_), do: "Anonymous"
+  def display_username(_), do: gettext("common.anonymous")
 
   @doc """
   Get event action text based on event type.
   """
-  def event_action_text("subscribe"), do: " subscribed to "
-  def event_action_text("play"), do: " listened to "
-  def event_action_text("unsubscribe"), do: " unsubscribed from "
-  def event_action_text(_), do: " interacted with "
+  def event_action_text("subscribe"), do: " " <> gettext("timeline.action.subscribed") <> " "
+  def event_action_text("play"), do: " " <> gettext("timeline.action.listened") <> " "
+  def event_action_text("unsubscribe"), do: " " <> gettext("timeline.action.unsubscribed") <> " "
+  def event_action_text(_), do: " " <> gettext("timeline.action.interacted") <> " "
 
   @doc """
   Get podcast title from event with fallback.
   """
   def podcast_title(%{"feed_metadata" => %{"title" => title}}) when is_binary(title), do: title
   def podcast_title(%{"event_data" => %{"feed_title" => title}}) when is_binary(title), do: title
-  def podcast_title(_), do: "Unknown Podcast"
+  def podcast_title(_), do: gettext("common.unknown_podcast")
 end

@@ -1,13 +1,13 @@
 <div class="px-4 py-10 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-3xl">
     <.header>
-      New Enriched Podcast
-      <:subtitle>Create a custom entry for a featured podcast</:subtitle>
+      <%= gettext("enriched.new") %>
+      <:subtitle><%= gettext("enriched.new_subtitle") %></:subtitle>
     </.header>
 
     <%= if @feed_metadata do %>
       <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 class="text-sm font-semibold text-blue-800">Podcast Preview</h3>
+        <h3 class="text-sm font-semibold text-blue-800"><%= gettext("enriched.podcast_preview") %></h3>
         <p class="mt-1 text-sm text-blue-700"><%= @feed_metadata.title %></p>
         <%= if @feed_metadata.description do %>
           <p class="mt-2 text-xs text-blue-600 line-clamp-2"><%= @feed_metadata.description %></p>
@@ -18,36 +18,35 @@
     <div class="mt-8">
       <.simple_form :let={f} for={@changeset} action={~p"/admin/enriched-podcasts"}>
         <.error :if={@changeset.action}>
-          Oops, something went wrong! Please check the errors below.
+          <%= gettext("common.form_error") %>
         </.error>
 
-        <.input field={f[:feed_url]} type="text" label="Feed URL" value={@feed_url} required />
+        <.input field={f[:feed_url]} type="text" label={gettext("enriched.feed_url_label")} value={@feed_url} required />
         <.input
           field={f[:slug]}
           type="text"
-          label="Custom Slug"
+          label={gettext("enriched.slug_label")}
           placeholder="my-podcast-name"
           required
         />
         <p class="text-xs text-zinc-500 -mt-2">
-          3-50 characters. Lowercase letters, numbers, and hyphens only.
-          Will be accessible at /podcasts/your-slug
+          <%= gettext("enriched.slug_help") %>
         </p>
 
         <.input
           field={f[:background_color]}
           type="text"
-          label="Background Color"
+          label={gettext("enriched.background_color_label")}
           placeholder="#FF5733"
         />
         <p class="text-xs text-zinc-500 -mt-2">
-          Optional. Hex color format (#RRGGBB) for page branding.
+          <%= gettext("enriched.background_color_help") %>
         </p>
 
         <div class="mt-6">
-          <label class="block text-sm font-medium text-zinc-700 mb-2">Social & Custom Links</label>
+          <label class="block text-sm font-medium text-zinc-700 mb-2"><%= gettext("enriched.social_links_label") %></label>
           <p class="text-xs text-zinc-500 mb-4">
-            Add up to 10 links. Social networks will display with their icons.
+            <%= gettext("enriched.social_links_help") %>
           </p>
 
           <div id="links-container" class="space-y-3">
@@ -62,14 +61,14 @@
             <svg class="-ml-0.5 mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Add Link
+            <%= gettext("enriched.add_link") %>
           </button>
         </div>
 
         <:actions>
-          <.button type="submit">Create Enriched Podcast</.button>
+          <.button type="submit"><%= gettext("enriched.create") %></.button>
           <.link navigate={~p"/admin/enriched-podcasts"} class="text-sm text-zinc-600 hover:text-zinc-900 ml-4">
-            Cancel
+            <%= gettext("common.cancel") %>
           </.link>
         </:actions>
       </.simple_form>

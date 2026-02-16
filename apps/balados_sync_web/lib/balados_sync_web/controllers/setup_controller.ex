@@ -8,7 +8,7 @@ defmodule BaladosSyncWeb.SetupController do
     if Accounts.any_users_exist?() do
       # Redirige vers home si déjà configuré
       conn
-      |> put_flash(:info, "System already configured")
+      |> put_flash(:info, gettext("setup.already_configured"))
       |> redirect(to: ~p"/")
     else
       changeset = Accounts.change_user_registration(%User{})
@@ -21,14 +21,14 @@ defmodule BaladosSyncWeb.SetupController do
     if Accounts.any_users_exist?() do
       # Protection contre race condition
       conn
-      |> put_flash(:error, "System already configured")
+      |> put_flash(:error, gettext("setup.already_configured"))
       |> redirect(to: ~p"/")
     else
       try do
         case Accounts.register_admin_user(user_params) do
           {:ok, user} ->
             conn
-            |> put_flash(:info, "Welcome! You are now the admin of this Balados Sync instance.")
+            |> put_flash(:info, gettext("setup.welcome_admin"))
             |> BaladosSyncWeb.Plugs.UserAuth.log_in_user(user)
             |> redirect(to: ~p"/admin")
 
@@ -51,7 +51,7 @@ defmodule BaladosSyncWeb.SetupController do
           changeset = Accounts.change_user_registration(%User{})
 
           conn
-          |> put_flash(:error, "Database error. Check logs.")
+          |> put_flash(:error, gettext("setup.db_error"))
           |> render(:show, changeset: changeset, layout: false)
       end
     end

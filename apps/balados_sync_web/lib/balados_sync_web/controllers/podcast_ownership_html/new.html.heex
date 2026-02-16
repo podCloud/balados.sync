@@ -9,14 +9,14 @@
       <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
       </svg>
-      Back to Podcast Ownership
+      <%= gettext("ownership.back") %>
     </a>
 
     <h1 class="text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl">
-      Claim a Podcast
+      <%= gettext("ownership.claim_podcast") %>
     </h1>
     <p class="mt-3 text-lg text-zinc-600">
-      Verify ownership of your podcast by adding a verification code to your RSS feed.
+      <%= gettext("ownership.claim_description") %>
     </p>
 
     <div class="mt-8 bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8">
@@ -25,7 +25,7 @@
 
         <div class="mb-6">
           <label for="feed_url" class="block text-sm font-semibold text-zinc-900 mb-2">
-            Podcast RSS Feed URL
+            <%= gettext("ownership.feed_url_label") %>
           </label>
           <input
             type="url"
@@ -36,7 +36,7 @@
             class="w-full rounded-md border-zinc-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
           <p class="mt-2 text-sm text-zinc-500">
-            Enter the full URL of your podcast's RSS feed.
+            <%= gettext("ownership.feed_url_hint") %>
           </p>
         </div>
 
@@ -44,22 +44,22 @@
           type="submit"
           class="w-full rounded-md bg-blue-600 px-4 py-3 text-white font-semibold hover:bg-blue-700 transition"
         >
-          Generate Verification Code
+          <%= gettext("ownership.generate_code") %>
         </button>
       </form>
     </div>
 
     <div class="mt-8 bg-zinc-50 shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8">
-      <h2 class="text-lg font-semibold text-zinc-900 mb-4">How it works</h2>
+      <h2 class="text-lg font-semibold text-zinc-900 mb-4"><%= gettext("ownership.how_it_works") %></h2>
       <ol class="list-decimal list-inside space-y-3 text-zinc-700">
-        <li>Enter your podcast's RSS feed URL above</li>
-        <li>We'll generate a unique verification code for you</li>
-        <li>Add the code anywhere in your RSS feed (in a comment, description, or custom tag)</li>
-        <li>Click "Verify" and we'll check your feed for the code</li>
-        <li>Once verified, you can manage enriched metadata for your podcast</li>
+        <li><%= gettext("ownership.step_1") %></li>
+        <li><%= gettext("ownership.step_2") %></li>
+        <li><%= gettext("ownership.step_3") %></li>
+        <li><%= gettext("ownership.step_4") %></li>
+        <li><%= gettext("ownership.step_5") %></li>
       </ol>
       <p class="mt-4 text-sm text-zinc-500">
-        The verification code can be removed from your feed after successful verification.
+        <%= gettext("ownership.code_removal_note") %>
       </p>
     </div>
   </div>

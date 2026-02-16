@@ -50,7 +50,7 @@ defmodule BaladosSyncWeb.EnrichedPodcastsController do
     case EnrichedPodcasts.create_enriched_podcast(attrs) do
       {:ok, enriched_podcast} ->
         conn
-        |> put_flash(:info, "Enriched podcast created successfully.")
+        |> put_flash(:info, gettext("enriched.created_success"))
         |> redirect(to: ~p"/admin/enriched-podcasts/#{enriched_podcast.id}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -77,7 +77,7 @@ defmodule BaladosSyncWeb.EnrichedPodcastsController do
     case EnrichedPodcasts.get(id) do
       nil ->
         conn
-        |> put_flash(:error, "Enriched podcast not found.")
+        |> put_flash(:error, gettext("enriched.not_found"))
         |> redirect(to: ~p"/admin/enriched-podcasts")
 
       enriched_podcast ->
@@ -102,7 +102,7 @@ defmodule BaladosSyncWeb.EnrichedPodcastsController do
     case EnrichedPodcasts.get(id) do
       nil ->
         conn
-        |> put_flash(:error, "Enriched podcast not found.")
+        |> put_flash(:error, gettext("enriched.not_found"))
         |> redirect(to: ~p"/admin/enriched-podcasts")
 
       enriched_podcast ->
@@ -127,7 +127,7 @@ defmodule BaladosSyncWeb.EnrichedPodcastsController do
     case EnrichedPodcasts.get(id) do
       nil ->
         conn
-        |> put_flash(:error, "Enriched podcast not found.")
+        |> put_flash(:error, gettext("enriched.not_found"))
         |> redirect(to: ~p"/admin/enriched-podcasts")
 
       enriched_podcast ->
@@ -136,7 +136,7 @@ defmodule BaladosSyncWeb.EnrichedPodcastsController do
         case EnrichedPodcasts.update_enriched_podcast(enriched_podcast, attrs) do
           {:ok, enriched_podcast} ->
             conn
-            |> put_flash(:info, "Enriched podcast updated successfully.")
+            |> put_flash(:info, gettext("enriched.updated_success"))
             |> redirect(to: ~p"/admin/enriched-podcasts/#{enriched_podcast.id}")
 
           {:error, %Ecto.Changeset{} = changeset} ->
@@ -160,14 +160,14 @@ defmodule BaladosSyncWeb.EnrichedPodcastsController do
     case EnrichedPodcasts.get(id) do
       nil ->
         conn
-        |> put_flash(:error, "Enriched podcast not found.")
+        |> put_flash(:error, gettext("enriched.not_found"))
         |> redirect(to: ~p"/admin/enriched-podcasts")
 
       enriched_podcast ->
         {:ok, _} = EnrichedPodcasts.delete_enriched_podcast(enriched_podcast)
 
         conn
-        |> put_flash(:info, "Enriched podcast deleted successfully.")
+        |> put_flash(:info, gettext("enriched.deleted_success"))
         |> redirect(to: ~p"/admin/enriched-podcasts")
     end
   end
@@ -184,7 +184,7 @@ defmodule BaladosSyncWeb.EnrichedPodcastsController do
       conn
     else
       conn
-      |> put_flash(:error, "Admin access required")
+      |> put_flash(:error, gettext("admin.access_required"))
       |> redirect(to: ~p"/")
       |> halt()
     end

@@ -144,7 +144,7 @@ defmodule BaladosSyncWeb.PlaylistsControllerTest do
           "playlist" => %{"name" => "", "description" => "Description without name"}
         })
 
-      assert html_response(conn, 200) =~ "Name is required"
+      assert html_response(conn, 200) =~ "Playlist name is required"
       assert html_response(conn, 200) =~ "New Playlist"
     end
 
@@ -156,7 +156,7 @@ defmodule BaladosSyncWeb.PlaylistsControllerTest do
           "playlist" => %{"description" => "Description without name"}
         })
 
-      assert html_response(conn, 200) =~ "Name is required"
+      assert html_response(conn, 200) =~ "Playlist name is required"
     end
   end
 

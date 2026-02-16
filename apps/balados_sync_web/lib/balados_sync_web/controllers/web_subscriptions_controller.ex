@@ -76,25 +76,25 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
         case Dispatcher.dispatch(command) do
           :ok ->
             conn
-            |> put_flash(:info, "Successfully subscribed to #{metadata.title}")
+            |> put_flash(:info, gettext("subscriptions.subscribed") <> " #{metadata.title}")
             |> redirect(to: ~p"/subscriptions")
 
           {:error, :already_subscribed} ->
             conn
-            |> put_flash(:warning, "Already subscribed to this podcast")
+            |> put_flash(:warning, gettext("subscriptions.already_subscribed"))
             |> redirect(to: ~p"/subscriptions")
 
           {:error, reason} ->
             Logger.warning("Subscription failed for user #{user_id}: #{inspect(reason)}")
 
             conn
-            |> put_flash(:error, "Failed to subscribe. Please try again.")
+            |> put_flash(:error, gettext("subscriptions.subscribe_failed"))
             |> render(:new, changeset: nil, preview: metadata)
         end
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Invalid feed: #{reason}")
+        |> put_flash(:error, gettext("subscriptions.invalid_feed") <> ": #{reason}")
         |> render(:new, changeset: nil, preview: nil)
     end
   end
@@ -156,21 +156,21 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
         max_mb = div(@max_opml_file_size, 1024 * 1024)
 
         conn
-        |> put_flash(:error, "File too large. Maximum size is #{max_mb}MB.")
+        |> put_flash(:error, gettext("import_opml.file_too_large") <> " #{max_mb}MB")
         |> render(:import_opml)
 
       {:error, reason} ->
         Logger.warning("File stat failed during OPML import: #{inspect(reason)}")
 
         conn
-        |> put_flash(:error, "Could not read the uploaded file. Please try again.")
+        |> put_flash(:error, gettext("import_opml.read_error"))
         |> render(:import_opml)
     end
   end
 
   def import_opml(conn, _params) do
     conn
-    |> put_flash(:error, "Please select an OPML file to import")
+    |> put_flash(:error, gettext("import_opml.no_file_selected"))
     |> render(:import_opml)
   end
 
@@ -194,20 +194,20 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
                 Logger.error("OPML import failed for user #{user_id}: #{inspect(reason)}")
 
                 conn
-                |> put_flash(:error, "Import failed. Please check your file and try again.")
+                |> put_flash(:error, gettext("import_opml.import_failed"))
                 |> render(:import_opml)
             end
 
           {:error, :xml_parse_failed} ->
             conn
-            |> put_flash(:error, "Invalid OPML file: could not parse XML")
+            |> put_flash(:error, gettext("import_opml.parse_error"))
             |> render(:import_opml)
 
           {:error, reason} ->
             Logger.warning("OPML parsing failed: #{inspect(reason)}")
 
             conn
-            |> put_flash(:error, "Invalid OPML file format")
+            |> put_flash(:error, gettext("import_opml.invalid_format"))
             |> render(:import_opml)
         end
 
@@ -215,7 +215,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
         Logger.warning("File read failed during OPML import: #{inspect(reason)}")
 
         conn
-        |> put_flash(:error, "Could not read the uploaded file. Please try again.")
+        |> put_flash(:error, gettext("import_opml.read_error"))
         |> render(:import_opml)
     end
   end
@@ -226,7 +226,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
     parts =
       if stats.subscriptions.imported > 0 or stats.subscriptions.merged > 0 do
         count = stats.subscriptions.imported + stats.subscriptions.merged
-        parts ++ ["#{count} subscription(s)"]
+        parts ++ ["#{count} " <> gettext("import_opml.subscriptions_count")]
       else
         parts
       end
@@ -234,7 +234,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
     parts =
       if stats.play_statuses.imported > 0 or stats.play_statuses.merged > 0 do
         count = stats.play_statuses.imported + stats.play_statuses.merged
-        parts ++ ["#{count} play status(es)"]
+        parts ++ ["#{count} " <> gettext("import_opml.play_statuses_count")]
       else
         parts
       end
@@ -242,7 +242,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
     parts =
       if stats.playlists.imported > 0 or stats.playlists.merged > 0 do
         count = stats.playlists.imported + stats.playlists.merged
-        parts ++ ["#{count} playlist(s)"]
+        parts ++ ["#{count} " <> gettext("import_opml.playlists_count")]
       else
         parts
       end
@@ -250,15 +250,15 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
     parts =
       if stats.collections.imported > 0 or stats.collections.merged > 0 do
         count = stats.collections.imported + stats.collections.merged
-        parts ++ ["#{count} collection(s)"]
+        parts ++ ["#{count} " <> gettext("import_opml.collections_count")]
       else
         parts
       end
 
     if Enum.empty?(parts) do
-      "No new data to import"
+      gettext("import_opml.no_new_data")
     else
-      "Successfully imported: " <> Enum.join(parts, ", ")
+      gettext("import_opml.success") <> Enum.join(parts, ", ")
     end
   end
 
@@ -269,9 +269,9 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
          {:ok, metadata} <- RssParser.parse_feed(xml) do
       {:ok, metadata}
     else
-      {:error, :fetch_failed} -> {:error, "Could not fetch feed"}
-      {:error, :parse_failed} -> {:error, "Invalid RSS/XML format"}
-      _ -> {:error, "Unknown error"}
+      {:error, :fetch_failed} -> {:error, gettext("subscriptions.fetch_failed")}
+      {:error, :parse_failed} -> {:error, gettext("subscriptions.invalid_format")}
+      _ -> {:error, gettext("subscriptions.unknown_error")}
     end
   end
 
@@ -287,7 +287,7 @@ defmodule BaladosSyncWeb.WebSubscriptionsController do
       conn
     else
       conn
-      |> put_flash(:error, "You must be logged in to access subscriptions")
+      |> put_flash(:error, gettext("auth.must_log_in"))
       |> redirect(to: ~p"/users/log_in")
       |> halt()
     end

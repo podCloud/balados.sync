@@ -9,6 +9,7 @@ defmodule BaladosSyncWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug BaladosSyncWeb.Plugs.UserAuth, :fetch_current_user
+    plug BaladosSyncWeb.Plugs.Locale
   end
 
   pipeline :redirect_if_user_is_authenticated do

@@ -21,7 +21,7 @@ defmodule BaladosSyncWeb.PlaylistsController do
       conn
     else
       conn
-      |> put_flash(:error, "You must log in to access this page.")
+      |> put_flash(:error, gettext("auth.must_log_in"))
       |> redirect(to: ~p"/users/log_in")
       |> halt()
     end
@@ -107,27 +107,27 @@ defmodule BaladosSyncWeb.PlaylistsController do
     case Dispatcher.dispatch(command) do
       :ok ->
         conn
-        |> put_flash(:info, "Playlist created successfully.")
+        |> put_flash(:info, gettext("playlists.created_success"))
         |> redirect(to: ~p"/playlists")
 
       {:error, :name_required} ->
         conn
-        |> put_flash(:error, "Name is required.")
+        |> put_flash(:error, gettext("playlists.name_required"))
         |> render(:new)
 
       {:error, :playlist_already_exists} ->
         conn
-        |> put_flash(:error, "A playlist with this name already exists.")
+        |> put_flash(:error, gettext("playlists.name_taken"))
         |> render(:new)
 
       {:error, :invalid_playlist_type} ->
         conn
-        |> put_flash(:error, "Invalid playlist type. Must be 'playlist' or 'queue'.")
+        |> put_flash(:error, gettext("playlists.invalid_type"))
         |> render(:new)
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Error creating playlist: #{inspect(reason)}")
+        |> put_flash(:error, gettext("playlists.create_error") <> ": #{inspect(reason)}")
         |> render(:new)
     end
   end
@@ -157,7 +157,7 @@ defmodule BaladosSyncWeb.PlaylistsController do
       render(conn, :show, playlist: playlist, enriched_items: enriched_items)
     else
       conn
-      |> put_flash(:error, "Playlist not found.")
+      |> put_flash(:error, gettext("playlists.not_found"))
       |> redirect(to: ~p"/playlists")
     end
   end
@@ -173,7 +173,7 @@ defmodule BaladosSyncWeb.PlaylistsController do
       render(conn, :edit, playlist: playlist)
     else
       conn
-      |> put_flash(:error, "Playlist not found.")
+      |> put_flash(:error, gettext("playlists.not_found"))
       |> redirect(to: ~p"/playlists")
     end
   end
@@ -197,17 +197,17 @@ defmodule BaladosSyncWeb.PlaylistsController do
       case Dispatcher.dispatch(command) do
         :ok ->
           conn
-          |> put_flash(:info, "Playlist updated successfully.")
+          |> put_flash(:info, gettext("playlists.updated_success"))
           |> redirect(to: ~p"/playlists/#{playlist_id}")
 
         {:error, reason} ->
           conn
-          |> put_flash(:error, "Error updating playlist: #{inspect(reason)}")
+          |> put_flash(:error, gettext("playlists.update_error") <> ": #{inspect(reason)}")
           |> render(:edit, playlist: playlist)
       end
     else
       conn
-      |> put_flash(:error, "Playlist not found.")
+      |> put_flash(:error, gettext("playlists.not_found"))
       |> redirect(to: ~p"/playlists")
     end
   end
@@ -227,17 +227,17 @@ defmodule BaladosSyncWeb.PlaylistsController do
     case Dispatcher.dispatch(command) do
       :ok ->
         conn
-        |> put_flash(:info, "Playlist deleted successfully.")
+        |> put_flash(:info, gettext("playlists.deleted_success"))
         |> redirect(to: ~p"/playlists")
 
       {:error, :playlist_not_found} ->
         conn
-        |> put_flash(:error, "Playlist not found.")
+        |> put_flash(:error, gettext("playlists.not_found"))
         |> redirect(to: ~p"/playlists")
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Error deleting playlist: #{inspect(reason)}")
+        |> put_flash(:error, gettext("playlists.delete_error") <> ": #{inspect(reason)}")
         |> redirect(to: ~p"/playlists")
     end
   end
@@ -265,17 +265,17 @@ defmodule BaladosSyncWeb.PlaylistsController do
           visibility_text = if new_visibility, do: "public", else: "private"
 
           conn
-          |> put_flash(:info, "Playlist is now #{visibility_text}.")
+          |> put_flash(:info, gettext("playlists.visibility_changed") <> " #{visibility_text}.")
           |> redirect(to: ~p"/playlists/#{playlist_id}")
 
         {:error, reason} ->
           conn
-          |> put_flash(:error, "Error updating visibility: #{inspect(reason)}")
+          |> put_flash(:error, gettext("playlists.visibility_error") <> ": #{inspect(reason)}")
           |> redirect(to: ~p"/playlists/#{playlist_id}")
       end
     else
       conn
-      |> put_flash(:error, "Playlist not found.")
+      |> put_flash(:error, gettext("playlists.not_found"))
       |> redirect(to: ~p"/playlists")
     end
   end

@@ -21,7 +21,7 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
       conn
     else
       conn
-      |> put_flash(:error, "You must log in to access this page.")
+      |> put_flash(:error, gettext("auth.must_log_in"))
       |> redirect(to: ~p"/users/log_in")
       |> halt()
     end
@@ -59,17 +59,17 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
     case PodcastOwnership.request_ownership(user_id, feed_url) do
       {:ok, claim} ->
         conn
-        |> put_flash(:info, "Claim initiated! Add the verification code to your RSS feed.")
+        |> put_flash(:info, gettext("ownership.claim_initiated"))
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim.id}")
 
       {:error, :pending_claim_exists, existing_claim} ->
         conn
-        |> put_flash(:info, "You already have a pending claim for this podcast.")
+        |> put_flash(:info, gettext("ownership.already_pending"))
         |> redirect(to: ~p"/podcast-ownership/claims/#{existing_claim.id}")
 
       {:error, changeset} ->
         conn
-        |> put_flash(:error, "Error creating claim: #{format_errors(changeset)}")
+        |> put_flash(:error, gettext("ownership.claim_error") <> ": #{format_errors(changeset)}")
         |> render(:new)
     end
   end
@@ -84,12 +84,12 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
     cond do
       is_nil(claim) ->
         conn
-        |> put_flash(:error, "Claim not found.")
+        |> put_flash(:error, gettext("ownership.claim_not_found"))
         |> redirect(to: ~p"/podcast-ownership")
 
       claim.user_id != user_id ->
         conn
-        |> put_flash(:error, "You don't have access to this claim.")
+        |> put_flash(:error, gettext("ownership.no_access"))
         |> redirect(to: ~p"/podcast-ownership")
 
       true ->
@@ -120,32 +120,32 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
     case PodcastOwnership.verify_ownership(claim_id, user_id) do
       {:ok, enriched_podcast} ->
         conn
-        |> put_flash(:info, "Verification successful! You are now an admin of this podcast.")
+        |> put_flash(:info, gettext("ownership.verification_success"))
         |> redirect(to: ~p"/podcast-ownership/podcasts/#{enriched_podcast.id}")
 
       {:error, :code_not_found} ->
         conn
-        |> put_flash(:error, "Verification code not found in the RSS feed. Make sure you added it and the feed is updated.")
+        |> put_flash(:error, gettext("ownership.code_not_found"))
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
 
       {:error, :claim_expired} ->
         conn
-        |> put_flash(:error, "This claim has expired. Please create a new one.")
+        |> put_flash(:error, gettext("ownership.claim_expired"))
         |> redirect(to: ~p"/podcast-ownership")
 
       {:error, :rate_limit_exceeded} ->
         conn
-        |> put_flash(:error, "Too many verification attempts. Please wait before trying again.")
+        |> put_flash(:error, gettext("ownership.too_many_attempts"))
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
 
       {:error, :claim_not_pending} ->
         conn
-        |> put_flash(:error, "This claim is no longer pending.")
+        |> put_flash(:error, gettext("ownership.not_pending"))
         |> redirect(to: ~p"/podcast-ownership")
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Verification failed: #{inspect(reason)}")
+        |> put_flash(:error, gettext("ownership.verification_failed") <> ": #{inspect(reason)}")
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
     end
   end
@@ -159,37 +159,37 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
     case PodcastOwnership.request_email_verification(claim_id, user_id, email) do
       {:ok, _verification} ->
         conn
-        |> put_flash(:info, "Verification code sent to #{email}. Check your inbox!")
+        |> put_flash(:info, gettext("ownership.code_sent") <> " #{email}")
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
 
       {:error, :email_not_in_feed} ->
         conn
-        |> put_flash(:error, "This email is not listed in the podcast's RSS feed.")
+        |> put_flash(:error, gettext("ownership.email_not_listed"))
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
 
       {:error, :rate_limit_exceeded} ->
         conn
-        |> put_flash(:error, "Too many verification requests. Please wait before trying again.")
+        |> put_flash(:error, gettext("ownership.too_many_requests"))
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
 
       {:error, :email_rate_limit_exceeded} ->
         conn
-        |> put_flash(:error, "Too many emails sent to this address. Please wait before trying again.")
+        |> put_flash(:error, gettext("ownership.too_many_emails"))
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
 
       {:error, :email_send_failed} ->
         conn
-        |> put_flash(:error, "Failed to send verification email. Please try again later.")
+        |> put_flash(:error, gettext("ownership.send_email_failed"))
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
 
       {:error, :claim_expired} ->
         conn
-        |> put_flash(:error, "This claim has expired. Please create a new one.")
+        |> put_flash(:error, gettext("ownership.claim_expired"))
         |> redirect(to: ~p"/podcast-ownership")
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Error: #{inspect(reason)}")
+        |> put_flash(:error, gettext("ownership.verification_failed") <> ": #{inspect(reason)}")
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
     end
   end
@@ -203,32 +203,32 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
     case PodcastOwnership.verify_email_code(claim_id, user_id, code) do
       {:ok, enriched_podcast} ->
         conn
-        |> put_flash(:info, "Email verification successful! You are now an admin of this podcast.")
+        |> put_flash(:info, gettext("ownership.email_verification_success"))
         |> redirect(to: ~p"/podcast-ownership/podcasts/#{enriched_podcast.id}")
 
       {:error, :code_mismatch} ->
         conn
-        |> put_flash(:error, "Invalid verification code. Please check and try again.")
+        |> put_flash(:error, gettext("ownership.invalid_code"))
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
 
       {:error, :verification_expired} ->
         conn
-        |> put_flash(:error, "Verification code has expired. Please request a new one.")
+        |> put_flash(:error, gettext("ownership.code_expired"))
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
 
       {:error, :no_pending_verification} ->
         conn
-        |> put_flash(:error, "No pending email verification. Please request a verification email first.")
+        |> put_flash(:error, gettext("ownership.no_pending_verification"))
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
 
       {:error, :claim_expired} ->
         conn
-        |> put_flash(:error, "This claim has expired. Please create a new one.")
+        |> put_flash(:error, gettext("ownership.claim_expired"))
         |> redirect(to: ~p"/podcast-ownership")
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Verification failed: #{inspect(reason)}")
+        |> put_flash(:error, gettext("ownership.verification_failed") <> ": #{inspect(reason)}")
         |> redirect(to: ~p"/podcast-ownership/claims/#{claim_id}")
     end
   end
@@ -242,22 +242,22 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
     case PodcastOwnership.cancel_claim(claim_id, user_id) do
       {:ok, _claim} ->
         conn
-        |> put_flash(:info, "Claim cancelled.")
+        |> put_flash(:info, gettext("ownership.claim_cancelled"))
         |> redirect(to: ~p"/podcast-ownership")
 
       {:error, :claim_not_found} ->
         conn
-        |> put_flash(:error, "Claim not found.")
+        |> put_flash(:error, gettext("ownership.claim_not_found"))
         |> redirect(to: ~p"/podcast-ownership")
 
       {:error, :claim_not_pending} ->
         conn
-        |> put_flash(:error, "Only pending claims can be cancelled.")
+        |> put_flash(:error, gettext("ownership.only_pending_cancel"))
         |> redirect(to: ~p"/podcast-ownership")
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Error cancelling claim: #{inspect(reason)}")
+        |> put_flash(:error, gettext("ownership.cancel_error") <> ": #{inspect(reason)}")
         |> redirect(to: ~p"/podcast-ownership")
     end
   end
@@ -281,7 +281,7 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
       render(conn, :show_podcast, podcast: podcast, settings: settings)
     else
       conn
-      |> put_flash(:error, "Podcast not found or you don't have access.")
+      |> put_flash(:error, gettext("ownership.podcast_not_found"))
       |> redirect(to: ~p"/podcast-ownership")
     end
   end
@@ -297,17 +297,17 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
         visibility_text = if visibility == "public", do: "public", else: "private"
 
         conn
-        |> put_flash(:info, "Podcast is now #{visibility_text}.")
+        |> put_flash(:info, gettext("ownership.visibility_changed") <> " #{visibility_text}.")
         |> redirect(to: ~p"/podcast-ownership/podcasts/#{podcast_id}")
 
       {:error, :settings_not_found} ->
         conn
-        |> put_flash(:error, "Settings not found. Are you an admin of this podcast?")
+        |> put_flash(:error, gettext("ownership.settings_not_found"))
         |> redirect(to: ~p"/podcast-ownership")
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Error updating visibility: #{inspect(reason)}")
+        |> put_flash(:error, gettext("ownership.visibility_error") <> ": #{inspect(reason)}")
         |> redirect(to: ~p"/podcast-ownership/podcasts/#{podcast_id}")
     end
   end
@@ -321,22 +321,22 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
     case PodcastOwnership.relinquish_ownership(podcast_id, user_id) do
       {:ok, _podcast} ->
         conn
-        |> put_flash(:info, "You have relinquished ownership of this podcast.")
+        |> put_flash(:info, gettext("ownership.relinquished"))
         |> redirect(to: ~p"/podcast-ownership")
 
       {:error, :podcast_not_found} ->
         conn
-        |> put_flash(:error, "Podcast not found.")
+        |> put_flash(:error, gettext("ownership.podcast_not_found"))
         |> redirect(to: ~p"/podcast-ownership")
 
       {:error, :not_an_admin} ->
         conn
-        |> put_flash(:error, "You are not an admin of this podcast.")
+        |> put_flash(:error, gettext("ownership.not_admin"))
         |> redirect(to: ~p"/podcast-ownership")
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Error relinquishing ownership: #{inspect(reason)}")
+        |> put_flash(:error, gettext("ownership.relinquish_error") <> ": #{inspect(reason)}")
         |> redirect(to: ~p"/podcast-ownership/podcasts/#{podcast_id}")
     end
   end

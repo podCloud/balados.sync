@@ -16,6 +16,21 @@
       </p>
     </div>
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
+      <% current_locale = Gettext.get_locale(BaladosSyncWeb.Gettext) %>
+      <% base_params = Map.drop(@conn.params || %{}, ["_csrf_token", "locale"]) %>
+      <nav class="flex items-center gap-1 text-xs" aria-label={gettext("nav.language_selector")}>
+        <%= if current_locale == "fr" do %>
+          <span class="font-bold text-blue-600" aria-current="true" lang="fr">FR</span>
+        <% else %>
+          <a href={"?#{URI.encode_query(Map.put(base_params, "locale", "fr"))}"} class="hover:text-zinc-700" lang="fr">FR</a>
+        <% end %>
+        <span class="text-zinc-300" aria-hidden="true">|</span>
+        <%= if current_locale == "en" do %>
+          <span class="font-bold text-blue-600" aria-current="true" lang="en">EN</span>
+        <% else %>
+          <a href={"?#{URI.encode_query(Map.put(base_params, "locale", "en"))}"} class="hover:text-zinc-700" lang="en">EN</a>
+        <% end %>
+      </nav>
       <.link
         navigate={~p"/trending/podcasts"}
         class={
@@ -24,7 +39,7 @@
             else: "hover:text-zinc-700"
         }
       >
-        Discover
+        <%= gettext("nav.discover") %>
       </.link>
       <%= if @current_user do %>
         <span class="text-zinc-600">
@@ -38,7 +53,7 @@
               else: "hover:text-zinc-700"
           }
         >
-          Dashboard
+          <%= gettext("nav.dashboard") %>
         </.link>
         <.link
           navigate={~p"/subscriptions"}
@@ -48,7 +63,7 @@
               else: "hover:text-zinc-700"
           }
         >
-          Subscriptions
+          <%= gettext("nav.subscriptions") %>
         </.link>
         <.link
           navigate={~p"/privacy-manager"}
@@ -58,7 +73,7 @@
               else: "hover:text-zinc-700"
           }
         >
-          Privacy
+          <%= gettext("nav.privacy") %>
         </.link>
         <%= if BaladosSyncWeb.Accounts.admin?(@current_user) do %>
           <.link
@@ -69,7 +84,7 @@
                 else: "hover:text-zinc-700"
             }
           >
-            Admin
+            <%= gettext("nav.admin") %>
           </.link>
         <% end %>
         <.link
@@ -77,17 +92,17 @@
           method="delete"
           class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
         >
-          Log out
+          <%= gettext("nav.log_out") %>
         </.link>
       <% else %>
         <.link navigate={~p"/users/register"} class="hover:text-zinc-700">
-          Register
+          <%= gettext("nav.register") %>
         </.link>
         <.link
           navigate={~p"/users/log_in"}
           class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
         >
-          Log in <span aria-hidden="true">&rarr;</span>
+          <%= gettext("nav.log_in") %> <span aria-hidden="true">&rarr;</span>
         </.link>
       <% end %>
     </div>

@@ -3,7 +3,7 @@
     <!-- Breadcrumb -->
     <nav class="mb-6">
       <.link navigate={~p"/u/#{@user.username}"} class="text-blue-600 hover:underline">
-        &larr; Back to <%= display_name(@user) %>'s profile
+        &larr; <%= gettext("profile.back_to_profile_of") %> <%= display_name(@user) %>
       </.link>
     </nav>
 
@@ -18,8 +18,8 @@
         <div>
           <h1 class="text-2xl font-bold text-zinc-900"><%= @playlist.name %></h1>
           <p class="text-zinc-500">
-            by <.link navigate={~p"/u/#{@user.username}"} class="text-blue-600 hover:underline">@<%= @user.username %></.link>
-            · <%= length(@enriched_items) %> episodes
+            <%= gettext("profile.by") %> <.link navigate={~p"/u/#{@user.username}"} class="text-blue-600 hover:underline">@<%= @user.username %></.link>
+            · <%= length(@enriched_items) %> <%= gettext("profile.episodes_count") %>
           </p>
         </div>
       </div>
@@ -33,7 +33,7 @@
     <div class="space-y-4" id="playlist-episodes">
       <%= if Enum.empty?(@enriched_items) do %>
         <div class="bg-white shadow rounded-lg p-8 text-center text-zinc-500">
-          <p>This playlist is empty.</p>
+          <p><%= gettext("profile.playlist_empty") %></p>
         </div>
       <% else %>
         <%= for item <- @enriched_items do %>
@@ -50,17 +50,17 @@
                 </div>
               <% else %>
                 <div class="flex-shrink-0 w-16 h-16 rounded-lg bg-zinc-200 flex items-center justify-center">
-                  <span class="text-zinc-400 text-xs">No Cover</span>
+                  <span class="text-zinc-400 text-xs"><%= gettext("common.no_cover") %></span>
                 </div>
               <% end %>
 
               <!-- Episode Content -->
               <div class="flex-1 min-w-0">
                 <h3 class="font-semibold text-zinc-900 truncate">
-                  <%= item.item_title || "Unknown Episode" %>
+                  <%= item.item_title || gettext("common.unknown_episode") %>
                 </h3>
                 <p class="text-sm text-zinc-500">
-                  <%= item.feed_title || "Unknown Podcast" %>
+                  <%= item.feed_title || gettext("common.unknown_podcast") %>
                 </p>
 
                 <div class="flex items-center gap-4 mt-2 text-sm text-zinc-500">

@@ -1120,6 +1120,49 @@ Allows users to make their playlists publicly visible on their profile.
 
 ---
 
+## 🌍 Internationalization (i18n) (v3.0)
+
+### Gettext-based Multilingual Support
+
+Full French/English i18n for the entire Web UI using Elixir Gettext.
+
+**Architecture** :
+- Code keys as msgids (e.g., `gettext("home.hero.title")`) matching frontend react-i18next pattern
+- French as default locale (`default_locale: "fr"`)
+- Both `fr.po` and `en.po` contain complete translations for all ~500 keys
+- Key naming convention: `page.section.element` (dot-separated, snake_case)
+
+**Locale Resolution** (in order):
+1. `?locale=` query parameter
+2. Session `:locale` value
+3. `Accept-Language` HTTP header
+4. Default: `"fr"`
+
+**Locale Plug** (`BaladosSyncWeb.Plugs.Locale`):
+- Inserted in `:browser` pipeline
+- Persists locale in session across navigation
+- Sets `Gettext.put_locale/1` for each request
+
+**Coverage** :
+- ~37 templates (home, login, registration, dashboard, playlists, privacy, timeline, trending, admin, enriched podcasts, ownership, profiles, app auth, setup, subscriptions, OPML import)
+- ~15 controllers/plugs (flash messages, error messages)
+- Standalone pages with inline JS (app_creator) use server-rendered I18N objects
+- Dynamic `<html lang="...">` attribute
+- FR/EN locale switcher in navigation bar
+
+**Files** :
+- `priv/gettext/default.pot` — Source template (all extracted keys)
+- `priv/gettext/fr/LC_MESSAGES/default.po` — French translations
+- `priv/gettext/en/LC_MESSAGES/default.po` — English translations
+- `lib/balados_sync_web/plugs/locale.ex` — Locale detection plug
+
+**Not Translated** (by design):
+- JSON API responses (consumed by apps, not users)
+- Brand name "Balados Sync"
+- Technical terms (RSS, OPML, JWT, Base64)
+
+---
+
 ## 🔗 Documentation Associée
 
 - [docs/GOALS.md](docs/GOALS.md) - Objectifs et vision

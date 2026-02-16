@@ -2,9 +2,9 @@
   <div class="mx-auto max-w-3xl">
     <!-- Header -->
     <div class="mb-8">
-      <h1 class="text-4xl font-bold text-zinc-900">Public Timeline</h1>
+      <h1 class="text-4xl font-bold text-zinc-900"><%= gettext("timeline.title") %></h1>
       <p class="text-zinc-600 mt-2">
-        See what the Balados community is listening to right now
+        <%= gettext("timeline.subtitle") %>
       </p>
     </div>
     <!-- Filter Controls -->
@@ -15,13 +15,13 @@
           data-filter-mode="all"
           class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition active"
         >
-          All Activity
+          <%= gettext("timeline.filter.all") %>
         </button>
         <button
           data-filter-mode="public"
           class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-zinc-700 border border-zinc-200 hover:bg-zinc-50 transition"
         >
-          Public Only
+          <%= gettext("timeline.filter.public_only") %>
         </button>
       </div>
       <!-- Event Type Filter -->
@@ -33,7 +33,7 @@
             checked
             class="w-4 h-4 rounded border-zinc-300"
           />
-          <span class="text-sm text-zinc-700">Plays</span>
+          <span class="text-sm text-zinc-700"><%= gettext("timeline.filter.plays") %></span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer">
           <input
@@ -42,7 +42,7 @@
             checked
             class="w-4 h-4 rounded border-zinc-300"
           />
-          <span class="text-sm text-zinc-700">Subscriptions</span>
+          <span class="text-sm text-zinc-700"><%= gettext("timeline.filter.subscriptions") %></span>
         </label>
       </div>
     </div>
@@ -50,7 +50,7 @@
     <div class="space-y-4" id="timeline-feed">
       <%= if Enum.empty?(@events) do %>
         <div class="bg-white shadow rounded-lg p-8 text-center text-zinc-500">
-          <p>No activity yet. Be the first to subscribe to a podcast!</p>
+          <p><%= gettext("timeline.empty") %></p>
         </div>
       <% else %>
         <%= for event <- @events do %>
@@ -76,7 +76,7 @@
                 </div>
               <% else %>
                 <div class="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-zinc-200 flex items-center justify-center">
-                  <span class="text-zinc-400 text-xs">No Cover</span>
+                  <span class="text-zinc-400 text-xs"><%= gettext("common.no_cover") %></span>
                 </div>
               <% end %>
               <!-- Event Content -->
@@ -102,7 +102,7 @@
                     <!-- Episode Title (for plays) -->
                     <%= if event["event_type"] == "play" && event["event_data"]["item_title"] do %>
                       <div class="text-sm text-zinc-600 mt-1">
-                        Episode: <%= event["event_data"]["item_title"] %>
+                        <%= gettext("timeline.episode_label") %>: <%= event["event_data"]["item_title"] %>
                       </div>
                     <% end %>
                   </div>
@@ -125,20 +125,20 @@
             navigate={~p"/timeline?limit=#{@limit}&offset=#{max(@offset - @limit, 0)}"}
             class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
           >
-            ← Previous
+            ← <%= gettext("common.previous") %>
           </.link>
         <% else %>
           <div></div>
         <% end %>
 
-        <span class="text-sm text-zinc-600">Page <%= @current_page %></span>
+        <span class="text-sm text-zinc-600"><%= gettext("common.page") %> <%= @current_page %></span>
 
         <%= if @has_next do %>
           <.link
             navigate={~p"/timeline?limit=#{@limit}&offset=#{@offset + @limit}"}
             class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
           >
-            Next →
+            <%= gettext("common.next") %> →
           </.link>
         <% else %>
           <div></div>

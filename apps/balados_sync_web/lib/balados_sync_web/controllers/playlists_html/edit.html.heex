@@ -3,9 +3,9 @@
     <!-- Header -->
     <div class="mb-8">
       <.link navigate={~p"/playlists/#{@playlist.id}"} class="text-blue-600 hover:underline text-sm">
-        &larr; Back to Playlist
+        &larr; <%= gettext("playlists.back_to_playlist") %>
       </.link>
-      <h1 class="text-3xl font-bold text-zinc-900 mt-4">Edit Playlist</h1>
+      <h1 class="text-3xl font-bold text-zinc-900 mt-4"><%= gettext("playlists.edit_title") %></h1>
     </div>
 
     <!-- Form -->
@@ -13,7 +13,7 @@
       <.form for={%{}} action={~p"/playlists/#{@playlist.id}"} method="put" class="space-y-6">
         <div>
           <label for="playlist_name" class="block text-sm font-medium text-zinc-700">
-            Name
+            <%= gettext("playlists.name_label") %>
           </label>
           <input
             type="text"
@@ -27,7 +27,7 @@
 
         <div>
           <label for="playlist_description" class="block text-sm font-medium text-zinc-700">
-            Description (optional)
+            <%= gettext("playlists.description_label") %>
           </label>
           <textarea
             name="playlist[description]"
@@ -42,13 +42,13 @@
             navigate={~p"/playlists/#{@playlist.id}"}
             class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-zinc-700 border border-zinc-300 hover:bg-zinc-50 transition"
           >
-            Cancel
+            <%= gettext("common.cancel") %>
           </.link>
           <button
             type="submit"
             class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
           >
-            Save Changes
+            <%= gettext("common.save_changes") %>
           </button>
         </div>
       </.form>
