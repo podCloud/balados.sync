@@ -237,5 +237,53 @@ defmodule BaladosSyncCore.Aggregates.SubscriptionTest do
       assert Map.has_key?(event.subscriptions, "recently-unsubscribed")
       refute Map.has_key?(event.subscriptions, "old-unsubscribed")
     end
+
+    test "keeps subscription unsubscribed just under 45 days ago (boundary)" do
+      now = DateTime.utc_now()
+      # 44 days ago — just inside the 45-day retention window
+      forty_four_days_ago = DateTime.add(now, -44, :day)
+      ninety_days_ago = DateTime.add(now, -90, :day)
+
+      state = %Subscription{
+        user_id: "user-1",
+        privacy: :public,
+        subscriptions: %{
+          "boundary-feed" => %{
+            subscribed_at: ninety_days_ago,
+            unsubscribed_at: forty_four_days_ago
+          }
+        }
+      }
+
+      event = Subscription.execute(state, %SnapshotSubscription{user_id: "user-1"})
+
+      assert %SubscriptionCheckpoint{} = event
+      # 44 days < 45 days threshold, so the subscription should be kept
+      assert Map.has_key?(event.subscriptions, "boundary-feed")
+    end
+
+    test "filters subscription unsubscribed just over 45 days ago (boundary)" do
+      now = DateTime.utc_now()
+      # 46 days ago — just outside the 45-day retention window
+      forty_six_days_ago = DateTime.add(now, -46, :day)
+      ninety_days_ago = DateTime.add(now, -90, :day)
+
+      state = %Subscription{
+        user_id: "user-1",
+        privacy: :public,
+        subscriptions: %{
+          "old-feed" => %{
+            subscribed_at: ninety_days_ago,
+            unsubscribed_at: forty_six_days_ago
+          }
+        }
+      }
+
+      event = Subscription.execute(state, %SnapshotSubscription{user_id: "user-1"})
+
+      assert %SubscriptionCheckpoint{} = event
+      # 46 days > 45 days threshold, so the subscription should be filtered
+      refute Map.has_key?(event.subscriptions, "old-feed")
+    end
   end
 end

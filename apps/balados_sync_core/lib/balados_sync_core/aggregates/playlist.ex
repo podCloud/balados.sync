@@ -47,7 +47,7 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
     %PlaylistCheckpoint{
       user_id: state.user_id,
       playlists: state.playlists || %{},
-      timestamp: DateTime.utc_now()
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second)
     }
   end
 

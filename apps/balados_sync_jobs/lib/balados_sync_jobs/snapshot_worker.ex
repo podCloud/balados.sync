@@ -145,6 +145,11 @@ defmodule BaladosSyncJobs.SnapshotWorker do
       %SnapshotCollection{user_id: user_id}
     ]
 
+    # Dispatch all 4 checkpoint commands without short-circuiting.
+    # Even if one fails, we dispatch the rest — cleanup is only performed
+    # when all succeed, so partial snapshots are harmless. Dispatching all
+    # commands lets us report every failure in a single pass rather than
+    # masking subsequent failures behind the first one.
     results =
       Enum.zip(commands, Enum.map(commands, fn command ->
         BaladosSyncCore.Dispatcher.dispatch(command, consistency: :strong)

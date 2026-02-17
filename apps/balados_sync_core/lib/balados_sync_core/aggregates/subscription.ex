@@ -110,7 +110,7 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
       user_id: state.user_id,
       subscriptions: filter_subscriptions(state.subscriptions || %{}),
       privacy: state.privacy,
-      timestamp: DateTime.utc_now()
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second)
     }
   end
 
@@ -156,12 +156,15 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
 
   # Filters out subscriptions that were unsubscribed more than 45 days ago.
   # Active subscriptions and recent unsubscriptions are preserved.
+  # The unsubscribed_at > subscribed_at guard prevents filtering entries with
+  # corrupted timestamps (e.g. unsubscribed before subscribed).
   defp filter_subscriptions(subscriptions) do
     forty_five_days_ago = DateTime.add(DateTime.utc_now(), -45, :day)
 
     subscriptions
     |> Enum.reject(fn {_feed, sub} ->
       sub.unsubscribed_at != nil &&
+        DateTime.compare(sub.unsubscribed_at, sub.subscribed_at || DateTime.from_unix!(0)) == :gt &&
         DateTime.compare(sub.unsubscribed_at, forty_five_days_ago) == :lt
     end)
     |> Enum.into(%{})

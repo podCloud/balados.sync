@@ -48,7 +48,7 @@ defmodule BaladosSyncCore.Aggregates.PlayTracking do
     %PlayTrackingCheckpoint{
       user_id: state.user_id,
       play_statuses: state.play_statuses || %{},
-      timestamp: DateTime.utc_now()
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second)
     }
   end
 

@@ -42,7 +42,7 @@ defmodule BaladosSyncProjections.Projectors.SubscriptionsProjector do
 
   project(%UserCheckpoint{} = event, _metadata, fn multi ->
     # Legacy: upsert subscriptions from old monolithic checkpoint
-    Enum.reduce(event.subscriptions, multi, fn {feed, sub}, acc ->
+    Enum.reduce(event.subscriptions || %{}, multi, fn {feed, sub}, acc ->
       Ecto.Multi.insert(
         acc,
         {:subscription, feed},

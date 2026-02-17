@@ -546,6 +546,29 @@ defmodule BaladosSyncCore.Aggregates.CollectionTest do
       assert event.is_public == true
     end
 
+    test "makes collection private" do
+      collection_id = Ecto.UUID.generate()
+
+      state = %Collection{
+        user_id: "user-123",
+        collections: %{
+          collection_id => %{title: "Public Collection", is_default: false, feed_ids: [], is_public: true}
+        }
+      }
+
+      cmd = %ChangeCollectionVisibility{
+        user_id: "user-123",
+        collection_id: collection_id,
+        is_public: false,
+        event_infos: %{}
+      }
+
+      event = Collection.execute(state, cmd)
+
+      assert match?(%CollectionVisibilityChanged{}, event)
+      assert event.is_public == false
+    end
+
     test "returns error for non-existent collection" do
       state = %Collection{user_id: "user-123", collections: %{}}
 

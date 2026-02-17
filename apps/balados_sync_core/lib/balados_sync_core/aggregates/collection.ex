@@ -51,7 +51,7 @@ defmodule BaladosSyncCore.Aggregates.Collection do
     %CollectionCheckpoint{
       user_id: state.user_id,
       collections: state.collections || %{},
-      timestamp: DateTime.utc_now()
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second)
     }
   end
 

@@ -48,7 +48,7 @@ defmodule BaladosSyncProjections.Projectors.PlayStatusesProjector do
 
   project(%UserCheckpoint{} = event, _metadata, fn multi ->
     # Legacy: upsert play statuses from old monolithic checkpoint
-    Enum.reduce(event.play_statuses, multi, fn {item, status}, acc ->
+    Enum.reduce(event.play_statuses || %{}, multi, fn {item, status}, acc ->
       Ecto.Multi.insert(
         acc,
         {:play_status, item},
