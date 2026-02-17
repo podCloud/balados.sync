@@ -83,8 +83,6 @@ defmodule BaladosSyncCore.Aggregates.User do
   alias BaladosSyncCore.Commands.{
     Subscribe,
     Unsubscribe,
-    RecordPlay,
-    UpdatePosition,
     SaveEpisode,
     UnsaveEpisode,
     ShareEpisode,
@@ -109,8 +107,6 @@ defmodule BaladosSyncCore.Aggregates.User do
   alias BaladosSyncCore.Events.{
     UserSubscribed,
     UserUnsubscribed,
-    PlayRecorded,
-    PositionUpdated,
     EpisodeSaved,
     EpisodeUnsaved,
     EpisodeShared,
@@ -162,31 +158,6 @@ defmodule BaladosSyncCore.Aggregates.User do
       rss_source_feed: cmd.rss_source_feed,
       rss_source_id: cmd.rss_source_id,
       unsubscribed_at: cmd.unsubscribed_at || DateTime.utc_now(),
-      timestamp: DateTime.utc_now(),
-      event_infos: cmd.event_infos || %{}
-    }
-  end
-
-  # RecordPlay
-  def execute(%__MODULE__{} = user, %RecordPlay{} = cmd) do
-    %PlayRecorded{
-      user_id: user.user_id,
-      rss_source_feed: cmd.rss_source_feed,
-      rss_source_item: cmd.rss_source_item,
-      position: cmd.position,
-      played: cmd.played,
-      timestamp: DateTime.utc_now(),
-      event_infos: cmd.event_infos || %{}
-    }
-  end
-
-  # UpdatePosition
-  def execute(%__MODULE__{} = user, %UpdatePosition{} = cmd) do
-    %PositionUpdated{
-      user_id: user.user_id,
-      rss_source_feed: cmd.rss_source_feed,
-      rss_source_item: cmd.rss_source_item,
-      position: cmd.position,
       timestamp: DateTime.utc_now(),
       event_infos: cmd.event_infos || %{}
     }
@@ -589,34 +560,6 @@ defmodule BaladosSyncCore.Aggregates.User do
         updated_sub = Map.put(sub, :unsubscribed_at, event.unsubscribed_at)
         %{user | subscriptions: Map.put(subscriptions, event.rss_source_feed, updated_sub)}
     end
-  end
-
-  def apply(%__MODULE__{} = user, %PlayRecorded{} = event) do
-    play_statuses = user.play_statuses || %{}
-
-    status = %{
-      position: event.position,
-      played: event.played,
-      updated_at: event.timestamp,
-      rss_source_feed: event.rss_source_feed
-    }
-
-    %{user | play_statuses: Map.put(play_statuses, event.rss_source_item, status)}
-  end
-
-  def apply(%__MODULE__{} = user, %PositionUpdated{} = event) do
-    play_statuses = user.play_statuses || %{}
-
-    existing = Map.get(play_statuses, event.rss_source_item, %{})
-
-    updated =
-      Map.merge(existing, %{
-        position: event.position,
-        updated_at: event.timestamp,
-        rss_source_feed: event.rss_source_feed
-      })
-
-    %{user | play_statuses: Map.put(play_statuses, event.rss_source_item, updated)}
   end
 
   def apply(%__MODULE__{} = user, %PrivacyChanged{} = event) do

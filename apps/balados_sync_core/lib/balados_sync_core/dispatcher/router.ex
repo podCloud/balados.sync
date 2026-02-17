@@ -2,6 +2,7 @@ defmodule BaladosSyncCore.Dispatcher.Router do
   use Commanded.Commands.Router
 
   alias BaladosSyncCore.Aggregates.User
+  alias BaladosSyncCore.Aggregates.PlayTracking
 
   alias BaladosSyncCore.Commands.{
     Subscribe,
@@ -29,16 +30,13 @@ defmodule BaladosSyncCore.Dispatcher.Router do
     ChangeCollectionVisibility
   }
 
-  # Toutes les commandes sont routées vers l'aggregate User
-  # identifié par user_id
+  # User aggregate (subscriptions, playlists, collections, privacy)
   identify(User, by: :user_id)
 
   dispatch(
     [
       Subscribe,
       Unsubscribe,
-      RecordPlay,
-      UpdatePosition,
       SaveEpisode,
       UnsaveEpisode,
       ShareEpisode,
@@ -60,5 +58,16 @@ defmodule BaladosSyncCore.Dispatcher.Router do
       ChangeCollectionVisibility
     ],
     to: User
+  )
+
+  # PlayTracking aggregate (play positions)
+  identify(PlayTracking, by: :user_id)
+
+  dispatch(
+    [
+      RecordPlay,
+      UpdatePosition
+    ],
+    to: PlayTracking
   )
 end
