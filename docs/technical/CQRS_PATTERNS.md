@@ -95,9 +95,15 @@ def rebuild_aggregate(stream_id) do
 end
 ```
 
-> **Note** : Le même pattern s'applique aux 4 aggregates bounded context
-> (`Subscription`, `PlayTracking`, `Playlist`, `Collection`), chacun avec
-> son propre stream prefix et état initial.
+> **Note** : Le même pattern s'applique aux 4 aggregates bounded context,
+> chacun avec son propre stream prefix et état initial :
+>
+> | Aggregate | Stream prefix | État initial |
+> |-----------|---------------|--------------|
+> | `Subscription` | `subscription-{user_id}` | `%Subscription{}` |
+> | `PlayTracking` | `play_tracking-{user_id}` | `%PlayTracking{}` |
+> | `Playlist` | `playlist-{user_id}` | `%Playlist{}` |
+> | `Collection` | `collection-{user_id}` | `%Collection{}` |
 
 ---
 
