@@ -40,8 +40,12 @@ defmodule BaladosSyncCore.Dispatcher.Router do
   # commands, so the overhead is negligible.
   middleware(ValidateSubscription)
 
+  # Each aggregate uses the same :user_id field for identity, so prefixes are
+  # required to ensure each aggregate writes to its own event stream.
+  # Without prefixes, Commanded would route all 4 aggregates to the same stream.
+
   # Subscription aggregate (subscriptions, privacy, sharing)
-  identify(Subscription, by: :user_id)
+  identify(Subscription, by: :user_id, prefix: "subscription-")
 
   dispatch(
     [
@@ -56,7 +60,7 @@ defmodule BaladosSyncCore.Dispatcher.Router do
   )
 
   # PlayTracking aggregate (play positions)
-  identify(PlayTracking, by: :user_id)
+  identify(PlayTracking, by: :user_id, prefix: "play_tracking-")
 
   dispatch(
     [
@@ -68,7 +72,7 @@ defmodule BaladosSyncCore.Dispatcher.Router do
   )
 
   # Playlist aggregate (playlists, episodes)
-  identify(Playlist, by: :user_id)
+  identify(Playlist, by: :user_id, prefix: "playlist-")
 
   dispatch(
     [
@@ -85,7 +89,7 @@ defmodule BaladosSyncCore.Dispatcher.Router do
   )
 
   # Collection aggregate (feed organization)
-  identify(Collection, by: :user_id)
+  identify(Collection, by: :user_id, prefix: "collection-")
 
   dispatch(
     [

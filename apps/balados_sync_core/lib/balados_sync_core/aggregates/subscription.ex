@@ -52,8 +52,8 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
       user_id: cmd.user_id,
       rss_source_feed: cmd.rss_source_feed,
       rss_source_id: cmd.rss_source_id,
-      subscribed_at: cmd.subscribed_at || DateTime.utc_now(),
-      timestamp: DateTime.utc_now(),
+      subscribed_at: cmd.subscribed_at || DateTime.utc_now() |> DateTime.truncate(:second),
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
       event_infos: cmd.event_infos || %{}
     }
   end
@@ -64,8 +64,8 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
       user_id: cmd.user_id,
       rss_source_feed: cmd.rss_source_feed,
       rss_source_id: cmd.rss_source_id,
-      unsubscribed_at: cmd.unsubscribed_at || DateTime.utc_now(),
-      timestamp: DateTime.utc_now(),
+      unsubscribed_at: cmd.unsubscribed_at || DateTime.utc_now() |> DateTime.truncate(:second),
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
       event_infos: cmd.event_infos || %{}
     }
   end
@@ -76,19 +76,22 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
       user_id: cmd.user_id,
       rss_source_feed: cmd.rss_source_feed,
       rss_source_item: cmd.rss_source_item,
-      timestamp: DateTime.utc_now(),
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
       event_infos: cmd.event_infos || %{}
     }
   end
 
   # ChangePrivacy
+  # Note: rss_source_feed and rss_source_item fields are carried through from the
+  # command for event metadata/audit purposes, but are not used by the aggregate's
+  # apply/2 (which only updates state.privacy). They may be used by projectors.
   def execute(%__MODULE__{}, %ChangePrivacy{} = cmd) do
     %PrivacyChanged{
       user_id: cmd.user_id,
       rss_source_feed: cmd.rss_source_feed,
       rss_source_item: cmd.rss_source_item,
       privacy: cmd.privacy,
-      timestamp: DateTime.utc_now(),
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
       event_infos: cmd.event_infos || %{}
     }
   end
@@ -99,7 +102,7 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
       user_id: cmd.user_id,
       rss_source_feed: cmd.rss_source_feed,
       rss_source_item: cmd.rss_source_item,
-      timestamp: DateTime.utc_now(),
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
       event_infos: cmd.event_infos || %{}
     }
   end

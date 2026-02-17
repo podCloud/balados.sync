@@ -333,6 +333,74 @@ defmodule BaladosSyncJobs.SnapshotWorkerTest do
     end
   end
 
+  describe "create_user_checkpoints/2 (all-or-nothing)" do
+    setup do
+      original = Application.get_env(:balados_sync_jobs, :dispatcher)
+
+      on_exit(fn ->
+        if original do
+          Application.put_env(:balados_sync_jobs, :dispatcher, original)
+        else
+          Application.delete_env(:balados_sync_jobs, :dispatcher)
+        end
+      end)
+
+      :ok
+    end
+
+    test "skips cleanup when one snapshot command fails" do
+      mock = define_mock_dispatcher([:ok, {:error, :aggregate_error}, :ok, :ok])
+      Application.put_env(:balados_sync_jobs, :dispatcher, mock)
+
+      # Should not crash, and cleanup_old_events=true should be ignored
+      # because not all snapshots succeeded
+      import ExUnit.CaptureLog
+      log = capture_log([level: :info], fn ->
+        SnapshotWorker.create_user_checkpoints("user-fail", true)
+      end)
+
+      assert log =~ "Failed checkpoint"
+      assert log =~ "user-fail"
+      # Should NOT contain the cleanup success message
+      refute log =~ "Checkpoints created for user user-fail"
+    end
+
+    test "does not log errors when all snapshots succeed" do
+      mock = define_mock_dispatcher([:ok, :ok, :ok, :ok])
+      Application.put_env(:balados_sync_jobs, :dispatcher, mock)
+
+      import ExUnit.CaptureLog
+      log = capture_log(fn ->
+        # cleanup_old_events=false so we don't need a real DB
+        SnapshotWorker.create_user_checkpoints("user-ok", false)
+      end)
+
+      # No error logs should be emitted when all snapshots succeed
+      refute log =~ "Failed checkpoint"
+    end
+  end
+
+  # Creates a mock Dispatcher module that returns pre-defined results
+  defp define_mock_dispatcher(results) when is_list(results) do
+    {:ok, agent} = Agent.start_link(fn -> results end)
+    module_name = :"MockDispatcher_#{System.unique_integer([:positive])}"
+
+    Module.create(
+      module_name,
+      quote do
+        def dispatch(_command, _opts) do
+          Agent.get_and_update(unquote(agent), fn
+            [result | rest] -> {result, rest}
+            [] -> {:ok, []}
+          end)
+        end
+      end,
+      Macro.Env.location(__ENV__)
+    )
+
+    module_name
+  end
+
   # Creates a mock EventStore module that returns pre-defined batches.
   # Each call to read_all_streams_forward returns the next batch in sequence.
   # Pass :error to simulate an EventStore failure.

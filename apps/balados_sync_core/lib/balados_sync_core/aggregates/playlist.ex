@@ -60,7 +60,7 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
       rss_source_item: cmd.rss_source_item,
       item_title: cmd.item_title,
       feed_title: cmd.feed_title,
-      timestamp: DateTime.utc_now(),
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
       event_infos: cmd.event_infos || %{}
     }
   end
@@ -72,7 +72,7 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
       playlist: cmd.playlist,
       rss_source_feed: cmd.rss_source_feed,
       rss_source_item: cmd.rss_source_item,
-      timestamp: DateTime.utc_now(),
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
       event_infos: cmd.event_infos || %{}
     }
   end
@@ -112,7 +112,7 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
         playlist: cmd.playlist,
         name: cmd.name,
         description: cmd.description,
-        timestamp: DateTime.utc_now(),
+        timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
         event_infos: cmd.event_infos || %{}
       }
     else
@@ -129,7 +129,7 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
         user_id: cmd.user_id,
         playlist: cmd.playlist,
         items: cmd.items,
-        timestamp: DateTime.utc_now(),
+        timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
         event_infos: cmd.event_infos || %{}
       }
     else

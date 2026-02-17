@@ -27,7 +27,7 @@ defmodule BaladosSyncCore.Aggregates.PlayTracking do
       rss_source_item: cmd.rss_source_item,
       position: cmd.position,
       played: cmd.played,
-      timestamp: DateTime.utc_now(),
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
       event_infos: cmd.event_infos || %{}
     }
   end
@@ -38,7 +38,7 @@ defmodule BaladosSyncCore.Aggregates.PlayTracking do
       rss_source_feed: cmd.rss_source_feed,
       rss_source_item: cmd.rss_source_item,
       position: cmd.position,
-      timestamp: DateTime.utc_now(),
+      timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
       event_infos: cmd.event_infos || %{}
     }
   end

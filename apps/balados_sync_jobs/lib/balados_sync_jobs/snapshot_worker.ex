@@ -18,6 +18,11 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   alias BaladosSyncCore.Commands.{SnapshotSubscription, SnapshotPlayTracking, SnapshotPlaylist, SnapshotCollection}
   alias BaladosSyncProjections.ProjectionsRepo
 
+  @doc "Returns the dispatcher module (configurable for testing)."
+  def dispatcher do
+    Application.get_env(:balados_sync_jobs, :dispatcher, BaladosSyncCore.Dispatcher)
+  end
+
   @forty_five_days_ago_seconds 45 * 24 * 60 * 60
   @thirty_one_days_ago_seconds 31 * 24 * 60 * 60
   @batch_size 1000
@@ -130,7 +135,8 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     end
   end
 
-  defp create_user_checkpoints(user_id, cleanup_old_events) do
+  @doc false
+  def create_user_checkpoints(user_id, cleanup_old_events) do
     Logger.info("Creating checkpoints for user #{user_id}")
 
     # Dispatch per-aggregate snapshot commands.
@@ -151,9 +157,9 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     # commands lets us report every failure in a single pass rather than
     # masking subsequent failures behind the first one.
     results =
-      Enum.zip(commands, Enum.map(commands, fn command ->
-        BaladosSyncCore.Dispatcher.dispatch(command, consistency: :strong)
-      end))
+      Enum.map(commands, fn command ->
+        {command, dispatcher().dispatch(command, consistency: :strong)}
+      end)
 
     failures =
       Enum.filter(results, fn {_cmd, result} -> result != :ok end)
