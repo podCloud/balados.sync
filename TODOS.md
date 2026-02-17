@@ -87,6 +87,8 @@ Issues créées pour les fonctionnalités futures :
 - [#153 - Playlists collaboratives](https://github.com/podCloud/balados.sync/issues/153)
 - [#200 - Historique d'écoute détaillé](https://github.com/podCloud/balados.sync/issues/200)
 - [#201 - Découverte communautaire avec recommandations MinHash](https://github.com/podCloud/balados.sync/issues/201)
+- [#239 - Validate feed exists in collection before RemoveFeedFromCollection](https://github.com/podCloud/balados.sync/issues/239)
+- [#240 - Explore per-command middleware when Commanded supports it](https://github.com/podCloud/balados.sync/issues/240)
 
 ---
 
@@ -102,6 +104,7 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] Split User aggregate into bounded contexts - [#148](https://github.com/podCloud/balados.sync/issues/148) - PR #238
 - [x] Extended OPML format with balados namespace - [#195](https://github.com/podCloud/balados.sync/issues/195) - PR #196
 - [x] Document playlist type field and queue feature - [#185](https://github.com/podCloud/balados.sync/issues/185) - PR #194
 - [x] Add ProjectorTestCase for CQRS/ES projector testing - [#191](https://github.com/podCloud/balados.sync/issues/191) - PR #193

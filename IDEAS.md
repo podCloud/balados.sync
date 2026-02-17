@@ -66,7 +66,7 @@ These items address gaps identified in the [architectural audit](docs/ARCHITECTU
 
 | Idea | Effort | Impact | Notes |
 |------|--------|--------|-------|
-| Split User aggregate | High | Medium | #148 - 1030 lines, multiple bounded contexts |
+| ~~Split User aggregate~~ | ~~High~~ | ~~Medium~~ | ✅ #148 / PR #238 - Split into 4 bounded context aggregates (Subscription, PlayTracking, Playlist, Collection) |
 | Extract RSS infrastructure | Medium | Low | #149 - Move from core to infra layer |
 | ~~Centralized error handling~~ | ~~Medium~~ | ~~Medium~~ | ✅ #124 - ErrorHelpers module created |
 | ~~Add missing DB indexes~~ | ~~Low~~ | ~~Low~~ | ✅ Indexes already exist in migrations |
@@ -155,7 +155,7 @@ Items from code analysis that should be addressed:
 | ~~TODO: Switch to Argon2~~ | ~~`user.ex:88`~~ | ~~Medium~~ ✅ #142 |
 | TODO: EventStore API simplification | `snapshot_worker.ex:38` | Low - #146 |
 | Duplicate code in RSS aggregation | `rss_aggregate_controller.ex` | Low - #147 |
-| Large User aggregate | `user.ex` (1030 lines) | Medium - #148 |
+| ~~Large User aggregate~~ | ~~`user.ex` (1030 lines)~~ | ✅ #148 / PR #238 - Split into 4 aggregates |
 
 ---
 

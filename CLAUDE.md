@@ -78,7 +78,7 @@ mix phx.server    # http://localhost:4000
 
 - **Commands** : Intentions (Subscribe, RecordPlay, ...)
 - **Events** : Faits immuables (UserSubscribed, PlayRecorded, ...)
-- **Aggregates** : Logique métier (User aggregate)
+- **Aggregates** : Logique métier (4 bounded contexts : Subscription, PlayTracking, Playlist, Collection)
 - **Projections** : Read models dénormalisés
 
 **👉 Patterns** : [docs/technical/CQRS_PATTERNS.md](docs/technical/CQRS_PATTERNS.md)
@@ -396,6 +396,7 @@ git pull origin main
 - Public Visibility for Playlists/Collections (v2.3) ✅ [#67](https://github.com/podCloud/balados.sync/issues/67)
 - Podcast Ownership & Verification (v2.4) ✅ [#68](https://github.com/podCloud/balados.sync/issues/68)
 - Email Verification for Ownership (v2.5) ✅ [#69](https://github.com/podCloud/balados.sync/issues/69)
+- Bounded Context Aggregate Split (v2.6) ✅ [#148](https://github.com/podCloud/balados.sync/issues/148) / [PR #238](https://github.com/podCloud/balados.sync/pull/238)
 
 ---
 

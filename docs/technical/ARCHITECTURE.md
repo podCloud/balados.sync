@@ -31,13 +31,26 @@ balados.sync/
 ```
 apps/balados_sync_core/lib/balados_sync_core/
 ├── aggregates/
-│   └── user.ex                    # Aggregate principal
+│   ├── subscription.ex            # Subscriptions, privacy, sharing
+│   ├── play_tracking.ex           # Play positions
+│   ├── playlist.ex                # Playlists and episodes
+│   └── collection.ex              # Feed organization
+├── middleware/
+│   └── validate_subscription.ex   # Cross-aggregate validation
+├── process_managers/
+│   └── add_feed_to_default_collection.ex  # Auto-add feed to default collection
 ├── commands/
 │   ├── subscribe.ex
 │   ├── unsubscribe.ex
 │   ├── record_play.ex
 │   ├── update_position.ex
 │   ├── change_privacy.ex
+│   ├── create_collection.ex
+│   ├── create_playlist.ex
+│   ├── snapshot_subscription.ex
+│   ├── snapshot_play_tracking.ex
+│   ├── snapshot_playlist.ex
+│   ├── snapshot_collection.ex
 │   └── ...
 ├── events/
 │   ├── user_subscribed.ex
@@ -45,44 +58,81 @@ apps/balados_sync_core/lib/balados_sync_core/
 │   ├── play_recorded.ex
 │   ├── position_updated.ex
 │   ├── privacy_changed.ex
+│   ├── collection_created.ex
+│   ├── playlist_created.ex
+│   ├── subscription_checkpoint.ex
+│   ├── play_tracking_checkpoint.ex
+│   ├── playlist_checkpoint.ex
+│   ├── collection_checkpoint.ex
 │   └── ...
 ├── dispatcher.ex                  # Command routing (Commanded)
 └── event_store.ex                 # EventStore config
 ```
 
-### User Aggregate
+### Bounded Context Aggregates
 
-L'**aggregate User** est le cœur du domaine. Il maintient l'état via Event Sourcing :
+Le domaine est séparé en **4 aggregates** par bounded context (anciennement un seul monolithique `User` aggregate) :
 
-#### État de l'Aggregate
+| Aggregate | Responsabilité | Stream prefix |
+|-----------|---------------|---------------|
+| `Subscription` | Abonnements, privacy, partage | `subscription-` |
+| `PlayTracking` | Positions de lecture | `play_tracking-` |
+| `Playlist` | Playlists et épisodes | `playlist-` |
+| `Collection` | Organisation des feeds | `collection-` |
+
+Chaque aggregate maintient son propre état :
+
 ```elixir
-defstruct [
-  user_id: nil,
-  subscriptions: %{},      # %{feed_url => subscription_data}
-  play_statuses: %{},      # %{item_id => play_status_data}
-  playlists: %{},          # %{playlist_id => playlist_data}
-  privacy_settings: %{}    # Privacy configuration
-]
+# Subscription
+defstruct [:user_id, :privacy, :subscriptions]
+# subscriptions: %{feed => %{subscribed_at, unsubscribed_at, rss_source_id}}
+
+# PlayTracking
+defstruct [:user_id, :play_statuses]
+# play_statuses: %{item_id => %{position, played, ...}}
+
+# Playlist
+defstruct [:user_id, :playlists]
+# playlists: %{playlist_id => %{name, description, type, items, is_public}}
+
+# Collection
+defstruct [:user_id, :collections]
+# collections: %{collection_id => %{title, is_default, feed_ids, is_public, ...}}
 ```
 
 #### Flux de Traitement
 
 1. **Command reçue** (ex: `Subscribe`)
-2. **`execute/2`** : Valide et décide quel(s) event(s) émettre
-3. **Event persisté** dans EventStore
-4. **`apply/2`** : Met à jour l'état de l'aggregate
-5. **Projectors** écoutent et mettent à jour les read models
+2. **Middleware** : Validation cross-aggregate (ex: `ValidateSubscription`)
+3. **`execute/2`** : Valide et décide quel(s) event(s) émettre
+4. **Event persisté** dans EventStore
+5. **`apply/2`** : Met à jour l'état de l'aggregate
+6. **Process managers** réagissent aux events (ex: auto-add feed to default collection)
+7. **Projectors** écoutent et mettent à jour les read models
 
 #### Routing
 
-Toutes les commands sont routées vers l'aggregate User via `user_id` :
+Chaque aggregate est routé par `user_id` avec un **préfixe de stream distinct** :
 
 ```elixir
 # Dans Dispatcher.Router
-identify BaladosSyncCore.Aggregates.User,
-  by: :user_id,
-  prefix: "user-"
+identify Subscription, by: :user_id, prefix: "subscription-"
+identify PlayTracking, by: :user_id, prefix: "play_tracking-"
+identify Playlist, by: :user_id, prefix: "playlist-"
+identify Collection, by: :user_id, prefix: "collection-"
 ```
+
+#### Cross-Aggregate Validation
+
+Le middleware `ValidateSubscription` vérifie que le feed est abonné avant d'autoriser
+`AddFeedToCollection`. Il query la projection `subscriptions` (read model) car la
+state de subscription vit dans un aggregate séparé.
+
+#### Process Managers
+
+`AddFeedToDefaultCollection` écoute `UserSubscribed` et :
+1. Crée la collection "All Subscriptions" (défaut) si elle n'existe pas
+2. Ajoute le feed à la collection par défaut
 
 ---
 
@@ -247,7 +297,7 @@ Client → HTTP Request (POST /api/v1/subscriptions)
   ↓
 Controller (extrait JWT, crée Command)
   ↓
-Dispatcher (route vers User aggregate par user_id)
+Dispatcher (route vers aggregate par user_id + préfixe stream)
   ↓
 Aggregate.execute/2 (validation, retourne Event)
   ↓
@@ -444,11 +494,13 @@ Après sync, crée un **checkpoint** pour cet utilisateur.
 ┌─────────────────────────┐   ┌─────────────────────────────┐
 │  balados_sync_core      │   │  balados_sync_projections   │
 │  ┌────────────────────┐ │   │  ┌────────────────────────┐ │
-│  │ User Aggregate     │ │   │  │  PostgreSQL Schemas    │ │
-│  │  - execute/2       │ │   │  │   - users              │ │
-│  │  - apply/2         │ │   │  │   - site               │ │
-│  └─────────┬──────────┘ │   │  │   - events             │ │
-│            │ Events      │   │  └────────────────────────┘ │
+│  │ 4 Aggregates       │ │   │  │  PostgreSQL Schemas    │ │
+│  │  - Subscription    │ │   │  │   - users              │ │
+│  │  - PlayTracking    │ │   │  │   - site               │ │
+│  │  - Playlist        │ │   │  │   - events             │ │
+│  │  - Collection      │ │   │  └────────────────────────┘ │
+│  └─────────┬──────────┘ │   │                              │
+│            │ Events      │   │                              │
 │            ▼            │   │            ▲                 │
 │  ┌────────────────────┐ │   │            │                 │
 │  │   EventStore       │ │───┤   ┌────────┴────────┐       │
@@ -472,16 +524,17 @@ Write Path:
 POST /subscriptions → SubscriptionController
   → %Subscribe{} command
     → Dispatcher.dispatch()
-      → UserAggregate.execute()
+      → Subscription.execute()
         → %UserSubscribed{} event
-          → EventStore.append()
-            → UserAggregate.apply()
+          → EventStore.append() (stream: subscription-{user_id})
+            → Subscription.apply()
               │
               └─→ Event Bus
                     │
                     ├─→ SubscriptionProjector → subscriptions table
                     ├─→ PublicEventsProjector → public_events table
-                    └─→ PopularityProjector → podcast_popularity table
+                    ├─→ PopularityProjector → podcast_popularity table
+                    └─→ AddFeedToDefaultCollection (process manager)
 
 Read Path:
 GET /subscriptions → SubscriptionController

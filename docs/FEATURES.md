@@ -100,7 +100,7 @@ Système CQRS/Event Sourcing pour organiser les abonnements en collections.
 - `FeedRemovedFromCollection` - Podcast retiré
 
 **Agrégat** :
-- `User` aggregate - Gère l'état des collections utilisateur
+- `Collection` aggregate - Gère l'état des collections utilisateur (bounded context séparé depuis PR #238)
 - Validation : empêcher suppression collections avec podcasts
 
 **Projections** :
@@ -150,7 +150,7 @@ Interface web complète pour la gestion des playlists d'épisodes.
 - `PlaylistDeleted` - Playlist supprimée (soft-delete)
 
 **Agrégat** :
-- `User` aggregate - Gère l'état des playlists utilisateur
+- `Playlist` aggregate - Gère l'état des playlists utilisateur (bounded context séparé depuis PR #238)
 - Validation : nom requis, empêcher création doublons par playlist_id
 
 **Projections** :
@@ -903,7 +903,7 @@ Suppression :
 - `PrivacyChanged`
 
 **Aggregates** :
-- `User` aggregate - State management utilisateur
+- 4 bounded context aggregates : `Subscription`, `PlayTracking`, `Playlist`, `Collection` (séparés depuis PR #238)
 
 **Projections** :
 - `subscriptions` - Liste abonnements
@@ -1106,7 +1106,7 @@ Allows users to make their playlists publicly visible on their profile.
 - `CollectionVisibilityChanged` - Emitted when collection visibility changes
 
 **Aggregate Updates** :
-- User aggregate handles visibility commands
+- `Playlist` and `Collection` aggregates handle visibility commands (bounded contexts séparés depuis PR #238)
 - State includes `is_public` flag per playlist/collection
 
 **Projections** :

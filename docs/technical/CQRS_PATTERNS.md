@@ -89,8 +89,8 @@ L'état actuel = replay de tous les events :
 def rebuild_aggregate(stream_id) do
   events = EventStore.read_stream_forward(stream_id)
 
-  Enum.reduce(events, %User{}, fn event, state ->
-    User.apply(state, event)
+  Enum.reduce(events, %Subscription{}, fn event, state ->
+    Subscription.apply(state, event)
   end)
 end
 ```
@@ -130,7 +130,7 @@ end
 Décide quel(s) event(s) émettre :
 
 ```elixir
-def execute(%User{} = user, %Subscribe{} = cmd) do
+def execute(%Subscription{} = state, %Subscribe{} = cmd) do
   # Validation
   cond do
     already_subscribed?(user, cmd.rss_source_feed) ->
@@ -189,7 +189,7 @@ end
 Met à jour l'état de l'aggregate :
 
 ```elixir
-def apply(%User{} = user, %UserSubscribed{} = event) do
+def apply(%Subscription{} = state, %UserSubscribed{} = event) do
   subscription = %{
     feed: event.rss_source_feed,
     subscribed_at: event.subscribed_at,
@@ -300,42 +300,82 @@ end
 3. **Décider** quels events émettre
 4. **Reconstruire** son état depuis les events
 
-### Structure
+### Structure (Bounded Contexts)
+
+Le domaine est séparé en 4 aggregates par bounded context :
 
 ```elixir
-defmodule BaladosSyncCore.Aggregates.User do
-  defstruct [
-    user_id: nil,
-    subscriptions: %{},
-    play_statuses: %{},
-    playlists: %{},
-    privacy_settings: %{}
-  ]
+# Subscription aggregate — subscriptions, privacy, sharing
+defmodule BaladosSyncCore.Aggregates.Subscription do
+  defstruct [:user_id, :privacy, :subscriptions]
 
-  # ─── Command Handlers (execute/2) ───
-  def execute(%User{}, %Subscribe{} = cmd), do: # ...
-  def execute(%User{}, %Unsubscribe{} = cmd), do: # ...
-  def execute(%User{}, %RecordPlay{} = cmd), do: # ...
+  def execute(%__MODULE__{}, %Subscribe{} = cmd), do: # ...
+  def execute(%__MODULE__{}, %Unsubscribe{} = cmd), do: # ...
+  def execute(%__MODULE__{}, %ChangePrivacy{} = cmd), do: # ...
 
-  # ─── Event Handlers (apply/2) ───
-  def apply(%User{}, %UserSubscribed{} = event), do: # ...
-  def apply(%User{}, %UserUnsubscribed{} = event), do: # ...
-  def apply(%User{}, %PlayRecorded{} = event), do: # ...
+  def apply(%__MODULE__{}, %UserSubscribed{} = event), do: # ...
+  def apply(%__MODULE__{}, %UserUnsubscribed{} = event), do: # ...
+end
+
+# PlayTracking aggregate — play positions
+defmodule BaladosSyncCore.Aggregates.PlayTracking do
+  defstruct [:user_id, :play_statuses]
+
+  def execute(%__MODULE__{}, %RecordPlay{} = cmd), do: # ...
+  def execute(%__MODULE__{}, %UpdatePosition{} = cmd), do: # ...
+
+  def apply(%__MODULE__{}, %PlayRecorded{} = event), do: # ...
+end
+
+# Playlist aggregate — playlists and episodes
+defmodule BaladosSyncCore.Aggregates.Playlist do
+  defstruct [:user_id, :playlists]
+  # ...
+end
+
+# Collection aggregate — feed organization
+defmodule BaladosSyncCore.Aggregates.Collection do
+  defstruct [:user_id, :collections]
+  # ...
 end
 ```
 
-### Aggregate Identity
+### Aggregate Identity & Stream Prefixes
 
-Tous les commands routés vers le même aggregate par `user_id` :
+Chaque aggregate a son propre **préfixe de stream** pour éviter les collisions :
 
 ```elixir
 # Dans Dispatcher.Router
-identify BaladosSyncCore.Aggregates.User,
-  by: :user_id,
-  prefix: "user-"
+identify Subscription,  by: :user_id, prefix: "subscription-"
+identify PlayTracking,  by: :user_id, prefix: "play_tracking-"
+identify Playlist,      by: :user_id, prefix: "playlist-"
+identify Collection,    by: :user_id, prefix: "collection-"
 
-# Command avec user_id = "abc123"
-# → Routée vers aggregate "user-abc123"
+# Command Subscribe avec user_id = "abc123"
+# → Routée vers stream "subscription-abc123"
+#
+# Command RecordPlay avec user_id = "abc123"
+# → Routée vers stream "play_tracking-abc123"
+```
+
+### Cross-Aggregate Validation (Middleware)
+
+Quand un aggregate doit valider un état dans un autre aggregate, on utilise
+un **middleware** qui query les projections (read model) :
+
+```elixir
+# ValidateSubscription middleware
+# Vérifie que le feed est abonné avant AddFeedToCollection
+defmodule BaladosSyncCore.Middleware.ValidateSubscription do
+  def before_dispatch(%Pipeline{command: %AddFeedToCollection{}} = pipeline) do
+    # Query la projection subscriptions
+    case repo.one(query, prefix: "users") do
+      nil -> pipeline |> respond({:error, :feed_not_subscribed}) |> halt()
+      _id -> pipeline
+    end
+  end
+  def before_dispatch(pipeline), do: pipeline  # passthrough for other commands
+end
 ```
 
 ### Multiple Events
@@ -343,7 +383,7 @@ identify BaladosSyncCore.Aggregates.User,
 Un command peut émettre plusieurs events :
 
 ```elixir
-def execute(%User{}, %SyncData{} = cmd) do
+def execute(%Subscription{}, %SomeCommand{} = cmd) do
   # Retourner une liste d'events
   [
     %UserSubscribed{...},
@@ -358,8 +398,8 @@ end
 L'aggregate vérifie les **invariants** :
 
 ```elixir
-def execute(%User{} = user, %DeletePlaylist{} = cmd) do
-  playlist = user.playlists[cmd.playlist_id]
+def execute(%Playlist{} = state, %DeletePlaylist{} = cmd) do
+  playlist = (state.playlists || %{})[cmd.playlist_id]
 
   cond do
     is_nil(playlist) ->
@@ -489,21 +529,20 @@ Rebuild aggregate =
 ⏱️ RAPIDE
 ```
 
-### Checkpoint Event
+### Per-Aggregate Checkpoint Events
+
+Depuis le split en bounded contexts (#148), les checkpoints sont par aggregate :
 
 ```elixir
-defmodule BaladosSyncCore.Events.Checkpoint do
-  @derive Jason.Encoder
-  defstruct [
-    :user_id,
-    :subscriptions,      # État complet
-    :play_statuses,
-    :playlists,
-    :privacy_settings,
-    :checkpoint_date
-  ]
-end
+%SubscriptionCheckpoint{user_id, subscriptions, privacy, timestamp}
+%PlayTrackingCheckpoint{user_id, play_statuses, timestamp}
+%PlaylistCheckpoint{user_id, playlists, timestamp}
+%CollectionCheckpoint{user_id, collections, timestamp}
 ```
+
+**Legacy** : L'ancien `UserCheckpoint` monolithique est toujours supporté par
+les projectors pour la compatibilité avec les events déjà stockés. Les nouveaux
+snapshots émettent les 4 variants ci-dessus.
 
 ### SnapshotWorker
 
@@ -516,24 +555,18 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     old_events = find_old_events(45)
 
     for user_id <- extract_user_ids(old_events) do
-      # 2. Rebuild aggregate complet
-      aggregate_state = rebuild_aggregate(user_id)
+      # 2. Dispatch 4 per-aggregate snapshot commands
+      results = [
+        Dispatcher.dispatch(%SnapshotSubscription{user_id: user_id}),
+        Dispatcher.dispatch(%SnapshotPlayTracking{user_id: user_id}),
+        Dispatcher.dispatch(%SnapshotPlaylist{user_id: user_id}),
+        Dispatcher.dispatch(%SnapshotCollection{user_id: user_id})
+      ]
 
-      # 3. Créer Checkpoint event
-      checkpoint_event = %Checkpoint{
-        user_id: user_id,
-        subscriptions: aggregate_state.subscriptions,
-        play_statuses: aggregate_state.play_statuses,
-        playlists: aggregate_state.playlists,
-        privacy_settings: aggregate_state.privacy_settings,
-        checkpoint_date: DateTime.utc_now()
-      }
-
-      # 4. Dispatch checkpoint
-      Dispatcher.dispatch(%Snapshot{checkpoint: checkpoint_event})
-
-      # 5. Supprimer anciens events (>45 jours)
-      cleanup_old_events(user_id, 45)
+      # 3. All-or-nothing: only cleanup if ALL snapshots succeed
+      if Enum.all?(results, &(&1 == :ok)) do
+        cleanup_old_events(user_id, 45)
+      end
     end
   end
 end
@@ -602,8 +635,8 @@ end
 #### Step 3 : Aggregate traite Command
 
 ```elixir
-# User.execute/2
-def execute(%User{} = user, %Subscribe{} = cmd) do
+# Subscription.execute/2
+def execute(%Subscription{} = state, %Subscribe{} = cmd) do
   if already_subscribed?(user, cmd.rss_source_feed) do
     {:error, :already_subscribed}
   else
@@ -630,8 +663,8 @@ Event: UserSubscribed
 #### Step 5 : Aggregate state updated
 
 ```elixir
-# User.apply/2
-def apply(%User{} = user, %UserSubscribed{} = event) do
+# Subscription.apply/2
+def apply(%Subscription{} = state, %UserSubscribed{} = event) do
   subscription = %{
     feed: event.rss_source_feed,
     subscribed_at: event.subscribed_at
@@ -724,7 +757,7 @@ Dispatcher.dispatch(command)
 #### Step 3 : Aggregate
 
 ```elixir
-def execute(%User{} = user, %UpdatePosition{} = cmd) do
+def execute(%PlayTracking{}, %UpdatePosition{} = cmd) do
   %PositionUpdated{
     user_id: cmd.user_id,
     rss_source_item: cmd.rss_source_item,
@@ -733,15 +766,15 @@ def execute(%User{} = user, %UpdatePosition{} = cmd) do
   }
 end
 
-def apply(%User{} = user, %PositionUpdated{} = event) do
-  play_status = user.play_statuses[event.rss_source_item] || %{}
+def apply(%PlayTracking{} = state, %PositionUpdated{} = event) do
+  play_statuses = state.play_statuses || %{}
+  play_status = play_statuses[event.rss_source_item] || %{}
   play_status = Map.merge(play_status, %{
     position: event.position,
     updated_at: event.updated_at
   })
 
-  play_statuses = Map.put(user.play_statuses, event.rss_source_item, play_status)
-  %{user | play_statuses: play_statuses}
+  %{state | play_statuses: Map.put(play_statuses, event.rss_source_item, play_status)}
 end
 ```
 
@@ -847,12 +880,12 @@ Ecto.Multi.insert(multi, :subscription, subscription)
 
 ✅ **DO** : Valider dans execute/2
 ```elixir
-def execute(%User{}, %Subscribe{} = cmd) do
+def execute(%Subscription{}, %Subscribe{} = cmd) do
   cond do
     String.length(cmd.rss_source_feed) == 0 ->
       {:error, :invalid_feed}
 
-    already_subscribed?(user, cmd.rss_source_feed) ->
+    already_subscribed?(state, cmd.rss_source_feed) ->
       {:error, :already_subscribed}
 
     true ->
@@ -863,7 +896,7 @@ end
 
 ❌ **DON'T** : Pas de validation
 ```elixir
-def execute(%User{}, %Subscribe{} = cmd) do
+def execute(%Subscription{}, %Subscribe{} = cmd) do
   # Pas de vérification
   %UserSubscribed{...}  # Pourrait créer état invalide
 end
@@ -904,7 +937,7 @@ end
 
 ❌ **ERREUR** :
 ```elixir
-def execute(%User{}, %Subscribe{} = cmd) do
+def execute(%Subscription{}, %Subscribe{} = cmd) do
   # ❌ Query externe dans aggregate
   existing = Repo.get_by(Subscription, feed: cmd.feed)
   if existing, do: {:error, :exists}
@@ -913,9 +946,9 @@ end
 
 ✅ **CORRECT** :
 ```elixir
-def execute(%User{} = user, %Subscribe{} = cmd) do
+def execute(%Subscription{} = state, %Subscribe{} = cmd) do
   # ✅ Utiliser l'état de l'aggregate
-  if already_subscribed?(user, cmd.feed) do
+  if already_subscribed?(state, cmd.feed) do
     {:error, :already_subscribed}
   end
 end
@@ -1002,7 +1035,7 @@ end
 ❌ **ERREUR** :
 ```elixir
 # execute/2 défini
-def execute(%User{}, %Subscribe{} = cmd) do
+def execute(%Subscription{}, %Subscribe{} = cmd) do
   %UserSubscribed{...}
 end
 
@@ -1013,14 +1046,14 @@ end
 ✅ **CORRECT** :
 ```elixir
 # execute/2
-def execute(%User{}, %Subscribe{} = cmd) do
+def execute(%Subscription{}, %Subscribe{} = cmd) do
   %UserSubscribed{...}
 end
 
 # ✅ apply/2 correspondant
-def apply(%User{} = user, %UserSubscribed{} = event) do
-  # Mettre à jour user.subscriptions
-  %{user | subscriptions: ...}
+def apply(%Subscription{} = state, %UserSubscribed{} = event) do
+  # Mettre à jour state.subscriptions
+  %{state | subscriptions: ...}
 end
 ```
 
