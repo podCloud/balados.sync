@@ -104,6 +104,11 @@ end
 > | `PlayTracking` | `play_tracking-{user_id}` | `%PlayTracking{}` |
 > | `Playlist` | `playlist-{user_id}` | `%Playlist{}` |
 > | `Collection` | `collection-{user_id}` | `%Collection{}` |
+>
+> Les noms courts sont utilisés ici à titre illustratif. Les modules complets
+> sont `BaladosSyncCore.Aggregates.<Aggregate>` (ex: `BaladosSyncCore.Aggregates.Subscription`).
+>
+> Le `user_id` est un UUID v4 (ex: `subscription-550e8400-e29b-41d4-a716-446655440000`).
 
 ---
 
