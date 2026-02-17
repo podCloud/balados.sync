@@ -17,6 +17,8 @@ defmodule BaladosSyncCore.Middleware.ValidateSubscription do
   def before_dispatch(%Commanded.Middleware.Pipeline{command: %AddFeedToCollection{} = cmd} = pipeline) do
     repo = repo()
 
+    # Uses raw table name with prefix to avoid compile-time dependency on
+    # BaladosSyncProjections.Schemas.Subscription (core compiles before projections).
     query =
       from(s in "subscriptions",
         where: s.user_id == ^cmd.user_id and s.rss_source_feed == ^cmd.rss_source_feed,

@@ -166,8 +166,7 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
 
   def apply(%__MODULE__{} = state, _event), do: state
 
-  # Public helper for snapshot worker
-  def filter_subscriptions(subscriptions) do
+  defp filter_subscriptions(subscriptions) do
     now = DateTime.utc_now()
     forty_five_days_ago = DateTime.add(now, -45, :day)
 

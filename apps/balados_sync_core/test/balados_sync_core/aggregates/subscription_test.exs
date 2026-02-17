@@ -2,8 +2,8 @@ defmodule BaladosSyncCore.Aggregates.SubscriptionTest do
   use ExUnit.Case, async: true
 
   alias BaladosSyncCore.Aggregates.Subscription
-  alias BaladosSyncCore.Commands.Subscribe
-  alias BaladosSyncCore.Events.UserSubscribed
+  alias BaladosSyncCore.Commands.{Subscribe, SnapshotSubscription}
+  alias BaladosSyncCore.Events.{UserSubscribed, SubscriptionCheckpoint}
 
   describe "Subscription aggregate" do
     test "handles Subscribe command on new aggregate" do
@@ -58,31 +58,36 @@ defmodule BaladosSyncCore.Aggregates.SubscriptionTest do
       assert sub.rss_source_id == "source-1"
     end
 
-    test "filter_subscriptions removes old unsubscribed feeds" do
+    test "snapshot filters out old unsubscribed feeds" do
       now = DateTime.utc_now()
       sixty_days_ago = DateTime.add(now, -60, :day)
       ten_days_ago = DateTime.add(now, -10, :day)
 
-      subscriptions = %{
-        "active-feed" => %{
-          subscribed_at: sixty_days_ago,
-          unsubscribed_at: nil
-        },
-        "recently-unsubscribed" => %{
-          subscribed_at: sixty_days_ago,
-          unsubscribed_at: ten_days_ago
-        },
-        "old-unsubscribed" => %{
-          subscribed_at: DateTime.add(now, -90, :day),
-          unsubscribed_at: sixty_days_ago
+      state = %Subscription{
+        user_id: "user-1",
+        privacy: :public,
+        subscriptions: %{
+          "active-feed" => %{
+            subscribed_at: sixty_days_ago,
+            unsubscribed_at: nil
+          },
+          "recently-unsubscribed" => %{
+            subscribed_at: sixty_days_ago,
+            unsubscribed_at: ten_days_ago
+          },
+          "old-unsubscribed" => %{
+            subscribed_at: DateTime.add(now, -90, :day),
+            unsubscribed_at: sixty_days_ago
+          }
         }
       }
 
-      filtered = Subscription.filter_subscriptions(subscriptions)
+      event = Subscription.execute(state, %SnapshotSubscription{user_id: "user-1"})
 
-      assert Map.has_key?(filtered, "active-feed")
-      assert Map.has_key?(filtered, "recently-unsubscribed")
-      refute Map.has_key?(filtered, "old-unsubscribed")
+      assert %SubscriptionCheckpoint{} = event
+      assert Map.has_key?(event.subscriptions, "active-feed")
+      assert Map.has_key?(event.subscriptions, "recently-unsubscribed")
+      refute Map.has_key?(event.subscriptions, "old-unsubscribed")
     end
   end
 end
