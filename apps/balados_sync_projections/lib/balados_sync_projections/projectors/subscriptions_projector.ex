@@ -7,7 +7,7 @@ defmodule BaladosSyncProjections.Projectors.SubscriptionsProjector do
   require Logger
   import Ecto.Query
 
-  alias BaladosSyncCore.Events.{UserSubscribed, UserUnsubscribed, UserCheckpoint}
+  alias BaladosSyncCore.Events.{UserSubscribed, UserUnsubscribed, UserCheckpoint, SubscriptionCheckpoint}
   alias BaladosSyncProjections.Schemas.Subscription
 
   project(%UserSubscribed{} = event, _metadata, fn multi ->
@@ -41,25 +41,40 @@ defmodule BaladosSyncProjections.Projectors.SubscriptionsProjector do
   end)
 
   project(%UserCheckpoint{} = event, _metadata, fn multi ->
-    # Upsert de toutes les subscriptions du checkpoint
-    multi =
-      Enum.reduce(event.subscriptions, multi, fn {feed, sub}, acc ->
-        Ecto.Multi.insert(
-          acc,
-          {:subscription, feed},
-          %Subscription{
-            user_id: event.user_id,
-            rss_source_feed: feed,
-            rss_source_id: sub.rss_source_id,
-            subscribed_at: parse_datetime(sub.subscribed_at),
-            unsubscribed_at: parse_datetime(sub.unsubscribed_at)
-          },
-          on_conflict: {:replace_all_except, [:id, :inserted_at]},
-          conflict_target: [:user_id, :rss_source_feed]
-        )
-      end)
+    # Legacy: upsert subscriptions from old monolithic checkpoint
+    Enum.reduce(event.subscriptions || %{}, multi, fn {feed, sub}, acc ->
+      Ecto.Multi.insert(
+        acc,
+        {:subscription, feed},
+        %Subscription{
+          user_id: event.user_id,
+          rss_source_feed: feed,
+          rss_source_id: sub.rss_source_id,
+          subscribed_at: parse_datetime(sub.subscribed_at),
+          unsubscribed_at: parse_datetime(sub.unsubscribed_at)
+        },
+        on_conflict: {:replace_all_except, [:id, :inserted_at]},
+        conflict_target: [:user_id, :rss_source_feed]
+      )
+    end)
+  end)
 
-    multi
+  project(%SubscriptionCheckpoint{} = event, _metadata, fn multi ->
+    Enum.reduce(event.subscriptions || %{}, multi, fn {feed, sub}, acc ->
+      Ecto.Multi.insert(
+        acc,
+        {:subscription, feed},
+        %Subscription{
+          user_id: event.user_id,
+          rss_source_feed: feed,
+          rss_source_id: Map.get(sub, :rss_source_id),
+          subscribed_at: parse_datetime(Map.get(sub, :subscribed_at)),
+          unsubscribed_at: parse_datetime(Map.get(sub, :unsubscribed_at))
+        },
+        on_conflict: {:replace_all_except, [:id, :inserted_at]},
+        conflict_target: [:user_id, :rss_source_feed]
+      )
+    end)
   end)
 
   # Parse ISO8601 datetime string to DateTime struct

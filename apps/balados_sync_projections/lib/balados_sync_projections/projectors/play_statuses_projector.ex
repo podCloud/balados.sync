@@ -4,7 +4,7 @@ defmodule BaladosSyncProjections.Projectors.PlayStatusesProjector do
     repo: BaladosSyncProjections.ProjectionsRepo,
     name: "PlayStatusesProjector"
 
-  alias BaladosSyncCore.Events.{PlayRecorded, PositionUpdated, UserCheckpoint}
+  alias BaladosSyncCore.Events.{PlayRecorded, PositionUpdated, UserCheckpoint, PlayTrackingCheckpoint}
   alias BaladosSyncProjections.Schemas.PlayStatus
 
   project(%PlayRecorded{} = event, _metadata, fn multi ->
@@ -47,7 +47,8 @@ defmodule BaladosSyncProjections.Projectors.PlayStatusesProjector do
   end)
 
   project(%UserCheckpoint{} = event, _metadata, fn multi ->
-    Enum.reduce(event.play_statuses, multi, fn {item, status}, acc ->
+    # Legacy: upsert play statuses from old monolithic checkpoint
+    Enum.reduce(event.play_statuses || %{}, multi, fn {item, status}, acc ->
       Ecto.Multi.insert(
         acc,
         {:play_status, item},
@@ -58,6 +59,25 @@ defmodule BaladosSyncProjections.Projectors.PlayStatusesProjector do
           position: status.position,
           played: status.played,
           updated_at: parse_datetime(status.updated_at)
+        },
+        on_conflict: {:replace_all_except, [:id]},
+        conflict_target: [:user_id, :rss_source_item]
+      )
+    end)
+  end)
+
+  project(%PlayTrackingCheckpoint{} = event, _metadata, fn multi ->
+    Enum.reduce(event.play_statuses || %{}, multi, fn {item, status}, acc ->
+      Ecto.Multi.insert(
+        acc,
+        {:play_status, item},
+        %PlayStatus{
+          user_id: event.user_id,
+          rss_source_feed: Map.get(status, :rss_source_feed),
+          rss_source_item: item,
+          position: Map.get(status, :position),
+          played: Map.get(status, :played),
+          updated_at: parse_datetime(Map.get(status, :updated_at))
         },
         on_conflict: {:replace_all_except, [:id]},
         conflict_target: [:user_id, :rss_source_item]

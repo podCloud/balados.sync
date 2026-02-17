@@ -3,6 +3,10 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   Worker that creates periodic checkpoints for users with old events
   and cleans up events older than the retention period.
 
+  Dispatches per-aggregate snapshot commands (SnapshotSubscription,
+  SnapshotPlayTracking, SnapshotPlaylist, SnapshotCollection) for each user
+  with old events.
+
   Uses EventStore's native API (`read_all_streams_forward/3`) for reading events
   instead of raw SQL queries. Event cleanup still uses raw SQL as the EventStore
   library does not provide a native API for deleting individual events.
@@ -11,8 +15,13 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   require Logger
   import Ecto.Query
 
-  alias BaladosSyncCore.Commands.Snapshot
+  alias BaladosSyncCore.Commands.{SnapshotSubscription, SnapshotPlayTracking, SnapshotPlaylist, SnapshotCollection}
   alias BaladosSyncProjections.ProjectionsRepo
+
+  @doc "Returns the dispatcher module (configurable for testing)."
+  def dispatcher do
+    Application.get_env(:balados_sync_jobs, :dispatcher, BaladosSyncCore.Dispatcher)
+  end
 
   @forty_five_days_ago_seconds 45 * 24 * 60 * 60
   @thirty_one_days_ago_seconds 31 * 24 * 60 * 60
@@ -45,7 +54,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     Logger.info("Found #{map_size(events_by_user)} users with events older than 45 days")
 
     Enum.each(events_by_user, fn {user_id, _events} ->
-      create_user_checkpoint(user_id, true)
+      create_user_checkpoints(user_id, true)
     end)
 
     recalculate_popularity()
@@ -126,24 +135,48 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     end
   end
 
-  defp create_user_checkpoint(user_id, cleanup_old_events) do
-    Logger.info("Creating checkpoint for user #{user_id}")
+  # Public for testability only. Not part of the public API — call perform/0 instead.
+  @doc false
+  def create_user_checkpoints(user_id, cleanup_old_events) do
+    Logger.info("Creating checkpoints for user #{user_id}")
 
-    command = %Snapshot{
-      user_id: user_id,
-      cleanup_old_events: cleanup_old_events
-    }
+    # Dispatch per-aggregate snapshot commands.
+    # All snapshots must succeed before old events are cleaned up (all-or-nothing per user).
+    # This is intentional: partial cleanup could leave some aggregates without the events
+    # they need to rebuild state. If one aggregate fails, no events are deleted, and
+    # the next scheduled run will retry all snapshots for this user.
+    commands = [
+      %SnapshotSubscription{user_id: user_id},
+      %SnapshotPlayTracking{user_id: user_id},
+      %SnapshotPlaylist{user_id: user_id},
+      %SnapshotCollection{user_id: user_id}
+    ]
 
-    case BaladosSyncCore.Dispatcher.dispatch(command, consistency: :strong) do
-      :ok ->
-        Logger.info("Checkpoint created for user #{user_id}")
+    # Dispatch all 4 checkpoint commands without short-circuiting.
+    # Even if one fails, we dispatch the rest — cleanup is only performed
+    # when all succeed, so partial snapshots are harmless. Dispatching all
+    # commands lets us report every failure in a single pass rather than
+    # masking subsequent failures behind the first one.
+    results =
+      Enum.map(commands, fn command ->
+        {command, dispatcher().dispatch(command, consistency: :strong)}
+      end)
 
-        if cleanup_old_events do
-          cleanup_old_user_events(user_id)
-        end
+    failures =
+      Enum.filter(results, fn {_cmd, result} -> result != :ok end)
 
-      {:error, reason} ->
-        Logger.error("Failed to create checkpoint for user #{user_id}: #{inspect(reason)}")
+    if failures == [] do
+      Logger.info("Checkpoints created for user #{user_id}")
+
+      if cleanup_old_events do
+        cleanup_old_user_events(user_id)
+      end
+    else
+      Enum.each(failures, fn {cmd, error} ->
+        Logger.error(
+          "Failed checkpoint #{inspect(cmd.__struct__)} for user #{user_id}: #{inspect(error)}"
+        )
+      end)
     end
   end
 

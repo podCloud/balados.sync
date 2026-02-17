@@ -1,33 +1,40 @@
-defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
+defmodule BaladosSyncCore.Aggregates.PlaylistTest do
   @moduledoc """
-  Tests for Playlists functionality in the User aggregate.
+  Tests for the Playlist aggregate.
 
   Tests the CQRS/ES implementation of playlists, including:
   - CreatePlaylist command
   - DeletePlaylist command
+  - ChangePlaylistVisibility command
   - Event handling and aggregate state updates
   """
 
   use ExUnit.Case
 
-  alias BaladosSyncCore.Aggregates.User
+  alias BaladosSyncCore.Aggregates.Playlist
 
   alias BaladosSyncCore.Commands.{
     CreatePlaylist,
+    UpdatePlaylist,
+    ReorderPlaylist,
     DeletePlaylist,
-    ChangePlaylistVisibility
+    ChangePlaylistVisibility,
+    SnapshotPlaylist
   }
 
   alias BaladosSyncCore.Events.{
     PlaylistCreated,
+    PlaylistUpdated,
+    PlaylistReordered,
     PlaylistDeleted,
-    PlaylistVisibilityChanged
+    PlaylistVisibilityChanged,
+    PlaylistCheckpoint
   }
 
   describe "CreatePlaylist Command" do
     test "valid name creates playlist with generated UUID" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %CreatePlaylist{
         user_id: user_id,
@@ -35,7 +42,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      event = User.execute(user, cmd)
+      event = Playlist.execute(state, cmd)
 
       assert match?(%PlaylistCreated{}, event)
       assert event.user_id == user_id
@@ -46,7 +53,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
 
     test "valid name with description creates playlist" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %CreatePlaylist{
         user_id: user_id,
@@ -55,7 +62,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      event = User.execute(user, cmd)
+      event = Playlist.execute(state, cmd)
 
       assert match?(%PlaylistCreated{}, event)
       assert event.name == "Tech Podcasts"
@@ -65,7 +72,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
     test "provided playlist_id is used instead of generated UUID" do
       user_id = "user-123"
       playlist_id = "custom-playlist-id"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %CreatePlaylist{
         user_id: user_id,
@@ -74,7 +81,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      event = User.execute(user, cmd)
+      event = Playlist.execute(state, cmd)
 
       assert match?(%PlaylistCreated{}, event)
       assert event.playlist_id == playlist_id
@@ -82,7 +89,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
 
     test "empty name returns error" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %CreatePlaylist{
         user_id: user_id,
@@ -90,14 +97,14 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      result = User.execute(user, cmd)
+      result = Playlist.execute(state, cmd)
 
       assert match?({:error, :name_required}, result)
     end
 
     test "nil name returns error" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %CreatePlaylist{
         user_id: user_id,
@@ -105,7 +112,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      result = User.execute(user, cmd)
+      result = Playlist.execute(state, cmd)
 
       assert match?({:error, :name_required}, result)
     end
@@ -114,7 +121,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       user_id = "user-123"
       playlist_id = Ecto.UUID.generate()
 
-      user = %User{
+      state = %Playlist{
         user_id: user_id,
         playlists: %{
           playlist_id => %{name: "Existing Playlist", items: []}
@@ -128,7 +135,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      result = User.execute(user, cmd)
+      result = Playlist.execute(state, cmd)
 
       assert match?({:error, :playlist_already_exists}, result)
     end
@@ -137,7 +144,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       user_id = "user-123"
       existing_playlist_id = Ecto.UUID.generate()
 
-      user = %User{
+      state = %Playlist{
         user_id: user_id,
         playlists: %{
           existing_playlist_id => %{name: "First Playlist", items: []}
@@ -150,7 +157,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      result = User.execute(user, cmd)
+      result = Playlist.execute(state, cmd)
 
       assert match?(%PlaylistCreated{}, result)
       assert result.name == "Second Playlist"
@@ -162,7 +169,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       user_id = "user-123"
       playlist_id = Ecto.UUID.generate()
 
-      user = %User{
+      state = %Playlist{
         user_id: user_id,
         playlists: %{
           playlist_id => %{name: "To Delete", items: []}
@@ -175,7 +182,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      event = User.execute(user, cmd)
+      event = Playlist.execute(state, cmd)
 
       assert match?(%PlaylistDeleted{}, event)
       assert event.playlist_id == playlist_id
@@ -184,7 +191,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
 
     test "returns error for non-existent playlist" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %DeletePlaylist{
         user_id: user_id,
@@ -192,7 +199,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      result = User.execute(user, cmd)
+      result = Playlist.execute(state, cmd)
 
       assert match?({:error, :playlist_not_found}, result)
     end
@@ -201,8 +208,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       user_id = "user-123"
       playlist_id = Ecto.UUID.generate()
 
-      # Playlist doesn't exist in aggregate state (already deleted or never existed)
-      user = %User{
+      state = %Playlist{
         user_id: user_id,
         playlists: %{}
       }
@@ -213,7 +219,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      result = User.execute(user, cmd)
+      result = Playlist.execute(state, cmd)
 
       assert match?({:error, :playlist_not_found}, result)
     end
@@ -222,7 +228,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
   describe "Event Application (apply/2)" do
     test "apply PlaylistCreated updates aggregate state" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
       playlist_id = Ecto.UUID.generate()
 
       event = %PlaylistCreated{
@@ -232,17 +238,17 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         description: "Test description"
       }
 
-      updated_user = User.apply(user, event)
+      updated = Playlist.apply(state, event)
 
-      assert playlist_id in Map.keys(updated_user.playlists)
-      playlist = updated_user.playlists[playlist_id]
+      assert playlist_id in Map.keys(updated.playlists)
+      playlist = updated.playlists[playlist_id]
       assert playlist.name == "New Playlist"
       assert playlist.description == "Test description"
     end
 
     test "apply PlaylistCreated initializes empty items list" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
       playlist_id = Ecto.UUID.generate()
 
       event = %PlaylistCreated{
@@ -251,9 +257,9 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         name: "Empty Playlist"
       }
 
-      updated_user = User.apply(user, event)
+      updated = Playlist.apply(state, event)
 
-      playlist = updated_user.playlists[playlist_id]
+      playlist = updated.playlists[playlist_id]
       assert playlist.items == []
     end
 
@@ -261,7 +267,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       user_id = "user-123"
       playlist_id = Ecto.UUID.generate()
 
-      user = %User{
+      state = %Playlist{
         user_id: user_id,
         playlists: %{
           playlist_id => %{name: "To Remove", items: []}
@@ -275,10 +281,10 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      updated_user = User.apply(user, event)
+      updated = Playlist.apply(state, event)
 
-      assert playlist_id not in Map.keys(updated_user.playlists)
-      assert map_size(updated_user.playlists) == 0
+      assert playlist_id not in Map.keys(updated.playlists)
+      assert map_size(updated.playlists) == 0
     end
 
     test "apply PlaylistDeleted doesn't affect other playlists" do
@@ -286,7 +292,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       playlist_to_delete = Ecto.UUID.generate()
       other_playlist = Ecto.UUID.generate()
 
-      user = %User{
+      state = %Playlist{
         user_id: user_id,
         playlists: %{
           playlist_to_delete => %{name: "To Delete", items: []},
@@ -301,11 +307,11 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      updated_user = User.apply(user, event)
+      updated = Playlist.apply(state, event)
 
-      assert playlist_to_delete not in Map.keys(updated_user.playlists)
-      assert other_playlist in Map.keys(updated_user.playlists)
-      assert updated_user.playlists[other_playlist].name == "Keep This"
+      assert playlist_to_delete not in Map.keys(updated.playlists)
+      assert other_playlist in Map.keys(updated.playlists)
+      assert updated.playlists[other_playlist].name == "Keep This"
     end
   end
 
@@ -314,7 +320,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       user_id = "user-123"
       playlist_id = Ecto.UUID.generate()
 
-      user = %User{
+      state = %Playlist{
         user_id: user_id,
         playlists: %{
           playlist_id => %{name: "My Playlist", items: [], is_public: false}
@@ -328,7 +334,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{device_id: "web", device_name: "Web Browser"}
       }
 
-      event = User.execute(user, cmd)
+      event = Playlist.execute(state, cmd)
 
       assert match?(%PlaylistVisibilityChanged{}, event)
       assert event.user_id == user_id
@@ -340,7 +346,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       user_id = "user-123"
       playlist_id = Ecto.UUID.generate()
 
-      user = %User{
+      state = %Playlist{
         user_id: user_id,
         playlists: %{
           playlist_id => %{name: "My Playlist", items: [], is_public: true}
@@ -354,7 +360,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      event = User.execute(user, cmd)
+      event = Playlist.execute(state, cmd)
 
       assert match?(%PlaylistVisibilityChanged{}, event)
       assert event.is_public == false
@@ -362,7 +368,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
 
     test "returns error for non-existent playlist" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %ChangePlaylistVisibility{
         user_id: user_id,
@@ -371,7 +377,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      result = User.execute(user, cmd)
+      result = Playlist.execute(state, cmd)
 
       assert match?({:error, :playlist_not_found}, result)
     end
@@ -382,7 +388,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       user_id = "user-123"
       playlist_id = Ecto.UUID.generate()
 
-      user = %User{
+      state = %Playlist{
         user_id: user_id,
         playlists: %{
           playlist_id => %{name: "My Playlist", items: [], is_public: false}
@@ -397,16 +403,16 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      updated_user = User.apply(user, event)
+      updated = Playlist.apply(state, event)
 
-      assert updated_user.playlists[playlist_id].is_public == true
+      assert updated.playlists[playlist_id].is_public == true
     end
 
     test "apply PlaylistVisibilityChanged updates is_public to false" do
       user_id = "user-123"
       playlist_id = Ecto.UUID.generate()
 
-      user = %User{
+      state = %Playlist{
         user_id: user_id,
         playlists: %{
           playlist_id => %{name: "My Playlist", items: [], is_public: true}
@@ -421,9 +427,9 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      updated_user = User.apply(user, event)
+      updated = Playlist.apply(state, event)
 
-      assert updated_user.playlists[playlist_id].is_public == false
+      assert updated.playlists[playlist_id].is_public == false
     end
 
     test "apply PlaylistVisibilityChanged doesn't affect other playlists" do
@@ -431,7 +437,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
       playlist_id = Ecto.UUID.generate()
       other_playlist = Ecto.UUID.generate()
 
-      user = %User{
+      state = %Playlist{
         user_id: user_id,
         playlists: %{
           playlist_id => %{name: "Target", items: [], is_public: false},
@@ -447,15 +453,15 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      updated_user = User.apply(user, event)
+      updated = Playlist.apply(state, event)
 
-      assert updated_user.playlists[playlist_id].is_public == true
-      assert updated_user.playlists[other_playlist].is_public == false
+      assert updated.playlists[playlist_id].is_public == true
+      assert updated.playlists[other_playlist].is_public == false
     end
 
     test "apply PlaylistVisibilityChanged handles missing playlist gracefully" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       event = %PlaylistVisibilityChanged{
         user_id: user_id,
@@ -465,17 +471,17 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      # Should not crash, just return user unchanged
-      updated_user = User.apply(user, event)
+      # Should not crash, just return state unchanged
+      updated = Playlist.apply(state, event)
 
-      assert updated_user == user
+      assert updated == state
     end
   end
 
   describe "Device Queues (playlist_type)" do
     test "creates queue with playlist_type='queue'" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %CreatePlaylist{
         user_id: user_id,
@@ -484,7 +490,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{device_id: "iphone-123"}
       }
 
-      event = User.execute(user, cmd)
+      event = Playlist.execute(state, cmd)
 
       assert match?(%PlaylistCreated{}, event)
       assert event.playlist_type == "queue"
@@ -493,7 +499,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
 
     test "creates playlist with explicit playlist_type='playlist'" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %CreatePlaylist{
         user_id: user_id,
@@ -502,7 +508,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      event = User.execute(user, cmd)
+      event = Playlist.execute(state, cmd)
 
       assert match?(%PlaylistCreated{}, event)
       assert event.playlist_type == "playlist"
@@ -510,7 +516,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
 
     test "defaults to playlist_type='playlist' when not specified" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %CreatePlaylist{
         user_id: user_id,
@@ -518,7 +524,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      event = User.execute(user, cmd)
+      event = Playlist.execute(state, cmd)
 
       assert match?(%PlaylistCreated{}, event)
       assert event.playlist_type == "playlist"
@@ -526,7 +532,7 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
 
     test "rejects invalid playlist_type" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %CreatePlaylist{
         user_id: user_id,
@@ -535,14 +541,14 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      result = User.execute(user, cmd)
+      result = Playlist.execute(state, cmd)
 
       assert match?({:error, :invalid_playlist_type}, result)
     end
 
     test "rejects empty string playlist_type" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %CreatePlaylist{
         user_id: user_id,
@@ -551,14 +557,14 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      result = User.execute(user, cmd)
+      result = Playlist.execute(state, cmd)
 
       assert match?({:error, :invalid_playlist_type}, result)
     end
 
     test "rejects arbitrary string playlist_type" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
 
       cmd = %CreatePlaylist{
         user_id: user_id,
@@ -567,14 +573,14 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      result = User.execute(user, cmd)
+      result = Playlist.execute(state, cmd)
 
       assert match?({:error, :invalid_playlist_type}, result)
     end
 
     test "apply PlaylistCreated stores type in aggregate state" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
       playlist_id = Ecto.UUID.generate()
 
       event = %PlaylistCreated{
@@ -587,16 +593,16 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      updated_user = User.apply(user, event)
+      updated = Playlist.apply(state, event)
 
-      playlist = updated_user.playlists[playlist_id]
+      playlist = updated.playlists[playlist_id]
       assert playlist.type == "queue"
       assert playlist.name == "My Queue"
     end
 
     test "apply PlaylistCreated defaults type to 'playlist' when nil" do
       user_id = "user-123"
-      user = %User{user_id: user_id, playlists: %{}}
+      state = %Playlist{user_id: user_id, playlists: %{}}
       playlist_id = Ecto.UUID.generate()
 
       event = %PlaylistCreated{
@@ -609,10 +615,144 @@ defmodule BaladosSyncCore.Aggregates.UserPlaylistsTest do
         event_infos: %{}
       }
 
-      updated_user = User.apply(user, event)
+      updated = Playlist.apply(state, event)
 
-      playlist = updated_user.playlists[playlist_id]
+      playlist = updated.playlists[playlist_id]
       assert playlist.type == "playlist"
+    end
+  end
+
+  describe "UpdatePlaylist Command" do
+    test "emits PlaylistUpdated for existing playlist" do
+      playlist_id = Ecto.UUID.generate()
+
+      state = %Playlist{
+        user_id: "user-123",
+        playlists: %{
+          playlist_id => %{name: "Old Name", description: nil, type: "playlist", items: [], is_public: false}
+        }
+      }
+
+      cmd = %UpdatePlaylist{
+        user_id: "user-123",
+        playlist: playlist_id,
+        name: "New Name",
+        description: "Updated description",
+        event_infos: %{}
+      }
+
+      event = Playlist.execute(state, cmd)
+
+      assert %PlaylistUpdated{} = event
+      assert event.user_id == "user-123"
+      assert event.playlist == playlist_id
+      assert event.name == "New Name"
+      assert event.description == "Updated description"
+    end
+
+    test "returns error for non-existent playlist" do
+      state = %Playlist{user_id: "user-123", playlists: %{}}
+
+      cmd = %UpdatePlaylist{
+        user_id: "user-123",
+        playlist: "nonexistent",
+        name: "New Name",
+        event_infos: %{}
+      }
+
+      result = Playlist.execute(state, cmd)
+      assert match?({:error, :playlist_not_found}, result)
+    end
+  end
+
+  describe "ReorderPlaylist Command" do
+    test "emits PlaylistReordered for existing playlist" do
+      playlist_id = Ecto.UUID.generate()
+      new_items = [{"feed-2", "item-2"}, {"feed-1", "item-1"}]
+
+      state = %Playlist{
+        user_id: "user-123",
+        playlists: %{
+          playlist_id => %{name: "My Playlist", description: nil, type: "playlist", items: [{"feed-1", "item-1"}, {"feed-2", "item-2"}], is_public: false}
+        }
+      }
+
+      cmd = %ReorderPlaylist{
+        user_id: "user-123",
+        playlist: playlist_id,
+        items: new_items,
+        event_infos: %{}
+      }
+
+      event = Playlist.execute(state, cmd)
+
+      assert %PlaylistReordered{} = event
+      assert event.user_id == "user-123"
+      assert event.playlist == playlist_id
+      assert event.items == new_items
+    end
+
+    test "returns error for non-existent playlist" do
+      state = %Playlist{user_id: "user-123", playlists: %{}}
+
+      cmd = %ReorderPlaylist{
+        user_id: "user-123",
+        playlist: "nonexistent",
+        items: [],
+        event_infos: %{}
+      }
+
+      result = Playlist.execute(state, cmd)
+      assert match?({:error, :playlist_not_found}, result)
+    end
+  end
+
+  describe "SnapshotPlaylist command" do
+    test "emits PlaylistCheckpoint with current state" do
+      playlist_id = Ecto.UUID.generate()
+
+      state = %Playlist{
+        user_id: "user-123",
+        playlists: %{
+          playlist_id => %{name: "Favorites", type: "playlist", items: [], is_public: false}
+        }
+      }
+
+      event = Playlist.execute(state, %SnapshotPlaylist{user_id: "user-123"})
+
+      assert %PlaylistCheckpoint{} = event
+      assert event.user_id == "user-123"
+      assert Map.has_key?(event.playlists, playlist_id)
+    end
+
+    test "emits checkpoint with empty playlists on nil state" do
+      state = %Playlist{user_id: "user-123", playlists: nil}
+
+      event = Playlist.execute(state, %SnapshotPlaylist{user_id: "user-123"})
+
+      assert %PlaylistCheckpoint{} = event
+      assert event.playlists == %{}
+    end
+  end
+
+  describe "PlaylistCheckpoint apply" do
+    test "restores full state including user_id" do
+      state = %Playlist{user_id: nil, playlists: nil}
+
+      playlists = %{
+        "pl-1" => %{name: "Test", type: "playlist", items: [], is_public: false}
+      }
+
+      event = %PlaylistCheckpoint{
+        user_id: "user-123",
+        playlists: playlists,
+        timestamp: DateTime.utc_now()
+      }
+
+      updated = Playlist.apply(state, event)
+
+      assert updated.user_id == "user-123"
+      assert updated.playlists == playlists
     end
   end
 end

@@ -15,7 +15,8 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
     PlaylistReordered,
     PlaylistDeleted,
     PlaylistVisibilityChanged,
-    UserCheckpoint
+    UserCheckpoint,
+    PlaylistCheckpoint
   }
 
   alias BaladosSyncProjections.Schemas.{Playlist, PlaylistItem}
@@ -190,46 +191,51 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
   end)
 
   project(%UserCheckpoint{} = event, _metadata, fn multi ->
-    # Upsert all playlists and items from checkpoint
-    multi =
-      Enum.reduce(event.playlists || %{}, multi, fn {playlist_id, playlist}, acc ->
-        playlist_changes = %{
-          id: playlist_id,
-          user_id: event.user_id,
-          name: playlist.name,
-          description: playlist.description,
-          type: Map.get(playlist, :type, "playlist"),
-          is_public: Map.get(playlist, :is_public, false)
+    # Legacy: upsert playlists from old monolithic checkpoint
+    upsert_playlists(multi, event.user_id, event.playlists || %{})
+  end)
+
+  project(%PlaylistCheckpoint{} = event, _metadata, fn multi ->
+    upsert_playlists(multi, event.user_id, event.playlists || %{})
+  end)
+
+  defp upsert_playlists(multi, user_id, playlists) do
+    Enum.reduce(playlists, multi, fn {playlist_id, playlist}, acc ->
+      playlist_changes = %{
+        id: playlist_id,
+        user_id: user_id,
+        name: playlist.name,
+        description: Map.get(playlist, :description),
+        type: Map.get(playlist, :type, "playlist"),
+        is_public: Map.get(playlist, :is_public, false)
+      }
+
+      acc =
+        Ecto.Multi.insert(
+          acc,
+          {:playlist, playlist_id},
+          %Playlist{} |> Ecto.Changeset.change(playlist_changes),
+          on_conflict: {:replace_all_except, [:id, :inserted_at]},
+          conflict_target: [:id, :user_id]
+        )
+
+      # Upsert all items in the playlist
+      Enum.reduce(playlist.items || [], acc, fn {feed, item}, item_acc ->
+        item_attrs = %{
+          user_id: user_id,
+          playlist_id: playlist_id,
+          rss_source_feed: feed,
+          rss_source_item: item
         }
 
-        acc =
-          Ecto.Multi.insert(
-            acc,
-            {:playlist, playlist_id},
-            %Playlist{} |> Ecto.Changeset.change(playlist_changes),
-            on_conflict: {:replace_all_except, [:id, :inserted_at]},
-            conflict_target: [:id, :user_id]
-          )
-
-        # Upsert all items in the playlist
-        Enum.reduce(playlist.items || [], acc, fn {feed, item}, item_acc ->
-          item_attrs = %{
-            user_id: event.user_id,
-            playlist_id: playlist_id,
-            rss_source_feed: feed,
-            rss_source_item: item
-          }
-
-          Ecto.Multi.insert(
-            item_acc,
-            {:playlist_item, {playlist_id, feed, item}},
-            %PlaylistItem{} |> Ecto.Changeset.change(item_attrs),
-            on_conflict: {:replace_all_except, [:id, :inserted_at]},
-            conflict_target: [:playlist_id, :rss_source_feed, :rss_source_item, :user_id]
-          )
-        end)
+        Ecto.Multi.insert(
+          item_acc,
+          {:playlist_item, {playlist_id, feed, item}},
+          %PlaylistItem{} |> Ecto.Changeset.change(item_attrs),
+          on_conflict: {:replace_all_except, [:id, :inserted_at]},
+          conflict_target: [:playlist_id, :rss_source_feed, :rss_source_item, :user_id]
+        )
       end)
-
-    multi
-  end)
+    end)
+  end
 end

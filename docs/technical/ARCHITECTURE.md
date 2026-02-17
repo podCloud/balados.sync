@@ -352,16 +352,20 @@ Signature **RS256** (asymétrique) :
 
 ### Structure Checkpoint
 
+Since the aggregate split (#148), checkpoints are per-aggregate:
+
 ```elixir
-%Checkpoint{
-  user_id: "user_123",
-  subscriptions: [...],       # État complet
-  play_statuses: [...],
-  playlists: [...],
-  privacy_settings: {...},
-  checkpoint_date: ~U[2025-11-24 12:00:00Z]
-}
+# New per-aggregate checkpoint events (current)
+%SubscriptionCheckpoint{user_id, subscriptions, privacy, timestamp}
+%PlayTrackingCheckpoint{user_id, play_statuses, timestamp}
+%PlaylistCheckpoint{user_id, playlists, timestamp}
+%CollectionCheckpoint{user_id, collections, timestamp}
 ```
+
+**Legacy `UserCheckpoint`** (deprecated): The old monolithic checkpoint event is still
+supported by projectors for backward compatibility with events already stored before
+the split. New snapshots emit the per-aggregate variants above. `UserCheckpoint` will
+not be emitted going forward but existing events remain valid for replay.
 
 ---
 
