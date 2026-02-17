@@ -33,7 +33,8 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
     Unsubscribe,
     ShareEpisode,
     ChangePrivacy,
-    RemoveEvents
+    RemoveEvents,
+    SnapshotSubscription
   }
 
   alias BaladosSyncCore.Events.{
@@ -41,7 +42,8 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
     UserUnsubscribed,
     EpisodeShared,
     PrivacyChanged,
-    EventsRemoved
+    EventsRemoved,
+    SubscriptionCheckpoint
   }
 
   # Initialisation de l'aggregate
@@ -114,6 +116,16 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
     }
   end
 
+  # SnapshotSubscription
+  def execute(%__MODULE__{} = state, %SnapshotSubscription{} = _cmd) do
+    %SubscriptionCheckpoint{
+      user_id: state.user_id,
+      subscriptions: filter_subscriptions(state.subscriptions || %{}),
+      privacy: state.privacy,
+      timestamp: DateTime.utc_now()
+    }
+  end
+
   # Application des events pour mettre à jour l'état
   def apply(%__MODULE__{} = state, %UserSubscribed{} = event) do
     subscriptions = state.subscriptions || %{}
@@ -146,6 +158,10 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
 
   def apply(%__MODULE__{} = state, %PrivacyChanged{} = event) do
     %{state | privacy: event.privacy}
+  end
+
+  def apply(%__MODULE__{} = state, %SubscriptionCheckpoint{} = event) do
+    %{state | subscriptions: event.subscriptions, privacy: event.privacy}
   end
 
   def apply(%__MODULE__{} = state, _event), do: state

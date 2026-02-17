@@ -24,7 +24,8 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
     DeletePlaylist,
     ChangePlaylistVisibility,
     SaveEpisode,
-    UnsaveEpisode
+    UnsaveEpisode,
+    SnapshotPlaylist
   }
 
   alias BaladosSyncCore.Events.{
@@ -34,11 +35,21 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
     PlaylistDeleted,
     PlaylistVisibilityChanged,
     EpisodeSaved,
-    EpisodeUnsaved
+    EpisodeUnsaved,
+    PlaylistCheckpoint
   }
 
   # Valid playlist types
   @valid_playlist_types ["playlist", "queue"]
+
+  # SnapshotPlaylist
+  def execute(%__MODULE__{} = state, %SnapshotPlaylist{} = _cmd) do
+    %PlaylistCheckpoint{
+      user_id: state.user_id,
+      playlists: state.playlists || %{},
+      timestamp: DateTime.utc_now()
+    }
+  end
 
   # SaveEpisode
   def execute(%__MODULE__{user_id: nil}, %SaveEpisode{} = cmd) do
@@ -288,6 +299,10 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
         updated_playlist = Map.put(playlist, :is_public, event.is_public)
         %{state | playlists: Map.put(playlists, event.playlist_id, updated_playlist)}
     end
+  end
+
+  def apply(%__MODULE__{} = state, %PlaylistCheckpoint{} = event) do
+    %{state | user_id: event.user_id, playlists: event.playlists}
   end
 
   def apply(%__MODULE__{} = state, _event), do: state

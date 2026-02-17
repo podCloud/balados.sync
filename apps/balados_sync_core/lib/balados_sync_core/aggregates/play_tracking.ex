@@ -17,8 +17,8 @@ defmodule BaladosSyncCore.Aggregates.PlayTracking do
     :play_statuses
   ]
 
-  alias BaladosSyncCore.Commands.{RecordPlay, UpdatePosition}
-  alias BaladosSyncCore.Events.{PlayRecorded, PositionUpdated}
+  alias BaladosSyncCore.Commands.{RecordPlay, UpdatePosition, SnapshotPlayTracking}
+  alias BaladosSyncCore.Events.{PlayRecorded, PositionUpdated, PlayTrackingCheckpoint}
 
   # Initialisation de l'aggregate (user_id nil = first command)
   def execute(%__MODULE__{user_id: nil}, %RecordPlay{} = cmd) do
@@ -67,6 +67,15 @@ defmodule BaladosSyncCore.Aggregates.PlayTracking do
     }
   end
 
+  # SnapshotPlayTracking
+  def execute(%__MODULE__{} = state, %SnapshotPlayTracking{} = _cmd) do
+    %PlayTrackingCheckpoint{
+      user_id: state.user_id,
+      play_statuses: state.play_statuses || %{},
+      timestamp: DateTime.utc_now()
+    }
+  end
+
   # Apply events
   def apply(%__MODULE__{} = state, %PlayRecorded{} = event) do
     play_statuses = state.play_statuses || %{}
@@ -94,6 +103,10 @@ defmodule BaladosSyncCore.Aggregates.PlayTracking do
       })
 
     %{state | user_id: event.user_id, play_statuses: Map.put(play_statuses, event.rss_source_item, updated)}
+  end
+
+  def apply(%__MODULE__{} = state, %PlayTrackingCheckpoint{} = event) do
+    %{state | user_id: event.user_id, play_statuses: event.play_statuses}
   end
 
   def apply(%__MODULE__{} = state, _event), do: state

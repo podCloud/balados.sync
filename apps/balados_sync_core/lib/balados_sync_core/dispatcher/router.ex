@@ -17,6 +17,9 @@ defmodule BaladosSyncCore.Dispatcher.Router do
     ShareEpisode,
     ChangePrivacy,
     RemoveEvents,
+    SnapshotSubscription,
+    SnapshotPlayTracking,
+    SnapshotPlaylist,
     CreatePlaylist,
     UpdatePlaylist,
     DeletePlaylist,
@@ -42,7 +45,8 @@ defmodule BaladosSyncCore.Dispatcher.Router do
       Unsubscribe,
       ShareEpisode,
       ChangePrivacy,
-      RemoveEvents
+      RemoveEvents,
+      SnapshotSubscription
     ],
     to: Subscription
   )
@@ -53,7 +57,8 @@ defmodule BaladosSyncCore.Dispatcher.Router do
   dispatch(
     [
       RecordPlay,
-      UpdatePosition
+      UpdatePosition,
+      SnapshotPlayTracking
     ],
     to: PlayTracking
   )
@@ -69,7 +74,8 @@ defmodule BaladosSyncCore.Dispatcher.Router do
       ReorderPlaylist,
       ChangePlaylistVisibility,
       SaveEpisode,
-      UnsaveEpisode
+      UnsaveEpisode,
+      SnapshotPlaylist
     ],
     to: Playlist
   )
