@@ -209,7 +209,7 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
         items: []
       })
 
-    items = playlist.items || []
+    items = normalize_items(playlist.items || [])
     new_item = {event.rss_source_feed, event.rss_source_item}
 
     items =
@@ -233,7 +233,7 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
         state
 
       playlist ->
-        items = playlist.items || []
+        items = normalize_items(playlist.items || [])
 
         new_items =
           Enum.filter(items, fn {feed, item} ->
@@ -293,8 +293,29 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
   end
 
   def apply(%__MODULE__{} = state, %PlaylistCheckpoint{} = event) do
-    %{state | user_id: event.user_id, playlists: event.playlists}
+    # Normalize items after deserialization: JSON encodes tuples as lists,
+    # so {feed, item} becomes [feed, item] after a checkpoint round-trip.
+    playlists =
+      (event.playlists || %{})
+      |> Enum.map(fn {id, playlist} ->
+        {id, Map.update(playlist, :items, [], &normalize_items/1)}
+      end)
+      |> Enum.into(%{})
+
+    %{state | user_id: event.user_id, playlists: playlists}
   end
 
   def apply(%__MODULE__{} = state, _event), do: state
+
+  # Normalizes playlist items: JSON serialization turns tuples {a, b} into
+  # lists [a, b]. This helper converts both forms to tuples for consistency.
+  defp normalize_items(items) when is_list(items) do
+    Enum.map(items, fn
+      {feed, item} -> {feed, item}
+      [feed, item] -> {feed, item}
+      other -> other
+    end)
+  end
+
+  defp normalize_items(_), do: []
 end

@@ -25,6 +25,8 @@ defmodule BaladosSyncCore.Middleware.ValidateSubscription do
 
   @behaviour Commanded.Middleware
 
+  require Logger
+
   alias BaladosSyncCore.Commands.AddFeedToCollection
 
   import Ecto.Query
@@ -43,6 +45,11 @@ defmodule BaladosSyncCore.Middleware.ValidateSubscription do
 
     case repo.one(query, prefix: "users") do
       nil ->
+        Logger.warning(
+          "[ValidateSubscription] Rejected AddFeedToCollection: " <>
+            "user=#{cmd.user_id} feed=#{cmd.rss_source_feed} reason=feed_not_subscribed"
+        )
+
         pipeline
         |> Commanded.Middleware.Pipeline.respond({:error, :feed_not_subscribed})
         |> Commanded.Middleware.Pipeline.halt()

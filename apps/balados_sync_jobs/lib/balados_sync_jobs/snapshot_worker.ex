@@ -135,7 +135,12 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     end
   end
 
-  @doc false
+  @doc """
+  Creates checkpoint events for all 4 aggregates of a user.
+
+  Public for testability — should not be called directly in production code
+  outside of the SnapshotWorker's perform/0 flow.
+  """
   def create_user_checkpoints(user_id, cleanup_old_events) do
     Logger.info("Creating checkpoints for user #{user_id}")
 
