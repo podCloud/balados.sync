@@ -420,7 +420,7 @@ Key indexes identified:
 | Issue | Impact | Effort | Recommendation |
 |-------|--------|--------|----------------|
 | Error handling | Medium | Medium | Centralize with structured errors |
-| Large aggregate | Medium | High | Split User aggregate by bounded context |
+| ~~Large aggregate~~ | ~~Medium~~ | ~~High~~ | ✅ Done - Split into 4 bounded context aggregates (#148 / PR #238) |
 | TODOs | Medium | Medium | Address sync_controller and playlist sync |
 | N+1 queries | Medium | Low | Batch metadata fetching in privacy manager |
 
@@ -470,7 +470,7 @@ Based on `FEATURES.md` and `GOALS.md`:
 ### Short-term (1-3 Months)
 
 1. ~~**Complete playlist sync**~~ ✅ Done (#131)
-2. **Split User aggregate** - Create bounded contexts
+2. ~~**Split User aggregate**~~ ✅ Done (#148 / PR #238) - 4 bounded context aggregates
 3. ~~**Add property-based tests**~~ ✅ Done - StreamData (#143)
 4. ~~**Implement SSRF protection**~~ ✅ Done (#122)
 
@@ -509,7 +509,7 @@ Based on `FEATURES.md` and `GOALS.md`:
 +------------------------------------------+
 |           BaladosSyncCore                 |
 |  +------------+  +-------------------+   |
-|  | Dispatcher |  | User Aggregate    |   |
+|  | Dispatcher |  | 4 Aggregates      |   |
 |  | (Commanded)|  | (execute/apply)   |   |
 |  +-----+------+  +--------+----------+   |
 |        |                  |              |

@@ -64,7 +64,7 @@ Ce document explique les patterns CQRS/Event Sourcing utilisés dans Balados Syn
 L'Event Store est la **source de vérité** :
 
 ```
-Stream: user-user_123
+Stream: subscription-user_123
 ┌─────────────────────────────────────────┐
 │ Event 1: UserSubscribed                 │
 │   feed: "podcast A"                     │
@@ -196,9 +196,9 @@ def apply(%Subscription{} = state, %UserSubscribed{} = event) do
     unsubscribed_at: nil
   }
 
-  subscriptions = Map.put(user.subscriptions, event.rss_source_feed, subscription)
+  subscriptions = Map.put(state.subscriptions, event.rss_source_feed, subscription)
 
-  %{user | subscriptions: subscriptions}
+  %{state | subscriptions: subscriptions}
 end
 ```
 
@@ -653,7 +653,7 @@ end
 #### Step 4 : Event persisté dans EventStore
 
 ```
-Stream: user-user_abc123
+Stream: subscription-user_abc123
 Event: UserSubscribed
   user_id: "user_abc123"
   rss_source_feed: "aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVkLnhtbA=="
@@ -670,8 +670,8 @@ def apply(%Subscription{} = state, %UserSubscribed{} = event) do
     subscribed_at: event.subscribed_at
   }
 
-  subscriptions = Map.put(user.subscriptions, event.rss_source_feed, subscription)
-  %{user | subscriptions: subscriptions}
+  subscriptions = Map.put(state.subscriptions, event.rss_source_feed, subscription)
+  %{state | subscriptions: subscriptions}
 end
 ```
 
