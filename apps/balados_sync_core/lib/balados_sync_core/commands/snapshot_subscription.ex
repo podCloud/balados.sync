@@ -1,6 +1,4 @@
 defmodule BaladosSyncCore.Commands.SnapshotSubscription do
-  defstruct [
-    :user_id,
-    :cleanup_old_events
-  ]
+  @moduledoc "Command to snapshot the Subscription aggregate state."
+  defstruct [:user_id]
 end

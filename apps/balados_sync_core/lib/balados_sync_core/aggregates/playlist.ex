@@ -145,14 +145,20 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
   end
 
   # ReorderPlaylist
-  def execute(%__MODULE__{} = _state, %ReorderPlaylist{} = cmd) do
-    %PlaylistReordered{
-      user_id: cmd.user_id,
-      playlist: cmd.playlist,
-      items: cmd.items,
-      timestamp: DateTime.utc_now(),
-      event_infos: cmd.event_infos || %{}
-    }
+  def execute(%__MODULE__{} = state, %ReorderPlaylist{} = cmd) do
+    playlists = state.playlists || %{}
+
+    if Map.has_key?(playlists, cmd.playlist) do
+      %PlaylistReordered{
+        user_id: cmd.user_id,
+        playlist: cmd.playlist,
+        items: cmd.items,
+        timestamp: DateTime.utc_now(),
+        event_infos: cmd.event_infos || %{}
+      }
+    else
+      {:error, :playlist_not_found}
+    end
   end
 
   # ChangePlaylistVisibility

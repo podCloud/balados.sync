@@ -1,6 +1,4 @@
 defmodule BaladosSyncCore.Commands.SnapshotPlaylist do
-  defstruct [
-    :user_id,
-    :cleanup_old_events
-  ]
+  @moduledoc "Command to snapshot the Playlist aggregate state."
+  defstruct [:user_id]
 end

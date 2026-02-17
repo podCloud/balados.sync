@@ -4,7 +4,8 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   and cleans up events older than the retention period.
 
   Dispatches per-aggregate snapshot commands (SnapshotSubscription,
-  SnapshotPlayTracking, SnapshotPlaylist) for each user with old events.
+  SnapshotPlayTracking, SnapshotPlaylist, SnapshotCollection) for each user
+  with old events.
 
   Uses EventStore's native API (`read_all_streams_forward/3`) for reading events
   instead of raw SQL queries. Event cleanup still uses raw SQL as the EventStore
@@ -138,10 +139,10 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     # they need to rebuild state. If one aggregate fails, no events are deleted, and
     # the next scheduled run will retry all snapshots for this user.
     commands = [
-      %SnapshotSubscription{user_id: user_id, cleanup_old_events: cleanup_old_events},
-      %SnapshotPlayTracking{user_id: user_id, cleanup_old_events: cleanup_old_events},
-      %SnapshotPlaylist{user_id: user_id, cleanup_old_events: cleanup_old_events},
-      %SnapshotCollection{user_id: user_id, cleanup_old_events: cleanup_old_events}
+      %SnapshotSubscription{user_id: user_id},
+      %SnapshotPlayTracking{user_id: user_id},
+      %SnapshotPlaylist{user_id: user_id},
+      %SnapshotCollection{user_id: user_id}
     ]
 
     results =

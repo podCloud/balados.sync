@@ -35,6 +35,9 @@ defmodule BaladosSyncCore.Dispatcher.Router do
     ChangeCollectionVisibility
   }
 
+  # Registered globally (runs for all commands) because Commanded doesn't support
+  # per-dispatch middleware. The passthrough clause is a no-op for non-AddFeedToCollection
+  # commands, so the overhead is negligible.
   middleware(ValidateSubscription)
 
   # Subscription aggregate (subscriptions, privacy, sharing)

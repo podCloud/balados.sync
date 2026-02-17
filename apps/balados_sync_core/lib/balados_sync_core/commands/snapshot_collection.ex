@@ -1,6 +1,4 @@
 defmodule BaladosSyncCore.Commands.SnapshotCollection do
-  defstruct [
-    :user_id,
-    :cleanup_old_events
-  ]
+  @moduledoc "Command to snapshot the Collection aggregate state."
+  defstruct [:user_id]
 end
