@@ -53,30 +53,6 @@ defmodule BaladosSyncCore.Aggregates.Collection do
     do_create_collection(state.collections || %{}, cmd)
   end
 
-  defp do_create_collection(collections, cmd) do
-    cond do
-      is_nil(cmd.title) || String.trim(cmd.title) == "" ->
-        {:error, :title_required}
-
-      cmd.is_default && Enum.any?(collections, fn {_id, col} -> col.is_default end) ->
-        {:error, :default_collection_already_exists}
-
-      true ->
-        collection_id = cmd.collection_id || Ecto.UUID.generate()
-
-        %CollectionCreated{
-          user_id: cmd.user_id,
-          collection_id: collection_id,
-          title: cmd.title,
-          is_default: cmd.is_default,
-          description: cmd.description,
-          color: cmd.color,
-          timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-          event_infos: cmd.event_infos || %{}
-        }
-    end
-  end
-
   # AddFeedToCollection
   # Note: feed_not_subscribed validation is handled by ValidateSubscription middleware
   def execute(%__MODULE__{} = state, %AddFeedToCollection{} = cmd) do
@@ -210,6 +186,32 @@ defmodule BaladosSyncCore.Aggregates.Collection do
       }
     else
       {:error, :collection_not_found}
+    end
+  end
+
+  # Private helpers
+
+  defp do_create_collection(collections, cmd) do
+    cond do
+      is_nil(cmd.title) || String.trim(cmd.title) == "" ->
+        {:error, :title_required}
+
+      cmd.is_default && Enum.any?(collections, fn {_id, col} -> col.is_default end) ->
+        {:error, :default_collection_already_exists}
+
+      true ->
+        collection_id = cmd.collection_id || Ecto.UUID.generate()
+
+        %CollectionCreated{
+          user_id: cmd.user_id,
+          collection_id: collection_id,
+          title: cmd.title,
+          is_default: cmd.is_default,
+          description: cmd.description,
+          color: cmd.color,
+          timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
+          event_infos: cmd.event_infos || %{}
+        }
     end
   end
 

@@ -110,35 +110,6 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
     do_create_playlist(state.playlists || %{}, cmd)
   end
 
-  defp do_create_playlist(playlists, cmd) do
-    playlist_type = cmd.playlist_type || "playlist"
-
-    cond do
-      is_nil(cmd.name) || String.trim(cmd.name) == "" ->
-        {:error, :name_required}
-
-      playlist_type not in @valid_playlist_types ->
-        {:error, :invalid_playlist_type}
-
-      true ->
-        playlist_id = cmd.playlist_id || Ecto.UUID.generate()
-
-        if Map.has_key?(playlists, playlist_id) do
-          {:error, :playlist_already_exists}
-        else
-          %PlaylistCreated{
-            user_id: cmd.user_id,
-            playlist_id: playlist_id,
-            name: cmd.name,
-            description: cmd.description,
-            playlist_type: playlist_type,
-            timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-            event_infos: cmd.event_infos || %{}
-          }
-        end
-    end
-  end
-
   # DeletePlaylist
   def execute(%__MODULE__{} = state, %DeletePlaylist{} = cmd) do
     playlists = state.playlists || %{}
@@ -192,6 +163,37 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
       }
     else
       {:error, :playlist_not_found}
+    end
+  end
+
+  # Private helpers
+
+  defp do_create_playlist(playlists, cmd) do
+    playlist_type = cmd.playlist_type || "playlist"
+
+    cond do
+      is_nil(cmd.name) || String.trim(cmd.name) == "" ->
+        {:error, :name_required}
+
+      playlist_type not in @valid_playlist_types ->
+        {:error, :invalid_playlist_type}
+
+      true ->
+        playlist_id = cmd.playlist_id || Ecto.UUID.generate()
+
+        if Map.has_key?(playlists, playlist_id) do
+          {:error, :playlist_already_exists}
+        else
+          %PlaylistCreated{
+            user_id: cmd.user_id,
+            playlist_id: playlist_id,
+            name: cmd.name,
+            description: cmd.description,
+            playlist_type: playlist_type,
+            timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
+            event_infos: cmd.event_infos || %{}
+          }
+        end
     end
   end
 

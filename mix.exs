@@ -147,8 +147,9 @@ defmodule BaladosSync.Umbrella.MixProject do
         BaladosSyncCore.Commands.ShareEpisode,
         BaladosSyncCore.Commands.ChangePrivacy,
         BaladosSyncCore.Commands.RemoveEvents,
-        BaladosSyncCore.Commands.SyncUserData,
-        BaladosSyncCore.Commands.Snapshot
+        BaladosSyncCore.Commands.SnapshotSubscription,
+        BaladosSyncCore.Commands.SnapshotPlayTracking,
+        BaladosSyncCore.Commands.SnapshotPlaylist
       ],
       "Core - Events": [
         BaladosSyncCore.Events.UserSubscribed,
@@ -160,6 +161,9 @@ defmodule BaladosSync.Umbrella.MixProject do
         BaladosSyncCore.Events.PrivacyChanged,
         BaladosSyncCore.Events.EventsRemoved,
         BaladosSyncCore.Events.UserCheckpoint,
+        BaladosSyncCore.Events.SubscriptionCheckpoint,
+        BaladosSyncCore.Events.PlayTrackingCheckpoint,
+        BaladosSyncCore.Events.PlaylistCheckpoint,
         BaladosSyncCore.Events.PopularityRecalculated
       ],
       "Core - Infrastructure": [

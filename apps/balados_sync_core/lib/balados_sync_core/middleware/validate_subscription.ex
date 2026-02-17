@@ -24,9 +24,11 @@ defmodule BaladosSyncCore.Middleware.ValidateSubscription do
         select: s.id
       )
 
-    case repo.one(query) do
+    case repo.one(query, prefix: "users") do
       nil ->
-        pipeline |> Commanded.Middleware.Pipeline.halt({:error, :feed_not_subscribed})
+        pipeline
+        |> Commanded.Middleware.Pipeline.respond({:error, :feed_not_subscribed})
+        |> Commanded.Middleware.Pipeline.halt()
 
       _id ->
         pipeline

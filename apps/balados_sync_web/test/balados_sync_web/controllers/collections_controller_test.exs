@@ -253,6 +253,9 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
       :ok = subscribe_in_aggregate(user_id, feed)
       collection = create_collection_with_aggregate(user_id, "News")
 
+      # Insert subscription projection (middleware validates subscription before dispatch)
+      insert_subscription(user_id, feed)
+
       :ok =
         Dispatcher.dispatch(%AddFeedToCollection{
           user_id: user_id,
@@ -262,8 +265,6 @@ defmodule BaladosSyncWeb.CollectionsControllerTest do
         })
 
       # Insert projections for controller reads
-      insert_subscription(user_id, feed)
-
       %CollectionSubscription{}
       |> CollectionSubscription.changeset(%{
         collection_id: collection.id,
