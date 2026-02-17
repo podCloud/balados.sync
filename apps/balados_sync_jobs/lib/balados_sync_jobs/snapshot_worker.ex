@@ -14,7 +14,7 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   require Logger
   import Ecto.Query
 
-  alias BaladosSyncCore.Commands.{SnapshotSubscription, SnapshotPlayTracking, SnapshotPlaylist}
+  alias BaladosSyncCore.Commands.{SnapshotSubscription, SnapshotPlayTracking, SnapshotPlaylist, SnapshotCollection}
   alias BaladosSyncProjections.ProjectionsRepo
 
   @forty_five_days_ago_seconds 45 * 24 * 60 * 60
@@ -132,11 +132,16 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   defp create_user_checkpoints(user_id, cleanup_old_events) do
     Logger.info("Creating checkpoints for user #{user_id}")
 
-    # Dispatch per-aggregate snapshot commands
+    # Dispatch per-aggregate snapshot commands.
+    # All snapshots must succeed before old events are cleaned up (all-or-nothing per user).
+    # This is intentional: partial cleanup could leave some aggregates without the events
+    # they need to rebuild state. If one aggregate fails, no events are deleted, and
+    # the next scheduled run will retry all snapshots for this user.
     commands = [
       %SnapshotSubscription{user_id: user_id, cleanup_old_events: cleanup_old_events},
       %SnapshotPlayTracking{user_id: user_id, cleanup_old_events: cleanup_old_events},
-      %SnapshotPlaylist{user_id: user_id, cleanup_old_events: cleanup_old_events}
+      %SnapshotPlaylist{user_id: user_id, cleanup_old_events: cleanup_old_events},
+      %SnapshotCollection{user_id: user_id, cleanup_old_events: cleanup_old_events}
     ]
 
     results =

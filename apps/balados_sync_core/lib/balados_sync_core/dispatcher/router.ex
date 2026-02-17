@@ -20,6 +20,7 @@ defmodule BaladosSyncCore.Dispatcher.Router do
     SnapshotSubscription,
     SnapshotPlayTracking,
     SnapshotPlaylist,
+    SnapshotCollection,
     CreatePlaylist,
     UpdatePlaylist,
     DeletePlaylist,
@@ -91,7 +92,8 @@ defmodule BaladosSyncCore.Dispatcher.Router do
       UpdateCollection,
       DeleteCollection,
       ReorderCollectionFeed,
-      ChangeCollectionVisibility
+      ChangeCollectionVisibility,
+      SnapshotCollection
     ],
     to: Collection
   )

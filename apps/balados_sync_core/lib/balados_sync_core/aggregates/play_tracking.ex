@@ -20,8 +20,7 @@ defmodule BaladosSyncCore.Aggregates.PlayTracking do
   alias BaladosSyncCore.Commands.{RecordPlay, UpdatePosition, SnapshotPlayTracking}
   alias BaladosSyncCore.Events.{PlayRecorded, PositionUpdated, PlayTrackingCheckpoint}
 
-  # Initialisation de l'aggregate (user_id nil = first command)
-  def execute(%__MODULE__{user_id: nil}, %RecordPlay{} = cmd) do
+  def execute(%__MODULE__{}, %RecordPlay{} = cmd) do
     %PlayRecorded{
       user_id: cmd.user_id,
       rss_source_feed: cmd.rss_source_feed,
@@ -33,30 +32,7 @@ defmodule BaladosSyncCore.Aggregates.PlayTracking do
     }
   end
 
-  def execute(%__MODULE__{} = _state, %RecordPlay{} = cmd) do
-    %PlayRecorded{
-      user_id: cmd.user_id,
-      rss_source_feed: cmd.rss_source_feed,
-      rss_source_item: cmd.rss_source_item,
-      position: cmd.position,
-      played: cmd.played,
-      timestamp: DateTime.utc_now(),
-      event_infos: cmd.event_infos || %{}
-    }
-  end
-
-  def execute(%__MODULE__{user_id: nil}, %UpdatePosition{} = cmd) do
-    %PositionUpdated{
-      user_id: cmd.user_id,
-      rss_source_feed: cmd.rss_source_feed,
-      rss_source_item: cmd.rss_source_item,
-      position: cmd.position,
-      timestamp: DateTime.utc_now(),
-      event_infos: cmd.event_infos || %{}
-    }
-  end
-
-  def execute(%__MODULE__{} = _state, %UpdatePosition{} = cmd) do
+  def execute(%__MODULE__{}, %UpdatePosition{} = cmd) do
     %PositionUpdated{
       user_id: cmd.user_id,
       rss_source_feed: cmd.rss_source_feed,

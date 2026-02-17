@@ -205,7 +205,8 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
       name: event.name,
       description: event.description,
       type: event.playlist_type || "playlist",
-      items: []
+      items: [],
+      is_public: false
     }
 
     %{state | user_id: event.user_id, playlists: Map.put(playlists, event.playlist_id, new_playlist)}

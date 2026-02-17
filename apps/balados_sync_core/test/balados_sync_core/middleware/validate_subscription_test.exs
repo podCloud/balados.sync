@@ -1,8 +1,18 @@
 defmodule BaladosSyncCore.Middleware.ValidateSubscriptionTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   alias BaladosSyncCore.Middleware.ValidateSubscription
-  alias BaladosSyncCore.Commands.Subscribe
+  alias BaladosSyncCore.Commands.{AddFeedToCollection, Subscribe}
+
+  # Mock repo that always returns nil (feed not subscribed)
+  defmodule NotSubscribedRepo do
+    def one(_query, _opts), do: nil
+  end
+
+  # Mock repo that returns a subscription id (feed is subscribed)
+  defmodule SubscribedRepo do
+    def one(_query, _opts), do: Ecto.UUID.generate()
+  end
 
   describe "before_dispatch/1" do
     test "passes through non-AddFeedToCollection commands unchanged" do
@@ -17,6 +27,44 @@ defmodule BaladosSyncCore.Middleware.ValidateSubscriptionTest do
       result = ValidateSubscription.before_dispatch(pipeline)
 
       assert result == pipeline
+    end
+
+    test "halts with :feed_not_subscribed when feed is not subscribed" do
+      Application.put_env(:balados_sync_core, :projections_repo, NotSubscribedRepo)
+
+      pipeline = %Commanded.Middleware.Pipeline{
+        command: %AddFeedToCollection{
+          user_id: "user-1",
+          collection_id: "col-1",
+          rss_source_feed: "feed-1"
+        }
+      }
+
+      result = ValidateSubscription.before_dispatch(pipeline)
+
+      assert result.halted
+      assert result.response == {:error, :feed_not_subscribed}
+    after
+      Application.delete_env(:balados_sync_core, :projections_repo)
+    end
+
+    test "passes through when feed is subscribed" do
+      Application.put_env(:balados_sync_core, :projections_repo, SubscribedRepo)
+
+      pipeline = %Commanded.Middleware.Pipeline{
+        command: %AddFeedToCollection{
+          user_id: "user-1",
+          collection_id: "col-1",
+          rss_source_feed: "feed-1"
+        }
+      }
+
+      result = ValidateSubscription.before_dispatch(pipeline)
+
+      refute result.halted
+      assert result == pipeline
+    after
+      Application.delete_env(:balados_sync_core, :projections_repo)
     end
   end
 

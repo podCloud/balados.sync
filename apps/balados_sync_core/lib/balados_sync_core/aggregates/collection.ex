@@ -31,7 +31,8 @@ defmodule BaladosSyncCore.Aggregates.Collection do
     UpdateCollection,
     DeleteCollection,
     ReorderCollectionFeed,
-    ChangeCollectionVisibility
+    ChangeCollectionVisibility,
+    SnapshotCollection
   }
 
   alias BaladosSyncCore.Events.{
@@ -41,8 +42,18 @@ defmodule BaladosSyncCore.Aggregates.Collection do
     CollectionUpdated,
     CollectionDeleted,
     CollectionFeedReordered,
-    CollectionVisibilityChanged
+    CollectionVisibilityChanged,
+    CollectionCheckpoint
   }
+
+  # SnapshotCollection
+  def execute(%__MODULE__{} = state, %SnapshotCollection{} = _cmd) do
+    %CollectionCheckpoint{
+      user_id: state.user_id,
+      collections: state.collections || %{},
+      timestamp: DateTime.utc_now()
+    }
+  end
 
   # CreateCollection
   def execute(%__MODULE__{user_id: nil}, %CreateCollection{} = cmd) do
@@ -224,7 +235,8 @@ defmodule BaladosSyncCore.Aggregates.Collection do
       is_default: event.is_default,
       description: event.description,
       color: event.color,
-      feed_ids: []
+      feed_ids: [],
+      is_public: false
     }
 
     %{state | user_id: event.user_id, collections: Map.put(collections, event.collection_id, new_collection)}
@@ -311,6 +323,10 @@ defmodule BaladosSyncCore.Aggregates.Collection do
         updated_collection = Map.put(collection, :is_public, event.is_public)
         %{state | collections: Map.put(collections, event.collection_id, updated_collection)}
     end
+  end
+
+  def apply(%__MODULE__{} = state, %CollectionCheckpoint{} = event) do
+    %{state | user_id: event.user_id, collections: event.collections}
   end
 
   def apply(%__MODULE__{} = state, _event), do: state
