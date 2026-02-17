@@ -45,9 +45,14 @@ defstruct [
 ```
 
 #### Command Handling
-- User aggregate (`/apps/balados_sync_core/lib/balados_sync_core/aggregates/user.ex`) handles 20+ commands
+- Commands are handled by 4 bounded context aggregates (since PR #238):
+  - `Subscription` - subscribe/unsubscribe (stream: `subscription-{user_id}`)
+  - `PlayTracking` - play positions (stream: `play_tracking-{user_id}`)
+  - `Playlist` - playlist CRUD (stream: `playlist-{user_id}`)
+  - `Collection` - collection CRUD (stream: `collection-{user_id}`)
 - `execute/2` functions properly validate and emit events
 - `apply/2` functions correctly update aggregate state
+- Cross-aggregate validation via `ValidateSubscription` middleware
 
 #### Read Side (Projections)
 - 6 projectors handle event-to-read-model transformation
@@ -61,7 +66,7 @@ defstruct [
 - Events derive `Jason.Encoder` for serialization
 
 **Concerns:**
-- User aggregate is large (1030 lines) - consider splitting by bounded context
+- ~~User aggregate is large (1030 lines)~~ ✅ Resolved in PR #238 - split into 4 bounded context aggregates
 - Some `apply/2` clauses have no-op fallback: `def apply(%__MODULE__{} = user, _event), do: user`
 
 ### 1.2 Umbrella App Separation
@@ -415,7 +420,7 @@ Key indexes identified:
 | Issue | Impact | Effort | Recommendation |
 |-------|--------|--------|----------------|
 | Error handling | Medium | Medium | Centralize with structured errors |
-| Large aggregate | Medium | High | Split User aggregate by bounded context |
+| ~~Large aggregate~~ | ~~Medium~~ | ~~High~~ | ✅ Done - Split into 4 bounded context aggregates (#148 / PR #238) |
 | TODOs | Medium | Medium | Address sync_controller and playlist sync |
 | N+1 queries | Medium | Low | Batch metadata fetching in privacy manager |
 
@@ -465,7 +470,7 @@ Based on `FEATURES.md` and `GOALS.md`:
 ### Short-term (1-3 Months)
 
 1. ~~**Complete playlist sync**~~ ✅ Done (#131)
-2. **Split User aggregate** - Create bounded contexts
+2. ~~**Split User aggregate**~~ ✅ Done (#148 / PR #238) - 4 bounded context aggregates
 3. ~~**Add property-based tests**~~ ✅ Done - StreamData (#143)
 4. ~~**Implement SSRF protection**~~ ✅ Done (#122)
 
@@ -504,7 +509,7 @@ Based on `FEATURES.md` and `GOALS.md`:
 +------------------------------------------+
 |           BaladosSyncCore                 |
 |  +------------+  +-------------------+   |
-|  | Dispatcher |  | User Aggregate    |   |
+|  | Dispatcher |  | 4 Aggregates      |   |
 |  | (Commanded)|  | (execute/apply)   |   |
 |  +-----+------+  +--------+----------+   |
 |        |                  |              |
