@@ -218,10 +218,10 @@ Lors du workflow, toujours vérifier TODOS.md pour :
 #### Phase 1: Analyser l'Issue
 ```bash
 # Récupérer issues ouvertes
-gh issue list --state open --json number,title,labels,createdAt
+~/.config/podclaude/gh.sh issue list --state open --json number,title,labels,createdAt
 
 # Afficher détails d'une issue
-gh issue view <number>
+~/.config/podclaude/gh.sh issue view <number>
 
 # Prioriser par: labels (phase-N, priority), age, réactions
 ```
@@ -264,8 +264,8 @@ Closes #<issue-number>"
 # Pousser branche
 git push -u origin feature/issue-<number>-<title-slug>
 
-# Créer PR avec label (IMPORTANT: utiliser GH_TOKEN injecté par le hook)
-GH_TOKEN=$(python3 /home/pof/.config/podclaude/get-token.py 2>/dev/null) gh pr create \
+# Créer PR avec label (IMPORTANT: utiliser le wrapper gh.sh)
+~/.config/podclaude/gh.sh pr create \
   --title "feat: description (Closes #<number>)" \
   --label "needs-claude-review" \
   --body "## Summary
@@ -285,7 +285,7 @@ Brief description
 #### Phase 6: Post-Merge Follow-up (si PR mergee avec comments)
 ```bash
 # Verifier si la PR a des follow-ups necessaires
-gh pr view <number> --comments
+~/.config/podclaude/gh.sh pr view <number> --comments
 
 # Criteres pour creer des issues de suivi:
 # - MUST-FIX: tests manquants, logging absent, docs non a jour
@@ -293,7 +293,7 @@ gh pr view <number> --comments
 # - NICE-TO-HAVE: optimisations, refactoring suggere
 
 # Creer les issues de suivi
-gh issue create \
+~/.config/podclaude/gh.sh issue create \
   --title "[Follow-up #<PR>] <description>" \
   --label "follow-up,from-pr-<PR>,<priority-label>" \
   --body "## Context
@@ -354,11 +354,11 @@ git pull origin main
 - Messages: commits atomiques, clairs, format conventionnel
 - Branches: `feature/issue-<number>-<slug>` (pas de long noms)
 - PR: créer toujours une PR (validation + traçabilité)
-- **⚠️ MERGE OBLIGATOIRE: `gh pr merge --merge --delete-branch` (JAMAIS --squash)**
+- **⚠️ MERGE OBLIGATOIRE: `~/.config/podclaude/gh.sh pr merge --merge --delete-branch` (JAMAIS --squash)**
 - **🚫 RÈGLE INVIOLABLE: JAMAIS de `git push --force` sans autorisation explicite de l'utilisateur**
 
 **GitHub CLI (gh):**
-- **TOUJOURS** préfixer les commandes `gh` avec le token: `GH_TOKEN=$(python3 /home/pof/.config/podclaude/get-token.py 2>/dev/null) gh ...`
+- **TOUJOURS** utiliser le wrapper `~/.config/podclaude/gh.sh` au lieu de `gh` directement (il injecte le bon token automatiquement)
 - À la création de PR: inclure `--label "needs-claude-review"`
 - **ATTENDRE la review** avant de merger - ne jamais merger sans review
 
