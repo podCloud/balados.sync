@@ -24,6 +24,8 @@ defmodule BaladosSyncCore.Aggregates.PlaylistTest do
 
   alias BaladosSyncCore.Events.{
     PlaylistCreated,
+    PlaylistUpdated,
+    PlaylistReordered,
     PlaylistDeleted,
     PlaylistVisibilityChanged,
     PlaylistCheckpoint
@@ -621,6 +623,33 @@ defmodule BaladosSyncCore.Aggregates.PlaylistTest do
   end
 
   describe "UpdatePlaylist Command" do
+    test "emits PlaylistUpdated for existing playlist" do
+      playlist_id = Ecto.UUID.generate()
+
+      state = %Playlist{
+        user_id: "user-123",
+        playlists: %{
+          playlist_id => %{name: "Old Name", description: nil, type: "playlist", items: [], is_public: false}
+        }
+      }
+
+      cmd = %UpdatePlaylist{
+        user_id: "user-123",
+        playlist: playlist_id,
+        name: "New Name",
+        description: "Updated description",
+        event_infos: %{}
+      }
+
+      event = Playlist.execute(state, cmd)
+
+      assert %PlaylistUpdated{} = event
+      assert event.user_id == "user-123"
+      assert event.playlist == playlist_id
+      assert event.name == "New Name"
+      assert event.description == "Updated description"
+    end
+
     test "returns error for non-existent playlist" do
       state = %Playlist{user_id: "user-123", playlists: %{}}
 
@@ -637,6 +666,32 @@ defmodule BaladosSyncCore.Aggregates.PlaylistTest do
   end
 
   describe "ReorderPlaylist Command" do
+    test "emits PlaylistReordered for existing playlist" do
+      playlist_id = Ecto.UUID.generate()
+      new_items = [{"feed-2", "item-2"}, {"feed-1", "item-1"}]
+
+      state = %Playlist{
+        user_id: "user-123",
+        playlists: %{
+          playlist_id => %{name: "My Playlist", description: nil, type: "playlist", items: [{"feed-1", "item-1"}, {"feed-2", "item-2"}], is_public: false}
+        }
+      }
+
+      cmd = %ReorderPlaylist{
+        user_id: "user-123",
+        playlist: playlist_id,
+        items: new_items,
+        event_infos: %{}
+      }
+
+      event = Playlist.execute(state, cmd)
+
+      assert %PlaylistReordered{} = event
+      assert event.user_id == "user-123"
+      assert event.playlist == playlist_id
+      assert event.items == new_items
+    end
+
     test "returns error for non-existent playlist" do
       state = %Playlist{user_id: "user-123", playlists: %{}}
 

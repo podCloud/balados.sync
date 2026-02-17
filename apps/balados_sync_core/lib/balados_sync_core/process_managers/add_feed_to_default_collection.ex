@@ -73,6 +73,10 @@ defmodule BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollection do
   # which is eventually consistent. If this handler runs before the projector
   # processes the UserSubscribed event, AddFeedToCollection may fail with
   # :feed_not_subscribed. A brief retry handles this race condition.
+  #
+  # Known limitation: Process.sleep blocks this GenServer during retries
+  # (up to 350ms worst case). Acceptable for low-volume usage but could
+  # queue up under high concurrent subscription load.
   defp add_feed_to_collection(user_id, collection_id, rss_source_feed, event_infos) do
     cmd = %AddFeedToCollection{
       user_id: user_id,
