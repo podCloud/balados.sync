@@ -152,7 +152,7 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
   end
 
   def apply(%__MODULE__{} = state, %SubscriptionCheckpoint{} = event) do
-    %{state | user_id: event.user_id, subscriptions: event.subscriptions, privacy: event.privacy}
+    %{state | user_id: event.user_id, subscriptions: event.subscriptions, privacy: event.privacy || :public}
   end
 
   def apply(%__MODULE__{} = state, _event), do: state

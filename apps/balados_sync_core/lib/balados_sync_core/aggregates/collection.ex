@@ -325,8 +325,10 @@ defmodule BaladosSyncCore.Aggregates.Collection do
     end
   end
 
+  # Note: Commanded's JsonSerializer deserializes with keys: :atoms,
+  # so nested map keys (title, is_default, etc.) are properly atomized.
   def apply(%__MODULE__{} = state, %CollectionCheckpoint{} = event) do
-    %{state | user_id: event.user_id, collections: event.collections}
+    %{state | user_id: event.user_id, collections: event.collections || %{}}
   end
 
   def apply(%__MODULE__{} = state, _event), do: state
