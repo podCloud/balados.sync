@@ -133,7 +133,7 @@ Décide quel(s) event(s) émettre :
 def execute(%Subscription{} = state, %Subscribe{} = cmd) do
   # Validation
   cond do
-    already_subscribed?(user, cmd.rss_source_feed) ->
+    already_subscribed?(state, cmd.rss_source_feed) ->
       {:error, :already_subscribed}
 
     true ->
@@ -637,7 +637,7 @@ end
 ```elixir
 # Subscription.execute/2
 def execute(%Subscription{} = state, %Subscribe{} = cmd) do
-  if already_subscribed?(user, cmd.rss_source_feed) do
+  if already_subscribed?(state, cmd.rss_source_feed) do
     {:error, :already_subscribed}
   else
     %UserSubscribed{
