@@ -133,7 +133,10 @@ defmodule BaladosSync.Umbrella.MixProject do
         BaladosSyncWeb.Router
       ],
       "Core - Aggregates": [
-        BaladosSyncCore.Aggregates.User
+        BaladosSyncCore.Aggregates.Subscription,
+        BaladosSyncCore.Aggregates.PlayTracking,
+        BaladosSyncCore.Aggregates.Playlist,
+        BaladosSyncCore.Aggregates.Collection
       ],
       "Core - Commands": [
         BaladosSyncCore.Commands.Subscribe,

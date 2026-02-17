@@ -1,7 +1,7 @@
 defmodule BaladosSyncCore.Dispatcher.Router do
   use Commanded.Commands.Router
 
-  alias BaladosSyncCore.Aggregates.User
+  alias BaladosSyncCore.Aggregates.Subscription
   alias BaladosSyncCore.Aggregates.PlayTracking
   alias BaladosSyncCore.Aggregates.Playlist
   alias BaladosSyncCore.Aggregates.Collection
@@ -17,8 +17,6 @@ defmodule BaladosSyncCore.Dispatcher.Router do
     ShareEpisode,
     ChangePrivacy,
     RemoveEvents,
-    SyncUserData,
-    Snapshot,
     CreatePlaylist,
     UpdatePlaylist,
     DeletePlaylist,
@@ -35,8 +33,8 @@ defmodule BaladosSyncCore.Dispatcher.Router do
 
   middleware(ValidateSubscription)
 
-  # User aggregate (subscriptions, privacy)
-  identify(User, by: :user_id)
+  # Subscription aggregate (subscriptions, privacy, sharing)
+  identify(Subscription, by: :user_id)
 
   dispatch(
     [
@@ -44,11 +42,9 @@ defmodule BaladosSyncCore.Dispatcher.Router do
       Unsubscribe,
       ShareEpisode,
       ChangePrivacy,
-      RemoveEvents,
-      SyncUserData,
-      Snapshot
+      RemoveEvents
     ],
-    to: User
+    to: Subscription
   )
 
   # PlayTracking aggregate (play positions)
