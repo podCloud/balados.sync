@@ -43,7 +43,9 @@ defmodule BaladosSyncCore.Aggregates.PlayTracking do
     }
   end
 
-  # SnapshotPlayTracking
+  # SnapshotPlayTracking — skip if aggregate has never been initialized
+  def execute(%__MODULE__{user_id: nil}, %SnapshotPlayTracking{}), do: []
+
   def execute(%__MODULE__{} = state, %SnapshotPlayTracking{} = _cmd) do
     %PlayTrackingCheckpoint{
       user_id: state.user_id,

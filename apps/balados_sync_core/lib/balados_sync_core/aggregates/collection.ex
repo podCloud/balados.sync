@@ -46,7 +46,9 @@ defmodule BaladosSyncCore.Aggregates.Collection do
     CollectionCheckpoint
   }
 
-  # SnapshotCollection
+  # SnapshotCollection — skip if aggregate has never been initialized
+  def execute(%__MODULE__{user_id: nil}, %SnapshotCollection{}), do: []
+
   def execute(%__MODULE__{} = state, %SnapshotCollection{} = _cmd) do
     %CollectionCheckpoint{
       user_id: state.user_id,
@@ -287,9 +289,9 @@ defmodule BaladosSyncCore.Aggregates.Collection do
 
       collection ->
         updated_collection = collection
-        updated_collection = if event.title, do: %{updated_collection | title: event.title}, else: updated_collection
-        updated_collection = if event.description, do: %{updated_collection | description: event.description}, else: updated_collection
-        updated_collection = if event.color, do: %{updated_collection | color: event.color}, else: updated_collection
+        updated_collection = if not is_nil(event.title), do: %{updated_collection | title: event.title}, else: updated_collection
+        updated_collection = if not is_nil(event.description), do: %{updated_collection | description: event.description}, else: updated_collection
+        updated_collection = if not is_nil(event.color), do: %{updated_collection | color: event.color}, else: updated_collection
 
         %{state | collections: Map.put(collections, event.collection_id, updated_collection)}
     end
@@ -321,7 +323,7 @@ defmodule BaladosSyncCore.Aggregates.Collection do
         state
 
       collection ->
-        updated_collection = Map.put(collection, :is_public, event.is_public)
+        updated_collection = %{collection | is_public: event.is_public}
         %{state | collections: Map.put(collections, event.collection_id, updated_collection)}
     end
   end

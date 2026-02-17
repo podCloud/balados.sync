@@ -107,7 +107,9 @@ defmodule BaladosSyncCore.Aggregates.Subscription do
     }
   end
 
-  # SnapshotSubscription
+  # SnapshotSubscription — skip if aggregate has never been initialized
+  def execute(%__MODULE__{user_id: nil}, %SnapshotSubscription{}), do: []
+
   def execute(%__MODULE__{} = state, %SnapshotSubscription{} = _cmd) do
     %SubscriptionCheckpoint{
       user_id: state.user_id,

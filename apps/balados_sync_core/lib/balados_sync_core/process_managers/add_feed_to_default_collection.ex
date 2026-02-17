@@ -68,7 +68,11 @@ defmodule BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollection do
     end
   end
 
-  # Dispatches AddFeedToCollection command
+  # Dispatches AddFeedToCollection command.
+  # Note: ValidateSubscription middleware queries the subscriptions projection,
+  # which is eventually consistent. If this handler runs before the projector
+  # processes the UserSubscribed event, AddFeedToCollection may fail with
+  # :feed_not_subscribed. A brief retry handles this race condition.
   defp add_feed_to_collection(user_id, collection_id, rss_source_feed, event_infos) do
     cmd = %AddFeedToCollection{
       user_id: user_id,
@@ -77,7 +81,20 @@ defmodule BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollection do
       event_infos: event_infos || %{}
     }
 
-    BaladosSyncCore.Dispatcher.dispatch(cmd)
+    dispatch_with_retry(cmd, 3, 50)
+  end
+
+  defp dispatch_with_retry(cmd, 0, _delay), do: BaladosSyncCore.Dispatcher.dispatch(cmd)
+
+  defp dispatch_with_retry(cmd, retries, delay) do
+    case BaladosSyncCore.Dispatcher.dispatch(cmd) do
+      {:error, :feed_not_subscribed} ->
+        Process.sleep(delay)
+        dispatch_with_retry(cmd, retries - 1, delay * 2)
+
+      result ->
+        result
+    end
   end
 
   # Generate deterministic ID for default collection based on user_id

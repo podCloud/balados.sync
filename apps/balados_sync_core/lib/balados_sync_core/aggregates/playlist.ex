@@ -42,7 +42,9 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
   # Valid playlist types
   @valid_playlist_types ["playlist", "queue"]
 
-  # SnapshotPlaylist
+  # SnapshotPlaylist — skip if aggregate has never been initialized
+  def execute(%__MODULE__{user_id: nil}, %SnapshotPlaylist{}), do: []
+
   def execute(%__MODULE__{} = state, %SnapshotPlaylist{} = _cmd) do
     %PlaylistCheckpoint{
       user_id: state.user_id,
@@ -206,7 +208,10 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
     playlist =
       Map.get(playlists, event.playlist, %{
         name: event.playlist,
-        items: []
+        description: nil,
+        type: "playlist",
+        items: [],
+        is_public: false
       })
 
     items = normalize_items(playlist.items || [])
@@ -254,8 +259,8 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
 
       playlist ->
         updated_playlist = playlist
-        updated_playlist = if event.name, do: %{updated_playlist | name: event.name}, else: updated_playlist
-        updated_playlist = if event.description, do: %{updated_playlist | description: event.description}, else: updated_playlist
+        updated_playlist = if not is_nil(event.name), do: %{updated_playlist | name: event.name}, else: updated_playlist
+        updated_playlist = if not is_nil(event.description), do: %{updated_playlist | description: event.description}, else: updated_playlist
 
         %{state | playlists: Map.put(playlists, event.playlist, updated_playlist)}
     end
@@ -287,7 +292,7 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
         state
 
       playlist ->
-        updated_playlist = Map.put(playlist, :is_public, event.is_public)
+        updated_playlist = %{playlist | is_public: event.is_public}
         %{state | playlists: Map.put(playlists, event.playlist_id, updated_playlist)}
     end
   end
