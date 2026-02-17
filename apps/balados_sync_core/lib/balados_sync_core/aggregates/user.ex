@@ -83,18 +83,11 @@ defmodule BaladosSyncCore.Aggregates.User do
   alias BaladosSyncCore.Commands.{
     Subscribe,
     Unsubscribe,
-    SaveEpisode,
-    UnsaveEpisode,
     ShareEpisode,
     ChangePrivacy,
     RemoveEvents,
     SyncUserData,
     Snapshot,
-    CreatePlaylist,
-    UpdatePlaylist,
-    ReorderPlaylist,
-    DeletePlaylist,
-    ChangePlaylistVisibility,
     CreateCollection,
     AddFeedToCollection,
     RemoveFeedFromCollection,
@@ -107,17 +100,10 @@ defmodule BaladosSyncCore.Aggregates.User do
   alias BaladosSyncCore.Events.{
     UserSubscribed,
     UserUnsubscribed,
-    EpisodeSaved,
-    EpisodeUnsaved,
     EpisodeShared,
     PrivacyChanged,
     EventsRemoved,
     UserCheckpoint,
-    PlaylistCreated,
-    PlaylistUpdated,
-    PlaylistReordered,
-    PlaylistDeleted,
-    PlaylistVisibilityChanged,
     CollectionCreated,
     FeedAddedToCollection,
     FeedRemovedFromCollection,
@@ -161,124 +147,6 @@ defmodule BaladosSyncCore.Aggregates.User do
       timestamp: DateTime.utc_now(),
       event_infos: cmd.event_infos || %{}
     }
-  end
-
-  # SaveEpisode
-  def execute(%__MODULE__{} = user, %SaveEpisode{} = cmd) do
-    %EpisodeSaved{
-      user_id: user.user_id,
-      playlist: cmd.playlist,
-      rss_source_feed: cmd.rss_source_feed,
-      rss_source_item: cmd.rss_source_item,
-      item_title: cmd.item_title,
-      feed_title: cmd.feed_title,
-      timestamp: DateTime.utc_now(),
-      event_infos: cmd.event_infos || %{}
-    }
-  end
-
-  # UnsaveEpisode
-  def execute(%__MODULE__{} = user, %UnsaveEpisode{} = cmd) do
-    %EpisodeUnsaved{
-      user_id: user.user_id,
-      playlist: cmd.playlist,
-      rss_source_feed: cmd.rss_source_feed,
-      rss_source_item: cmd.rss_source_item,
-      timestamp: DateTime.utc_now(),
-      event_infos: cmd.event_infos || %{}
-    }
-  end
-
-  # Valid playlist types
-  @valid_playlist_types ["playlist", "queue"]
-
-  # CreatePlaylist
-  def execute(%__MODULE__{} = user, %CreatePlaylist{} = cmd) do
-    playlists = user.playlists || %{}
-    playlist_type = cmd.playlist_type || "playlist"
-
-    cond do
-      is_nil(cmd.name) || String.trim(cmd.name) == "" ->
-        {:error, :name_required}
-
-      playlist_type not in @valid_playlist_types ->
-        {:error, :invalid_playlist_type}
-
-      true ->
-        # Use provided playlist_id if given, otherwise generate UUID
-        playlist_id = cmd.playlist_id || Ecto.UUID.generate()
-
-        # Check if playlist already exists
-        if Map.has_key?(playlists, playlist_id) do
-          {:error, :playlist_already_exists}
-        else
-          %PlaylistCreated{
-            user_id: user.user_id,
-            playlist_id: playlist_id,
-            name: cmd.name,
-            description: cmd.description,
-            playlist_type: playlist_type,
-            timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-            event_infos: cmd.event_infos || %{}
-          }
-        end
-    end
-  end
-
-  # DeletePlaylist
-  def execute(%__MODULE__{} = user, %DeletePlaylist{} = cmd) do
-    playlists = user.playlists || %{}
-
-    if Map.has_key?(playlists, cmd.playlist_id) do
-      %PlaylistDeleted{
-        user_id: user.user_id,
-        playlist_id: cmd.playlist_id,
-        timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-        event_infos: cmd.event_infos || %{}
-      }
-    else
-      {:error, :playlist_not_found}
-    end
-  end
-
-  # UpdatePlaylist
-  def execute(%__MODULE__{} = user, %UpdatePlaylist{} = cmd) do
-    %PlaylistUpdated{
-      user_id: user.user_id,
-      playlist: cmd.playlist,
-      name: cmd.name,
-      description: cmd.description,
-      timestamp: DateTime.utc_now(),
-      event_infos: cmd.event_infos || %{}
-    }
-  end
-
-  # ReorderPlaylist
-  def execute(%__MODULE__{} = user, %ReorderPlaylist{} = cmd) do
-    %PlaylistReordered{
-      user_id: user.user_id,
-      playlist: cmd.playlist,
-      items: cmd.items,
-      timestamp: DateTime.utc_now(),
-      event_infos: cmd.event_infos || %{}
-    }
-  end
-
-  # ChangePlaylistVisibility
-  def execute(%__MODULE__{} = user, %ChangePlaylistVisibility{} = cmd) do
-    playlists = user.playlists || %{}
-
-    if Map.has_key?(playlists, cmd.playlist_id) do
-      %PlaylistVisibilityChanged{
-        user_id: user.user_id,
-        playlist_id: cmd.playlist_id,
-        is_public: cmd.is_public,
-        timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-        event_infos: cmd.event_infos || %{}
-      }
-    else
-      {:error, :playlist_not_found}
-    end
   end
 
   # ShareEpisode
@@ -564,121 +432,6 @@ defmodule BaladosSyncCore.Aggregates.User do
 
   def apply(%__MODULE__{} = user, %PrivacyChanged{} = event) do
     %{user | privacy: event.privacy}
-  end
-
-  def apply(%__MODULE__{} = user, %PlaylistCreated{} = event) do
-    playlists = user.playlists || %{}
-
-    new_playlist = %{
-      name: event.name,
-      description: event.description,
-      type: event.playlist_type || "playlist",
-      items: []
-    }
-
-    %{user | playlists: Map.put(playlists, event.playlist_id, new_playlist)}
-  end
-
-  def apply(%__MODULE__{} = user, %EpisodeSaved{} = event) do
-    playlists = user.playlists || %{}
-
-    # Get or create playlist
-    playlist =
-      Map.get(playlists, event.playlist, %{
-        name: event.playlist,
-        items: []
-      })
-
-    # Add item to playlist if not already present
-    items = playlist.items || []
-    new_item = {event.rss_source_feed, event.rss_source_item}
-
-    items =
-      if Enum.any?(items, fn {feed, item} ->
-           feed == event.rss_source_feed and item == event.rss_source_item
-         end) do
-        items
-      else
-        items ++ [new_item]
-      end
-
-    updated_playlist = %{playlist | items: items}
-    %{user | playlists: Map.put(playlists, event.playlist, updated_playlist)}
-  end
-
-  def apply(%__MODULE__{} = user, %EpisodeUnsaved{} = event) do
-    playlists = user.playlists || %{}
-
-    case Map.get(playlists, event.playlist) do
-      nil ->
-        user
-
-      playlist ->
-        # Remove item from playlist
-        items = playlist.items || []
-
-        new_items =
-          Enum.filter(items, fn {feed, item} ->
-            not (feed == event.rss_source_feed and item == event.rss_source_item)
-          end)
-
-        updated_playlist = %{playlist | items: new_items}
-        %{user | playlists: Map.put(playlists, event.playlist, updated_playlist)}
-    end
-  end
-
-  def apply(%__MODULE__{} = user, %PlaylistUpdated{} = event) do
-    playlists = user.playlists || %{}
-
-    case Map.get(playlists, event.playlist) do
-      nil ->
-        user
-
-      playlist ->
-        updated_playlist = playlist
-
-        updated_playlist =
-          if event.name, do: %{updated_playlist | name: event.name}, else: updated_playlist
-
-        updated_playlist =
-          if event.description,
-            do: %{updated_playlist | description: event.description},
-            else: updated_playlist
-
-        %{user | playlists: Map.put(playlists, event.playlist, updated_playlist)}
-    end
-  end
-
-  def apply(%__MODULE__{} = user, %PlaylistReordered{} = event) do
-    playlists = user.playlists || %{}
-
-    case Map.get(playlists, event.playlist) do
-      nil ->
-        user
-
-      playlist ->
-        # Reorder items based on the event's items list
-        updated_playlist = %{playlist | items: event.items}
-        %{user | playlists: Map.put(playlists, event.playlist, updated_playlist)}
-    end
-  end
-
-  def apply(%__MODULE__{} = user, %PlaylistDeleted{} = event) do
-    playlists = user.playlists || %{}
-    %{user | playlists: Map.delete(playlists, event.playlist_id)}
-  end
-
-  def apply(%__MODULE__{} = user, %PlaylistVisibilityChanged{} = event) do
-    playlists = user.playlists || %{}
-
-    case Map.get(playlists, event.playlist_id) do
-      nil ->
-        user
-
-      playlist ->
-        updated_playlist = Map.put(playlist, :is_public, event.is_public)
-        %{user | playlists: Map.put(playlists, event.playlist_id, updated_playlist)}
-    end
   end
 
   def apply(%__MODULE__{} = user, %UserCheckpoint{} = event) do
