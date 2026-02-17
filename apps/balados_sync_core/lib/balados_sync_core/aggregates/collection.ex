@@ -218,6 +218,7 @@ defmodule BaladosSyncCore.Aggregates.Collection do
           collection_id: collection_id,
           title: cmd.title,
           is_default: cmd.is_default,
+          is_public: false,
           description: cmd.description,
           color: cmd.color,
           timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
@@ -236,7 +237,7 @@ defmodule BaladosSyncCore.Aggregates.Collection do
       description: event.description,
       color: event.color,
       feed_ids: [],
-      is_public: false
+      is_public: event.is_public || false
     }
 
     %{state | user_id: event.user_id, collections: Map.put(collections, event.collection_id, new_collection)}

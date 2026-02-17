@@ -9,6 +9,7 @@ defmodule BaladosSyncCore.Events.CollectionCreated do
     :collection_id,
     :title,
     :is_default,
+    :is_public,
     :description,
     :color,
     :timestamp,

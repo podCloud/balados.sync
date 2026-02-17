@@ -25,7 +25,6 @@ defmodule BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollection do
 
   alias BaladosSyncCore.Commands.{CreateCollection, AddFeedToCollection}
   alias BaladosSyncCore.Events.UserSubscribed
-  alias BaladosSyncCore.Dispatcher.Router
 
   def handle(%UserSubscribed{} = event, _metadata) do
     default_col_id = generate_default_collection_id(event.user_id)
@@ -52,7 +51,7 @@ defmodule BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollection do
       event_infos: event_infos || %{}
     }
 
-    case Router.dispatch(cmd) do
+    case BaladosSyncCore.Dispatcher.dispatch(cmd) do
       :ok ->
         # Collection created successfully
         :ok
@@ -78,7 +77,7 @@ defmodule BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollection do
       event_infos: event_infos || %{}
     }
 
-    Router.dispatch(cmd)
+    BaladosSyncCore.Dispatcher.dispatch(cmd)
   end
 
   # Generate deterministic ID for default collection based on user_id

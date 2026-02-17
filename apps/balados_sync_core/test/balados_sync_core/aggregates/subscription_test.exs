@@ -55,6 +55,16 @@ defmodule BaladosSyncCore.Aggregates.SubscriptionTest do
       assert event.user_id == "user-1"
       assert event.rss_source_feed == "feed-1"
     end
+
+    test "emits UserUnsubscribed even for non-subscribed feed (idempotent)" do
+      state = %Subscription{user_id: "user-1", subscriptions: %{}}
+      cmd = %Unsubscribe{user_id: "user-1", rss_source_feed: "unknown-feed", rss_source_id: "src-1"}
+
+      event = Subscription.execute(state, cmd)
+
+      assert %UserUnsubscribed{} = event
+      assert event.rss_source_feed == "unknown-feed"
+    end
   end
 
   describe "ShareEpisode command" do

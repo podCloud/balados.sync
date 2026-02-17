@@ -43,8 +43,25 @@ defmodule BaladosSyncCore.Middleware.ValidateSubscription do
         select: s.id
       )
 
-    case repo.one(query, prefix: "users") do
-      nil ->
+    result =
+      try do
+        {:ok, repo.one(query, prefix: "users")}
+      rescue
+        e ->
+          Logger.error(
+            "[ValidateSubscription] Database error checking subscription: #{Exception.message(e)}"
+          )
+
+          {:error, :subscription_check_failed}
+      end
+
+    case result do
+      {:error, reason} ->
+        pipeline
+        |> Commanded.Middleware.Pipeline.respond({:error, reason})
+        |> Commanded.Middleware.Pipeline.halt()
+
+      {:ok, nil} ->
         Logger.warning(
           "[ValidateSubscription] Rejected AddFeedToCollection: " <>
             "user=#{cmd.user_id} feed=#{cmd.rss_source_feed} reason=feed_not_subscribed"
@@ -54,7 +71,7 @@ defmodule BaladosSyncCore.Middleware.ValidateSubscription do
         |> Commanded.Middleware.Pipeline.respond({:error, :feed_not_subscribed})
         |> Commanded.Middleware.Pipeline.halt()
 
-      _id ->
+      {:ok, _id} ->
         pipeline
     end
   end
