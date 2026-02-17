@@ -4,6 +4,8 @@ defmodule BaladosSyncCore.Dispatcher.Router do
   alias BaladosSyncCore.Aggregates.User
   alias BaladosSyncCore.Aggregates.PlayTracking
   alias BaladosSyncCore.Aggregates.Playlist
+  alias BaladosSyncCore.Aggregates.Collection
+  alias BaladosSyncCore.Middleware.ValidateSubscription
 
   alias BaladosSyncCore.Commands.{
     Subscribe,
@@ -31,7 +33,9 @@ defmodule BaladosSyncCore.Dispatcher.Router do
     ChangeCollectionVisibility
   }
 
-  # User aggregate (subscriptions, collections, privacy)
+  middleware(ValidateSubscription)
+
+  # User aggregate (subscriptions, privacy)
   identify(User, by: :user_id)
 
   dispatch(
@@ -42,14 +46,7 @@ defmodule BaladosSyncCore.Dispatcher.Router do
       ChangePrivacy,
       RemoveEvents,
       SyncUserData,
-      Snapshot,
-      CreateCollection,
-      AddFeedToCollection,
-      RemoveFeedFromCollection,
-      UpdateCollection,
-      DeleteCollection,
-      ReorderCollectionFeed,
-      ChangeCollectionVisibility
+      Snapshot
     ],
     to: User
   )
@@ -79,5 +76,21 @@ defmodule BaladosSyncCore.Dispatcher.Router do
       UnsaveEpisode
     ],
     to: Playlist
+  )
+
+  # Collection aggregate (feed organization)
+  identify(Collection, by: :user_id)
+
+  dispatch(
+    [
+      CreateCollection,
+      AddFeedToCollection,
+      RemoveFeedFromCollection,
+      UpdateCollection,
+      DeleteCollection,
+      ReorderCollectionFeed,
+      ChangeCollectionVisibility
+    ],
+    to: Collection
   )
 end

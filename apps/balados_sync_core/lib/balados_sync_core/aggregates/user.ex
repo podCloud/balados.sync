@@ -2,68 +2,22 @@ defmodule BaladosSyncCore.Aggregates.User do
   @moduledoc """
   User aggregate for the CQRS/Event Sourcing system.
 
-  This aggregate is the core of the Balados Sync domain model. It encapsulates all
-  business logic for managing user subscriptions, play statuses, playlists, and privacy
-  settings. The aggregate follows the CQRS/ES pattern with two key functions:
+  After bounded context separation, this aggregate handles only subscriptions,
+  privacy, and cross-cutting concerns (share, remove events, sync, snapshot).
 
-  ## CQRS/ES Pattern
+  Other domains are handled by dedicated aggregates:
+  - `PlayTracking` - play positions
+  - `Playlist` - playlists and episodes
+  - `Collection` - feed organization
 
-  - `execute/2` - Validates commands and returns events (command → event)
-  - `apply/2` - Updates aggregate state based on events (event → state)
-
-  ## State Management
-
-  The aggregate state is rebuilt by replaying all events for a user from the event store.
-  State is never persisted directly - it's always derived from the event stream.
-
-  ### Aggregate State Structure
+  ## State
 
   - `user_id` - Unique identifier for the user
   - `privacy` - Privacy level: `:public`, `:anonymous`, or `:private`
   - `subscriptions` - Map of `%{feed => %{subscribed_at, unsubscribed_at, rss_source_id}}`
-  - `play_statuses` - Map of `%{item => %{position, played, updated_at, rss_source_feed}}`
-  - `playlists` - Map of `%{playlist_id => %{name, description, items, is_public}}`
-
-  ## Command Flow
-
-  1. Command arrives via Dispatcher (e.g., `Subscribe`)
-  2. Dispatcher loads aggregate by rebuilding state from events
-  3. `execute/2` validates command and returns event(s)
-  4. EventStore persists events immutably
-  5. `apply/2` updates aggregate state (for in-memory state)
-  6. Projectors listen to events and update read models
-
-  ## Event Sourcing Benefits
-
-  - Complete audit trail of all user actions
-  - Time travel: rebuild state at any point in history
-  - Event replay for bug fixes or new projections
-  - Natural support for sync conflicts (timestamp-based resolution)
-
-  ## Aggregate Lifecycle
-
-  The aggregate is stateless between command dispatches. Each command:
-  1. Loads current state by replaying events
-  2. Executes command logic
-  3. Returns events to be persisted
-  4. State updates happen via `apply/2` during replay
-
-  ## Examples
-
-      # Dispatch a command (through Dispatcher)
-      Dispatcher.dispatch(%Subscribe{
-        user_id: "user-123",
-        rss_source_feed: "base64-feed",
-        rss_source_id: "podcast-id"
-      })
-
-      # This internally:
-      # 1. Loads User aggregate for "user-123"
-      # 2. Calls execute(%User{}, %Subscribe{})
-      # 3. Returns %UserSubscribed{} event
-      # 4. Persists event to EventStore
-      # 5. Calls apply(%User{}, %UserSubscribed{})
-      # 6. Projectors update read models
+  - `play_statuses` - Kept for snapshot/checkpoint backward compatibility
+  - `playlists` - Kept for snapshot/checkpoint backward compatibility
+  - `collections` - Kept for snapshot/checkpoint backward compatibility
   """
 
   defstruct [
@@ -72,11 +26,9 @@ defmodule BaladosSyncCore.Aggregates.User do
     :privacy,
     # %{rss_source_feed => %{subscribed_at, unsubscribed_at}}
     :subscriptions,
-    # %{rss_source_item => %{position, played, updated_at}}
+    # Kept for snapshot backward compat (will be removed in Phase 5)
     :play_statuses,
-    # %{playlist_id => %{name, items}}
     :playlists,
-    # %{collection_id => %{title, slug, feed_ids (ordered list)}}
     :collections
   ]
 
@@ -87,14 +39,7 @@ defmodule BaladosSyncCore.Aggregates.User do
     ChangePrivacy,
     RemoveEvents,
     SyncUserData,
-    Snapshot,
-    CreateCollection,
-    AddFeedToCollection,
-    RemoveFeedFromCollection,
-    UpdateCollection,
-    DeleteCollection,
-    ReorderCollectionFeed,
-    ChangeCollectionVisibility
+    Snapshot
   }
 
   alias BaladosSyncCore.Events.{
@@ -103,14 +48,7 @@ defmodule BaladosSyncCore.Aggregates.User do
     EpisodeShared,
     PrivacyChanged,
     EventsRemoved,
-    UserCheckpoint,
-    CollectionCreated,
-    FeedAddedToCollection,
-    FeedRemovedFromCollection,
-    CollectionUpdated,
-    CollectionDeleted,
-    CollectionFeedReordered,
-    CollectionVisibilityChanged
+    UserCheckpoint
   }
 
   # Initialisation de l'aggregate
@@ -184,7 +122,6 @@ defmodule BaladosSyncCore.Aggregates.User do
   end
 
   # SyncUserData - No-op at aggregate level
-  # All sync operations are handled directly in projections by SyncController
   def execute(%__MODULE__{} = _user, %SyncUserData{} = _cmd) do
     []
   end
@@ -200,180 +137,9 @@ defmodule BaladosSyncCore.Aggregates.User do
     }
   end
 
-  # CreateCollection
-  def execute(%__MODULE__{} = user, %CreateCollection{} = cmd) do
-    collections = user.collections || %{}
-
-    cond do
-      is_nil(cmd.title) || String.trim(cmd.title) == "" ->
-        {:error, :title_required}
-
-      cmd.is_default && Enum.any?(collections, fn {_id, col} -> col.is_default end) ->
-        {:error, :default_collection_already_exists}
-
-      true ->
-        # Use provided collection_id if given, otherwise generate
-        collection_id = cmd.collection_id || Ecto.UUID.generate()
-
-        %CollectionCreated{
-          user_id: user.user_id,
-          collection_id: collection_id,
-          title: cmd.title,
-          is_default: cmd.is_default,
-          description: cmd.description,
-          color: cmd.color,
-          timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-          event_infos: cmd.event_infos || %{}
-        }
-    end
-  end
-
-  # AddFeedToCollection
-  def execute(%__MODULE__{} = user, %AddFeedToCollection{} = cmd) do
-    collections = user.collections || %{}
-    subscriptions = user.subscriptions || %{}
-
-    cond do
-      not Map.has_key?(collections, cmd.collection_id) ->
-        {:error, :collection_not_found}
-
-      not Map.has_key?(subscriptions, cmd.rss_source_feed) ->
-        {:error, :feed_not_subscribed}
-
-      true ->
-        %FeedAddedToCollection{
-          user_id: user.user_id,
-          collection_id: cmd.collection_id,
-          rss_source_feed: cmd.rss_source_feed,
-          timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-          event_infos: cmd.event_infos || %{}
-        }
-    end
-  end
-
-  # RemoveFeedFromCollection
-  def execute(%__MODULE__{} = user, %RemoveFeedFromCollection{} = cmd) do
-    collections = user.collections || %{}
-
-    if Map.has_key?(collections, cmd.collection_id) do
-      %FeedRemovedFromCollection{
-        user_id: user.user_id,
-        collection_id: cmd.collection_id,
-        rss_source_feed: cmd.rss_source_feed,
-        timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-        event_infos: cmd.event_infos || %{}
-      }
-    else
-      {:error, :collection_not_found}
-    end
-  end
-
-  # UpdateCollection
-  def execute(%__MODULE__{} = user, %UpdateCollection{} = cmd) do
-    collections = user.collections || %{}
-
-    cond do
-      not Map.has_key?(collections, cmd.collection_id) ->
-        {:error, :collection_not_found}
-
-      is_nil(cmd.title) && is_nil(cmd.description) && is_nil(cmd.color) ->
-        {:error, :no_changes}
-
-      not is_nil(cmd.title) && String.trim(cmd.title) == "" ->
-        {:error, :title_required}
-
-      true ->
-        %CollectionUpdated{
-          user_id: user.user_id,
-          collection_id: cmd.collection_id,
-          title: cmd.title,
-          description: cmd.description,
-          color: cmd.color,
-          timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-          event_infos: cmd.event_infos || %{}
-        }
-    end
-  end
-
-  # DeleteCollection
-  def execute(%__MODULE__{} = user, %DeleteCollection{} = cmd) do
-    collections = user.collections || %{}
-
-    case Map.get(collections, cmd.collection_id) do
-      nil ->
-        {:error, :collection_not_found}
-
-      collection ->
-        if collection.is_default do
-          {:error, :cannot_delete_default_collection}
-        else
-          %CollectionDeleted{
-            user_id: user.user_id,
-            collection_id: cmd.collection_id,
-            timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-            event_infos: cmd.event_infos || %{}
-          }
-        end
-    end
-  end
-
-  # ReorderCollectionFeed
-  def execute(%__MODULE__{} = user, %ReorderCollectionFeed{} = cmd) do
-    collections = user.collections || %{}
-
-    case Map.get(collections, cmd.collection_id) do
-      nil ->
-        {:error, :collection_not_found}
-
-      collection ->
-        feed_ids = collection.feed_ids || []
-
-        cond do
-          cmd.rss_source_feed not in feed_ids ->
-            {:error, :feed_not_in_collection}
-
-          cmd.new_position < 0 or cmd.new_position >= length(feed_ids) ->
-            {:error, :invalid_position}
-
-          true ->
-            # Remove feed from current position and insert at new position
-            remaining = List.delete(feed_ids, cmd.rss_source_feed)
-            new_order = List.insert_at(remaining, cmd.new_position, cmd.rss_source_feed)
-
-            %CollectionFeedReordered{
-              user_id: user.user_id,
-              collection_id: cmd.collection_id,
-              rss_source_feed: cmd.rss_source_feed,
-              new_position: cmd.new_position,
-              feed_order: new_order,
-              timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-              event_infos: cmd.event_infos || %{}
-            }
-        end
-    end
-  end
-
-  # ChangeCollectionVisibility
-  def execute(%__MODULE__{} = user, %ChangeCollectionVisibility{} = cmd) do
-    collections = user.collections || %{}
-
-    if Map.has_key?(collections, cmd.collection_id) do
-      %CollectionVisibilityChanged{
-        user_id: user.user_id,
-        collection_id: cmd.collection_id,
-        is_public: cmd.is_public,
-        timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-        event_infos: cmd.event_infos || %{}
-      }
-    else
-      {:error, :collection_not_found}
-    end
-  end
-
   # Application des events pour mettre à jour l'état
   def apply(%__MODULE__{} = user, %UserSubscribed{} = event) do
     subscriptions = user.subscriptions || %{}
-    collections = user.collections || %{}
 
     updated_sub = %{
       subscribed_at: event.subscribed_at,
@@ -381,39 +147,10 @@ defmodule BaladosSyncCore.Aggregates.User do
       rss_source_id: event.rss_source_id
     }
 
-    # Check if default collection exists, if not create it
-    {_default_collection_id, updated_collections} =
-      case Enum.find(collections, fn {_id, col} -> col.is_default end) do
-        {id, collection} ->
-          # Default collection exists, add feed to it if not already present
-          feed_ids = collection.feed_ids || []
-
-          updated_feed_ids =
-            if event.rss_source_feed in feed_ids,
-              do: feed_ids,
-              else: feed_ids ++ [event.rss_source_feed]
-
-          updated_collection = %{collection | feed_ids: updated_feed_ids}
-          {id, Map.put(collections, id, updated_collection)}
-
-        nil ->
-          # Create default collection and add feed
-          new_id = Ecto.UUID.generate()
-
-          new_collection = %{
-            title: "All Subscriptions",
-            is_default: true,
-            feed_ids: [event.rss_source_feed]
-          }
-
-          {new_id, Map.put(collections, new_id, new_collection)}
-      end
-
     %{
       user
       | user_id: event.user_id,
-        subscriptions: Map.put(subscriptions, event.rss_source_feed, updated_sub),
-        collections: updated_collections
+        subscriptions: Map.put(subscriptions, event.rss_source_feed, updated_sub)
     }
   end
 
@@ -443,113 +180,6 @@ defmodule BaladosSyncCore.Aggregates.User do
     }
   end
 
-  def apply(%__MODULE__{} = user, %CollectionCreated{} = event) do
-    collections = user.collections || %{}
-
-    new_collection = %{
-      title: event.title,
-      is_default: event.is_default,
-      description: event.description,
-      color: event.color,
-      feed_ids: []
-    }
-
-    %{user | collections: Map.put(collections, event.collection_id, new_collection)}
-  end
-
-  def apply(%__MODULE__{} = user, %FeedAddedToCollection{} = event) do
-    collections = user.collections || %{}
-
-    case Map.get(collections, event.collection_id) do
-      nil ->
-        user
-
-      collection ->
-        feed_ids = collection.feed_ids || []
-
-        # Add to end of list if not already present
-        updated_feed_ids =
-          if event.rss_source_feed in feed_ids,
-            do: feed_ids,
-            else: feed_ids ++ [event.rss_source_feed]
-
-        updated_collection = %{collection | feed_ids: updated_feed_ids}
-        %{user | collections: Map.put(collections, event.collection_id, updated_collection)}
-    end
-  end
-
-  def apply(%__MODULE__{} = user, %FeedRemovedFromCollection{} = event) do
-    collections = user.collections || %{}
-
-    case Map.get(collections, event.collection_id) do
-      nil ->
-        user
-
-      collection ->
-        feed_ids = collection.feed_ids || []
-        updated_feed_ids = List.delete(feed_ids, event.rss_source_feed)
-        updated_collection = %{collection | feed_ids: updated_feed_ids}
-        %{user | collections: Map.put(collections, event.collection_id, updated_collection)}
-    end
-  end
-
-  def apply(%__MODULE__{} = user, %CollectionUpdated{} = event) do
-    collections = user.collections || %{}
-
-    case Map.get(collections, event.collection_id) do
-      nil ->
-        user
-
-      collection ->
-        updated_collection = collection
-
-        updated_collection =
-          if event.title, do: %{updated_collection | title: event.title}, else: updated_collection
-
-        updated_collection =
-          if event.description,
-            do: %{updated_collection | description: event.description},
-            else: updated_collection
-
-        updated_collection =
-          if event.color, do: %{updated_collection | color: event.color}, else: updated_collection
-
-        %{user | collections: Map.put(collections, event.collection_id, updated_collection)}
-    end
-  end
-
-  def apply(%__MODULE__{} = user, %CollectionDeleted{} = event) do
-    collections = user.collections || %{}
-    %{user | collections: Map.delete(collections, event.collection_id)}
-  end
-
-  def apply(%__MODULE__{} = user, %CollectionFeedReordered{} = event) do
-    collections = user.collections || %{}
-
-    case Map.get(collections, event.collection_id) do
-      nil ->
-        user
-
-      collection ->
-        # Use the complete feed_order from the event
-        updated_collection = %{collection | feed_ids: event.feed_order}
-        %{user | collections: Map.put(collections, event.collection_id, updated_collection)}
-    end
-  end
-
-  def apply(%__MODULE__{} = user, %CollectionVisibilityChanged{} = event) do
-    collections = user.collections || %{}
-
-    case Map.get(collections, event.collection_id) do
-      nil ->
-        user
-
-      collection ->
-        updated_collection = Map.put(collection, :is_public, event.is_public)
-        %{user | collections: Map.put(collections, event.collection_id, updated_collection)}
-    end
-  end
-
   def apply(%__MODULE__{} = user, _event), do: user
 
   # Helpers privés
@@ -560,7 +190,6 @@ defmodule BaladosSyncCore.Aggregates.User do
     subscriptions
     |> Enum.filter(fn {_feed, sub} ->
       cond do
-        # Si unsubscribed > 45j, on ne garde pas
         sub.unsubscribed_at &&
           DateTime.compare(sub.unsubscribed_at, forty_five_days_ago) == :lt &&
             DateTime.compare(sub.unsubscribed_at, sub.subscribed_at || DateTime.from_unix!(0)) ==

@@ -6,7 +6,7 @@ defmodule BaladosSyncCore.Aggregates.UserTest do
   alias BaladosSyncCore.Events.UserSubscribed
 
   describe "User aggregate" do
-    test "handles Subscribe command" do
+    test "handles Subscribe command on new aggregate" do
       user = %User{user_id: nil}
 
       cmd = %Subscribe{
@@ -22,7 +22,22 @@ defmodule BaladosSyncCore.Aggregates.UserTest do
       assert event.rss_source_feed == "feed-1"
     end
 
-    test "applies UserSubscribed event to create default collection on first subscription" do
+    test "handles Subscribe command on existing aggregate" do
+      user = %User{user_id: "user-1", subscriptions: %{}}
+
+      cmd = %Subscribe{
+        user_id: "user-1",
+        rss_source_feed: "feed-2",
+        rss_source_id: "source-2"
+      }
+
+      event = User.execute(user, cmd)
+
+      assert event.__struct__ == UserSubscribed
+      assert event.rss_source_feed == "feed-2"
+    end
+
+    test "applies UserSubscribed event records subscription" do
       user = %User{user_id: nil}
 
       event = %UserSubscribed{
@@ -36,22 +51,11 @@ defmodule BaladosSyncCore.Aggregates.UserTest do
 
       updated_user = User.apply(user, event)
 
-      # Verify subscription is recorded
       assert updated_user.user_id == "user-1"
       assert Map.has_key?(updated_user.subscriptions, "feed-1")
-
-      # Verify default collection is created
-      assert updated_user.collections != nil
-
-      default_collection =
-        Enum.find(updated_user.collections, fn {_id, col} -> col.is_default == true end)
-
-      assert default_collection != nil
-
-      {_col_id, default_col} = default_collection
-      assert default_col.title == "All Subscriptions"
-      assert default_col.is_default == true
-      assert "feed-1" in default_col.feed_ids
+      sub = updated_user.subscriptions["feed-1"]
+      assert sub.unsubscribed_at == nil
+      assert sub.rss_source_id == "source-1"
     end
   end
 end
