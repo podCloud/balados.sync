@@ -21,7 +21,8 @@ defmodule BaladosSyncCore.Aggregates.CollectionTest do
     UpdateCollection,
     DeleteCollection,
     ReorderCollectionFeed,
-    ChangeCollectionVisibility
+    ChangeCollectionVisibility,
+    SnapshotCollection
   }
 
   alias BaladosSyncCore.Events.{
@@ -31,7 +32,8 @@ defmodule BaladosSyncCore.Aggregates.CollectionTest do
     CollectionUpdated,
     CollectionDeleted,
     CollectionFeedReordered,
-    CollectionVisibilityChanged
+    CollectionVisibilityChanged,
+    CollectionCheckpoint
   }
 
   describe "Create Collection Command" do
@@ -438,6 +440,32 @@ defmodule BaladosSyncCore.Aggregates.CollectionTest do
       assert match?({:error, :collection_not_found}, result)
     end
 
+    test "returns error for out-of-bounds position" do
+      collection_id = Ecto.UUID.generate()
+
+      state = %Collection{
+        user_id: "user-123",
+        collections: %{
+          collection_id => %{
+            title: "News",
+            is_default: false,
+            feed_ids: ["feed-1", "feed-2"]
+          }
+        }
+      }
+
+      cmd = %ReorderCollectionFeed{
+        user_id: "user-123",
+        collection_id: collection_id,
+        rss_source_feed: "feed-1",
+        new_position: 2,
+        event_infos: %{}
+      }
+
+      result = Collection.execute(state, cmd)
+      assert match?({:error, :invalid_position}, result)
+    end
+
     test "returns error for invalid position (negative)" do
       collection_id = Ecto.UUID.generate()
 
@@ -569,6 +597,70 @@ defmodule BaladosSyncCore.Aggregates.CollectionTest do
 
       updated = Collection.apply(state, event)
       assert updated == state
+    end
+  end
+
+  describe "SnapshotCollection command" do
+    test "emits CollectionCheckpoint with current state" do
+      collection_id = Ecto.UUID.generate()
+
+      state = %Collection{
+        user_id: "user-123",
+        collections: %{
+          collection_id => %{
+            title: "News",
+            is_default: false,
+            description: nil,
+            color: nil,
+            feed_ids: ["feed-1"],
+            is_public: false
+          }
+        }
+      }
+
+      event = Collection.execute(state, %SnapshotCollection{user_id: "user-123"})
+
+      assert %CollectionCheckpoint{} = event
+      assert event.user_id == "user-123"
+      assert Map.has_key?(event.collections, collection_id)
+      assert event.collections[collection_id].feed_ids == ["feed-1"]
+    end
+
+    test "emits checkpoint with empty collections on nil state" do
+      state = %Collection{user_id: "user-123", collections: nil}
+
+      event = Collection.execute(state, %SnapshotCollection{user_id: "user-123"})
+
+      assert %CollectionCheckpoint{} = event
+      assert event.collections == %{}
+    end
+  end
+
+  describe "CollectionCheckpoint apply" do
+    test "restores full state including user_id" do
+      state = %Collection{user_id: nil, collections: nil}
+
+      collections = %{
+        "col-1" => %{
+          title: "News",
+          is_default: true,
+          description: nil,
+          color: "#ff0000",
+          feed_ids: ["feed-1", "feed-2"],
+          is_public: false
+        }
+      }
+
+      event = %CollectionCheckpoint{
+        user_id: "user-123",
+        collections: collections,
+        timestamp: DateTime.utc_now()
+      }
+
+      updated = Collection.apply(state, event)
+
+      assert updated.user_id == "user-123"
+      assert updated.collections == collections
     end
   end
 end

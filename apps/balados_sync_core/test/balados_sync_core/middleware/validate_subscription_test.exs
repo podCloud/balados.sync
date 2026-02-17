@@ -1,4 +1,6 @@
 defmodule BaladosSyncCore.Middleware.ValidateSubscriptionTest do
+  # async: false is required because tests use Application.put_env/3 to inject
+  # mock repos, which is global state. Running async could cause test interference.
   use ExUnit.Case
 
   alias BaladosSyncCore.Middleware.ValidateSubscription

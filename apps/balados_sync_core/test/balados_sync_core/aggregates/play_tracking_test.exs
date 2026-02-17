@@ -2,8 +2,8 @@ defmodule BaladosSyncCore.Aggregates.PlayTrackingTest do
   use ExUnit.Case, async: true
 
   alias BaladosSyncCore.Aggregates.PlayTracking
-  alias BaladosSyncCore.Commands.{RecordPlay, UpdatePosition}
-  alias BaladosSyncCore.Events.{PlayRecorded, PositionUpdated}
+  alias BaladosSyncCore.Commands.{RecordPlay, UpdatePosition, SnapshotPlayTracking}
+  alias BaladosSyncCore.Events.{PlayRecorded, PositionUpdated, PlayTrackingCheckpoint}
 
   describe "RecordPlay command" do
     test "records play on new aggregate" do
@@ -179,6 +179,56 @@ defmodule BaladosSyncCore.Aggregates.PlayTrackingTest do
 
       assert Map.has_key?(updated.play_statuses, "item-new")
       assert updated.play_statuses["item-new"].position == 45
+    end
+  end
+
+  describe "SnapshotPlayTracking command" do
+    test "emits PlayTrackingCheckpoint with current state" do
+      now = DateTime.utc_now()
+
+      state = %PlayTracking{
+        user_id: "user-1",
+        play_statuses: %{
+          "item-1" => %{position: 120, played: false, updated_at: now, rss_source_feed: "feed-1"}
+        }
+      }
+
+      event = PlayTracking.execute(state, %SnapshotPlayTracking{user_id: "user-1"})
+
+      assert %PlayTrackingCheckpoint{} = event
+      assert event.user_id == "user-1"
+      assert Map.has_key?(event.play_statuses, "item-1")
+      assert event.play_statuses["item-1"].position == 120
+    end
+
+    test "emits checkpoint with empty play_statuses on nil state" do
+      state = %PlayTracking{user_id: "user-1", play_statuses: nil}
+
+      event = PlayTracking.execute(state, %SnapshotPlayTracking{user_id: "user-1"})
+
+      assert %PlayTrackingCheckpoint{} = event
+      assert event.play_statuses == %{}
+    end
+  end
+
+  describe "PlayTrackingCheckpoint apply" do
+    test "restores full state including user_id" do
+      state = %PlayTracking{user_id: nil, play_statuses: nil}
+
+      statuses = %{
+        "item-1" => %{position: 60, played: true, updated_at: DateTime.utc_now(), rss_source_feed: "feed-1"}
+      }
+
+      event = %PlayTrackingCheckpoint{
+        user_id: "user-1",
+        play_statuses: statuses,
+        timestamp: DateTime.utc_now()
+      }
+
+      updated = PlayTracking.apply(state, event)
+
+      assert updated.user_id == "user-1"
+      assert updated.play_statuses == statuses
     end
   end
 end

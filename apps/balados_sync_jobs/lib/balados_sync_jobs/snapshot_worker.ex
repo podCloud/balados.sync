@@ -146,20 +146,25 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     ]
 
     results =
-      Enum.map(commands, fn command ->
+      Enum.zip(commands, Enum.map(commands, fn command ->
         BaladosSyncCore.Dispatcher.dispatch(command, consistency: :strong)
-      end)
+      end))
 
-    errors = Enum.filter(results, fn result -> result != :ok end)
+    failures =
+      Enum.filter(results, fn {_cmd, result} -> result != :ok end)
 
-    if errors == [] do
+    if failures == [] do
       Logger.info("Checkpoints created for user #{user_id}")
 
       if cleanup_old_events do
         cleanup_old_user_events(user_id)
       end
     else
-      Logger.error("Failed to create some checkpoints for user #{user_id}: #{inspect(errors)}")
+      Enum.each(failures, fn {cmd, error} ->
+        Logger.error(
+          "Failed checkpoint #{inspect(cmd.__struct__)} for user #{user_id}: #{inspect(error)}"
+        )
+      end)
     end
   end
 

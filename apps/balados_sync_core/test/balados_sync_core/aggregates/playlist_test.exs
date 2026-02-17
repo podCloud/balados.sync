@@ -15,14 +15,18 @@ defmodule BaladosSyncCore.Aggregates.PlaylistTest do
 
   alias BaladosSyncCore.Commands.{
     CreatePlaylist,
+    UpdatePlaylist,
+    ReorderPlaylist,
     DeletePlaylist,
-    ChangePlaylistVisibility
+    ChangePlaylistVisibility,
+    SnapshotPlaylist
   }
 
   alias BaladosSyncCore.Events.{
     PlaylistCreated,
     PlaylistDeleted,
-    PlaylistVisibilityChanged
+    PlaylistVisibilityChanged,
+    PlaylistCheckpoint
   }
 
   describe "CreatePlaylist Command" do
@@ -613,6 +617,87 @@ defmodule BaladosSyncCore.Aggregates.PlaylistTest do
 
       playlist = updated.playlists[playlist_id]
       assert playlist.type == "playlist"
+    end
+  end
+
+  describe "UpdatePlaylist Command" do
+    test "returns error for non-existent playlist" do
+      state = %Playlist{user_id: "user-123", playlists: %{}}
+
+      cmd = %UpdatePlaylist{
+        user_id: "user-123",
+        playlist: "nonexistent",
+        name: "New Name",
+        event_infos: %{}
+      }
+
+      result = Playlist.execute(state, cmd)
+      assert match?({:error, :playlist_not_found}, result)
+    end
+  end
+
+  describe "ReorderPlaylist Command" do
+    test "returns error for non-existent playlist" do
+      state = %Playlist{user_id: "user-123", playlists: %{}}
+
+      cmd = %ReorderPlaylist{
+        user_id: "user-123",
+        playlist: "nonexistent",
+        items: [],
+        event_infos: %{}
+      }
+
+      result = Playlist.execute(state, cmd)
+      assert match?({:error, :playlist_not_found}, result)
+    end
+  end
+
+  describe "SnapshotPlaylist command" do
+    test "emits PlaylistCheckpoint with current state" do
+      playlist_id = Ecto.UUID.generate()
+
+      state = %Playlist{
+        user_id: "user-123",
+        playlists: %{
+          playlist_id => %{name: "Favorites", type: "playlist", items: [], is_public: false}
+        }
+      }
+
+      event = Playlist.execute(state, %SnapshotPlaylist{user_id: "user-123"})
+
+      assert %PlaylistCheckpoint{} = event
+      assert event.user_id == "user-123"
+      assert Map.has_key?(event.playlists, playlist_id)
+    end
+
+    test "emits checkpoint with empty playlists on nil state" do
+      state = %Playlist{user_id: "user-123", playlists: nil}
+
+      event = Playlist.execute(state, %SnapshotPlaylist{user_id: "user-123"})
+
+      assert %PlaylistCheckpoint{} = event
+      assert event.playlists == %{}
+    end
+  end
+
+  describe "PlaylistCheckpoint apply" do
+    test "restores full state including user_id" do
+      state = %Playlist{user_id: nil, playlists: nil}
+
+      playlists = %{
+        "pl-1" => %{name: "Test", type: "playlist", items: [], is_public: false}
+      }
+
+      event = %PlaylistCheckpoint{
+        user_id: "user-123",
+        playlists: playlists,
+        timestamp: DateTime.utc_now()
+      }
+
+      updated = Playlist.apply(state, event)
+
+      assert updated.user_id == "user-123"
+      assert updated.playlists == playlists
     end
   end
 end

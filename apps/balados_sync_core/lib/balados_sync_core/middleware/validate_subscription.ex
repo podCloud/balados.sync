@@ -6,6 +6,21 @@ defmodule BaladosSyncCore.Middleware.ValidateSubscription do
   no longer has access to subscription state. This middleware queries the subscriptions
   projection to enforce the business rule: feeds must be subscribed before being added
   to a collection.
+
+  ## Eventual Consistency Note
+
+  This middleware queries a projection (read model), which is eventually consistent.
+  There is a brief window between when `UserSubscribed` is appended to the event store
+  and when the projector updates the subscriptions table. During that window,
+  `AddFeedToCollection` may fail with `:feed_not_subscribed` even though the
+  subscription exists in the event store. In practice this window is milliseconds
+  and only affects near-simultaneous subscribe + add-to-collection operations.
+
+  ## Scope
+
+  This middleware is registered globally in the router but only intercepts
+  `AddFeedToCollection` commands. All other commands pass through unchanged
+  via the catch-all `before_dispatch/1` clause.
   """
 
   @behaviour Commanded.Middleware

@@ -51,8 +51,8 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
     }
   end
 
-  # SaveEpisode
-  def execute(%__MODULE__{user_id: nil}, %SaveEpisode{} = cmd) do
+  # SaveEpisode — no state validation needed, emits event unconditionally
+  def execute(%__MODULE__{}, %SaveEpisode{} = cmd) do
     %EpisodeSaved{
       user_id: cmd.user_id,
       playlist: cmd.playlist,
@@ -65,32 +65,8 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
     }
   end
 
-  def execute(%__MODULE__{} = _state, %SaveEpisode{} = cmd) do
-    %EpisodeSaved{
-      user_id: cmd.user_id,
-      playlist: cmd.playlist,
-      rss_source_feed: cmd.rss_source_feed,
-      rss_source_item: cmd.rss_source_item,
-      item_title: cmd.item_title,
-      feed_title: cmd.feed_title,
-      timestamp: DateTime.utc_now(),
-      event_infos: cmd.event_infos || %{}
-    }
-  end
-
-  # UnsaveEpisode
-  def execute(%__MODULE__{user_id: nil}, %UnsaveEpisode{} = cmd) do
-    %EpisodeUnsaved{
-      user_id: cmd.user_id,
-      playlist: cmd.playlist,
-      rss_source_feed: cmd.rss_source_feed,
-      rss_source_item: cmd.rss_source_item,
-      timestamp: DateTime.utc_now(),
-      event_infos: cmd.event_infos || %{}
-    }
-  end
-
-  def execute(%__MODULE__{} = _state, %UnsaveEpisode{} = cmd) do
+  # UnsaveEpisode — no state validation needed, emits event unconditionally
+  def execute(%__MODULE__{}, %UnsaveEpisode{} = cmd) do
     %EpisodeUnsaved{
       user_id: cmd.user_id,
       playlist: cmd.playlist,
