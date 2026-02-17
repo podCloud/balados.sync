@@ -95,6 +95,10 @@ def rebuild_aggregate(stream_id) do
 end
 ```
 
+> **Note** : Le même pattern s'applique aux 4 aggregates bounded context
+> (`Subscription`, `PlayTracking`, `Playlist`, `Collection`), chacun avec
+> son propre stream prefix et état initial.
+
 ---
 
 ## CQRS Pattern
@@ -540,9 +544,10 @@ Depuis le split en bounded contexts (#148), les checkpoints sont par aggregate :
 %CollectionCheckpoint{user_id, collections, timestamp}
 ```
 
-**Legacy** : L'ancien `UserCheckpoint` monolithique est toujours supporté par
-les projectors pour la compatibilité avec les events déjà stockés. Les nouveaux
-snapshots émettent les 4 variants ci-dessus.
+**Legacy** : L'ancien `BaladosSyncCore.Events.UserCheckpoint` monolithique
+(dans `events/user_checkpoint.ex`) est toujours supporté par les projectors
+pour la compatibilité avec les events déjà stockés. Les nouveaux snapshots
+émettent les 4 variants ci-dessus.
 
 ### SnapshotWorker
 
