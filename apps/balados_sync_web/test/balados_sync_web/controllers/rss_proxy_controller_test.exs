@@ -14,7 +14,8 @@ defmodule BaladosSyncWeb.RssProxyControllerTest do
       conn = get(conn, "/api/v1/rss/proxy/!!!not-valid-base64!!!")
 
       response = json_response(conn, 400)
-      assert response["error"] == "Invalid feed ID encoding"
+      assert response["error"] == "BAD_REQUEST"
+      assert response["message"] == "Invalid feed ID encoding"
     end
 
     test "returns error for non-existent feed URL", %{conn: conn} do
@@ -23,7 +24,8 @@ defmodule BaladosSyncWeb.RssProxyControllerTest do
 
       # RssCache.fetch_feed returns {:error, :fetch_failed} for unreachable feeds
       response = json_response(conn, 502)
-      assert response["error"] == "Failed to fetch RSS feed"
+      assert response["error"] == "BAD_GATEWAY"
+      assert response["message"] == "Failed to fetch RSS feed"
     end
 
     test "accepts standard base64 encoding (backwards compatibility)", %{conn: conn} do

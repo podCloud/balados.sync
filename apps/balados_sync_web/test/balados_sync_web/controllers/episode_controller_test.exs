@@ -29,8 +29,8 @@ defmodule BaladosSyncWeb.EpisodeControllerTest do
       conn = post(conn, "/api/v1/episodes/dGVzdC1pdGVt/save")
 
       response = json_response(conn, 401)
-      assert response["error"] == "Unauthorized"
-      assert response["error_code"] == "UNAUTHORIZED"
+      assert response["error"] == "UNAUTHORIZED"
+      assert response["message"] == "Unauthorized"
     end
 
     test "returns 401 with invalid JWT", %{conn: conn} do
@@ -40,7 +40,7 @@ defmodule BaladosSyncWeb.EpisodeControllerTest do
         |> post("/api/v1/episodes/dGVzdC1pdGVt/save")
 
       response = json_response(conn, 401)
-      assert response["error"] == "Unauthorized"
+      assert response["error"] == "UNAUTHORIZED"
     end
 
     test "returns 403 with insufficient scope (read-only)", %{conn: conn, user_id: user_id} do
@@ -50,7 +50,7 @@ defmodule BaladosSyncWeb.EpisodeControllerTest do
         |> post("/api/v1/episodes/dGVzdC1pdGVt/save")
 
       response = json_response(conn, 403)
-      assert response["error_code"] == "FORBIDDEN"
+      assert response["error"] == "FORBIDDEN"
     end
   end
 
@@ -84,7 +84,7 @@ defmodule BaladosSyncWeb.EpisodeControllerTest do
       conn = post(conn, "/api/v1/episodes/dGVzdC1pdGVt/share")
 
       response = json_response(conn, 401)
-      assert response["error"] == "Unauthorized"
+      assert response["error"] == "UNAUTHORIZED"
     end
 
     test "returns 403 with insufficient scope", %{conn: conn, user_id: user_id} do
@@ -94,7 +94,7 @@ defmodule BaladosSyncWeb.EpisodeControllerTest do
         |> post("/api/v1/episodes/dGVzdC1pdGVt/share")
 
       response = json_response(conn, 403)
-      assert response["error_code"] == "FORBIDDEN"
+      assert response["error"] == "FORBIDDEN"
     end
   end
 
