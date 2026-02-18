@@ -392,6 +392,25 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
     end
   end
 
+  describe "layout rendering in LiveView context" do
+    test "renders locale switcher without crashing", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/subscriptions")
+
+      # Locale switcher should be present with FR and EN options
+      assert html =~ "FR"
+      assert html =~ "EN"
+      assert html =~ "locale="
+    end
+
+    test "renders navigation links", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/subscriptions")
+
+      # Navigation links should be present in the layout
+      assert html =~ "/subscriptions"
+      assert html =~ "/trending/podcasts"
+    end
+  end
+
   # Helper functions
 
   defp create_subscription(user_id, feed_url, rss_title) do
