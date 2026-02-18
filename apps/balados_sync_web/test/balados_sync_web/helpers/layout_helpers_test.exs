@@ -1,7 +1,7 @@
-defmodule BaladosSyncWeb.LayoutHelpersTest do
+defmodule BaladosSyncWeb.Helpers.LayoutHelpersTest do
   use ExUnit.Case, async: true
 
-  alias BaladosSyncWeb.LayoutHelpers
+  alias BaladosSyncWeb.Helpers.LayoutHelpers
 
   describe "current_path/1" do
     test "extracts path from conn assigns" do

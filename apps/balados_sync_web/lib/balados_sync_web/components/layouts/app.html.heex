@@ -1,5 +1,5 @@
-<% current_path = BaladosSyncWeb.LayoutHelpers.current_path(assigns) %>
-<% current_params = BaladosSyncWeb.LayoutHelpers.current_params(assigns) %>
+<% current_path = BaladosSyncWeb.Helpers.LayoutHelpers.current_path(assigns) %>
+<% current_params = BaladosSyncWeb.Helpers.LayoutHelpers.current_params(assigns) %>
 <header class="px-4 sm:px-6 lg:px-8">
   <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
     <div class="flex items-center gap-4">
@@ -40,7 +40,7 @@
       </nav>
       <.link
         navigate={~p"/trending/podcasts"}
-        class={BaladosSyncWeb.LayoutHelpers.nav_link_class(current_path, "/trending")}
+        class={BaladosSyncWeb.Helpers.LayoutHelpers.nav_link_class(current_path, "/trending")}
       >
         <%= gettext("nav.discover") %>
       </.link>
@@ -50,26 +50,30 @@
         </span>
         <.link
           navigate={~p"/dashboard"}
-          class={BaladosSyncWeb.LayoutHelpers.nav_link_class(current_path, "/dashboard")}
+          class={BaladosSyncWeb.Helpers.LayoutHelpers.nav_link_class(current_path, "/dashboard")}
         >
           <%= gettext("nav.dashboard") %>
         </.link>
         <.link
           navigate={~p"/subscriptions"}
-          class={BaladosSyncWeb.LayoutHelpers.nav_link_class(current_path, "/subscriptions")}
+          class={
+            BaladosSyncWeb.Helpers.LayoutHelpers.nav_link_class(current_path, "/subscriptions")
+          }
         >
           <%= gettext("nav.subscriptions") %>
         </.link>
         <.link
           navigate={~p"/privacy-manager"}
-          class={BaladosSyncWeb.LayoutHelpers.nav_link_class(current_path, "/privacy-manager")}
+          class={
+            BaladosSyncWeb.Helpers.LayoutHelpers.nav_link_class(current_path, "/privacy-manager")
+          }
         >
           <%= gettext("nav.privacy") %>
         </.link>
         <%= if BaladosSyncWeb.Accounts.admin?(@current_user) do %>
           <.link
             navigate={~p"/admin"}
-            class={BaladosSyncWeb.LayoutHelpers.nav_link_class(current_path, "/admin")}
+            class={BaladosSyncWeb.Helpers.LayoutHelpers.nav_link_class(current_path, "/admin")}
           >
             <%= gettext("nav.admin") %>
           </.link>

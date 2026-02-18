@@ -1,9 +1,13 @@
-defmodule BaladosSyncWeb.LayoutHelpers do
+defmodule BaladosSyncWeb.Helpers.LayoutHelpers do
   @moduledoc """
   Helper functions for shared layout templates.
 
   Provides conn/socket-agnostic access to request path and query params,
   so layouts work in both regular controller views and LiveView contexts.
+
+  Note: `current_path/1` uses `socket.private.live_path` which is an internal
+  Phoenix LiveView detail. If this breaks in a future Phoenix upgrade, consider
+  storing the path in socket assigns during `handle_params/3` instead.
   """
 
   @doc """

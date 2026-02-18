@@ -406,8 +406,9 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       {:ok, _view, html} = live(conn, ~p"/subscriptions")
 
       # Navigation links should be present in the layout
-      assert html =~ "/subscriptions"
-      assert html =~ "/trending/podcasts"
+      # Phoenix renders .link navigate= as <a href="..." data-phx-link="redirect">
+      assert html =~ ~s(href="/subscriptions")
+      assert html =~ ~s(href="/trending/podcasts")
     end
   end
 
