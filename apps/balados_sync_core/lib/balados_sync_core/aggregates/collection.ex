@@ -88,16 +88,24 @@ defmodule BaladosSyncCore.Aggregates.Collection do
   def execute(%__MODULE__{} = state, %RemoveFeedFromCollection{} = cmd) do
     collections = state.collections || %{}
 
-    if Map.has_key?(collections, cmd.collection_id) do
-      %FeedRemovedFromCollection{
-        user_id: cmd.user_id,
-        collection_id: cmd.collection_id,
-        rss_source_feed: cmd.rss_source_feed,
-        timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-        event_infos: cmd.event_infos || %{}
-      }
-    else
-      {:error, :collection_not_found}
+    case Map.get(collections, cmd.collection_id) do
+      nil ->
+        {:error, :collection_not_found}
+
+      collection ->
+        feed_ids = collection.feed_ids || []
+
+        if cmd.rss_source_feed in feed_ids do
+          %FeedRemovedFromCollection{
+            user_id: cmd.user_id,
+            collection_id: cmd.collection_id,
+            rss_source_feed: cmd.rss_source_feed,
+            timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
+            event_infos: cmd.event_infos || %{}
+          }
+        else
+          {:error, :feed_not_in_collection}
+        end
     end
   end
 
@@ -242,7 +250,11 @@ defmodule BaladosSyncCore.Aggregates.Collection do
       is_public: event.is_public || false
     }
 
-    %{state | user_id: event.user_id, collections: Map.put(collections, event.collection_id, new_collection)}
+    %{
+      state
+      | user_id: event.user_id,
+        collections: Map.put(collections, event.collection_id, new_collection)
+    }
   end
 
   def apply(%__MODULE__{} = state, %FeedAddedToCollection{} = event) do
@@ -289,9 +301,21 @@ defmodule BaladosSyncCore.Aggregates.Collection do
 
       collection ->
         updated_collection = collection
-        updated_collection = if not is_nil(event.title), do: %{updated_collection | title: event.title}, else: updated_collection
-        updated_collection = if not is_nil(event.description), do: %{updated_collection | description: event.description}, else: updated_collection
-        updated_collection = if not is_nil(event.color), do: %{updated_collection | color: event.color}, else: updated_collection
+
+        updated_collection =
+          if not is_nil(event.title),
+            do: %{updated_collection | title: event.title},
+            else: updated_collection
+
+        updated_collection =
+          if not is_nil(event.description),
+            do: %{updated_collection | description: event.description},
+            else: updated_collection
+
+        updated_collection =
+          if not is_nil(event.color),
+            do: %{updated_collection | color: event.color},
+            else: updated_collection
 
         %{state | collections: Map.put(collections, event.collection_id, updated_collection)}
     end
