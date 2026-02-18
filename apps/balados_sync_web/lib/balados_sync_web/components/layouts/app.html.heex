@@ -63,6 +63,17 @@
           <%= gettext("nav.subscriptions") %>
         </.link>
         <.link
+          navigate={~p"/listening-history"}
+          class={
+            BaladosSyncWeb.Helpers.LayoutHelpers.nav_link_class(
+              current_path,
+              "/listening-history"
+            )
+          }
+        >
+          <%= gettext("nav.listening_history") %>
+        </.link>
+        <.link
           navigate={~p"/privacy-manager"}
           class={
             BaladosSyncWeb.Helpers.LayoutHelpers.nav_link_class(current_path, "/privacy-manager")
