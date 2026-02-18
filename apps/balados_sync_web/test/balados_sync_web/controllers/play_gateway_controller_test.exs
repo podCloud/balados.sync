@@ -32,7 +32,8 @@ defmodule BaladosSyncWeb.PlayGatewayControllerTest do
       conn = get(conn, "/play/invalid-token-value/#{feed_id}/#{item_id}")
 
       response = json_response(conn, 401)
-      assert response["error"] == "Invalid or revoked token"
+      assert response["error"] == "UNAUTHORIZED"
+      assert response["message"] == "Invalid or revoked token"
     end
 
     test "returns 401 with revoked token", %{
@@ -50,7 +51,8 @@ defmodule BaladosSyncWeb.PlayGatewayControllerTest do
       conn = get(conn, "/play/#{token}/#{feed_id}/#{item_id}")
 
       response = json_response(conn, 401)
-      assert response["error"] == "Invalid or revoked token"
+      assert response["error"] == "UNAUTHORIZED"
+      assert response["message"] == "Invalid or revoked token"
     end
   end
 
@@ -59,14 +61,16 @@ defmodule BaladosSyncWeb.PlayGatewayControllerTest do
       conn = get(conn, "/play/#{token}/!!!invalid!!!/#{item_id}")
 
       response = json_response(conn, 400)
-      assert response["error"] == "Invalid ID encoding"
+      assert response["error"] == "BAD_REQUEST"
+      assert response["message"] == "Invalid ID encoding"
     end
 
     test "returns 400 with invalid item base64", %{conn: conn, token: token, feed_id: feed_id} do
       conn = get(conn, "/play/#{token}/#{feed_id}/!!!invalid!!!")
 
       response = json_response(conn, 400)
-      assert response["error"] == "Invalid ID encoding"
+      assert response["error"] == "BAD_REQUEST"
+      assert response["message"] == "Invalid ID encoding"
     end
   end
 

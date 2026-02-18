@@ -255,15 +255,32 @@ defmodule BaladosSyncWeb.PlaylistsControllerTest do
     test "updates playlist and redirects to show on success", %{conn: conn, user: user} do
       conn = log_in_user(conn, user)
 
-      # Create a playlist directly in DB
-      playlist = insert_playlist(user.id, "Original Name", "Original description")
+      playlist_id = Ecto.UUID.generate()
+
+      # Create playlist through CQRS (so aggregate knows about it for UpdatePlaylist)
+      :ok =
+        BaladosSyncCore.Dispatcher.dispatch(%BaladosSyncCore.Commands.CreatePlaylist{
+          user_id: user.id,
+          name: "Original Name",
+          playlist_id: playlist_id,
+          description: "Original description",
+          event_infos: %{}
+        })
+
+      # Also insert into projection DB (projector doesn't run in test env)
+      ProjectionsRepo.insert!(%Playlist{
+        id: playlist_id,
+        user_id: user.id,
+        name: "Original Name",
+        description: "Original description"
+      })
 
       conn =
-        put(conn, ~p"/playlists/#{playlist.id}", %{
+        put(conn, ~p"/playlists/#{playlist_id}", %{
           "playlist" => %{"name" => "Updated Name", "description" => "Updated description"}
         })
 
-      assert redirected_to(conn) == ~p"/playlists/#{playlist.id}"
+      assert redirected_to(conn) == ~p"/playlists/#{playlist_id}"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Playlist updated successfully."
     end
 
