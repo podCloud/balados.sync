@@ -1,15 +1,5 @@
-<%!-- Helpers to get current path and params from conn or socket --%>
-<% current_path =
-  case assigns do
-    %{conn: %{request_path: path}} -> path
-    %{socket: %{private: %{live_path: path}}} -> path
-    _ -> "/"
-  end %>
-<% current_params =
-  case assigns do
-    %{conn: %{query_params: params}} -> params || %{}
-    _ -> %{}
-  end %>
+<% current_path = BaladosSyncWeb.Helpers.LayoutHelpers.current_path(assigns) %>
+<% current_params = BaladosSyncWeb.Helpers.LayoutHelpers.current_params(assigns) %>
 <header class="px-4 sm:px-6 lg:px-8">
   <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
     <div class="flex items-center gap-4">
@@ -50,11 +40,7 @@
       </nav>
       <.link
         navigate={~p"/trending/podcasts"}
-        class={
-          if String.starts_with?(current_path, "/trending"),
-            do: "text-blue-600 border-b-2 border-blue-600",
-            else: "hover:text-zinc-700"
-        }
+        class={BaladosSyncWeb.Helpers.LayoutHelpers.nav_link_class(current_path, "/trending")}
       >
         <%= gettext("nav.discover") %>
       </.link>
@@ -64,20 +50,14 @@
         </span>
         <.link
           navigate={~p"/dashboard"}
-          class={
-            if String.starts_with?(current_path, "/dashboard"),
-              do: "text-blue-600 border-b-2 border-blue-600",
-              else: "hover:text-zinc-700"
-          }
+          class={BaladosSyncWeb.Helpers.LayoutHelpers.nav_link_class(current_path, "/dashboard")}
         >
           <%= gettext("nav.dashboard") %>
         </.link>
         <.link
           navigate={~p"/subscriptions"}
           class={
-            if String.starts_with?(current_path, "/subscriptions"),
-              do: "text-blue-600 border-b-2 border-blue-600",
-              else: "hover:text-zinc-700"
+            BaladosSyncWeb.Helpers.LayoutHelpers.nav_link_class(current_path, "/subscriptions")
           }
         >
           <%= gettext("nav.subscriptions") %>
@@ -85,9 +65,7 @@
         <.link
           navigate={~p"/privacy-manager"}
           class={
-            if String.starts_with?(current_path, "/privacy-manager"),
-              do: "text-blue-600 border-b-2 border-blue-600",
-              else: "hover:text-zinc-700"
+            BaladosSyncWeb.Helpers.LayoutHelpers.nav_link_class(current_path, "/privacy-manager")
           }
         >
           <%= gettext("nav.privacy") %>
@@ -95,11 +73,7 @@
         <%= if BaladosSyncWeb.Accounts.admin?(@current_user) do %>
           <.link
             navigate={~p"/admin"}
-            class={
-              if String.starts_with?(current_path, "/admin"),
-                do: "text-blue-600 border-b-2 border-blue-600",
-                else: "hover:text-zinc-700"
-            }
+            class={BaladosSyncWeb.Helpers.LayoutHelpers.nav_link_class(current_path, "/admin")}
           >
             <%= gettext("nav.admin") %>
           </.link>
