@@ -35,7 +35,9 @@ defmodule BaladosSyncProjections.Schemas.EnrichedPodcastTest do
 
       # Valid slugs
       for slug <- ["abc", "my-podcast", "podcast-123", "a-b-c-d-e"] do
-        changeset = EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :slug, slug))
+        changeset =
+          EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :slug, slug))
+
         assert changeset.valid?, "Expected #{inspect(slug)} to be valid"
       end
 
@@ -44,11 +46,15 @@ defmodule BaladosSyncProjections.Schemas.EnrichedPodcastTest do
       refute changeset.valid?
 
       # Invalid slugs - uppercase
-      changeset = EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :slug, "MyPodcast"))
+      changeset =
+        EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :slug, "MyPodcast"))
+
       refute changeset.valid?
 
       # Invalid slugs - special chars
-      changeset = EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :slug, "my_podcast"))
+      changeset =
+        EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :slug, "my_podcast"))
+
       refute changeset.valid?
     end
 
@@ -73,13 +79,23 @@ defmodule BaladosSyncProjections.Schemas.EnrichedPodcastTest do
 
       # Valid colors
       for color <- ["#FF5733", "#ffffff", "#000000", "#AbCdEf"] do
-        changeset = EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :background_color, color))
+        changeset =
+          EnrichedPodcast.changeset(
+            %EnrichedPodcast{},
+            Map.put(base_attrs, :background_color, color)
+          )
+
         assert changeset.valid?, "Expected #{inspect(color)} to be valid"
       end
 
       # Invalid colors
       for color <- ["FF5733", "#FFF", "red", "#GGGGGG"] do
-        changeset = EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :background_color, color))
+        changeset =
+          EnrichedPodcast.changeset(
+            %EnrichedPodcast{},
+            Map.put(base_attrs, :background_color, color)
+          )
+
         refute changeset.valid?, "Expected #{inspect(color)} to be invalid"
       end
     end
@@ -95,28 +111,40 @@ defmodule BaladosSyncProjections.Schemas.EnrichedPodcastTest do
       valid_links = [
         %{"type" => "twitter", "url" => "https://twitter.com/podcast"}
       ]
-      changeset = EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :links, valid_links))
+
+      changeset =
+        EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :links, valid_links))
+
       assert changeset.valid?
 
       # Valid custom link
       valid_custom = [
         %{"type" => "custom", "title" => "Website", "url" => "https://example.com"}
       ]
-      changeset = EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :links, valid_custom))
+
+      changeset =
+        EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :links, valid_custom))
+
       assert changeset.valid?
 
       # Invalid - custom link without title
       invalid_custom = [
         %{"type" => "custom", "url" => "https://example.com"}
       ]
-      changeset = EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :links, invalid_custom))
+
+      changeset =
+        EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :links, invalid_custom))
+
       refute changeset.valid?
 
       # Invalid - unknown type
       invalid_type = [
         %{"type" => "unknown", "url" => "https://example.com"}
       ]
-      changeset = EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :links, invalid_type))
+
+      changeset =
+        EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :links, invalid_type))
+
       refute changeset.valid?
     end
 
@@ -128,17 +156,25 @@ defmodule BaladosSyncProjections.Schemas.EnrichedPodcastTest do
       }
 
       # 10 links - valid
-      links_10 = Enum.map(1..10, fn i ->
-        %{"type" => "twitter", "url" => "https://twitter.com/podcast#{i}"}
-      end)
-      changeset = EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :links, links_10))
+      links_10 =
+        Enum.map(1..10, fn i ->
+          %{"type" => "twitter", "url" => "https://twitter.com/podcast#{i}"}
+        end)
+
+      changeset =
+        EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :links, links_10))
+
       assert changeset.valid?
 
       # 11 links - invalid
-      links_11 = Enum.map(1..11, fn i ->
-        %{"type" => "twitter", "url" => "https://twitter.com/podcast#{i}"}
-      end)
-      changeset = EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :links, links_11))
+      links_11 =
+        Enum.map(1..11, fn i ->
+          %{"type" => "twitter", "url" => "https://twitter.com/podcast#{i}"}
+        end)
+
+      changeset =
+        EnrichedPodcast.changeset(%EnrichedPodcast{}, Map.put(base_attrs, :links, links_11))
+
       refute changeset.valid?
     end
   end

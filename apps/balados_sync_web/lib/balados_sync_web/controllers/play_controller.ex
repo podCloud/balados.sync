@@ -255,5 +255,4 @@ defmodule BaladosSyncWeb.PlayController do
       }
     })
   end
-
 end

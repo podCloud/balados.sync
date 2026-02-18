@@ -76,6 +76,10 @@ defmodule BaladosSyncJobs.OwnershipClaimCleanupWorker do
 
   @doc false
   defp get_retention_days do
-    Application.get_env(:balados_sync_jobs, :ownership_claim_retention_days, @default_retention_days)
+    Application.get_env(
+      :balados_sync_jobs,
+      :ownership_claim_retention_days,
+      @default_retention_days
+    )
   end
 end

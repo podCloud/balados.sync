@@ -6,6 +6,7 @@ defmodule BaladosSyncWeb.Opml.DataFetcher do
   import Ecto.Query
 
   alias BaladosSyncProjections.ProjectionsRepo
+
   alias BaladosSyncProjections.Schemas.{
     Subscription,
     PlayStatus,
@@ -14,6 +15,7 @@ defmodule BaladosSyncWeb.Opml.DataFetcher do
     Collection,
     UserPrivacy
   }
+
   alias BaladosSyncCore.RssCache
   alias BaladosSyncWeb.Opml
   alias BaladosSyncWeb.Opml.Document
@@ -120,6 +122,7 @@ defmodule BaladosSyncWeb.Opml.DataFetcher do
           [_feed, guid | _rest] when guid != "" -> guid
           _ -> generate_fallback_guid(play_status)
         end
+
       _ ->
         generate_fallback_guid(play_status)
     end
@@ -143,7 +146,9 @@ defmodule BaladosSyncWeb.Opml.DataFetcher do
       where: p.user_id == ^user_id,
       where: is_nil(p.deleted_at),
       order_by: [desc: p.updated_at],
-      preload: [items: ^from(i in PlaylistItem, where: is_nil(i.deleted_at), order_by: i.position)]
+      preload: [
+        items: ^from(i in PlaylistItem, where: is_nil(i.deleted_at), order_by: i.position)
+      ]
     )
     |> ProjectionsRepo.all()
     |> Enum.map(&convert_playlist/1)
@@ -178,6 +183,7 @@ defmodule BaladosSyncWeb.Opml.DataFetcher do
           [_feed, guid | _rest] when guid != "" -> guid
           _ -> generate_item_fallback_guid(item)
         end
+
       _ ->
         generate_item_fallback_guid(item)
     end
@@ -223,6 +229,7 @@ defmodule BaladosSyncWeb.Opml.DataFetcher do
   # ===== Helpers =====
 
   defp decode_feed_url(nil), do: nil
+
   defp decode_feed_url(encoded) do
     case Base.url_decode64(encoded, padding: false) do
       {:ok, url} -> url

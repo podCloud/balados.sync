@@ -14,8 +14,18 @@
     <.error :if={@error_message}>
       <%= @error_message %>
     </.error>
-    <.input field={f[:username]} type="text" label={gettext("auth.login.username_label")} required />
-    <.input field={f[:password]} type="password" label={gettext("auth.login.password_label")} required />
+    <.input
+      field={f[:username]}
+      type="text"
+      label={gettext("auth.login.username_label")}
+      required
+    />
+    <.input
+      field={f[:password]}
+      type="password"
+      label={gettext("auth.login.password_label")}
+      required
+    />
     <.input field={f[:remember_me]} type="checkbox" label={gettext("auth.login.remember_me")} />
 
     <:actions>

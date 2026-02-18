@@ -21,16 +21,17 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
 
   describe "subscription conflict resolution (Last-Write-Wins)" do
     test "imports new subscription when none exists", %{user_id: user_id} do
-      doc = build_document(
-        subscriptions: [
-          build_subscription(
-            feed_url: "https://example.com/feed1.xml",
-            title: "Test Podcast",
-            subscribed_at: ~U[2026-01-10 10:00:00Z],
-            privacy: "public"
-          )
-        ]
-      )
+      doc =
+        build_document(
+          subscriptions: [
+            build_subscription(
+              feed_url: "https://example.com/feed1.xml",
+              title: "Test Podcast",
+              subscribed_at: ~U[2026-01-10 10:00:00Z],
+              privacy: "public"
+            )
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc)
 
@@ -48,24 +49,26 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
       encoded_feed = Base.url_encode64(feed_url, padding: false)
       old_date = ~U[2026-01-01 10:00:00Z]
 
-      {:ok, _} = ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.Subscription{
-        user_id: user_id,
-        rss_source_feed: encoded_feed,
-        rss_source_id: "existing-feed",
-        subscribed_at: old_date
-      })
+      {:ok, _} =
+        ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.Subscription{
+          user_id: user_id,
+          rss_source_feed: encoded_feed,
+          rss_source_id: "existing-feed",
+          subscribed_at: old_date
+        })
 
       # Import newer subscription
-      doc = build_document(
-        subscriptions: [
-          build_subscription(
-            feed_url: feed_url,
-            title: "Updated Podcast",
-            subscribed_at: ~U[2026-01-10 10:00:00Z],
-            privacy: "private"
-          )
-        ]
-      )
+      doc =
+        build_document(
+          subscriptions: [
+            build_subscription(
+              feed_url: feed_url,
+              title: "Updated Podcast",
+              subscribed_at: ~U[2026-01-10 10:00:00Z],
+              privacy: "private"
+            )
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc)
 
@@ -79,24 +82,26 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
       encoded_feed = Base.url_encode64(feed_url, padding: false)
       recent_date = ~U[2026-01-10 10:00:00Z]
 
-      {:ok, _} = ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.Subscription{
-        user_id: user_id,
-        rss_source_feed: encoded_feed,
-        rss_source_id: "existing-feed",
-        subscribed_at: recent_date
-      })
+      {:ok, _} =
+        ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.Subscription{
+          user_id: user_id,
+          rss_source_feed: encoded_feed,
+          rss_source_id: "existing-feed",
+          subscribed_at: recent_date
+        })
 
       # Import older subscription
-      doc = build_document(
-        subscriptions: [
-          build_subscription(
-            feed_url: feed_url,
-            title: "Old Podcast",
-            subscribed_at: ~U[2026-01-01 10:00:00Z],
-            privacy: "public"
-          )
-        ]
-      )
+      doc =
+        build_document(
+          subscriptions: [
+            build_subscription(
+              feed_url: feed_url,
+              title: "Old Podcast",
+              subscribed_at: ~U[2026-01-01 10:00:00Z],
+              privacy: "public"
+            )
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc)
 
@@ -106,11 +111,12 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
     end
 
     test "skips subscription with nil feed_url", %{user_id: user_id} do
-      doc = build_document(
-        subscriptions: [
-          build_subscription(feed_url: nil, title: "No URL Podcast")
-        ]
-      )
+      doc =
+        build_document(
+          subscriptions: [
+            build_subscription(feed_url: nil, title: "No URL Podcast")
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc)
 
@@ -122,22 +128,23 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
     test "imports new play status when none exists", %{user_id: user_id} do
       feed_url = "https://example.com/feed.xml"
 
-      doc = build_document(
-        subscriptions: [
-          build_subscription(
-            feed_url: feed_url,
-            title: "Test Podcast",
-            play_statuses: [
-              build_play_status(
-                guid: "episode-1",
-                position: 300,
-                played: false,
-                updated_at: ~U[2026-01-10 10:00:00Z]
-              )
-            ]
-          )
-        ]
-      )
+      doc =
+        build_document(
+          subscriptions: [
+            build_subscription(
+              feed_url: feed_url,
+              title: "Test Podcast",
+              play_statuses: [
+                build_play_status(
+                  guid: "episode-1",
+                  position: 300,
+                  played: false,
+                  updated_at: ~U[2026-01-10 10:00:00Z]
+                )
+              ]
+            )
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc)
 
@@ -145,7 +152,13 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
 
       # Verify play status was created
       encoded_item = encode_item(feed_url, "episode-1")
-      ps = ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.PlayStatus, user_id: user_id, rss_source_item: encoded_item)
+
+      ps =
+        ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.PlayStatus,
+          user_id: user_id,
+          rss_source_item: encoded_item
+        )
+
       assert ps != nil
       assert ps.position == 300
       assert ps.played == false
@@ -157,39 +170,46 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
       encoded_item = encode_item(feed_url, "episode-1")
 
       # Create existing play status with lower position
-      {:ok, _} = ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.PlayStatus{
-        user_id: user_id,
-        rss_source_feed: encoded_feed,
-        rss_source_item: encoded_item,
-        position: 100,
-        played: false,
-        updated_at: ~U[2026-01-01 10:00:00Z]
-      })
+      {:ok, _} =
+        ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.PlayStatus{
+          user_id: user_id,
+          rss_source_feed: encoded_feed,
+          rss_source_item: encoded_item,
+          position: 100,
+          played: false,
+          updated_at: ~U[2026-01-01 10:00:00Z]
+        })
 
       # Import with higher position
-      doc = build_document(
-        subscriptions: [
-          build_subscription(
-            feed_url: feed_url,
-            title: "Test Podcast",
-            play_statuses: [
-              build_play_status(
-                guid: "episode-1",
-                position: 500,
-                played: false,
-                updated_at: ~U[2026-01-05 10:00:00Z]
-              )
-            ]
-          )
-        ]
-      )
+      doc =
+        build_document(
+          subscriptions: [
+            build_subscription(
+              feed_url: feed_url,
+              title: "Test Podcast",
+              play_statuses: [
+                build_play_status(
+                  guid: "episode-1",
+                  position: 500,
+                  played: false,
+                  updated_at: ~U[2026-01-05 10:00:00Z]
+                )
+              ]
+            )
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc)
 
       assert stats.play_statuses.merged == 1
 
       # Verify position was updated to max
-      ps = ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.PlayStatus, user_id: user_id, rss_source_item: encoded_item)
+      ps =
+        ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.PlayStatus,
+          user_id: user_id,
+          rss_source_item: encoded_item
+        )
+
       assert ps.position == 500
     end
 
@@ -199,39 +219,46 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
       encoded_item = encode_item(feed_url, "episode-1")
 
       # Create existing play status
-      {:ok, _} = ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.PlayStatus{
-        user_id: user_id,
-        rss_source_feed: encoded_feed,
-        rss_source_item: encoded_item,
-        position: 300,
-        played: false,
-        updated_at: ~U[2026-01-01 10:00:00Z]
-      })
+      {:ok, _} =
+        ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.PlayStatus{
+          user_id: user_id,
+          rss_source_feed: encoded_feed,
+          rss_source_item: encoded_item,
+          position: 300,
+          played: false,
+          updated_at: ~U[2026-01-01 10:00:00Z]
+        })
 
       # Import with same position but newer date
-      doc = build_document(
-        subscriptions: [
-          build_subscription(
-            feed_url: feed_url,
-            title: "Test Podcast",
-            play_statuses: [
-              build_play_status(
-                guid: "episode-1",
-                position: 300,
-                played: true,
-                updated_at: ~U[2026-01-10 10:00:00Z]
-              )
-            ]
-          )
-        ]
-      )
+      doc =
+        build_document(
+          subscriptions: [
+            build_subscription(
+              feed_url: feed_url,
+              title: "Test Podcast",
+              play_statuses: [
+                build_play_status(
+                  guid: "episode-1",
+                  position: 300,
+                  played: true,
+                  updated_at: ~U[2026-01-10 10:00:00Z]
+                )
+              ]
+            )
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc)
 
       assert stats.play_statuses.merged == 1
 
       # Verify played was updated (played is OR'd)
-      ps = ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.PlayStatus, user_id: user_id, rss_source_item: encoded_item)
+      ps =
+        ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.PlayStatus,
+          user_id: user_id,
+          rss_source_item: encoded_item
+        )
+
       assert ps.played == true
     end
 
@@ -241,39 +268,46 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
       encoded_item = encode_item(feed_url, "episode-1")
 
       # Create existing play status with higher position
-      {:ok, _} = ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.PlayStatus{
-        user_id: user_id,
-        rss_source_feed: encoded_feed,
-        rss_source_item: encoded_item,
-        position: 800,
-        played: false,
-        updated_at: ~U[2026-01-01 10:00:00Z]
-      })
+      {:ok, _} =
+        ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.PlayStatus{
+          user_id: user_id,
+          rss_source_feed: encoded_feed,
+          rss_source_item: encoded_item,
+          position: 800,
+          played: false,
+          updated_at: ~U[2026-01-01 10:00:00Z]
+        })
 
       # Import with lower position but newer date (should take max position)
-      doc = build_document(
-        subscriptions: [
-          build_subscription(
-            feed_url: feed_url,
-            title: "Test Podcast",
-            play_statuses: [
-              build_play_status(
-                guid: "episode-1",
-                position: 300,
-                played: false,
-                updated_at: ~U[2026-01-10 10:00:00Z]
-              )
-            ]
-          )
-        ]
-      )
+      doc =
+        build_document(
+          subscriptions: [
+            build_subscription(
+              feed_url: feed_url,
+              title: "Test Podcast",
+              play_statuses: [
+                build_play_status(
+                  guid: "episode-1",
+                  position: 300,
+                  played: false,
+                  updated_at: ~U[2026-01-10 10:00:00Z]
+                )
+              ]
+            )
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc)
 
       assert stats.play_statuses.merged == 1
 
       # Verify position kept max value (800)
-      ps = ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.PlayStatus, user_id: user_id, rss_source_item: encoded_item)
+      ps =
+        ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.PlayStatus,
+          user_id: user_id,
+          rss_source_item: encoded_item
+        )
+
       assert ps.position == 800
     end
 
@@ -283,36 +317,43 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
       encoded_item = encode_item(feed_url, "episode-1")
 
       # Create existing play status with played=true
-      {:ok, _} = ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.PlayStatus{
-        user_id: user_id,
-        rss_source_feed: encoded_feed,
-        rss_source_item: encoded_item,
-        position: 100,
-        played: true,
-        updated_at: ~U[2026-01-01 10:00:00Z]
-      })
+      {:ok, _} =
+        ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.PlayStatus{
+          user_id: user_id,
+          rss_source_feed: encoded_feed,
+          rss_source_item: encoded_item,
+          position: 100,
+          played: true,
+          updated_at: ~U[2026-01-01 10:00:00Z]
+        })
 
       # Import with played=false but higher position (should keep played=true)
-      doc = build_document(
-        subscriptions: [
-          build_subscription(
-            feed_url: feed_url,
-            title: "Test Podcast",
-            play_statuses: [
-              build_play_status(
-                guid: "episode-1",
-                position: 500,
-                played: false,
-                updated_at: ~U[2026-01-10 10:00:00Z]
-              )
-            ]
-          )
-        ]
-      )
+      doc =
+        build_document(
+          subscriptions: [
+            build_subscription(
+              feed_url: feed_url,
+              title: "Test Podcast",
+              play_statuses: [
+                build_play_status(
+                  guid: "episode-1",
+                  position: 500,
+                  played: false,
+                  updated_at: ~U[2026-01-10 10:00:00Z]
+                )
+              ]
+            )
+          ]
+        )
 
       {:ok, _stats} = DataImporter.import(user_id, doc)
 
-      ps = ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.PlayStatus, user_id: user_id, rss_source_item: encoded_item)
+      ps =
+        ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.PlayStatus,
+          user_id: user_id,
+          rss_source_item: encoded_item
+        )
+
       assert ps.played == true
     end
 
@@ -322,39 +363,46 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
       encoded_item = encode_item(feed_url, "episode-1")
 
       # Create existing play status with higher position and newer date
-      {:ok, _} = ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.PlayStatus{
-        user_id: user_id,
-        rss_source_feed: encoded_feed,
-        rss_source_item: encoded_item,
-        position: 800,
-        played: true,
-        updated_at: ~U[2026-01-10 10:00:00Z]
-      })
+      {:ok, _} =
+        ProjectionsRepo.insert(%BaladosSyncProjections.Schemas.PlayStatus{
+          user_id: user_id,
+          rss_source_feed: encoded_feed,
+          rss_source_item: encoded_item,
+          position: 800,
+          played: true,
+          updated_at: ~U[2026-01-10 10:00:00Z]
+        })
 
       # Import with lower position and older date
-      doc = build_document(
-        subscriptions: [
-          build_subscription(
-            feed_url: feed_url,
-            title: "Test Podcast",
-            play_statuses: [
-              build_play_status(
-                guid: "episode-1",
-                position: 100,
-                played: false,
-                updated_at: ~U[2026-01-01 10:00:00Z]
-              )
-            ]
-          )
-        ]
-      )
+      doc =
+        build_document(
+          subscriptions: [
+            build_subscription(
+              feed_url: feed_url,
+              title: "Test Podcast",
+              play_statuses: [
+                build_play_status(
+                  guid: "episode-1",
+                  position: 100,
+                  played: false,
+                  updated_at: ~U[2026-01-01 10:00:00Z]
+                )
+              ]
+            )
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc)
 
       assert stats.play_statuses.skipped == 1
 
       # Verify nothing changed
-      ps = ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.PlayStatus, user_id: user_id, rss_source_item: encoded_item)
+      ps =
+        ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.PlayStatus,
+          user_id: user_id,
+          rss_source_item: encoded_item
+        )
+
       assert ps.position == 800
       assert ps.played == true
     end
@@ -362,29 +410,30 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
 
   describe "dry run mode" do
     test "counts items without importing", %{user_id: user_id} do
-      doc = build_document(
-        subscriptions: [
-          build_subscription(
-            feed_url: "https://example.com/feed1.xml",
-            play_statuses: [
-              build_play_status(guid: "ep1"),
-              build_play_status(guid: "ep2")
-            ]
-          ),
-          build_subscription(
-            feed_url: "https://example.com/feed2.xml",
-            play_statuses: [
-              build_play_status(guid: "ep3")
-            ]
-          )
-        ],
-        playlists: [
-          build_playlist(name: "Favorites")
-        ],
-        collections: [
-          build_collection(title: "Tech Podcasts")
-        ]
-      )
+      doc =
+        build_document(
+          subscriptions: [
+            build_subscription(
+              feed_url: "https://example.com/feed1.xml",
+              play_statuses: [
+                build_play_status(guid: "ep1"),
+                build_play_status(guid: "ep2")
+              ]
+            ),
+            build_subscription(
+              feed_url: "https://example.com/feed2.xml",
+              play_statuses: [
+                build_play_status(guid: "ep3")
+              ]
+            )
+          ],
+          playlists: [
+            build_playlist(name: "Favorites")
+          ],
+          collections: [
+            build_collection(title: "Tech Podcasts")
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc, dry_run: true)
 
@@ -395,91 +444,117 @@ defmodule BaladosSyncWeb.Opml.DataImporterTest do
 
       # Verify nothing was actually created
       encoded_feed = Base.url_encode64("https://example.com/feed1.xml", padding: false)
-      sub = ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.Subscription, user_id: user_id, rss_source_feed: encoded_feed)
+
+      sub =
+        ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.Subscription,
+          user_id: user_id,
+          rss_source_feed: encoded_feed
+        )
+
       assert sub == nil
     end
   end
 
   describe "playlist import" do
     test "imports new playlist", %{user_id: user_id} do
-      doc = build_document(
-        playlists: [
-          build_playlist(
-            name: "My Favorites",
-            description: "Best episodes",
-            type: "playlist",
-            is_public: true
-          )
-        ]
-      )
+      doc =
+        build_document(
+          playlists: [
+            build_playlist(
+              name: "My Favorites",
+              description: "Best episodes",
+              type: "playlist",
+              is_public: true
+            )
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc)
 
       assert stats.playlists.imported == 1
 
-      playlist = ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.Playlist, user_id: user_id, name: "My Favorites")
+      playlist =
+        ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.Playlist,
+          user_id: user_id,
+          name: "My Favorites"
+        )
+
       assert playlist != nil
       assert playlist.description == "Best episodes"
       assert playlist.is_public == true
     end
 
     test "imports playlist with items", %{user_id: user_id} do
-      doc = build_document(
-        playlists: [
-          build_playlist(
-            name: "Queue",
-            type: "queue",
-            items: [
-              build_playlist_item(
-                feed_url: "https://example.com/feed.xml",
-                guid: "episode-1",
-                position: 0
-              ),
-              build_playlist_item(
-                feed_url: "https://example.com/feed.xml",
-                guid: "episode-2",
-                position: 1
-              )
-            ]
-          )
-        ]
-      )
+      doc =
+        build_document(
+          playlists: [
+            build_playlist(
+              name: "Queue",
+              type: "queue",
+              items: [
+                build_playlist_item(
+                  feed_url: "https://example.com/feed.xml",
+                  guid: "episode-1",
+                  position: 0
+                ),
+                build_playlist_item(
+                  feed_url: "https://example.com/feed.xml",
+                  guid: "episode-2",
+                  position: 1
+                )
+              ]
+            )
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc)
 
       assert stats.playlists.imported == 1
 
-      playlist = ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.Playlist, user_id: user_id, name: "Queue")
+      playlist =
+        ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.Playlist,
+          user_id: user_id,
+          name: "Queue"
+        )
+
       assert playlist != nil
 
-      items = ProjectionsRepo.all(
-        from(pi in BaladosSyncProjections.Schemas.PlaylistItem,
-          where: pi.playlist_id == ^playlist.id,
-          order_by: pi.position
+      items =
+        ProjectionsRepo.all(
+          from(pi in BaladosSyncProjections.Schemas.PlaylistItem,
+            where: pi.playlist_id == ^playlist.id,
+            order_by: pi.position
+          )
         )
-      )
+
       assert length(items) == 2
     end
   end
 
   describe "collection import" do
     test "imports new collection", %{user_id: user_id} do
-      doc = build_document(
-        collections: [
-          build_collection(
-            title: "Tech Podcasts",
-            description: "All tech related",
-            is_public: false,
-            color: "#FF5733"
-          )
-        ]
-      )
+      doc =
+        build_document(
+          collections: [
+            build_collection(
+              title: "Tech Podcasts",
+              description: "All tech related",
+              is_public: false,
+              color: "#FF5733"
+            )
+          ]
+        )
 
       {:ok, stats} = DataImporter.import(user_id, doc)
 
       assert stats.collections.imported == 1
 
-      collection = ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.Collection, user_id: user_id, title: "Tech Podcasts")
+      collection =
+        ProjectionsRepo.get_by(BaladosSyncProjections.Schemas.Collection,
+          user_id: user_id,
+          title: "Tech Podcasts"
+        )
+
       assert collection != nil
       assert collection.description == "All tech related"
       assert collection.color == "#FF5733"

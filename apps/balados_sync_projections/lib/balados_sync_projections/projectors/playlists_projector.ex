@@ -133,10 +133,14 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjector do
       action: :playlist_updated,
       user_id: event.user_id,
       playlist_id: event.playlist,
-      updated_fields: Enum.filter([
-        if(event.name, do: :name),
-        if(event.description, do: :description)
-      ], & &1)
+      updated_fields:
+        Enum.filter(
+          [
+            if(event.name, do: :name),
+            if(event.description, do: :description)
+          ],
+          & &1
+        )
     )
 
     updates = []

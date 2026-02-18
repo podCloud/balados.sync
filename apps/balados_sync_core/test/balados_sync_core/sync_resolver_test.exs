@@ -9,6 +9,7 @@ defmodule BaladosSyncCore.SyncResolverTest do
         subscribed_at: ~U[2024-01-20 10:00:00Z],
         unsubscribed_at: nil
       }
+
       remote = %{
         subscribed_at: ~U[2024-01-19 10:00:00Z],
         unsubscribed_at: nil
@@ -26,6 +27,7 @@ defmodule BaladosSyncCore.SyncResolverTest do
         subscribed_at: ~U[2024-01-19 10:00:00Z],
         unsubscribed_at: nil
       }
+
       remote = %{
         subscribed_at: ~U[2024-01-20 10:00:00Z],
         unsubscribed_at: nil
@@ -42,6 +44,7 @@ defmodule BaladosSyncCore.SyncResolverTest do
         subscribed_at: ~U[2024-01-18 10:00:00Z],
         unsubscribed_at: ~U[2024-01-20 10:00:00Z]
       }
+
       remote = %{
         subscribed_at: ~U[2024-01-19 10:00:00Z],
         unsubscribed_at: nil
@@ -57,6 +60,7 @@ defmodule BaladosSyncCore.SyncResolverTest do
         subscribed_at: ~U[2024-01-20 10:00:00Z],
         unsubscribed_at: nil
       }
+
       remote = %{
         subscribed_at: nil,
         unsubscribed_at: ~U[2024-01-20 10:00:00Z]
@@ -166,10 +170,11 @@ defmodule BaladosSyncCore.SyncResolverTest do
       assert winner.is_public == true
 
       # Items merged: item1 (base), item2 (local), item3 (remote)
-      item_keys = Enum.map(winner.items, fn item ->
-        {item[:rss_source_feed] || item["rss_source_feed"],
-         item[:rss_source_item] || item["rss_source_item"]}
-      end)
+      item_keys =
+        Enum.map(winner.items, fn item ->
+          {item[:rss_source_feed] || item["rss_source_feed"],
+           item[:rss_source_item] || item["rss_source_item"]}
+        end)
 
       assert {"feed1", "item1"} in item_keys
       assert {"feed1", "item2"} in item_keys

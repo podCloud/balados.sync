@@ -113,7 +113,9 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
       assert decoded["error"]["code"] == "MISSING_FIELDS"
     end
 
-    test "accepts record_play with missing position (defaults to 0)", %{authenticated_state: state} do
+    test "accepts record_play with missing position (defaults to 0)", %{
+      authenticated_state: state
+    } do
       json =
         Jason.encode!(%{
           "type" => "record_play",
@@ -130,7 +132,9 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandlerTest do
       assert decoded["data"]["position"] == 0
     end
 
-    test "accepts record_play with missing played (defaults to false)", %{authenticated_state: state} do
+    test "accepts record_play with missing played (defaults to false)", %{
+      authenticated_state: state
+    } do
       json =
         Jason.encode!(%{
           "type" => "record_play",

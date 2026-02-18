@@ -47,7 +47,14 @@ defmodule BaladosSyncProjections.Schemas.EnrichedPodcast do
   """
   def changeset(enriched_podcast, attrs) do
     enriched_podcast
-    |> cast(attrs, [:feed_url, :slug, :background_color, :links, :created_by_user_id, :admin_user_ids])
+    |> cast(attrs, [
+      :feed_url,
+      :slug,
+      :background_color,
+      :links,
+      :created_by_user_id,
+      :admin_user_ids
+    ])
     |> validate_required([:feed_url, :slug, :created_by_user_id])
     |> validate_slug()
     |> validate_background_color()
@@ -132,6 +139,9 @@ defmodule BaladosSyncProjections.Schemas.EnrichedPodcast do
 
   # Block localhost, loopback, and common private IP ranges
   defp localhost_or_private?(host) do
-    String.match?(host, ~r/^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|0\.0\.0\.0|::1|\[::1\])/i)
+    String.match?(
+      host,
+      ~r/^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|0\.0\.0\.0|::1|\[::1\])/i
+    )
   end
 end

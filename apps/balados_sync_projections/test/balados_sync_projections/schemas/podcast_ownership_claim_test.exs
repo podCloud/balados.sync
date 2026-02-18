@@ -35,7 +35,8 @@ defmodule BaladosSyncProjections.Schemas.PodcastOwnershipClaimTest do
 
   describe "create_changeset/3" do
     test "creates valid changeset with required fields" do
-      changeset = PodcastOwnershipClaim.create_changeset("user-123", "https://example.com/feed.xml")
+      changeset =
+        PodcastOwnershipClaim.create_changeset("user-123", "https://example.com/feed.xml")
 
       assert changeset.valid?
       assert Ecto.Changeset.get_field(changeset, :user_id) == "user-123"
@@ -45,14 +46,18 @@ defmodule BaladosSyncProjections.Schemas.PodcastOwnershipClaimTest do
     end
 
     test "generates verification code automatically" do
-      changeset = PodcastOwnershipClaim.create_changeset("user-123", "https://example.com/feed.xml")
+      changeset =
+        PodcastOwnershipClaim.create_changeset("user-123", "https://example.com/feed.xml")
+
       code = Ecto.Changeset.get_field(changeset, :verification_code)
 
       assert String.starts_with?(code, "balados-verify-")
     end
 
     test "sets expiration to 48 hours by default" do
-      changeset = PodcastOwnershipClaim.create_changeset("user-123", "https://example.com/feed.xml")
+      changeset =
+        PodcastOwnershipClaim.create_changeset("user-123", "https://example.com/feed.xml")
+
       expires_at = Ecto.Changeset.get_field(changeset, :expires_at)
 
       expected_expires = DateTime.utc_now() |> DateTime.add(48 * 3600, :second)

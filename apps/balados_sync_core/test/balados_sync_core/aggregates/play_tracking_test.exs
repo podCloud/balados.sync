@@ -216,7 +216,12 @@ defmodule BaladosSyncCore.Aggregates.PlayTrackingTest do
       state = %PlayTracking{user_id: nil, play_statuses: nil}
 
       statuses = %{
-        "item-1" => %{position: 60, played: true, updated_at: DateTime.utc_now(), rss_source_feed: "feed-1"}
+        "item-1" => %{
+          position: 60,
+          played: true,
+          updated_at: DateTime.utc_now(),
+          rss_source_feed: "feed-1"
+        }
       }
 
       event = %PlayTrackingCheckpoint{

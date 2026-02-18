@@ -49,11 +49,12 @@
       <p class="text-sm text-zinc-600 mb-6">
         <%= gettext("ownership.choose_method") %>
       </p>
-
       <!-- Method 1: RSS Verification -->
       <div class="bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8 mb-6">
         <h2 class="text-lg font-semibold text-zinc-900 mb-4">
-          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-200 text-sm font-bold mr-2">1</span>
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-200 text-sm font-bold mr-2">
+            1
+          </span>
           <%= gettext("ownership.rss_verification") %>
         </h2>
 
@@ -66,7 +67,12 @@
         </p>
 
         <ul class="list-disc list-inside text-sm text-zinc-600 space-y-1 mb-4">
-          <li><%= gettext("ownership.rss_option_comment") %>: <code class="bg-zinc-100 px-1 rounded text-xs">&lt;!-- <%= @claim.verification_code %> --&gt;</code></li>
+          <li>
+            <%= gettext("ownership.rss_option_comment") %>:
+            <code class="bg-zinc-100 px-1 rounded text-xs">
+              &lt;!-- <%= @claim.verification_code %> --&gt;
+            </code>
+          </li>
           <li><%= gettext("ownership.rss_option_description") %></li>
           <li><%= gettext("ownership.rss_option_tag") %></li>
         </ul>
@@ -82,14 +88,18 @@
         </form>
 
         <p class="text-xs text-zinc-500 mt-2 text-center">
-          <%= gettext("ownership.expires") %>: <%= Calendar.strftime(@claim.expires_at, "%Y-%m-%d %H:%M UTC") %>
+          <%= gettext("ownership.expires") %>: <%= Calendar.strftime(
+            @claim.expires_at,
+            "%Y-%m-%d %H:%M UTC"
+          ) %>
         </p>
       </div>
-
       <!-- Method 2: Email Verification -->
       <div class="bg-white shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8 mb-6">
         <h2 class="text-lg font-semibold text-zinc-900 mb-4">
-          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-200 text-sm font-bold mr-2">2</span>
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-200 text-sm font-bold mr-2">
+            2
+          </span>
           <%= gettext("ownership.email_verification") %>
         </h2>
 
@@ -101,11 +111,18 @@
                 <%= gettext("ownership.code_sent_to") %>: <%= @email_verification.email %>
               </p>
               <p class="text-xs text-green-700">
-                <%= gettext("ownership.code_expires") %>: <%= Calendar.strftime(@email_verification.expires_at, "%Y-%m-%d %H:%M UTC") %>
+                <%= gettext("ownership.code_expires") %>: <%= Calendar.strftime(
+                  @email_verification.expires_at,
+                  "%Y-%m-%d %H:%M UTC"
+                ) %>
               </p>
             </div>
 
-            <form action={~p"/podcast-ownership/claims/#{@claim.id}/email-code"} method="post" class="mb-4">
+            <form
+              action={~p"/podcast-ownership/claims/#{@claim.id}/email-code"}
+              method="post"
+              class="mb-4"
+            >
               <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
               <label class="block text-sm font-medium text-zinc-700 mb-2">
                 <%= gettext("ownership.enter_code") %>
@@ -135,8 +152,16 @@
 
             <div class="text-center">
               <p class="text-sm text-zinc-600 mb-2"><%= gettext("ownership.didnt_receive") %></p>
-              <form action={~p"/podcast-ownership/claims/#{@claim.id}/email-verify"} method="post" class="inline">
-                <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+              <form
+                action={~p"/podcast-ownership/claims/#{@claim.id}/email-verify"}
+                method="post"
+                class="inline"
+              >
+                <input
+                  type="hidden"
+                  name="_csrf_token"
+                  value={Phoenix.Controller.get_csrf_token()}
+                />
                 <input type="hidden" name="email" value={@email_verification.email} />
                 <button type="submit" class="text-sm text-blue-600 hover:text-blue-700">
                   <%= gettext("ownership.resend_email") %>
@@ -151,8 +176,15 @@
 
             <div class="space-y-2 mb-4">
               <%= for email_info <- @available_emails do %>
-                <form action={~p"/podcast-ownership/claims/#{@claim.id}/email-verify"} method="post">
-                  <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+                <form
+                  action={~p"/podcast-ownership/claims/#{@claim.id}/email-verify"}
+                  method="post"
+                >
+                  <input
+                    type="hidden"
+                    name="_csrf_token"
+                    value={Phoenix.Controller.get_csrf_token()}
+                  />
                   <input type="hidden" name="email" value={email_info.email} />
                   <button
                     type="submit"
@@ -160,7 +192,9 @@
                   >
                     <span>
                       <span class="font-medium"><%= email_info.email %></span>
-                      <span class="text-xs text-zinc-500 ml-2"><%= gettext("ownership.from_source") %> &lt;<%= email_info.source %>&gt;</span>
+                      <span class="text-xs text-zinc-500 ml-2">
+                        <%= gettext("ownership.from_source") %> &lt;<%= email_info.source %>&gt;
+                      </span>
                     </span>
                     <span class="text-blue-600 text-sm group-hover:underline">
                       <%= gettext("ownership.send_code") %> &rarr;
@@ -176,17 +210,24 @@
               <%= gettext("ownership.no_emails_found") %>
             </p>
             <ul class="list-disc list-inside text-sm text-zinc-500 mt-2 space-y-1">
-              <li><code class="bg-zinc-100 px-1 rounded">&lt;itunes:owner&gt;&lt;itunes:email&gt;</code></li>
+              <li>
+                <code class="bg-zinc-100 px-1 rounded">
+                  &lt;itunes:owner&gt;&lt;itunes:email&gt;
+                </code>
+              </li>
               <li><code class="bg-zinc-100 px-1 rounded">&lt;managingEditor&gt;</code></li>
               <li><code class="bg-zinc-100 px-1 rounded">&lt;webMaster&gt;</code></li>
             </ul>
           </div>
         <% end %>
       </div>
-
       <!-- Cancel Link -->
       <div class="text-center">
-        <form action={~p"/podcast-ownership/claims/#{@claim.id}/cancel"} method="post" class="inline">
+        <form
+          action={~p"/podcast-ownership/claims/#{@claim.id}/cancel"}
+          method="post"
+          class="inline"
+        >
           <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
           <button
             type="submit"

@@ -529,7 +529,12 @@ defmodule BaladosSyncCore.Aggregates.CollectionTest do
       state = %Collection{
         user_id: "user-123",
         collections: %{
-          collection_id => %{title: "My Collection", is_default: false, feed_ids: [], is_public: false}
+          collection_id => %{
+            title: "My Collection",
+            is_default: false,
+            feed_ids: [],
+            is_public: false
+          }
         }
       }
 
@@ -552,7 +557,12 @@ defmodule BaladosSyncCore.Aggregates.CollectionTest do
       state = %Collection{
         user_id: "user-123",
         collections: %{
-          collection_id => %{title: "Public Collection", is_default: false, feed_ids: [], is_public: true}
+          collection_id => %{
+            title: "Public Collection",
+            is_default: false,
+            feed_ids: [],
+            is_public: true
+          }
         }
       }
 
@@ -591,7 +601,12 @@ defmodule BaladosSyncCore.Aggregates.CollectionTest do
       state = %Collection{
         user_id: "user-123",
         collections: %{
-          collection_id => %{title: "My Collection", is_default: false, feed_ids: [], is_public: false}
+          collection_id => %{
+            title: "My Collection",
+            is_default: false,
+            feed_ids: [],
+            is_public: false
+          }
         }
       }
 

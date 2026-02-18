@@ -7,7 +7,13 @@ defmodule BaladosSyncProjections.Projectors.SubscriptionsProjector do
   require Logger
   import Ecto.Query
 
-  alias BaladosSyncCore.Events.{UserSubscribed, UserUnsubscribed, UserCheckpoint, SubscriptionCheckpoint}
+  alias BaladosSyncCore.Events.{
+    UserSubscribed,
+    UserUnsubscribed,
+    UserCheckpoint,
+    SubscriptionCheckpoint
+  }
+
   alias BaladosSyncProjections.Schemas.Subscription
 
   project(%UserSubscribed{} = event, _metadata, fn multi ->

@@ -125,14 +125,15 @@ defmodule BaladosSyncWeb.Opml.Builder do
   end
 
   defp play_status_to_outline(ps) do
-    attrs = [
-      ~s(balados:type="playStatus"),
-      ~s(balados:guid="#{escape(ps.guid)}"),
-      ~s(balados:position="#{ps.position || 0}"),
-      ~s(balados:played="#{ps.played || false}"),
-      ~s(balados:updatedAt="#{format_rfc822(ps.updated_at)}")
-    ]
-    |> Enum.join(" ")
+    attrs =
+      [
+        ~s(balados:type="playStatus"),
+        ~s(balados:guid="#{escape(ps.guid)}"),
+        ~s(balados:position="#{ps.position || 0}"),
+        ~s(balados:played="#{ps.played || false}"),
+        ~s(balados:updatedAt="#{format_rfc822(ps.updated_at)}")
+      ]
+      |> Enum.join(" ")
 
     "        <outline #{attrs}/>"
   end
@@ -148,8 +149,11 @@ defmodule BaladosSyncWeb.Opml.Builder do
       |> Enum.join("\n")
 
     # Using concat to avoid heredoc parsing balados:type as Elixir keyword
-    "    <outline text=\"Playlists\" " <> "balados:type" <> "=\"playlists\">\n" <>
-      outlines <> "\n" <>
+    "    <outline text=\"Playlists\" " <>
+      "balados:type" <>
+      "=\"playlists\">\n" <>
+      outlines <>
+      "\n" <>
       "    </outline>\n"
   end
 
@@ -185,16 +189,17 @@ defmodule BaladosSyncWeb.Opml.Builder do
   end
 
   defp playlist_item_to_outline(item, position) do
-    attrs = [
-      ~s(balados:type="playlistItem"),
-      ~s(balados:feedUrl="#{escape(item.feed_url || "")}"),
-      ~s(balados:guid="#{escape(item.guid || "")}"),
-      ~s(balados:position="#{item.position || position}"),
-      optional_attr("balados:itemTitle", item.item_title),
-      optional_attr("balados:feedTitle", item.feed_title)
-    ]
-    |> Enum.reject(&is_nil/1)
-    |> Enum.join(" ")
+    attrs =
+      [
+        ~s(balados:type="playlistItem"),
+        ~s(balados:feedUrl="#{escape(item.feed_url || "")}"),
+        ~s(balados:guid="#{escape(item.guid || "")}"),
+        ~s(balados:position="#{item.position || position}"),
+        optional_attr("balados:itemTitle", item.item_title),
+        optional_attr("balados:feedTitle", item.feed_title)
+      ]
+      |> Enum.reject(&is_nil/1)
+      |> Enum.join(" ")
 
     "        <outline #{attrs}/>"
   end
@@ -210,8 +215,11 @@ defmodule BaladosSyncWeb.Opml.Builder do
       |> Enum.join("\n")
 
     # Using concat to avoid heredoc parsing balados:type as Elixir keyword
-    "    <outline text=\"Collections\" " <> "balados:type" <> "=\"collections\">\n" <>
-      outlines <> "\n" <>
+    "    <outline text=\"Collections\" " <>
+      "balados:type" <>
+      "=\"collections\">\n" <>
+      outlines <>
+      "\n" <>
       "    </outline>\n"
   end
 
@@ -260,18 +268,22 @@ defmodule BaladosSyncWeb.Opml.Builder do
   defp optional_attr(name, value), do: ~s(#{name}="#{escape(value)}")
 
   defp optional_attr(_name, nil, _formatter), do: nil
+
   defp optional_attr(name, value, formatter) do
     formatted = formatter.(value)
     if formatted == "" or is_nil(formatted), do: nil, else: ~s(#{name}="#{formatted}")
   end
 
   defp format_rfc822(nil), do: ""
+
   defp format_rfc822(%DateTime{} = dt) do
     Calendar.strftime(dt, "%a, %d %b %Y %H:%M:%S GMT")
   end
+
   defp format_rfc822(_), do: ""
 
   defp escape(nil), do: ""
+
   defp escape(str) when is_binary(str) do
     str
     |> String.replace("&", "&amp;")
@@ -280,5 +292,6 @@ defmodule BaladosSyncWeb.Opml.Builder do
     |> String.replace("\"", "&quot;")
     |> String.replace("'", "&apos;")
   end
+
   defp escape(value), do: escape(to_string(value))
 end

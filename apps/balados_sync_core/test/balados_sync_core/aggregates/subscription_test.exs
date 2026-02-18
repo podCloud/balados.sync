@@ -46,7 +46,11 @@ defmodule BaladosSyncCore.Aggregates.SubscriptionTest do
 
   describe "Unsubscribe command" do
     test "emits UserUnsubscribed" do
-      state = %Subscription{user_id: "user-1", subscriptions: %{"feed-1" => %{subscribed_at: DateTime.utc_now()}}}
+      state = %Subscription{
+        user_id: "user-1",
+        subscriptions: %{"feed-1" => %{subscribed_at: DateTime.utc_now()}}
+      }
+
       cmd = %Unsubscribe{user_id: "user-1", rss_source_feed: "feed-1", rss_source_id: "src-1"}
 
       event = Subscription.execute(state, cmd)
@@ -58,7 +62,12 @@ defmodule BaladosSyncCore.Aggregates.SubscriptionTest do
 
     test "emits UserUnsubscribed even for non-subscribed feed (idempotent)" do
       state = %Subscription{user_id: "user-1", subscriptions: %{}}
-      cmd = %Unsubscribe{user_id: "user-1", rss_source_feed: "unknown-feed", rss_source_id: "src-1"}
+
+      cmd = %Unsubscribe{
+        user_id: "user-1",
+        rss_source_feed: "unknown-feed",
+        rss_source_id: "src-1"
+      }
 
       event = Subscription.execute(state, cmd)
 

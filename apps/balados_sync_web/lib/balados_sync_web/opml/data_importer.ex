@@ -42,6 +42,7 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
   require Logger
 
   alias BaladosSyncProjections.ProjectionsRepo
+
   alias BaladosSyncProjections.Schemas.{
     Subscription,
     PlayStatus,
@@ -50,6 +51,7 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
     Collection,
     CollectionSubscription
   }
+
   alias BaladosSyncCore.Dispatcher
   alias BaladosSyncCore.Commands.{Subscribe, ChangePrivacy}
   alias BaladosSyncWeb.Opml.Document
@@ -96,24 +98,24 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
     # Wrap direct database writes in a transaction for data consistency
     # If any step fails, all direct DB writes are rolled back
     case ProjectionsRepo.transaction(fn ->
-      # Import play statuses directly (no CQRS for bulk operations)
-      ps_stats = import_play_statuses(user_id, doc.subscriptions, now)
+           # Import play statuses directly (no CQRS for bulk operations)
+           ps_stats = import_play_statuses(user_id, doc.subscriptions, now)
 
-      # Import playlists
-      playlist_stats = import_playlists(user_id, doc.playlists, now)
+           # Import playlists
+           playlist_stats = import_playlists(user_id, doc.playlists, now)
 
-      # Import collections
-      collection_stats = import_collections(user_id, doc.collections, now)
+           # Import collections
+           collection_stats = import_collections(user_id, doc.collections, now)
 
-      {ps_stats, playlist_stats, collection_stats}
-    end) do
+           {ps_stats, playlist_stats, collection_stats}
+         end) do
       {:ok, {ps_stats, playlist_stats, collection_stats}} ->
         final_stats = %{
-          stats |
-          subscriptions: sub_stats,
-          play_statuses: ps_stats,
-          playlists: playlist_stats,
-          collections: collection_stats
+          stats
+          | subscriptions: sub_stats,
+            play_statuses: ps_stats,
+            playlists: playlist_stats,
+            collections: collection_stats
         }
 
         Logger.info("OPML import completed for user #{user_id}: #{inspect(final_stats)}")
@@ -190,8 +192,12 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
     }
 
     case Dispatcher.dispatch(command) do
-      :ok -> :ok
-      {:error, :already_subscribed} -> :ok
+      :ok ->
+        :ok
+
+      {:error, :already_subscribed} ->
+        :ok
+
       {:error, reason} ->
         Logger.warning("Failed to import subscription: #{inspect(reason)}")
         :error
@@ -200,6 +206,7 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
 
   defp maybe_set_privacy(_user_id, _encoded_feed, nil), do: :ok
   defp maybe_set_privacy(_user_id, _encoded_feed, "public"), do: :ok
+
   defp maybe_set_privacy(user_id, encoded_feed, privacy) do
     command = %ChangePrivacy{
       user_id: user_id,
@@ -224,7 +231,8 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
       end)
       |> Enum.reject(fn {feed_url, _} -> is_nil(feed_url) end)
 
-    Enum.reduce(all_play_statuses, %{imported: 0, skipped: 0, merged: 0}, fn {feed_url, ps}, acc ->
+    Enum.reduce(all_play_statuses, %{imported: 0, skipped: 0, merged: 0}, fn {feed_url, ps},
+                                                                             acc ->
       case import_play_status(user_id, feed_url, ps, now) do
         :imported -> %{acc | imported: acc.imported + 1}
         :skipped -> %{acc | skipped: acc.skipped + 1}
@@ -283,7 +291,7 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
     # Take highest position
     position = max(existing.position || 0, incoming.position || 0)
     # Played is true if either is true
-    played = (existing.played || false) or (incoming.played || false)
+    played = existing.played || false or (incoming.played || false)
 
     %{
       position: position,
@@ -380,6 +388,7 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
     case ProjectionsRepo.insert(%Playlist{} |> Ecto.Changeset.change(attrs)) do
       {:ok, created} ->
         import_playlist_items(user_id, created.id, playlist.items, now)
+
       {:error, _} ->
         :error
     end
@@ -403,6 +412,7 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
   end
 
   defp import_playlist_items(_user_id, _playlist_id, [], _now), do: :ok
+
   defp import_playlist_items(user_id, playlist_id, items, now) do
     Enum.each(items, fn item ->
       return_if_nil(item.feed_url, :ok, fn ->
@@ -507,6 +517,7 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
     case ProjectionsRepo.insert(%Collection{} |> Ecto.Changeset.change(attrs)) do
       {:ok, created} ->
         import_collection_feeds(created.id, collection.feeds, now)
+
       {:error, _} ->
         :error
     end
@@ -529,6 +540,7 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
   end
 
   defp import_collection_feeds(_collection_id, [], _now), do: :ok
+
   defp import_collection_feeds(collection_id, feeds, now) do
     Enum.each(feeds, fn feed_url ->
       return_if_nil(feed_url, :ok, fn ->
@@ -562,7 +574,8 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
         merged: 0
       },
       play_statuses: %{
-        imported: Enum.sum(Enum.map(doc.subscriptions, fn s -> length(s.play_statuses || []) end)),
+        imported:
+          Enum.sum(Enum.map(doc.subscriptions, fn s -> length(s.play_statuses || []) end)),
         skipped: 0,
         merged: 0
       },

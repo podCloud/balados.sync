@@ -65,7 +65,11 @@ defmodule BaladosSyncCore.Aggregates.PlayTracking do
       rss_source_feed: event.rss_source_feed
     }
 
-    %{state | user_id: event.user_id, play_statuses: Map.put(play_statuses, event.rss_source_item, status)}
+    %{
+      state
+      | user_id: event.user_id,
+        play_statuses: Map.put(play_statuses, event.rss_source_item, status)
+    }
   end
 
   def apply(%__MODULE__{} = state, %PositionUpdated{} = event) do
@@ -80,7 +84,11 @@ defmodule BaladosSyncCore.Aggregates.PlayTracking do
         rss_source_feed: event.rss_source_feed
       })
 
-    %{state | user_id: event.user_id, play_statuses: Map.put(play_statuses, event.rss_source_item, updated)}
+    %{
+      state
+      | user_id: event.user_id,
+        play_statuses: Map.put(play_statuses, event.rss_source_item, updated)
+    }
   end
 
   def apply(%__MODULE__{} = state, %PlayTrackingCheckpoint{} = event) do

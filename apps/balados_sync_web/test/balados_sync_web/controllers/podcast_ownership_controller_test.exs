@@ -10,6 +10,7 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
   use BaladosSyncWeb.ConnCase, async: false
 
   alias BaladosSyncCore.SystemRepo
+
   alias BaladosSyncProjections.Schemas.{
     User,
     PodcastOwnershipClaim,
@@ -41,19 +42,29 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
   end
 
   describe "authentication enforcement" do
-    test "POST /podcast-ownership/claims/:id/email-verify redirects when not authenticated", %{conn: conn} do
+    test "POST /podcast-ownership/claims/:id/email-verify redirects when not authenticated", %{
+      conn: conn
+    } do
       claim_id = Ecto.UUID.generate()
 
-      conn = post(conn, ~p"/podcast-ownership/claims/#{claim_id}/email-verify", %{"email" => "test@example.com"})
+      conn =
+        post(conn, ~p"/podcast-ownership/claims/#{claim_id}/email-verify", %{
+          "email" => "test@example.com"
+        })
 
       assert redirected_to(conn) == ~p"/users/log_in"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You must log in to access this page."
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "You must log in to access this page."
     end
 
-    test "POST /podcast-ownership/claims/:id/email-code redirects when not authenticated", %{conn: conn} do
+    test "POST /podcast-ownership/claims/:id/email-code redirects when not authenticated", %{
+      conn: conn
+    } do
       claim_id = Ecto.UUID.generate()
 
-      conn = post(conn, ~p"/podcast-ownership/claims/#{claim_id}/email-code", %{"code" => "123456"})
+      conn =
+        post(conn, ~p"/podcast-ownership/claims/#{claim_id}/email-code", %{"code" => "123456"})
 
       assert redirected_to(conn) == ~p"/users/log_in"
     end
@@ -66,13 +77,19 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
   end
 
   describe "POST /podcast-ownership/claims/:id/email-verify (request_email_verification)" do
-    test "redirects with success flash when email verification requested", %{conn: conn, user: user, user_id: user_id} do
+    test "redirects with success flash when email verification requested", %{
+      conn: conn,
+      user: user,
+      user_id: user_id
+    } do
       claim = create_pending_claim(user_id, "https://example.com/feed.xml")
 
       conn =
         conn
         |> log_in_user(user)
-        |> post(~p"/podcast-ownership/claims/#{claim.id}/email-verify", %{"email" => "owner@example.com"})
+        |> post(~p"/podcast-ownership/claims/#{claim.id}/email-verify", %{
+          "email" => "owner@example.com"
+        })
 
       # Should redirect back to claim page (even if email sending fails in test env)
       assert redirected_to(conn) =~ ~p"/podcast-ownership/claims/#{claim.id}"
@@ -84,7 +101,9 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
       conn =
         conn
         |> log_in_user(user)
-        |> post(~p"/podcast-ownership/claims/#{fake_id}/email-verify", %{"email" => "owner@example.com"})
+        |> post(~p"/podcast-ownership/claims/#{fake_id}/email-verify", %{
+          "email" => "owner@example.com"
+        })
 
       assert redirected_to(conn) =~ "/podcast-ownership"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "not_found"
@@ -98,7 +117,9 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
       conn =
         conn
         |> log_in_user(user)
-        |> post(~p"/podcast-ownership/claims/#{claim.id}/email-verify", %{"email" => "owner@example.com"})
+        |> post(~p"/podcast-ownership/claims/#{claim.id}/email-verify", %{
+          "email" => "owner@example.com"
+        })
 
       assert redirected_to(conn) =~ "/podcast-ownership"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "unauthorized"
@@ -110,7 +131,9 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
       conn =
         conn
         |> log_in_user(user)
-        |> post(~p"/podcast-ownership/claims/#{claim.id}/email-verify", %{"email" => "owner@example.com"})
+        |> post(~p"/podcast-ownership/claims/#{claim.id}/email-verify", %{
+          "email" => "owner@example.com"
+        })
 
       assert redirected_to(conn) == ~p"/podcast-ownership"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "expired"
@@ -133,7 +156,11 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Invalid verification code"
     end
 
-    test "redirects with error when no pending verification exists", %{conn: conn, user: user, user_id: user_id} do
+    test "redirects with error when no pending verification exists", %{
+      conn: conn,
+      user: user,
+      user_id: user_id
+    } do
       claim = create_pending_claim(user_id, "https://example.com/feed.xml")
 
       conn =
@@ -145,7 +172,11 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "No pending verification"
     end
 
-    test "redirects with error for expired verification", %{conn: conn, user: user, user_id: user_id} do
+    test "redirects with error for expired verification", %{
+      conn: conn,
+      user: user,
+      user_id: user_id
+    } do
       claim = create_pending_claim(user_id, "https://example.com/feed.xml")
 
       # Create an expired verification
@@ -190,7 +221,9 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
 
     test "renders claim page successfully", %{conn: conn, user: user, user_id: user_id} do
       claim = create_pending_claim(user_id, "https://example.com/feed.xml")
-      _verification = create_pending_verification(claim.id, user_id, "owner@example.com", "123456")
+
+      _verification =
+        create_pending_verification(claim.id, user_id, "owner@example.com", "123456")
 
       conn =
         conn
@@ -255,7 +288,9 @@ defmodule BaladosSyncWeb.PodcastOwnershipControllerTest do
         |> post(~p"/podcast-ownership/claims/#{claim.id}/cancel")
 
       assert redirected_to(conn) == ~p"/podcast-ownership"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Only pending claims can be cancelled."
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "Only pending claims can be cancelled."
     end
   end
 

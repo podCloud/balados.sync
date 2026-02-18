@@ -119,7 +119,9 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
     end
 
     test "rate limits by user_id when present" do
-      opts = RateLimiter.init(limit: 1, window_ms: 60_000, key: :user_id, namespace: "test_user_limit")
+      opts =
+        RateLimiter.init(limit: 1, window_ms: 60_000, key: :user_id, namespace: "test_user_limit")
+
       user_id = Ecto.UUID.generate()
 
       # Clear any previous rate limit data
@@ -145,7 +147,13 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
 
   describe "call/2 with {:param, name} key" do
     test "uses param value as key" do
-      opts = RateLimiter.init(limit: 1, window_ms: 60_000, key: {:param, "token"}, namespace: "test_param")
+      opts =
+        RateLimiter.init(
+          limit: 1,
+          window_ms: 60_000,
+          key: {:param, "token"},
+          namespace: "test_param"
+        )
 
       # Clear any previous rate limit data
       Hammer.delete_buckets("test_param:param:my_token")
@@ -174,7 +182,13 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
     end
 
     test "skips when param is missing" do
-      opts = RateLimiter.init(limit: 1, window_ms: 60_000, key: {:param, "missing"}, namespace: "test_missing")
+      opts =
+        RateLimiter.init(
+          limit: 1,
+          window_ms: 60_000,
+          key: {:param, "missing"},
+          namespace: "test_missing"
+        )
 
       # Build conn with empty params (not unfetched)
       conn =
@@ -188,7 +202,15 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
   describe "call/2 with skip option" do
     test "skips rate limiting when skip function returns true" do
       skip_fn = fn conn -> conn.assigns[:skip_rate_limit] == true end
-      opts = RateLimiter.init(limit: 1, window_ms: 60_000, key: :ip, namespace: "test_skip", skip: skip_fn)
+
+      opts =
+        RateLimiter.init(
+          limit: 1,
+          window_ms: 60_000,
+          key: :ip,
+          namespace: "test_skip",
+          skip: skip_fn
+        )
 
       # First request without skip
       Hammer.delete_buckets("test_skip:ip:127.0.0.1")

@@ -15,7 +15,7 @@ defmodule BaladosSyncCore.EventPropertiesTest do
 
   describe "UserSubscribed event" do
     property "generated events have valid structure" do
-      check all event <- Generators.user_subscribed_event() do
+      check all(event <- Generators.user_subscribed_event()) do
         assert is_binary(event.user_id)
         assert is_binary(event.rss_source_feed)
         assert is_binary(event.rss_source_id)
@@ -25,7 +25,7 @@ defmodule BaladosSyncCore.EventPropertiesTest do
     end
 
     property "survives JSON encode/decode roundtrip" do
-      check all event <- Generators.user_subscribed_event() do
+      check all(event <- Generators.user_subscribed_event()) do
         # Convert struct to map for Jason encoding
         event_map = Map.from_struct(event)
 
@@ -42,7 +42,7 @@ defmodule BaladosSyncCore.EventPropertiesTest do
     end
 
     property "event_infos always contains required audit fields" do
-      check all event <- Generators.user_subscribed_event() do
+      check all(event <- Generators.user_subscribed_event()) do
         assert Map.has_key?(event.event_infos, :device_id)
         assert Map.has_key?(event.event_infos, :device_name)
         assert is_binary(event.event_infos.device_id)
@@ -53,7 +53,7 @@ defmodule BaladosSyncCore.EventPropertiesTest do
 
   describe "PlayRecorded event" do
     property "generated events have valid structure" do
-      check all event <- Generators.play_recorded_event() do
+      check all(event <- Generators.play_recorded_event()) do
         assert is_binary(event.user_id)
         assert is_binary(event.rss_source_feed)
         assert is_binary(event.rss_source_item)
@@ -65,7 +65,7 @@ defmodule BaladosSyncCore.EventPropertiesTest do
     end
 
     property "survives JSON encode/decode roundtrip" do
-      check all event <- Generators.play_recorded_event() do
+      check all(event <- Generators.play_recorded_event()) do
         event_map = Map.from_struct(event)
         encoded = Jason.encode!(event_map)
         decoded = Jason.decode!(encoded)
@@ -79,7 +79,7 @@ defmodule BaladosSyncCore.EventPropertiesTest do
     end
 
     property "position is always valid for projector" do
-      check all event <- Generators.play_recorded_event() do
+      check all(event <- Generators.play_recorded_event()) do
         # Projector expects non-negative position
         assert event.position >= 0
         # Position should be reasonable (not years of playback)
@@ -88,7 +88,7 @@ defmodule BaladosSyncCore.EventPropertiesTest do
     end
 
     property "rss_source_item is valid for decoding" do
-      check all event <- Generators.play_recorded_event() do
+      check all(event <- Generators.play_recorded_event()) do
         # Projector will decode this
         assert {:ok, _decoded} = Base.decode64(event.rss_source_item)
       end
@@ -97,7 +97,7 @@ defmodule BaladosSyncCore.EventPropertiesTest do
 
   describe "PrivacyChanged event" do
     property "generated events have valid structure" do
-      check all event <- Generators.privacy_changed_event() do
+      check all(event <- Generators.privacy_changed_event()) do
         assert is_binary(event.user_id)
         assert is_binary(event.rss_source_feed)
         assert event.rss_source_item == nil or is_binary(event.rss_source_item)
@@ -108,7 +108,7 @@ defmodule BaladosSyncCore.EventPropertiesTest do
     end
 
     property "survives JSON encode/decode roundtrip" do
-      check all event <- Generators.privacy_changed_event() do
+      check all(event <- Generators.privacy_changed_event()) do
         event_map = Map.from_struct(event)
         encoded = Jason.encode!(event_map)
         decoded = Jason.decode!(encoded)
@@ -120,7 +120,7 @@ defmodule BaladosSyncCore.EventPropertiesTest do
     end
 
     property "privacy is always a valid downstream value" do
-      check all event <- Generators.privacy_changed_event() do
+      check all(event <- Generators.privacy_changed_event()) do
         # Privacy must be one of the accepted values for projectors
         assert event.privacy in [:public, :private, :anonymous]
       end
@@ -129,11 +129,14 @@ defmodule BaladosSyncCore.EventPropertiesTest do
 
   describe "Event invariants across all types" do
     property "all events have user_id" do
-      check all event <- StreamData.one_of([
-        Generators.user_subscribed_event(),
-        Generators.play_recorded_event(),
-        Generators.privacy_changed_event()
-      ]) do
+      check all(
+              event <-
+                StreamData.one_of([
+                  Generators.user_subscribed_event(),
+                  Generators.play_recorded_event(),
+                  Generators.privacy_changed_event()
+                ])
+            ) do
         assert Map.has_key?(event, :user_id)
         assert is_binary(event.user_id)
         assert String.length(event.user_id) == 36
@@ -141,22 +144,28 @@ defmodule BaladosSyncCore.EventPropertiesTest do
     end
 
     property "all events have event_infos" do
-      check all event <- StreamData.one_of([
-        Generators.user_subscribed_event(),
-        Generators.play_recorded_event(),
-        Generators.privacy_changed_event()
-      ]) do
+      check all(
+              event <-
+                StreamData.one_of([
+                  Generators.user_subscribed_event(),
+                  Generators.play_recorded_event(),
+                  Generators.privacy_changed_event()
+                ])
+            ) do
         assert Map.has_key?(event, :event_infos)
         assert is_map(event.event_infos)
       end
     end
 
     property "all events have rss_source_feed" do
-      check all event <- StreamData.one_of([
-        Generators.user_subscribed_event(),
-        Generators.play_recorded_event(),
-        Generators.privacy_changed_event()
-      ]) do
+      check all(
+              event <-
+                StreamData.one_of([
+                  Generators.user_subscribed_event(),
+                  Generators.play_recorded_event(),
+                  Generators.privacy_changed_event()
+                ])
+            ) do
         assert Map.has_key?(event, :rss_source_feed)
         assert is_binary(event.rss_source_feed)
         assert {:ok, _} = Base.decode64(event.rss_source_feed)
@@ -166,17 +175,20 @@ defmodule BaladosSyncCore.EventPropertiesTest do
 
   describe "Timestamp format" do
     property "all timestamp strings are ISO 8601 format" do
-      check all event <- StreamData.one_of([
-        Generators.play_recorded_event(),
-        Generators.privacy_changed_event()
-      ]) do
+      check all(
+              event <-
+                StreamData.one_of([
+                  Generators.play_recorded_event(),
+                  Generators.privacy_changed_event()
+                ])
+            ) do
         timestamp = event.timestamp
         assert String.match?(timestamp, ~r/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/)
       end
     end
 
     property "subscribed_at is ISO 8601 format" do
-      check all event <- Generators.user_subscribed_event() do
+      check all(event <- Generators.user_subscribed_event()) do
         assert String.match?(event.subscribed_at, ~r/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/)
       end
     end

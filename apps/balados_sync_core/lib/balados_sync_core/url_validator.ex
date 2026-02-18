@@ -63,6 +63,7 @@ defmodule BaladosSyncCore.UrlValidator do
 
   # Validate the scheme (only http and https allowed)
   defp validate_scheme(%URI{scheme: scheme}) when scheme in ["http", "https"], do: :ok
+
   defp validate_scheme(%URI{scheme: scheme}) do
     Logger.warning("[UrlValidator] Blocked scheme: #{scheme}")
     {:error, :invalid_scheme}
@@ -164,19 +165,23 @@ defmodule BaladosSyncCore.UrlValidator do
   # 192.168.0.0/16
   defp is_private?({192, 168, _, _}), do: true
   # IPv6 private (fc00::/7)
-  defp is_private?({first, _, _, _, _, _, _, _}) when first >= 0xfc00 and first <= 0xfdff, do: true
+  defp is_private?({first, _, _, _, _, _, _, _}) when first >= 0xFC00 and first <= 0xFDFF,
+    do: true
+
   defp is_private?(_), do: false
 
   # IPv4 link-local: 169.254.0.0/16 (includes AWS/GCP metadata endpoints)
   defp is_link_local?({169, 254, _, _}), do: true
   # IPv6 link-local: fe80::/10
-  defp is_link_local?({first, _, _, _, _, _, _, _}) when first >= 0xfe80 and first <= 0xfebf, do: true
+  defp is_link_local?({first, _, _, _, _, _, _, _}) when first >= 0xFE80 and first <= 0xFEBF,
+    do: true
+
   defp is_link_local?(_), do: false
 
   # IPv4 multicast: 224.0.0.0/4
   defp is_multicast?({first, _, _, _}) when first >= 224 and first <= 239, do: true
   # IPv6 multicast: ff00::/8
-  defp is_multicast?({0xff00, _, _, _, _, _, _, _}), do: true
+  defp is_multicast?({0xFF00, _, _, _, _, _, _, _}), do: true
   defp is_multicast?(_), do: false
 
   # Format IP for logging

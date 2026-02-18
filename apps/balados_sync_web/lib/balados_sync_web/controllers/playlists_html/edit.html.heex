@@ -2,12 +2,16 @@
   <div class="mx-auto max-w-xl">
     <!-- Header -->
     <div class="mb-8">
-      <.link navigate={~p"/playlists/#{@playlist.id}"} class="text-blue-600 hover:underline text-sm">
+      <.link
+        navigate={~p"/playlists/#{@playlist.id}"}
+        class="text-blue-600 hover:underline text-sm"
+      >
         &larr; <%= gettext("playlists.back_to_playlist") %>
       </.link>
-      <h1 class="text-3xl font-bold text-zinc-900 mt-4"><%= gettext("playlists.edit_title") %></h1>
+      <h1 class="text-3xl font-bold text-zinc-900 mt-4">
+        <%= gettext("playlists.edit_title") %>
+      </h1>
     </div>
-
     <!-- Form -->
     <div class="bg-white shadow rounded-lg p-6">
       <.form for={%{}} action={~p"/playlists/#{@playlist.id}"} method="put" class="space-y-6">

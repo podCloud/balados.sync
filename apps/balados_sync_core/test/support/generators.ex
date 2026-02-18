@@ -38,11 +38,13 @@ defmodule BaladosSyncCore.Generators do
       ]),
       fn [a, b, c, d, e] ->
         # Format as UUID v4
-        [Base.encode16(a, case: :lower),
-         Base.encode16(b, case: :lower),
-         Base.encode16(c, case: :lower),
-         Base.encode16(d, case: :lower),
-         Base.encode16(e, case: :lower)]
+        [
+          Base.encode16(a, case: :lower),
+          Base.encode16(b, case: :lower),
+          Base.encode16(c, case: :lower),
+          Base.encode16(d, case: :lower),
+          Base.encode16(e, case: :lower)
+        ]
         |> Enum.join("-")
       end
     )
@@ -173,7 +175,8 @@ defmodule BaladosSyncCore.Generators do
       user_id: uuid(),
       rss_source_feed: rss_feed(),
       rss_source_id: podcast_id(),
-      subscribed_at: StreamData.one_of([StreamData.constant(nil), StreamData.constant(DateTime.utc_now())]),
+      subscribed_at:
+        StreamData.one_of([StreamData.constant(nil), StreamData.constant(DateTime.utc_now())]),
       event_infos: device_info()
     })
   end
@@ -186,7 +189,8 @@ defmodule BaladosSyncCore.Generators do
       __struct__: StreamData.constant(BaladosSyncCore.Commands.Unsubscribe),
       user_id: uuid(),
       rss_source_feed: rss_feed(),
-      unsubscribed_at: StreamData.one_of([StreamData.constant(nil), StreamData.constant(DateTime.utc_now())]),
+      unsubscribed_at:
+        StreamData.one_of([StreamData.constant(nil), StreamData.constant(DateTime.utc_now())]),
       event_infos: device_info()
     })
   end
@@ -299,8 +303,10 @@ defmodule BaladosSyncCore.Generators do
     StreamData.one_of([
       StreamData.constant(""),
       StreamData.constant("invalid_value"),
-      StreamData.constant("PUBLIC"),  # wrong case
-      StreamData.constant("Private"), # wrong case
+      # wrong case
+      StreamData.constant("PUBLIC"),
+      # wrong case
+      StreamData.constant("Private"),
       StreamData.constant(nil)
     ])
   end

@@ -15,7 +15,9 @@ defmodule BaladosSyncCore.UrlValidatorTest do
     end
 
     test "rejects non-HTTP schemes" do
-      assert {:error, :invalid_scheme} = UrlValidator.validate_rss_url("ftp://example.com/feed.xml")
+      assert {:error, :invalid_scheme} =
+               UrlValidator.validate_rss_url("ftp://example.com/feed.xml")
+
       # file:// URLs have empty host, which fails before scheme check
       assert {:error, :empty_host} = UrlValidator.validate_rss_url("file:///etc/passwd")
       # javascript: URLs have no host at all
@@ -40,13 +42,17 @@ defmodule BaladosSyncCore.UrlValidatorTest do
     # Loopback/localhost blocking
     test "blocks localhost hostname" do
       assert {:error, :localhost_blocked} = UrlValidator.validate_rss_url("http://localhost/feed")
-      assert {:error, :localhost_blocked} = UrlValidator.validate_rss_url("https://LOCALHOST/feed")
+
+      assert {:error, :localhost_blocked} =
+               UrlValidator.validate_rss_url("https://LOCALHOST/feed")
     end
 
     test "blocks loopback IPv4 addresses (127.x.x.x)" do
       assert {:error, :loopback_blocked} = UrlValidator.validate_rss_url("http://127.0.0.1/feed")
       assert {:error, :loopback_blocked} = UrlValidator.validate_rss_url("http://127.1.2.3/feed")
-      assert {:error, :loopback_blocked} = UrlValidator.validate_rss_url("http://127.255.255.255/feed")
+
+      assert {:error, :loopback_blocked} =
+               UrlValidator.validate_rss_url("http://127.255.255.255/feed")
     end
 
     test "blocks IPv6 loopback (::1)" do
@@ -56,12 +62,17 @@ defmodule BaladosSyncCore.UrlValidatorTest do
     # Private IP range blocking
     test "blocks 10.x.x.x private network" do
       assert {:error, :private_ip_blocked} = UrlValidator.validate_rss_url("http://10.0.0.1/feed")
-      assert {:error, :private_ip_blocked} = UrlValidator.validate_rss_url("http://10.255.255.255/feed")
+
+      assert {:error, :private_ip_blocked} =
+               UrlValidator.validate_rss_url("http://10.255.255.255/feed")
     end
 
     test "blocks 172.16-31.x.x private network" do
-      assert {:error, :private_ip_blocked} = UrlValidator.validate_rss_url("http://172.16.0.1/feed")
-      assert {:error, :private_ip_blocked} = UrlValidator.validate_rss_url("http://172.31.255.255/feed")
+      assert {:error, :private_ip_blocked} =
+               UrlValidator.validate_rss_url("http://172.16.0.1/feed")
+
+      assert {:error, :private_ip_blocked} =
+               UrlValidator.validate_rss_url("http://172.31.255.255/feed")
 
       # 172.15.x.x and 172.32.x.x should be allowed (not in private range)
       assert :ok = UrlValidator.validate_rss_url("http://172.15.0.1/feed")
@@ -69,14 +80,20 @@ defmodule BaladosSyncCore.UrlValidatorTest do
     end
 
     test "blocks 192.168.x.x private network" do
-      assert {:error, :private_ip_blocked} = UrlValidator.validate_rss_url("http://192.168.0.1/feed")
-      assert {:error, :private_ip_blocked} = UrlValidator.validate_rss_url("http://192.168.255.255/feed")
+      assert {:error, :private_ip_blocked} =
+               UrlValidator.validate_rss_url("http://192.168.0.1/feed")
+
+      assert {:error, :private_ip_blocked} =
+               UrlValidator.validate_rss_url("http://192.168.255.255/feed")
     end
 
     # Link-local / cloud metadata blocking
     test "blocks link-local addresses (169.254.x.x) - cloud metadata endpoints" do
-      assert {:error, :link_local_blocked} = UrlValidator.validate_rss_url("http://169.254.169.254/feed")
-      assert {:error, :link_local_blocked} = UrlValidator.validate_rss_url("http://169.254.0.1/feed")
+      assert {:error, :link_local_blocked} =
+               UrlValidator.validate_rss_url("http://169.254.169.254/feed")
+
+      assert {:error, :link_local_blocked} =
+               UrlValidator.validate_rss_url("http://169.254.0.1/feed")
     end
 
     test "blocks cloud metadata hostname patterns" do
@@ -98,7 +115,9 @@ defmodule BaladosSyncCore.UrlValidatorTest do
     # Multicast blocking
     test "blocks multicast IPv4 addresses (224-239.x.x.x)" do
       assert {:error, :multicast_blocked} = UrlValidator.validate_rss_url("http://224.0.0.1/feed")
-      assert {:error, :multicast_blocked} = UrlValidator.validate_rss_url("http://239.255.255.255/feed")
+
+      assert {:error, :multicast_blocked} =
+               UrlValidator.validate_rss_url("http://239.255.255.255/feed")
     end
 
     # Edge cases
@@ -114,11 +133,14 @@ defmodule BaladosSyncCore.UrlValidatorTest do
 
     test "handles URLs with ports" do
       assert :ok = UrlValidator.validate_rss_url("http://example.com:8080/feed")
-      assert {:error, :private_ip_blocked} = UrlValidator.validate_rss_url("http://192.168.1.1:8080/feed")
+
+      assert {:error, :private_ip_blocked} =
+               UrlValidator.validate_rss_url("http://192.168.1.1:8080/feed")
     end
 
     test "handles URLs with query strings" do
       assert :ok = UrlValidator.validate_rss_url("https://example.com/feed?token=abc")
+
       assert {:error, :loopback_blocked} =
                UrlValidator.validate_rss_url("http://127.0.0.1/feed?token=abc")
     end

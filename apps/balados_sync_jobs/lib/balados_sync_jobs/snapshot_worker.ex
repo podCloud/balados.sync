@@ -15,7 +15,13 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   require Logger
   import Ecto.Query
 
-  alias BaladosSyncCore.Commands.{SnapshotSubscription, SnapshotPlayTracking, SnapshotPlaylist, SnapshotCollection}
+  alias BaladosSyncCore.Commands.{
+    SnapshotSubscription,
+    SnapshotPlayTracking,
+    SnapshotPlaylist,
+    SnapshotCollection
+  }
+
   alias BaladosSyncProjections.ProjectionsRepo
 
   @doc "Returns the dispatcher module (configurable for testing)."
@@ -72,7 +78,9 @@ defmodule BaladosSyncJobs.SnapshotWorker do
   """
   def get_old_events(cutoff_date) do
     case read_events_before(cutoff_date, 0, []) do
-      {:ok, events} -> events
+      {:ok, events} ->
+        events
+
       {:error, reason} ->
         Logger.warning("Returning empty results due to EventStore error: #{inspect(reason)}")
         []

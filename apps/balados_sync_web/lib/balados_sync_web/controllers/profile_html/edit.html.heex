@@ -11,17 +11,31 @@
       <%= gettext("common.form_error") %>
     </.error>
 
-    <.input field={f[:public_name]} type="text" label={gettext("profile.display_name_label")} placeholder={@user.username} />
+    <.input
+      field={f[:public_name]}
+      type="text"
+      label={gettext("profile.display_name_label")}
+      placeholder={@user.username}
+    />
     <div class="text-sm text-zinc-500 -mt-4 mb-2">
       <%= gettext("profile.display_name_hint") %>
     </div>
 
-    <.input field={f[:bio]} type="textarea" label={gettext("profile.bio_label")} placeholder={gettext("profile.bio_placeholder")} />
+    <.input
+      field={f[:bio]}
+      type="textarea"
+      label={gettext("profile.bio_label")}
+      placeholder={gettext("profile.bio_placeholder")}
+    />
     <div class="text-sm text-zinc-500 -mt-4 mb-2">
       <%= gettext("profile.bio_hint") %>
     </div>
 
-    <.input field={f[:public_profile_enabled]} type="checkbox" label={gettext("profile.enable_public")} />
+    <.input
+      field={f[:public_profile_enabled]}
+      type="checkbox"
+      label={gettext("profile.enable_public")}
+    />
     <div class="text-sm text-zinc-500 -mt-2 mb-4">
       <%= gettext("profile.public_hint") %>
       <.link navigate={~p"/u/#{@user.username}"} class="font-mono text-brand hover:underline">
@@ -30,7 +44,9 @@
     </div>
 
     <:actions>
-      <.button phx-disable-with={gettext("common.saving")} class="w-full"><%= gettext("profile.save") %></.button>
+      <.button phx-disable-with={gettext("common.saving")} class="w-full">
+        <%= gettext("profile.save") %>
+      </.button>
     </:actions>
   </.simple_form>
 

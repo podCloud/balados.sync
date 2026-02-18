@@ -19,7 +19,6 @@ defmodule BaladosSyncCore.Integration.InMemoryDispatchTest do
   alias BaladosSyncCore.Commands.Subscribe
 
   describe "In-Memory EventStore integration" do
-
     test "dispatching Subscribe command succeeds" do
       user_id = Ecto.UUID.generate()
       feed = Base.encode64("https://example.com/podcast.xml")

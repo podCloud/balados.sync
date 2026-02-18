@@ -8,7 +8,14 @@ defmodule BaladosSyncWeb.PlaylistsController do
   use BaladosSyncWeb, :controller
 
   alias BaladosSyncCore.Dispatcher
-  alias BaladosSyncCore.Commands.{CreatePlaylist, UpdatePlaylist, DeletePlaylist, ChangePlaylistVisibility}
+
+  alias BaladosSyncCore.Commands.{
+    CreatePlaylist,
+    UpdatePlaylist,
+    DeletePlaylist,
+    ChangePlaylistVisibility
+  }
+
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.{Playlist, PlaylistItem}
   alias BaladosSyncWeb.PlaylistEnricher
@@ -68,7 +75,8 @@ defmodule BaladosSyncWeb.PlaylistsController do
       )
 
     playlists =
-      from(p in Playlist, as: :playlist,
+      from(p in Playlist,
+        as: :playlist,
         where: p.user_id == ^user_id,
         where: is_nil(p.deleted_at),
         # Filter to show only regular playlists in Web UI.

@@ -2,7 +2,15 @@ defmodule BaladosSyncWeb.Opml.BuilderTest do
   use ExUnit.Case, async: true
 
   alias BaladosSyncWeb.Opml.Builder
-  alias BaladosSyncWeb.Opml.{Document, Subscription, PlayStatus, Playlist, PlaylistItem, Collection}
+
+  alias BaladosSyncWeb.Opml.{
+    Document,
+    Subscription,
+    PlayStatus,
+    Playlist,
+    PlaylistItem,
+    Collection
+  }
 
   @test_user %{username: "testuser"}
 

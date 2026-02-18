@@ -20,7 +20,15 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
 
   alias BaladosSyncCore.RssCache
   alias BaladosSyncCore.Dispatcher
-  alias BaladosSyncCore.Commands.{CreateCollection, UpdateCollection, DeleteCollection, AddFeedToCollection, RemoveFeedFromCollection}
+
+  alias BaladosSyncCore.Commands.{
+    CreateCollection,
+    UpdateCollection,
+    DeleteCollection,
+    AddFeedToCollection,
+    RemoveFeedFromCollection
+  }
+
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncProjections.Schemas.Collection
   alias BaladosSyncWeb.Queries
@@ -181,6 +189,7 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
           color: form["color"],
           event_infos: %{device_id: "web", device_name: "Web Browser"}
         }
+
         Dispatcher.dispatch(command)
       else
         # Create new collection
@@ -192,6 +201,7 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
           is_default: false,
           event_infos: %{device_id: "web", device_name: "Web Browser"}
         }
+
         Dispatcher.dispatch(command)
       end
 
@@ -199,12 +209,19 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
       :ok ->
         # Reload collections
         collections = get_user_collections(user_id)
+
         {:noreply,
          socket
          |> assign(:collections, collections)
          |> assign(:show_collection_modal, false)
          |> assign(:editing_collection, nil)
-         |> put_flash(:info, if(socket.assigns.editing_collection, do: "Collection updated", else: "Collection created"))}
+         |> put_flash(
+           :info,
+           if(socket.assigns.editing_collection,
+             do: "Collection updated",
+             else: "Collection created"
+           )
+         )}
 
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, "Error: #{inspect(reason)}")}
@@ -238,6 +255,7 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
     case Dispatcher.dispatch(command) do
       :ok ->
         collections = get_user_collections(user_id)
+
         {:noreply,
          socket
          |> assign(:collections, collections)
@@ -266,12 +284,17 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
     {:noreply, assign(socket, :manage_feeds_mode, not socket.assigns.manage_feeds_mode)}
   end
 
-  def handle_event("toggle_feed_in_collection", %{"feed" => feed, "collection" => collection_id}, socket) do
+  def handle_event(
+        "toggle_feed_in_collection",
+        %{"feed" => feed, "collection" => collection_id},
+        socket
+      ) do
     user_id = socket.assigns.current_user.id
     collection = Enum.find(socket.assigns.collections, &(&1.id == collection_id))
 
     if collection do
-      feed_in_collection = Enum.any?(collection.collection_subscriptions, &(&1.rss_source_feed == feed))
+      feed_in_collection =
+        Enum.any?(collection.collection_subscriptions, &(&1.rss_source_feed == feed))
 
       command =
         if feed_in_collection do
@@ -559,7 +582,12 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                     title="Edit collection"
                   >
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                      />
                     </svg>
                   </button>
                   <%= if not collection.is_default do %>
@@ -570,7 +598,12 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                       title="Delete collection"
                     >
                       <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                     </button>
                   <% end %>
@@ -584,7 +617,12 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
               title="Create collection"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
             </button>
             <!-- Manage Feeds toggle (when viewing a collection) -->
@@ -634,7 +672,11 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
               >
                 <!-- Manage Feeds Checkbox Overlay -->
                 <%= if @manage_feeds_mode && @current_collection do %>
-                  <% in_collection = Enum.any?(@current_collection.collection_subscriptions, &(&1.rss_source_feed == sub.rss_source_feed)) %>
+                  <% in_collection =
+                    Enum.any?(
+                      @current_collection.collection_subscriptions,
+                      &(&1.rss_source_feed == sub.rss_source_feed)
+                    ) %>
                   <button
                     phx-click="toggle_feed_in_collection"
                     phx-value-feed={sub.rss_source_feed}
@@ -648,11 +690,21 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                   >
                     <%= if in_collection do %>
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M5 13l4 4L19 7"
+                        />
                       </svg>
                     <% else %>
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 4v16m8-8H4"
+                        />
                       </svg>
                     <% end %>
                   </button>
@@ -670,7 +722,12 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                       <!-- Error state: red icon with retry button -->
                       <div class="text-center">
                         <div class="text-red-400 mb-2">
-                          <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg
+                            class="w-16 h-16 mx-auto"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
                             <path
                               stroke-linecap="round"
                               stroke-linejoin="round"
@@ -765,11 +822,16 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
         <% end %>
       </div>
     </div>
-
     <!-- Collection Modal -->
     <%= if @show_collection_modal do %>
-      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" phx-click="close_collection_modal">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4" phx-click-away="close_collection_modal">
+      <div
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        phx-click="close_collection_modal"
+      >
+        <div
+          class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4"
+          phx-click-away="close_collection_modal"
+        >
           <div class="p-6">
             <h2 class="text-xl font-bold text-zinc-900 mb-4">
               <%= if @editing_collection, do: "Edit Collection", else: "Create Collection" %>
@@ -789,10 +851,11 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                   autofocus
                 />
               </div>
-
               <!-- Description -->
               <div>
-                <label class="block text-sm font-medium text-zinc-700 mb-1">Description (optional)</label>
+                <label class="block text-sm font-medium text-zinc-700 mb-1">
+                  Description (optional)
+                </label>
                 <textarea
                   phx-keyup="update_collection_form"
                   phx-value-field="description"
@@ -801,7 +864,6 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                   placeholder="A brief description..."
                 ><%= @collection_form["description"] %></textarea>
               </div>
-
               <!-- Color -->
               <div>
                 <label class="block text-sm font-medium text-zinc-700 mb-2">Color</label>
@@ -844,7 +906,6 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
         </div>
       </div>
     <% end %>
-
     <!-- Delete Confirmation Modal -->
     <%= if @show_delete_confirm do %>
       <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

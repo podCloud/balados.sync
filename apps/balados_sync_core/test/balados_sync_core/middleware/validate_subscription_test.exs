@@ -49,7 +49,10 @@ defmodule BaladosSyncCore.Middleware.ValidateSubscriptionTest do
 
       result = ValidateSubscription.before_dispatch(pipeline)
 
-      assert %Commanded.Middleware.Pipeline{halted: true, response: {:error, :feed_not_subscribed}} = result
+      assert %Commanded.Middleware.Pipeline{
+               halted: true,
+               response: {:error, :feed_not_subscribed}
+             } = result
     after
       Application.delete_env(:balados_sync_core, :projections_repo)
     end
@@ -86,7 +89,10 @@ defmodule BaladosSyncCore.Middleware.ValidateSubscriptionTest do
 
       result = ValidateSubscription.before_dispatch(pipeline)
 
-      assert %Commanded.Middleware.Pipeline{halted: true, response: {:error, :subscription_check_failed}} = result
+      assert %Commanded.Middleware.Pipeline{
+               halted: true,
+               response: {:error, :subscription_check_failed}
+             } = result
     after
       Application.delete_env(:balados_sync_core, :projections_repo)
     end

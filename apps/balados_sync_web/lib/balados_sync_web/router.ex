@@ -117,10 +117,21 @@ defmodule BaladosSyncWeb.Router do
     get "/podcast-ownership/claims/:id", PodcastOwnershipController, :show_claim
     post "/podcast-ownership/claims/:id/verify", PodcastOwnershipController, :verify
     post "/podcast-ownership/claims/:id/cancel", PodcastOwnershipController, :cancel_claim
-    post "/podcast-ownership/claims/:id/email-verify", PodcastOwnershipController, :request_email_verification
-    post "/podcast-ownership/claims/:id/email-code", PodcastOwnershipController, :verify_email_code
+
+    post "/podcast-ownership/claims/:id/email-verify",
+         PodcastOwnershipController,
+         :request_email_verification
+
+    post "/podcast-ownership/claims/:id/email-code",
+         PodcastOwnershipController,
+         :verify_email_code
+
     get "/podcast-ownership/podcasts/:id", PodcastOwnershipController, :show_podcast
-    post "/podcast-ownership/podcasts/:id/visibility", PodcastOwnershipController, :update_visibility
+
+    post "/podcast-ownership/podcasts/:id/visibility",
+         PodcastOwnershipController,
+         :update_visibility
+
     post "/podcast-ownership/podcasts/:id/relinquish", PodcastOwnershipController, :relinquish
 
     # App authorization confirmation (requires authentication)

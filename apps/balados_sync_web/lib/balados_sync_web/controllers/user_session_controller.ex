@@ -14,9 +14,7 @@ defmodule BaladosSyncWeb.UserSessionController do
         UserAuth.log_in_user(conn, user, user_params)
 
       {:error, :locked} ->
-        render(conn, :new,
-          error_message: gettext("auth.account_locked")
-        )
+        render(conn, :new, error_message: gettext("auth.account_locked"))
 
       {:error, :invalid_credentials} ->
         # In order to prevent user enumeration attacks, don't disclose whether the username is registered.

@@ -30,7 +30,9 @@ defmodule BaladosSyncWeb.EnrichedPodcastsTest do
   describe "list_enriched_podcasts/0" do
     test "returns all enriched podcasts" do
       _ep1 = create_enriched_podcast(%{slug: "podcast-one"})
-      _ep2 = create_enriched_podcast(%{slug: "podcast-two", feed_url: "https://other.com/feed.xml"})
+
+      _ep2 =
+        create_enriched_podcast(%{slug: "podcast-two", feed_url: "https://other.com/feed.xml"})
 
       podcasts = EnrichedPodcasts.list_enriched_podcasts()
 
@@ -126,11 +128,12 @@ defmodule BaladosSyncWeb.EnrichedPodcastsTest do
     test "enforces unique slug" do
       create_enriched_podcast(%{slug: "unique-slug"})
 
-      {:error, changeset} = EnrichedPodcasts.create_enriched_podcast(%{
-        feed_url: "https://other.com/feed.xml",
-        slug: "unique-slug",
-        created_by_user_id: Ecto.UUID.generate()
-      })
+      {:error, changeset} =
+        EnrichedPodcasts.create_enriched_podcast(%{
+          feed_url: "https://other.com/feed.xml",
+          slug: "unique-slug",
+          created_by_user_id: Ecto.UUID.generate()
+        })
 
       assert "has already been taken" in errors_on(changeset).slug
     end
@@ -138,11 +141,12 @@ defmodule BaladosSyncWeb.EnrichedPodcastsTest do
     test "enforces unique feed_url" do
       create_enriched_podcast(%{feed_url: "https://unique-feed.com/feed.xml"})
 
-      {:error, changeset} = EnrichedPodcasts.create_enriched_podcast(%{
-        feed_url: "https://unique-feed.com/feed.xml",
-        slug: "other-slug",
-        created_by_user_id: Ecto.UUID.generate()
-      })
+      {:error, changeset} =
+        EnrichedPodcasts.create_enriched_podcast(%{
+          feed_url: "https://unique-feed.com/feed.xml",
+          slug: "other-slug",
+          created_by_user_id: Ecto.UUID.generate()
+        })
 
       assert "has already been taken" in errors_on(changeset).feed_url
     end
@@ -152,10 +156,11 @@ defmodule BaladosSyncWeb.EnrichedPodcastsTest do
     test "updates enriched podcast with valid attrs" do
       enriched_podcast = create_enriched_podcast()
 
-      {:ok, updated} = EnrichedPodcasts.update_enriched_podcast(enriched_podcast, %{
-        slug: "updated-slug",
-        background_color: "#000000"
-      })
+      {:ok, updated} =
+        EnrichedPodcasts.update_enriched_podcast(enriched_podcast, %{
+          slug: "updated-slug",
+          background_color: "#000000"
+        })
 
       assert updated.slug == "updated-slug"
       assert updated.background_color == "#000000"
@@ -164,9 +169,11 @@ defmodule BaladosSyncWeb.EnrichedPodcastsTest do
     test "returns error for invalid attrs" do
       enriched_podcast = create_enriched_podcast()
 
-      {:error, changeset} = EnrichedPodcasts.update_enriched_podcast(enriched_podcast, %{
-        slug: "ab"  # too short
-      })
+      {:error, changeset} =
+        EnrichedPodcasts.update_enriched_podcast(enriched_podcast, %{
+          # too short
+          slug: "ab"
+        })
 
       refute changeset.valid?
     end

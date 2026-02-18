@@ -156,7 +156,10 @@ defmodule BaladosSyncWeb.AppAuthController do
 
               conn
               |> put_status(:unprocessable_entity)
-              |> put_flash(:error, gettext("app_auth.authorize_failed") <> ": #{format_errors(changeset)}")
+              |> put_flash(
+                :error,
+                gettext("app_auth.authorize_failed") <> ": #{format_errors(changeset)}"
+              )
               |> redirect(to: ~p"/dashboard")
           end
 

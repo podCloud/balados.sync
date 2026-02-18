@@ -22,13 +22,25 @@
         <%= if current_locale == "fr" do %>
           <span class="font-bold text-blue-600" aria-current="true" lang="fr">FR</span>
         <% else %>
-          <a href={"?#{URI.encode_query(Map.put(base_params, "locale", "fr"))}"} class="hover:text-zinc-700" lang="fr">FR</a>
+          <a
+            href={"?#{URI.encode_query(Map.put(base_params, "locale", "fr"))}"}
+            class="hover:text-zinc-700"
+            lang="fr"
+          >
+            FR
+          </a>
         <% end %>
         <span class="text-zinc-300" aria-hidden="true">|</span>
         <%= if current_locale == "en" do %>
           <span class="font-bold text-blue-600" aria-current="true" lang="en">EN</span>
         <% else %>
-          <a href={"?#{URI.encode_query(Map.put(base_params, "locale", "en"))}"} class="hover:text-zinc-700" lang="en">EN</a>
+          <a
+            href={"?#{URI.encode_query(Map.put(base_params, "locale", "en"))}"}
+            class="hover:text-zinc-700"
+            lang="en"
+          >
+            EN
+          </a>
         <% end %>
       </nav>
       <.link

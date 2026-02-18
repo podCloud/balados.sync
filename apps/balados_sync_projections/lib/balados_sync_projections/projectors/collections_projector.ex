@@ -75,7 +75,10 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
           updated_at: truncate_timestamp(event.timestamp)
         })
 
-      case repo.insert(changeset, on_conflict: :nothing, conflict_target: [:collection_id, :rss_source_feed]) do
+      case repo.insert(changeset,
+             on_conflict: :nothing,
+             conflict_target: [:collection_id, :rss_source_feed]
+           ) do
         {:ok, record} -> {:ok, record}
         {:error, changeset} -> {:error, changeset}
       end
@@ -156,9 +159,7 @@ defmodule BaladosSyncProjections.Projectors.CollectionsProjector do
   Projects CollectionFeedReordered event to update feed positions within a collection.
   """
   project(%BaladosSyncCore.Events.CollectionFeedReordered{} = event, _metadata, fn multi ->
-    Logger.debug(
-      "Projecting CollectionFeedReordered for collection_id=#{event.collection_id}"
-    )
+    Logger.debug("Projecting CollectionFeedReordered for collection_id=#{event.collection_id}")
 
     # Update positions for all feeds in the collection based on feed_order
     Enum.with_index(event.feed_order)

@@ -373,7 +373,13 @@ git pull origin main
 - CQRS/ES obligatoire pour les commands/events
 - Logging pour audit trail (ex: token expiration)
 - Backward compatibility si possible (champs optionnels)
+- **Toujours lancer `mix format` avant chaque commit** (un pre-commit hook dans `.githooks/` le fait automatiquement)
 - **Ne JAMAIS ignorer des tests en échec** : si `mix test` révèle des échecs (même pré-existants et non liés au travail en cours), créer une issue GitHub pour les tracker
+
+**Git Hooks:**
+- Les hooks sont dans `.githooks/` (version-controlled)
+- Activés via `git config core.hooksPath .githooks`
+- Le pre-commit hook auto-formate les fichiers `.ex`/`.exs` stagés avec `mix format`
 
 ---
 

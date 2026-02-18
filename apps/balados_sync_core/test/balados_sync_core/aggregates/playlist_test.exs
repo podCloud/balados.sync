@@ -629,7 +629,13 @@ defmodule BaladosSyncCore.Aggregates.PlaylistTest do
       state = %Playlist{
         user_id: "user-123",
         playlists: %{
-          playlist_id => %{name: "Old Name", description: nil, type: "playlist", items: [], is_public: false}
+          playlist_id => %{
+            name: "Old Name",
+            description: nil,
+            type: "playlist",
+            items: [],
+            is_public: false
+          }
         }
       }
 
@@ -673,7 +679,13 @@ defmodule BaladosSyncCore.Aggregates.PlaylistTest do
       state = %Playlist{
         user_id: "user-123",
         playlists: %{
-          playlist_id => %{name: "My Playlist", description: nil, type: "playlist", items: [{"feed-1", "item-1"}, {"feed-2", "item-2"}], is_public: false}
+          playlist_id => %{
+            name: "My Playlist",
+            description: nil,
+            type: "playlist",
+            items: [{"feed-1", "item-1"}, {"feed-2", "item-2"}],
+            is_public: false
+          }
         }
       }
 

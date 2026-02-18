@@ -53,7 +53,12 @@ defmodule BaladosSyncProjections.Schemas.EmailVerificationTest do
 
     test "generates verification code automatically" do
       changeset =
-        EmailVerification.create_changeset("user-123", Ecto.UUID.generate(), "test@example.com", "itunes:owner")
+        EmailVerification.create_changeset(
+          "user-123",
+          Ecto.UUID.generate(),
+          "test@example.com",
+          "itunes:owner"
+        )
 
       code = Ecto.Changeset.get_field(changeset, :verification_code)
 
@@ -63,7 +68,12 @@ defmodule BaladosSyncProjections.Schemas.EmailVerificationTest do
 
     test "sets expiration to 30 minutes by default" do
       changeset =
-        EmailVerification.create_changeset("user-123", Ecto.UUID.generate(), "test@example.com", "itunes:owner")
+        EmailVerification.create_changeset(
+          "user-123",
+          Ecto.UUID.generate(),
+          "test@example.com",
+          "itunes:owner"
+        )
 
       expires_at = Ecto.Changeset.get_field(changeset, :expires_at)
       expected_expires = DateTime.utc_now() |> DateTime.add(30 * 60, :second)

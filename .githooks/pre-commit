@@ -1,0 +1,20 @@
+#!/bin/sh
+# Pre-commit hook: auto-format Elixir code with mix format
+#
+# This hook runs `mix format` on staged .ex/.exs files before each commit.
+# If formatting changes any files, they are automatically re-staged.
+
+# Get list of staged Elixir files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ex|exs)$')
+
+if [ -z "$STAGED_FILES" ]; then
+  exit 0
+fi
+
+# Run mix format on staged files only
+echo "$STAGED_FILES" | xargs mix format
+
+# Re-stage any files that were reformatted
+echo "$STAGED_FILES" | xargs git add
+
+exit 0

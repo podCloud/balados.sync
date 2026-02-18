@@ -40,14 +40,17 @@ defmodule BaladosSyncWeb.SubscriptionController do
   plug JWTAuth, [scopes: ["user.subscriptions.write"]] when action in [:create, :delete]
 
   # Rate limits per user
-  plug RateLimiter, [limit: 100, window_ms: 60_000, key: :user_id, namespace: "subs_read"]
+  plug RateLimiter,
+       [limit: 100, window_ms: 60_000, key: :user_id, namespace: "subs_read"]
        when action in [:index]
 
   # Metadata endpoint rate limited separately (involves RSS fetch)
-  plug RateLimiter, [limit: 20, window_ms: 60_000, key: :user_id, namespace: "subs_metadata"]
+  plug RateLimiter,
+       [limit: 20, window_ms: 60_000, key: :user_id, namespace: "subs_metadata"]
        when action in [:metadata]
 
-  plug RateLimiter, [limit: 30, window_ms: 60_000, key: :user_id, namespace: "subs_write"]
+  plug RateLimiter,
+       [limit: 30, window_ms: 60_000, key: :user_id, namespace: "subs_write"]
        when action in [:create, :delete]
 
   @doc """

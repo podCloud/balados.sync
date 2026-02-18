@@ -272,11 +272,12 @@ defmodule BaladosSyncWeb.PodcastOwnershipController do
 
     if podcast do
       # Get user settings for visibility
-      settings = BaladosSyncCore.SystemRepo.get_by(
-        BaladosSyncProjections.Schemas.UserPodcastSettings,
-        user_id: user_id,
-        enriched_podcast_id: podcast_id
-      )
+      settings =
+        BaladosSyncCore.SystemRepo.get_by(
+          BaladosSyncProjections.Schemas.UserPodcastSettings,
+          user_id: user_id,
+          enriched_podcast_id: podcast_id
+        )
 
       render(conn, :show_podcast, podcast: podcast, settings: settings)
     else

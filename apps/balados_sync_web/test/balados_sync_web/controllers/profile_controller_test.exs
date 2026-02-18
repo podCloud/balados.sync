@@ -35,7 +35,9 @@ defmodule BaladosSyncWeb.ProfileControllerTest do
       conn = get(conn, ~p"/settings/profile")
 
       assert redirected_to(conn) == ~p"/users/log_in"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You must log in to access this page."
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "You must log in to access this page."
     end
 
     test "PUT /settings/profile redirects to login when not authenticated", %{conn: conn} do
@@ -330,13 +332,17 @@ defmodule BaladosSyncWeb.ProfileControllerTest do
       assert html_response(conn, 404)
     end
 
-    test "returns 404 when accessing another user's playlist with wrong username", %{conn: conn, user: user} do
+    test "returns 404 when accessing another user's playlist with wrong username", %{
+      conn: conn,
+      user: user
+    } do
       user
       |> User.profile_changeset(%{public_profile_enabled: true})
       |> SystemRepo.update!()
 
       # Create another user with public profile
       other_user = create_test_user("otheruser")
+
       other_user
       |> User.profile_changeset(%{public_profile_enabled: true})
       |> SystemRepo.update!()
@@ -357,7 +363,8 @@ defmodule BaladosSyncWeb.ProfileControllerTest do
       |> User.profile_changeset(%{public_profile_enabled: true})
       |> SystemRepo.update!()
 
-      collection = insert_collection(user.id, "Tech Podcasts", "My favorite tech shows", true, "blue")
+      collection =
+        insert_collection(user.id, "Tech Podcasts", "My favorite tech shows", true, "blue")
 
       conn = get(conn, ~p"/u/#{user.username}/collections/#{collection.id}")
 
@@ -424,13 +431,17 @@ defmodule BaladosSyncWeb.ProfileControllerTest do
       assert html_response(conn, 404)
     end
 
-    test "returns 404 when accessing another user's collection with wrong username", %{conn: conn, user: user} do
+    test "returns 404 when accessing another user's collection with wrong username", %{
+      conn: conn,
+      user: user
+    } do
       user
       |> User.profile_changeset(%{public_profile_enabled: true})
       |> SystemRepo.update!()
 
       # Create another user with public profile
       other_user = create_test_user("anotheruser")
+
       other_user
       |> User.profile_changeset(%{public_profile_enabled: true})
       |> SystemRepo.update!()

@@ -13,7 +13,9 @@
 
       <div class="flex gap-4 text-sm text-zinc-600 mt-3">
         <%= if @episode.author do %>
-          <span><%= gettext("episode.by") %> <span class="font-medium"><%= @episode.author %></span></span>
+          <span>
+            <%= gettext("episode.by") %> <span class="font-medium"><%= @episode.author %></span>
+          </span>
         <% end %>
         <%= if @episode.pub_date do %>
           <span title={Calendar.strftime(@episode.pub_date, "%B %d, %Y at %H:%M")}>
@@ -31,7 +33,9 @@
       <!-- Popularity Stats -->
       <%= if @popularity do %>
         <div class="mt-6 p-4 bg-zinc-50 rounded-lg">
-          <h3 class="font-semibold text-zinc-900 mb-2"><%= gettext("common.popularity_stats") %></h3>
+          <h3 class="font-semibold text-zinc-900 mb-2">
+            <%= gettext("common.popularity_stats") %>
+          </h3>
           <div class="grid grid-cols-3 gap-4 text-sm">
             <div>
               <div class="text-zinc-600"><%= gettext("trending.score") %></div>

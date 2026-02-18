@@ -52,14 +52,14 @@ defmodule BaladosSyncWeb.Opml do
     ]
 
     @type t :: %__MODULE__{
-      feed_url: String.t(),
-      title: String.t() | nil,
-      subscribed_at: DateTime.t() | nil,
-      unsubscribed_at: DateTime.t() | nil,
-      privacy: String.t(),
-      source_id: String.t() | nil,
-      play_statuses: [PlayStatus.t()]
-    }
+            feed_url: String.t(),
+            title: String.t() | nil,
+            subscribed_at: DateTime.t() | nil,
+            unsubscribed_at: DateTime.t() | nil,
+            privacy: String.t(),
+            source_id: String.t() | nil,
+            play_statuses: [PlayStatus.t()]
+          }
   end
 
   defmodule PlayStatus do
@@ -72,11 +72,11 @@ defmodule BaladosSyncWeb.Opml do
     ]
 
     @type t :: %__MODULE__{
-      guid: String.t(),
-      position: integer(),
-      played: boolean(),
-      updated_at: DateTime.t() | nil
-    }
+            guid: String.t(),
+            position: integer(),
+            played: boolean(),
+            updated_at: DateTime.t() | nil
+          }
   end
 
   defmodule Playlist do
@@ -92,14 +92,14 @@ defmodule BaladosSyncWeb.Opml do
     ]
 
     @type t :: %__MODULE__{
-      id: String.t() | nil,
-      name: String.t(),
-      description: String.t() | nil,
-      type: String.t(),
-      is_public: boolean(),
-      updated_at: DateTime.t() | nil,
-      items: [PlaylistItem.t()]
-    }
+            id: String.t() | nil,
+            name: String.t(),
+            description: String.t() | nil,
+            type: String.t(),
+            is_public: boolean(),
+            updated_at: DateTime.t() | nil,
+            items: [PlaylistItem.t()]
+          }
   end
 
   defmodule PlaylistItem do
@@ -113,12 +113,12 @@ defmodule BaladosSyncWeb.Opml do
     ]
 
     @type t :: %__MODULE__{
-      feed_url: String.t(),
-      guid: String.t(),
-      position: integer(),
-      item_title: String.t() | nil,
-      feed_title: String.t() | nil
-    }
+            feed_url: String.t(),
+            guid: String.t(),
+            position: integer(),
+            item_title: String.t() | nil,
+            feed_title: String.t() | nil
+          }
   end
 
   defmodule Collection do
@@ -134,14 +134,14 @@ defmodule BaladosSyncWeb.Opml do
     ]
 
     @type t :: %__MODULE__{
-      id: String.t() | nil,
-      title: String.t(),
-      description: String.t() | nil,
-      is_public: boolean(),
-      color: String.t() | nil,
-      updated_at: DateTime.t() | nil,
-      feeds: [String.t()]
-    }
+            id: String.t() | nil,
+            title: String.t(),
+            description: String.t() | nil,
+            is_public: boolean(),
+            color: String.t() | nil,
+            updated_at: DateTime.t() | nil,
+            feeds: [String.t()]
+          }
   end
 
   defmodule Document do
@@ -156,13 +156,13 @@ defmodule BaladosSyncWeb.Opml do
     ]
 
     @type t :: %__MODULE__{
-      title: String.t() | nil,
-      date_created: DateTime.t() | nil,
-      version: String.t() | nil,
-      subscriptions: [Subscription.t()],
-      playlists: [Playlist.t()],
-      collections: [Collection.t()]
-    }
+            title: String.t() | nil,
+            date_created: DateTime.t() | nil,
+            version: String.t() | nil,
+            subscriptions: [Subscription.t()],
+            playlists: [Playlist.t()],
+            collections: [Collection.t()]
+          }
   end
 
   # ===== Public API =====
@@ -249,6 +249,7 @@ defmodule BaladosSyncWeb.Opml do
           [feed_url, enclosure_url] -> {:ok, feed_url, enclosure_url}
           _ -> {:error, :invalid_format}
         end
+
       _ ->
         {:error, :decode_failed}
     end

@@ -6,7 +6,14 @@ defmodule BaladosSyncWeb.Opml.Parser do
   Balados namespace (subscriptions + play statuses + playlists + collections).
   """
 
-  alias BaladosSyncWeb.Opml.{Document, Subscription, PlayStatus, Playlist, PlaylistItem, Collection}
+  alias BaladosSyncWeb.Opml.{
+    Document,
+    Subscription,
+    PlayStatus,
+    Playlist,
+    PlaylistItem,
+    Collection
+  }
 
   @doc """
   Parse an XML string into an OPML Document.
@@ -32,7 +39,8 @@ defmodule BaladosSyncWeb.Opml.Parser do
     try do
       # Use xmerl for parsing - it's included in Erlang/OTP
       # Security: Disable external entity loading to prevent XXE attacks
-      {doc, _rest} = xml_string
+      {doc, _rest} =
+        xml_string
         |> String.to_charlist()
         |> :xmerl_scan.string(
           quiet: true,
@@ -72,6 +80,7 @@ defmodule BaladosSyncWeb.Opml.Parser do
   # ===== Head Parsing =====
 
   defp get_head_text(nil, _tag), do: nil
+
   defp get_head_text(head, tag) do
     case find_element(head, tag) do
       nil -> nil
@@ -87,10 +96,13 @@ defmodule BaladosSyncWeb.Opml.Parser do
   end
 
   defp get_balados_version(nil), do: nil
+
   defp get_balados_version(head) do
     # Look for balados:version element
-    find_elements(head, :*) |> Enum.find_value(fn elem ->
+    find_elements(head, :*)
+    |> Enum.find_value(fn elem ->
       name = element_name(elem)
+
       if String.contains?(to_string(name), "version") do
         get_text_content(elem)
       end
@@ -100,6 +112,7 @@ defmodule BaladosSyncWeb.Opml.Parser do
   # ===== Subscriptions Extraction =====
 
   defp extract_subscriptions(nil), do: []
+
   defp extract_subscriptions(body) do
     # Find all outline elements
     outlines = find_all_outlines(body)
@@ -155,6 +168,7 @@ defmodule BaladosSyncWeb.Opml.Parser do
   # ===== Playlists Extraction =====
 
   defp extract_playlists(nil), do: []
+
   defp extract_playlists(body) do
     outlines = find_all_outlines(body)
     playlists_section = find_balados_section(outlines, "playlists")
@@ -199,6 +213,7 @@ defmodule BaladosSyncWeb.Opml.Parser do
   # ===== Collections Extraction =====
 
   defp extract_collections(nil), do: []
+
   defp extract_collections(body) do
     outlines = find_all_outlines(body)
     collections_section = find_balados_section(outlines, "collections")
@@ -234,6 +249,7 @@ defmodule BaladosSyncWeb.Opml.Parser do
   # ===== xmerl Helpers =====
 
   defp find_element(nil, _name), do: nil
+
   defp find_element({:xmlElement, _, _, _, _, _, _, _, content, _, _, _} = _elem, name) do
     content
     |> Enum.find(fn
@@ -241,16 +257,21 @@ defmodule BaladosSyncWeb.Opml.Parser do
       _ -> false
     end)
   end
+
   defp find_element(_, _), do: nil
 
   defp find_elements(nil, _name), do: []
+
   defp find_elements({:xmlElement, _, _, _, _, _, _, _, content, _, _, _}, name) do
     Enum.filter(content, fn
       {:xmlElement, n, _, _, _, _, _, _, _, _, _, _} ->
         name == :* or n == name
-      _ -> false
+
+      _ ->
+        false
     end)
   end
+
   defp find_elements(_, _), do: []
 
   defp find_all_outlines(elem) do
@@ -273,7 +294,7 @@ defmodule BaladosSyncWeb.Opml.Parser do
   defp find_balados_section(outlines, type) do
     Enum.find(outlines, fn outline ->
       get_balados_attr(outline, "type") == type or
-        (get_attr(outline, "text") == String.capitalize(type))
+        get_attr(outline, "text") == String.capitalize(type)
     end)
   end
 
@@ -287,6 +308,7 @@ defmodule BaladosSyncWeb.Opml.Parser do
       _ -> nil
     end)
   end
+
   defp get_text_content(_), do: nil
 
   defp get_attr({:xmlElement, _, _, _, _, _, _, attrs, _, _, _, _}, name) do
@@ -294,9 +316,12 @@ defmodule BaladosSyncWeb.Opml.Parser do
     |> Enum.find_value(fn
       {:xmlAttribute, attr_name, _, _, _, _, _, _, value, _} ->
         if to_string(attr_name) == name, do: to_string(value)
-      _ -> nil
+
+      _ ->
+        nil
     end)
   end
+
   defp get_attr(_, _), do: nil
 
   defp get_balados_attr(elem, name) do
@@ -306,7 +331,9 @@ defmodule BaladosSyncWeb.Opml.Parser do
 
   defp get_balados_int_attr(elem, name) do
     case get_balados_attr(elem, name) do
-      nil -> nil
+      nil ->
+        nil
+
       str ->
         case Integer.parse(str) do
           {int, _} -> int
@@ -335,10 +362,13 @@ defmodule BaladosSyncWeb.Opml.Parser do
 
   defp parse_rfc822(nil), do: nil
   defp parse_rfc822(""), do: nil
+
   defp parse_rfc822(str) do
     # Try RFC 822 format first, then ISO 8601
     case parse_rfc822_strict(str) do
-      {:ok, dt} -> dt
+      {:ok, dt} ->
+        dt
+
       _ ->
         case DateTime.from_iso8601(str) do
           {:ok, dt, _} -> dt
@@ -355,22 +385,25 @@ defmodule BaladosSyncWeb.Opml.Parser do
     case Regex.run(regex, str) do
       [_, _dow, day, month, year, hour, min, sec] ->
         month_num = month_to_number(month)
+
         if month_num do
           case NaiveDateTime.new(
-            String.to_integer(year),
-            month_num,
-            String.to_integer(day),
-            String.to_integer(hour),
-            String.to_integer(min),
-            String.to_integer(sec)
-          ) do
+                 String.to_integer(year),
+                 month_num,
+                 String.to_integer(day),
+                 String.to_integer(hour),
+                 String.to_integer(min),
+                 String.to_integer(sec)
+               ) do
             {:ok, ndt} -> {:ok, DateTime.from_naive!(ndt, "Etc/UTC")}
             _ -> :error
           end
         else
           :error
         end
-      _ -> :error
+
+      _ ->
+        :error
     end
   end
 

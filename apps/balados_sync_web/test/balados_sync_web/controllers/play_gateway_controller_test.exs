@@ -24,11 +24,7 @@ defmodule BaladosSyncWeb.PlayGatewayControllerTest do
     feed_id = Base.url_encode64(feed_url, padding: false)
     item_id = Base.url_encode64("guid123,https://example.com/ep.mp3", padding: false)
 
-    {:ok,
-     user_id: user_id,
-     token: token,
-     feed_id: feed_id,
-     item_id: item_id}
+    {:ok, user_id: user_id, token: token, feed_id: feed_id, item_id: item_id}
   end
 
   describe "GET /play/:user_token/:feed_id/:item_id - authentication" do

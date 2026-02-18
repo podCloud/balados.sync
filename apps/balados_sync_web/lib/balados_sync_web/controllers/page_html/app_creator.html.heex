@@ -275,7 +275,9 @@
         </div>
 
         <div class="form-group">
-          <label for="public_key" class="required"><%= gettext("app_creator.public_key_label") %></label>
+          <label for="public_key" class="required">
+            <%= gettext("app_creator.public_key_label") %>
+          </label>
           <textarea
             id="public_key"
             name="public_key"
@@ -289,7 +291,9 @@
         </div>
 
         <div class="form-group">
-          <label for="private_key" class="required"><%= gettext("app_creator.private_key_label") %></label>
+          <label for="private_key" class="required">
+            <%= gettext("app_creator.private_key_label") %>
+          </label>
           <textarea
             id="private_key"
             name="private_key"
@@ -304,7 +308,9 @@
           <button type="button" id="generateKeysBtn" class="btn-secondary">
             <%= gettext("app_creator.generate_key_pair") %>
           </button>
-          <button type="button" id="generateTokenBtn" class="btn-primary"><%= gettext("app_creator.generate_token") %></button>
+          <button type="button" id="generateTokenBtn" class="btn-primary">
+            <%= gettext("app_creator.generate_token") %>
+          </button>
         </div>
       </form>
 
@@ -313,10 +319,14 @@
         <textarea id="tokenOutput" class="textarea-small" readonly></textarea>
 
         <div class="button-group">
-          <button type="button" id="copyBtn" class="btn-success"><%= gettext("app_creator.copy_to_clipboard") %></button>
+          <button type="button" id="copyBtn" class="btn-success">
+            <%= gettext("app_creator.copy_to_clipboard") %>
+          </button>
         </div>
 
-        <div class="output-label" style="margin-top: 20px;"><%= gettext("app_creator.auth_url_example") %></div>
+        <div class="output-label" style="margin-top: 20px;">
+          <%= gettext("app_creator.auth_url_example") %>
+        </div>
         <div class="url-example" id="authUrlExample"></div>
         <div class="help-text" style="margin-top: 10px;">
           <%= gettext("app_creator.auth_url_hint") %>

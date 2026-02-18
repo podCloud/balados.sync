@@ -115,10 +115,22 @@ defmodule BaladosSyncWeb.RssParser do
     emails =
       []
       |> maybe_add_email(extract_itunes_owner_email(doc), "itunes:owner")
-      |> maybe_add_email(extract_email_from_field(doc, ~x"//rss/channel/managingEditor/text()"), "managingEditor")
-      |> maybe_add_email(extract_email_from_field(doc, ~x"//rss/channel/webMaster/text()"), "webMaster")
-      |> maybe_add_email(extract_email_from_text(extract_text(doc, ~x"//rss/channel/author/text()")), "author")
-      |> maybe_add_email(extract_email_from_text(extract_text(doc, ~x"//rss/channel/itunes:author/text()")), "itunes:author")
+      |> maybe_add_email(
+        extract_email_from_field(doc, ~x"//rss/channel/managingEditor/text()"),
+        "managingEditor"
+      )
+      |> maybe_add_email(
+        extract_email_from_field(doc, ~x"//rss/channel/webMaster/text()"),
+        "webMaster"
+      )
+      |> maybe_add_email(
+        extract_email_from_text(extract_text(doc, ~x"//rss/channel/author/text()")),
+        "author"
+      )
+      |> maybe_add_email(
+        extract_email_from_text(extract_text(doc, ~x"//rss/channel/itunes:author/text()")),
+        "itunes:author"
+      )
       |> Enum.uniq_by(fn %{email: email} -> String.downcase(email) end)
 
     {:ok, emails}

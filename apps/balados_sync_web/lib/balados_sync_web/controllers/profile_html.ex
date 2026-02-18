@@ -9,7 +9,8 @@ defmodule BaladosSyncWeb.ProfileHTML do
   @doc """
   Returns the display name for a user (public_name or username).
   """
-  def display_name(%{public_name: public_name}) when is_binary(public_name) and public_name != "" do
+  def display_name(%{public_name: public_name})
+      when is_binary(public_name) and public_name != "" do
     public_name
   end
 

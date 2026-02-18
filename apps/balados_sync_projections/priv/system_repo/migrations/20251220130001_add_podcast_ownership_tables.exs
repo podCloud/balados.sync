@@ -19,7 +19,14 @@ defmodule BaladosSyncProjections.SystemRepo.Migrations.AddPodcastOwnershipTables
     create table(:podcast_ownership_claims, primary_key: false, prefix: "system") do
       add :id, :binary_id, primary_key: true
       add :user_id, :string, null: false
-      add :enriched_podcast_id, references(:enriched_podcasts, type: :binary_id, prefix: "system", on_delete: :delete_all)
+
+      add :enriched_podcast_id,
+          references(:enriched_podcasts,
+            type: :binary_id,
+            prefix: "system",
+            on_delete: :delete_all
+          )
+
       add :feed_url, :text, null: false
       add :verification_code, :string, null: false
       add :status, :string, null: false, default: "pending"
@@ -35,26 +42,41 @@ defmodule BaladosSyncProjections.SystemRepo.Migrations.AddPodcastOwnershipTables
     create index(:podcast_ownership_claims, [:enriched_podcast_id], prefix: "system")
     create index(:podcast_ownership_claims, [:verification_code], prefix: "system")
     create index(:podcast_ownership_claims, [:status], prefix: "system")
-    create index(:podcast_ownership_claims, [:expires_at], prefix: "system", where: "status = 'pending'")
+
+    create index(:podcast_ownership_claims, [:expires_at],
+             prefix: "system",
+             where: "status = 'pending'"
+           )
 
     # Prevent duplicate pending claims per user per podcast
     create unique_index(:podcast_ownership_claims, [:user_id, :feed_url],
-      prefix: "system",
-      where: "status = 'pending'",
-      name: :unique_pending_claim_per_user_podcast
-    )
+             prefix: "system",
+             where: "status = 'pending'",
+             name: :unique_pending_claim_per_user_podcast
+           )
 
     # Create user_podcast_settings for visibility preferences
     create table(:user_podcast_settings, primary_key: false, prefix: "system") do
       add :id, :binary_id, primary_key: true
       add :user_id, :string, null: false
-      add :enriched_podcast_id, references(:enriched_podcasts, type: :binary_id, prefix: "system", on_delete: :delete_all), null: false
+
+      add :enriched_podcast_id,
+          references(:enriched_podcasts,
+            type: :binary_id,
+            prefix: "system",
+            on_delete: :delete_all
+          ),
+          null: false
+
       add :visibility, :string, null: false, default: "private"
 
       timestamps(type: :utc_datetime)
     end
 
-    create unique_index(:user_podcast_settings, [:user_id, :enriched_podcast_id], prefix: "system")
+    create unique_index(:user_podcast_settings, [:user_id, :enriched_podcast_id],
+             prefix: "system"
+           )
+
     create index(:user_podcast_settings, [:user_id, :visibility], prefix: "system")
   end
 end

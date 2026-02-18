@@ -14,8 +14,18 @@
     <.error :if={@changeset.action}>
       <%= gettext("auth.register.error") %>
     </.error>
-    <.input field={f[:username]} type="text" label={gettext("auth.register.username_label")} required />
-    <.input field={f[:password]} type="password" label={gettext("auth.register.password_label")} required />
+    <.input
+      field={f[:username]}
+      type="text"
+      label={gettext("auth.register.username_label")}
+      required
+    />
+    <.input
+      field={f[:password]}
+      type="password"
+      label={gettext("auth.register.password_label")}
+      required
+    />
     <.input field={f[:email]} type="email" label={gettext("auth.register.email_label")} />
 
     <div class="text-sm text-zinc-600 -mt-4 mb-4">
@@ -28,7 +38,9 @@
     </div>
 
     <:actions>
-      <.button phx-disable-with={gettext("auth.register.submitting")} class="w-full"><%= gettext("auth.register.submit") %></.button>
+      <.button phx-disable-with={gettext("auth.register.submitting")} class="w-full">
+        <%= gettext("auth.register.submit") %>
+      </.button>
     </:actions>
   </.simple_form>
 </div>

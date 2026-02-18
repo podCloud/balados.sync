@@ -26,7 +26,14 @@ defmodule BaladosSyncWeb.PodcastOwnership do
   import Ecto.Query
   alias BaladosSyncCore.SystemRepo
   alias BaladosSyncCore.OwnershipEmails
-  alias BaladosSyncProjections.Schemas.{EmailVerification, EnrichedPodcast, PodcastOwnershipClaim, UserPodcastSettings}
+
+  alias BaladosSyncProjections.Schemas.{
+    EmailVerification,
+    EnrichedPodcast,
+    PodcastOwnershipClaim,
+    UserPodcastSettings
+  }
+
   alias BaladosSyncCore.UrlValidator
   alias BaladosSyncWeb.RssParser
 
@@ -268,7 +275,10 @@ defmodule BaladosSyncWeb.PodcastOwnership do
   ## User Settings
 
   defp get_or_create_user_settings(user_id, enriched_podcast_id, visibility) do
-    case SystemRepo.get_by(UserPodcastSettings, user_id: user_id, enriched_podcast_id: enriched_podcast_id) do
+    case SystemRepo.get_by(UserPodcastSettings,
+           user_id: user_id,
+           enriched_podcast_id: enriched_podcast_id
+         ) do
       nil ->
         %UserPodcastSettings{}
         |> UserPodcastSettings.changeset(%{
@@ -286,8 +296,12 @@ defmodule BaladosSyncWeb.PodcastOwnership do
   @doc """
   Updates visibility setting for a user's claimed podcast.
   """
-  def update_visibility(user_id, enriched_podcast_id, visibility) when visibility in ["public", "private"] do
-    case SystemRepo.get_by(UserPodcastSettings, user_id: user_id, enriched_podcast_id: enriched_podcast_id) do
+  def update_visibility(user_id, enriched_podcast_id, visibility)
+      when visibility in ["public", "private"] do
+    case SystemRepo.get_by(UserPodcastSettings,
+           user_id: user_id,
+           enriched_podcast_id: enriched_podcast_id
+         ) do
       nil ->
         {:error, :settings_not_found}
 
@@ -318,11 +332,12 @@ defmodule BaladosSyncWeb.PodcastOwnership do
   """
   def list_user_public_podcasts(user_id) do
     query =
-      from p in EnrichedPodcast,
+      from(p in EnrichedPodcast,
         join: s in UserPodcastSettings,
         on: s.enriched_podcast_id == p.id,
         where: s.user_id == ^user_id and s.visibility == "public",
         select: p
+      )
 
     SystemRepo.all(query)
   end
@@ -560,10 +575,11 @@ defmodule BaladosSyncWeb.PodcastOwnership do
 
   defp get_pending_email_verification(claim_id) do
     case SystemRepo.one(
-           from v in EmailVerification,
+           from(v in EmailVerification,
              where: v.claim_id == ^claim_id and v.status in ["pending", "sent"],
              order_by: [desc: v.inserted_at],
              limit: 1
+           )
          ) do
       nil -> {:error, :no_pending_verification}
       verification -> {:ok, verification}
@@ -623,10 +639,11 @@ defmodule BaladosSyncWeb.PodcastOwnership do
   """
   def get_email_verification(claim_id) do
     SystemRepo.one(
-      from v in EmailVerification,
+      from(v in EmailVerification,
         where: v.claim_id == ^claim_id,
         order_by: [desc: v.inserted_at],
         limit: 1
+      )
     )
   end
 

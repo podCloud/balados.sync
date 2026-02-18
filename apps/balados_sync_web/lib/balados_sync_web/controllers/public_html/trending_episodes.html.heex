@@ -22,13 +22,24 @@
             </.link>
             <p class="text-sm text-zinc-600 mt-1">
               <%= gettext("trending.from") %>:
-              <span class="font-medium"><%= episode.feed_title || gettext("common.unknown_podcast") %></span>
+              <span class="font-medium">
+                <%= episode.feed_title || gettext("common.unknown_podcast") %>
+              </span>
             </p>
 
             <div class="flex gap-6 mt-2 text-sm text-zinc-600">
-              <span><%= gettext("trending.score") %>: <span class="font-semibold"><%= episode.score %></span></span>
-              <span><%= gettext("trending.plays") %>: <span class="font-semibold"><%= episode.plays %></span></span>
-              <span><%= gettext("trending.likes") %>: <span class="font-semibold"><%= episode.likes %></span></span>
+              <span>
+                <%= gettext("trending.score") %>:
+                <span class="font-semibold"><%= episode.score %></span>
+              </span>
+              <span>
+                <%= gettext("trending.plays") %>:
+                <span class="font-semibold"><%= episode.plays %></span>
+              </span>
+              <span>
+                <%= gettext("trending.likes") %>:
+                <span class="font-semibold"><%= episode.likes %></span>
+              </span>
             </div>
           </div>
         </div>

@@ -56,7 +56,14 @@ defmodule BaladosSyncProjections.Schemas.EmailVerification do
       :verified_at,
       :attempts
     ])
-    |> validate_required([:user_id, :claim_id, :email, :email_source, :verification_code, :expires_at])
+    |> validate_required([
+      :user_id,
+      :claim_id,
+      :email,
+      :email_source,
+      :verification_code,
+      :expires_at
+    ])
     |> validate_inclusion(:status, @valid_statuses)
     |> validate_format(:email, ~r/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
   end
@@ -92,9 +99,25 @@ defmodule BaladosSyncProjections.Schemas.EmailVerification do
         expires_at: expires_at,
         attempts: 0
       },
-      [:user_id, :claim_id, :email, :email_source, :verification_code, :status, :expires_at, :attempts]
+      [
+        :user_id,
+        :claim_id,
+        :email,
+        :email_source,
+        :verification_code,
+        :status,
+        :expires_at,
+        :attempts
+      ]
     )
-    |> validate_required([:user_id, :claim_id, :email, :email_source, :verification_code, :expires_at])
+    |> validate_required([
+      :user_id,
+      :claim_id,
+      :email,
+      :email_source,
+      :verification_code,
+      :expires_at
+    ])
   end
 
   @doc """

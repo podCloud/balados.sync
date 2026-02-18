@@ -470,7 +470,6 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
     end
   end
 
-
   describe "collection management: create collection" do
     test "opens create collection modal", %{conn: conn} do
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
@@ -492,7 +491,12 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       view |> element("button[phx-click=\"open_create_collection\"]") |> render_click()
 
       # Fill in the form via update_collection_form event
-      html = view |> render_keyup("update_collection_form", %{"field" => "title", "value" => "My New Collection"})
+      html =
+        view
+        |> render_keyup("update_collection_form", %{
+          "field" => "title",
+          "value" => "My New Collection"
+        })
 
       # Form should show the input value (input has the value set)
       assert html =~ "My New Collection"
@@ -518,7 +522,9 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       view |> element("button[phx-click=\"open_create_collection\"]") |> render_click()
 
       # Click a color button (green) - use render_click with the event directly
-      html = view |> render_click("update_collection_form", %{"field" => "color", "value" => "#22c55e"})
+      html =
+        view
+        |> render_click("update_collection_form", %{"field" => "color", "value" => "#22c55e"})
 
       # Color should be selected (has ring class)
       assert html =~ "ring-2"
@@ -532,7 +538,12 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
       # Click edit button on the collection
-      html = view |> element("button[phx-click=\"open_edit_collection\"][phx-value-id=\"#{collection.id}\"]") |> render_click()
+      html =
+        view
+        |> element(
+          "button[phx-click=\"open_edit_collection\"][phx-value-id=\"#{collection.id}\"]"
+        )
+        |> render_click()
 
       # Modal should show "Edit Collection" with existing data
       assert html =~ "Edit Collection"
@@ -545,10 +556,17 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
       # Open edit modal
-      view |> element("button[phx-click=\"open_edit_collection\"][phx-value-id=\"#{collection.id}\"]") |> render_click()
+      view
+      |> element("button[phx-click=\"open_edit_collection\"][phx-value-id=\"#{collection.id}\"]")
+      |> render_click()
 
       # Update title via event
-      html = view |> render_keyup("update_collection_form", %{"field" => "title", "value" => "Updated Title"})
+      html =
+        view
+        |> render_keyup("update_collection_form", %{
+          "field" => "title",
+          "value" => "Updated Title"
+        })
 
       # Form should show the updated value
       assert html =~ "Updated Title"
@@ -560,10 +578,14 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
       # Open edit modal
-      view |> element("button[phx-click=\"open_edit_collection\"][phx-value-id=\"#{collection.id}\"]") |> render_click()
+      view
+      |> element("button[phx-click=\"open_edit_collection\"][phx-value-id=\"#{collection.id}\"]")
+      |> render_click()
 
       # Select a different color (purple) via event
-      html = view |> render_click("update_collection_form", %{"field" => "color", "value" => "#a855f7"})
+      html =
+        view
+        |> render_click("update_collection_form", %{"field" => "color", "value" => "#a855f7"})
 
       # Color should be selected in modal (has ring class)
       assert html =~ "ring-2"
@@ -577,7 +599,12 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
       # Click delete button
-      html = view |> element("button[phx-click=\"confirm_delete_collection\"][phx-value-id=\"#{collection.id}\"]") |> render_click()
+      html =
+        view
+        |> element(
+          "button[phx-click=\"confirm_delete_collection\"][phx-value-id=\"#{collection.id}\"]"
+        )
+        |> render_click()
 
       # Confirmation modal should appear
       assert html =~ "Delete Collection?"
@@ -590,7 +617,11 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
       # Open delete confirmation
-      view |> element("button[phx-click=\"confirm_delete_collection\"][phx-value-id=\"#{collection.id}\"]") |> render_click()
+      view
+      |> element(
+        "button[phx-click=\"confirm_delete_collection\"][phx-value-id=\"#{collection.id}\"]"
+      )
+      |> render_click()
 
       # Cancel
       html = view |> element("button[phx-click=\"cancel_delete\"]") |> render_click()
@@ -606,7 +637,12 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
       {:ok, view, _html} = live(conn, ~p"/subscriptions")
 
       # Open delete confirmation
-      html = view |> element("button[phx-click=\"confirm_delete_collection\"][phx-value-id=\"#{collection.id}\"]") |> render_click()
+      html =
+        view
+        |> element(
+          "button[phx-click=\"confirm_delete_collection\"][phx-value-id=\"#{collection.id}\"]"
+        )
+        |> render_click()
 
       # Modal should have the delete confirmation button
       assert html =~ "phx-click=\"delete_collection\""
@@ -686,7 +722,8 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
 
       # Should show toggle button with checkmark (feed is in collection)
       assert html =~ "toggle_feed_in_collection"
-      assert html =~ "bg-green-500"  # Green background for included feeds
+      # Green background for included feeds
+      assert html =~ "bg-green-500"
     end
 
     test "toggle feed button is present in manage mode", %{conn: conn, user: user} do
@@ -763,6 +800,7 @@ defmodule BaladosSyncWeb.SubscriptionsLiveTest do
 
       # Active collection should have the full color background (not transparent)
       assert html =~ "Active Collection"
+
       # When active, background is the full color, when inactive it has 20 appended for transparency
       assert html =~ "style=\"background-color: #a855f7"
     end

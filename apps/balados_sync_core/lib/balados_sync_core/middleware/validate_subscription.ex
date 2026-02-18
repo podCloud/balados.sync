@@ -31,7 +31,9 @@ defmodule BaladosSyncCore.Middleware.ValidateSubscription do
 
   import Ecto.Query
 
-  def before_dispatch(%Commanded.Middleware.Pipeline{command: %AddFeedToCollection{} = cmd} = pipeline) do
+  def before_dispatch(
+        %Commanded.Middleware.Pipeline{command: %AddFeedToCollection{} = cmd} = pipeline
+      ) do
     repo = repo()
 
     # Uses raw table name with prefix to avoid compile-time dependency on
@@ -82,6 +84,10 @@ defmodule BaladosSyncCore.Middleware.ValidateSubscription do
   def after_failure(pipeline), do: pipeline
 
   defp repo do
-    Application.get_env(:balados_sync_core, :projections_repo, BaladosSyncProjections.ProjectionsRepo)
+    Application.get_env(
+      :balados_sync_core,
+      :projections_repo,
+      BaladosSyncProjections.ProjectionsRepo
+    )
   end
 end

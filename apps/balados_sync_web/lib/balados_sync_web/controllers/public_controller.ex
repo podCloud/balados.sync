@@ -525,5 +525,4 @@ defmodule BaladosSyncWeb.PublicController do
       end
     end)
   end
-
 end

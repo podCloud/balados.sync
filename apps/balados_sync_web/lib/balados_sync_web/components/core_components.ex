@@ -634,7 +634,13 @@ defmodule BaladosSyncWeb.CoreComponents do
               class="text-zinc-400 hover:text-zinc-600 js-hide-modal"
               aria-label="Close"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -731,7 +737,13 @@ defmodule BaladosSyncWeb.CoreComponents do
               class="text-zinc-400 hover:text-zinc-600 js-hide-modal"
               aria-label="Close"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -820,7 +832,13 @@ defmodule BaladosSyncWeb.CoreComponents do
               class="text-zinc-400 hover:text-zinc-600 js-hide-modal"
               aria-label="Close"
             >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"

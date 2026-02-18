@@ -4,7 +4,13 @@ defmodule BaladosSyncProjections.Projectors.PlayStatusesProjector do
     repo: BaladosSyncProjections.ProjectionsRepo,
     name: "PlayStatusesProjector"
 
-  alias BaladosSyncCore.Events.{PlayRecorded, PositionUpdated, UserCheckpoint, PlayTrackingCheckpoint}
+  alias BaladosSyncCore.Events.{
+    PlayRecorded,
+    PositionUpdated,
+    UserCheckpoint,
+    PlayTrackingCheckpoint
+  }
+
   alias BaladosSyncProjections.Schemas.PlayStatus
 
   project(%PlayRecorded{} = event, _metadata, fn multi ->

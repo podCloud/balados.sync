@@ -3,7 +3,10 @@
     <.header>
       <%= gettext("enriched.details") %>
       <:subtitle>
-        <.link navigate={~p"/podcasts/#{@enriched_podcast.slug}"} class="text-blue-600 hover:text-blue-800">
+        <.link
+          navigate={~p"/podcasts/#{@enriched_podcast.slug}"}
+          class="text-blue-600 hover:text-blue-800"
+        >
           /podcasts/<%= @enriched_podcast.slug %>
         </.link>
       </:subtitle>
@@ -24,7 +27,6 @@
         </.link>
       </:actions>
     </.header>
-
     <!-- Podcast Info -->
     <div class="mt-8 bg-white shadow rounded-lg overflow-hidden">
       <%= if @enriched_podcast.background_color do %>
@@ -44,43 +46,53 @@
         <% end %>
       </div>
     </div>
-
     <!-- Stats -->
     <div class="mt-6 grid grid-cols-3 gap-4">
       <div class="bg-white shadow rounded-lg p-4">
-        <dt class="text-sm font-medium text-zinc-500"><%= gettext("enriched.stats.subscribers") %></dt>
+        <dt class="text-sm font-medium text-zinc-500">
+          <%= gettext("enriched.stats.subscribers") %>
+        </dt>
         <dd class="mt-1 text-2xl font-semibold text-zinc-900">
           <%= @stats.subscriber_count %>
         </dd>
       </div>
       <div class="bg-white shadow rounded-lg p-4">
-        <dt class="text-sm font-medium text-zinc-500"><%= gettext("enriched.stats.total_plays") %></dt>
+        <dt class="text-sm font-medium text-zinc-500">
+          <%= gettext("enriched.stats.total_plays") %>
+        </dt>
         <dd class="mt-1 text-2xl font-semibold text-zinc-900">
           <%= @stats.popularity.plays %>
         </dd>
       </div>
       <div class="bg-white shadow rounded-lg p-4">
-        <dt class="text-sm font-medium text-zinc-500"><%= gettext("enriched.stats.popularity_score") %></dt>
+        <dt class="text-sm font-medium text-zinc-500">
+          <%= gettext("enriched.stats.popularity_score") %>
+        </dt>
         <dd class="mt-1 text-2xl font-semibold text-zinc-900">
           <%= @stats.popularity.score %>
         </dd>
       </div>
     </div>
-
     <!-- Configuration Details -->
     <div class="mt-6 bg-white shadow rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <h3 class="text-lg font-medium leading-6 text-zinc-900 mb-4"><%= gettext("enriched.configuration") %></h3>
+        <h3 class="text-lg font-medium leading-6 text-zinc-900 mb-4">
+          <%= gettext("enriched.configuration") %>
+        </h3>
 
         <dl class="divide-y divide-zinc-200">
           <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt class="text-sm font-medium text-zinc-500"><%= gettext("enriched.table.slug") %></dt>
+            <dt class="text-sm font-medium text-zinc-500">
+              <%= gettext("enriched.table.slug") %>
+            </dt>
             <dd class="mt-1 text-sm text-zinc-900 sm:mt-0 sm:col-span-2 font-mono">
               <%= @enriched_podcast.slug %>
             </dd>
           </div>
           <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt class="text-sm font-medium text-zinc-500"><%= gettext("enriched.background_color_label") %></dt>
+            <dt class="text-sm font-medium text-zinc-500">
+              <%= gettext("enriched.background_color_label") %>
+            </dt>
             <dd class="mt-1 text-sm text-zinc-900 sm:mt-0 sm:col-span-2">
               <%= if @enriched_podcast.background_color do %>
                 <div class="flex items-center gap-2">
@@ -97,7 +109,9 @@
             </dd>
           </div>
           <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt class="text-sm font-medium text-zinc-500"><%= gettext("enriched.table.links") %></dt>
+            <dt class="text-sm font-medium text-zinc-500">
+              <%= gettext("enriched.table.links") %>
+            </dt>
             <dd class="mt-1 text-sm text-zinc-900 sm:mt-0 sm:col-span-2">
               <%= if @enriched_podcast.links && length(@enriched_podcast.links) > 0 do %>
                 <ul class="space-y-2">
@@ -132,7 +146,9 @@
             </dd>
           </div>
           <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-            <dt class="text-sm font-medium text-zinc-500"><%= gettext("enriched.last_updated") %></dt>
+            <dt class="text-sm font-medium text-zinc-500">
+              <%= gettext("enriched.last_updated") %>
+            </dt>
             <dd class="mt-1 text-sm text-zinc-900 sm:mt-0 sm:col-span-2">
               <%= Calendar.strftime(@enriched_podcast.updated_at, "%B %d, %Y at %H:%M UTC") %>
             </dd>
@@ -142,10 +158,16 @@
     </div>
 
     <div class="mt-6 flex gap-4">
-      <.link navigate={~p"/admin/enriched-podcasts"} class="text-sm text-zinc-600 hover:text-zinc-900">
+      <.link
+        navigate={~p"/admin/enriched-podcasts"}
+        class="text-sm text-zinc-600 hover:text-zinc-900"
+      >
         &larr; <%= gettext("enriched.back_to_list") %>
       </.link>
-      <.link navigate={~p"/podcasts/#{@enriched_podcast.slug}"} class="text-sm text-blue-600 hover:text-blue-800">
+      <.link
+        navigate={~p"/podcasts/#{@enriched_podcast.slug}"}
+        class="text-sm text-blue-600 hover:text-blue-800"
+      >
         <%= gettext("enriched.view_public_page") %> &rarr;
       </.link>
     </div>

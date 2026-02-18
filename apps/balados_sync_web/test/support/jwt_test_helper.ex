@@ -16,10 +16,14 @@ defmodule BaladosSyncWeb.JwtTestHelper do
   """
   def generate_key_pair do
     private_key = :public_key.generate_key({:rsa, 2048, 65537})
-    private_key_pem = :public_key.pem_encode([:public_key.pem_entry_encode(:RSAPrivateKey, private_key)])
+
+    private_key_pem =
+      :public_key.pem_encode([:public_key.pem_entry_encode(:RSAPrivateKey, private_key)])
 
     public_key = extract_public_key(private_key)
-    public_key_pem = :public_key.pem_encode([:public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)])
+
+    public_key_pem =
+      :public_key.pem_encode([:public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)])
 
     {private_key_pem, public_key_pem}
   end

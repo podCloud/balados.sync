@@ -355,7 +355,8 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
     # Upsert playlist
     {:ok, _playlist} =
       repo.insert(
-        %Playlist{} |> Ecto.Changeset.change(%{
+        %Playlist{}
+        |> Ecto.Changeset.change(%{
           id: event.playlist,
           user_id: event.user_id,
           name: event.playlist
@@ -366,7 +367,8 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
 
     # Add item
     repo.insert(
-      %PlaylistItem{} |> Ecto.Changeset.change(%{
+      %PlaylistItem{}
+      |> Ecto.Changeset.change(%{
         user_id: event.user_id,
         playlist_id: event.playlist,
         rss_source_feed: event.rss_source_feed,
@@ -445,7 +447,12 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
 
     updates = [updated_at: truncate_timestamp(event.timestamp)]
     updates = if event.title, do: Keyword.put(updates, :title, event.title), else: updates
-    updates = if event.description, do: Keyword.put(updates, :description, event.description), else: updates
+
+    updates =
+      if event.description,
+        do: Keyword.put(updates, :description, event.description),
+        else: updates
+
     updates = if event.color, do: Keyword.put(updates, :color, event.color), else: updates
 
     {count, _} =

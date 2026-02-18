@@ -79,7 +79,8 @@ defmodule BaladosSyncCore.SyncResolver do
   def resolve_play_position(local, remote) do
     # Handle reset flag - user explicitly started over
     if Map.get(local, :reset, false) do
-      {:ok, local, :local_wins, build_conflict_info(:play_position, local, remote, :local_wins, "Local reset flag")}
+      {:ok, local, :local_wins,
+       build_conflict_info(:play_position, local, remote, :local_wins, "Local reset flag")}
     else
       local_position = local[:position] || 0
       remote_position = remote[:position] || 0
@@ -87,16 +88,44 @@ defmodule BaladosSyncCore.SyncResolver do
       # If one is marked as played, it wins (episode completed)
       cond do
         local[:played] && !remote[:played] ->
-          {:ok, local, :local_wins, build_conflict_info(:play_position, local, remote, :local_wins, "Local marked as played")}
+          {:ok, local, :local_wins,
+           build_conflict_info(
+             :play_position,
+             local,
+             remote,
+             :local_wins,
+             "Local marked as played"
+           )}
 
         remote[:played] && !local[:played] ->
-          {:ok, remote, :remote_wins, build_conflict_info(:play_position, local, remote, :remote_wins, "Remote marked as played")}
+          {:ok, remote, :remote_wins,
+           build_conflict_info(
+             :play_position,
+             local,
+             remote,
+             :remote_wins,
+             "Remote marked as played"
+           )}
 
         local_position > remote_position ->
-          {:ok, local, :local_wins, build_conflict_info(:play_position, local, remote, :local_wins, "Higher local position")}
+          {:ok, local, :local_wins,
+           build_conflict_info(
+             :play_position,
+             local,
+             remote,
+             :local_wins,
+             "Higher local position"
+           )}
 
         remote_position > local_position ->
-          {:ok, remote, :remote_wins, build_conflict_info(:play_position, local, remote, :remote_wins, "Higher remote position")}
+          {:ok, remote, :remote_wins,
+           build_conflict_info(
+             :play_position,
+             local,
+             remote,
+             :remote_wins,
+             "Higher remote position"
+           )}
 
         true ->
           # Same position - prefer more recent timestamp
@@ -130,11 +159,12 @@ defmodule BaladosSyncCore.SyncResolver do
     metadata_winner = if newer?(local, remote), do: local, else: remote
 
     # Items: Three-way merge
-    merged_items = merge_playlist_items(
-      local[:items] || [],
-      remote[:items] || [],
-      if(base, do: base[:items] || [], else: [])
-    )
+    merged_items =
+      merge_playlist_items(
+        local[:items] || [],
+        remote[:items] || [],
+        if(base, do: base[:items] || [], else: [])
+      )
 
     merged = %{
       name: metadata_winner[:name],
@@ -148,11 +178,12 @@ defmodule BaladosSyncCore.SyncResolver do
     local_items_set = MapSet.new(local[:items] || [], &item_key/1)
     remote_items_set = MapSet.new(remote[:items] || [], &item_key/1)
 
-    resolution = if MapSet.equal?(local_items_set, remote_items_set) do
-      if newer?(local, remote), do: :local_wins, else: :remote_wins
-    else
-      :merged
-    end
+    resolution =
+      if MapSet.equal?(local_items_set, remote_items_set) do
+        if newer?(local, remote), do: :local_wins, else: :remote_wins
+      else
+        :merged
+      end
 
     {:ok, merged, resolution, nil}
   end
@@ -181,27 +212,33 @@ defmodule BaladosSyncCore.SyncResolver do
     conflicts = []
 
     # Resolve subscriptions
-    {resolved_subs, sub_conflicts} = resolve_map(
-      local_data[:subscriptions] || %{},
-      remote_data[:subscriptions] || %{},
-      &resolve_subscription/2
-    )
+    {resolved_subs, sub_conflicts} =
+      resolve_map(
+        local_data[:subscriptions] || %{},
+        remote_data[:subscriptions] || %{},
+        &resolve_subscription/2
+      )
+
     conflicts = conflicts ++ sub_conflicts
 
     # Resolve play statuses
-    {resolved_plays, play_conflicts} = resolve_map(
-      local_data[:play_statuses] || %{},
-      remote_data[:play_statuses] || %{},
-      &resolve_play_position/2
-    )
+    {resolved_plays, play_conflicts} =
+      resolve_map(
+        local_data[:play_statuses] || %{},
+        remote_data[:play_statuses] || %{},
+        &resolve_play_position/2
+      )
+
     conflicts = conflicts ++ play_conflicts
 
     # Resolve playlists
-    {resolved_playlists, playlist_conflicts} = resolve_map(
-      local_data[:playlists] || %{},
-      remote_data[:playlists] || %{},
-      fn local, remote -> resolve_playlist(local, remote, nil) end
-    )
+    {resolved_playlists, playlist_conflicts} =
+      resolve_map(
+        local_data[:playlists] || %{},
+        remote_data[:playlists] || %{},
+        fn local, remote -> resolve_playlist(local, remote, nil) end
+      )
+
     conflicts = conflicts ++ playlist_conflicts
 
     resolved = %{
@@ -269,16 +306,18 @@ defmodule BaladosSyncCore.SyncResolver do
     remote_removals = MapSet.difference(base_set, remote_set)
 
     # Start with base, apply all changes
-    result_set = base_set
-                 |> MapSet.union(local_additions)
-                 |> MapSet.union(remote_additions)
-                 |> MapSet.difference(local_removals)
-                 |> MapSet.difference(remote_removals)
+    result_set =
+      base_set
+      |> MapSet.union(local_additions)
+      |> MapSet.union(remote_additions)
+      |> MapSet.difference(local_removals)
+      |> MapSet.difference(remote_removals)
 
     # Build item map for lookups
-    all_items = (local_items ++ remote_items ++ base_items)
-                |> Enum.uniq_by(&item_key/1)
-                |> Enum.into(%{}, fn item -> {item_key(item), item} end)
+    all_items =
+      (local_items ++ remote_items ++ base_items)
+      |> Enum.uniq_by(&item_key/1)
+      |> Enum.into(%{}, fn item -> {item_key(item), item} end)
 
     # Convert back to list with proper ordering
     result_set
@@ -297,10 +336,11 @@ defmodule BaladosSyncCore.SyncResolver do
   defp item_key(_), do: nil
 
   defp resolve_map(local_map, remote_map, resolver_fn) do
-    all_keys = MapSet.union(
-      MapSet.new(Map.keys(local_map)),
-      MapSet.new(Map.keys(remote_map))
-    )
+    all_keys =
+      MapSet.union(
+        MapSet.new(Map.keys(local_map)),
+        MapSet.new(Map.keys(remote_map))
+      )
 
     Enum.reduce(all_keys, {%{}, []}, fn key, {acc_map, acc_conflicts} ->
       local = Map.get(local_map, key)

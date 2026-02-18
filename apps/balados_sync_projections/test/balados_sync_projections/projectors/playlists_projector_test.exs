@@ -245,7 +245,9 @@ defmodule BaladosSyncProjections.Projectors.PlaylistsProjectorTest do
     now = DateTime.utc_now()
     updates = [updated_at: now]
     updates = if event.name, do: [{:name, event.name} | updates], else: updates
-    updates = if event.description, do: [{:description, event.description} | updates], else: updates
+
+    updates =
+      if event.description, do: [{:description, event.description} | updates], else: updates
 
     ProjectionsRepo.update_all(
       from(p in Playlist, where: p.id == ^event.playlist and p.user_id == ^event.user_id),

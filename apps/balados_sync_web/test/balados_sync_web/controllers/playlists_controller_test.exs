@@ -37,7 +37,9 @@ defmodule BaladosSyncWeb.PlaylistsControllerTest do
       conn = get(conn, ~p"/playlists")
 
       assert redirected_to(conn) == ~p"/users/log_in"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You must log in to access this page."
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "You must log in to access this page."
     end
 
     test "GET /playlists/new redirects to login when not authenticated", %{conn: conn} do
@@ -65,7 +67,8 @@ defmodule BaladosSyncWeb.PlaylistsControllerTest do
     end
 
     test "PUT /playlists/:id redirects to login when not authenticated", %{conn: conn} do
-      conn = put(conn, ~p"/playlists/#{Ecto.UUID.generate()}", %{"playlist" => %{"name" => "New Name"}})
+      conn =
+        put(conn, ~p"/playlists/#{Ecto.UUID.generate()}", %{"playlist" => %{"name" => "New Name"}})
 
       assert redirected_to(conn) == ~p"/users/log_in"
     end
@@ -182,7 +185,10 @@ defmodule BaladosSyncWeb.PlaylistsControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Playlist not found."
     end
 
-    test "redirects to index when trying to view another user's playlist", %{conn: conn, user: user} do
+    test "redirects to index when trying to view another user's playlist", %{
+      conn: conn,
+      user: user
+    } do
       other_user_id = Ecto.UUID.generate()
       conn = log_in_user(conn, user)
 
@@ -273,7 +279,10 @@ defmodule BaladosSyncWeb.PlaylistsControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Playlist not found."
     end
 
-    test "redirects to index when trying to update another user's playlist", %{conn: conn, user: user} do
+    test "redirects to index when trying to update another user's playlist", %{
+      conn: conn,
+      user: user
+    } do
       other_user_id = Ecto.UUID.generate()
       conn = log_in_user(conn, user)
 

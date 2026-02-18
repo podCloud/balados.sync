@@ -74,7 +74,8 @@ defmodule BaladosSyncWeb.WebSubscriptionsControllerTest do
       assert body =~ "<opml"
       assert body =~ "balados:"
       # Check filename in content-disposition header
-      assert get_resp_header(conn, "content-disposition") |> List.first() =~ "balados-sync-export.opml"
+      assert get_resp_header(conn, "content-disposition") |> List.first() =~
+               "balados-sync-export.opml"
     end
 
     test "exports OPML in standard format when format=standard", %{conn: conn, user: user} do
@@ -90,7 +91,8 @@ defmodule BaladosSyncWeb.WebSubscriptionsControllerTest do
       # Standard format should not have balados namespace attributes
       refute body =~ "balados:playStatuses"
       # Check filename in content-disposition header
-      assert get_resp_header(conn, "content-disposition") |> List.first() =~ "balados-subscriptions.opml"
+      assert get_resp_header(conn, "content-disposition") |> List.first() =~
+               "balados-subscriptions.opml"
     end
 
     test "exports empty OPML when no subscriptions", %{conn: conn, user: user} do

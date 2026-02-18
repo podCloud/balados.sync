@@ -193,20 +193,22 @@ defmodule BaladosSyncProjections.Projectors.SubscriptionsProjectorTest do
 
       # Both users subscribe
       for user <- [user1, user2] do
-        assert {:ok, _} = apply_event(%UserSubscribed{
-          user_id: user,
-          rss_source_feed: feed,
-          rss_source_id: "podcast",
-          subscribed_at: now()
-        })
+        assert {:ok, _} =
+                 apply_event(%UserSubscribed{
+                   user_id: user,
+                   rss_source_feed: feed,
+                   rss_source_id: "podcast",
+                   subscribed_at: now()
+                 })
       end
 
       # Only user1 unsubscribes
-      assert {:ok, _} = apply_event(%UserUnsubscribed{
-        user_id: user1,
-        rss_source_feed: feed,
-        unsubscribed_at: now()
-      })
+      assert {:ok, _} =
+               apply_event(%UserUnsubscribed{
+                 user_id: user1,
+                 rss_source_feed: feed,
+                 unsubscribed_at: now()
+               })
 
       sub1 = ProjectionsRepo.get_by(Subscription, user_id: user1, rss_source_feed: feed)
       sub2 = ProjectionsRepo.get_by(Subscription, user_id: user2, rss_source_feed: feed)

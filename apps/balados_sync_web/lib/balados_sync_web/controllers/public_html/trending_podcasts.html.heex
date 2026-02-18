@@ -30,13 +30,23 @@
               navigate={~p"/podcasts/#{podcast.rss_source_feed}"}
               class="text-xl font-semibold text-blue-600 hover:text-blue-700"
             >
-              <%= (podcast.metadata && podcast.metadata.title) || podcast.feed_title || gettext("common.unknown") %>
+              <%= (podcast.metadata && podcast.metadata.title) || podcast.feed_title ||
+                gettext("common.unknown") %>
             </.link>
 
             <div class="flex gap-6 mt-2 text-sm text-zinc-600">
-              <span><%= gettext("trending.score") %>: <span class="font-semibold"><%= podcast.score %></span></span>
-              <span><%= gettext("trending.plays") %>: <span class="font-semibold"><%= podcast.plays %></span></span>
-              <span><%= gettext("trending.likes") %>: <span class="font-semibold"><%= podcast.likes %></span></span>
+              <span>
+                <%= gettext("trending.score") %>:
+                <span class="font-semibold"><%= podcast.score %></span>
+              </span>
+              <span>
+                <%= gettext("trending.plays") %>:
+                <span class="font-semibold"><%= podcast.plays %></span>
+              </span>
+              <span>
+                <%= gettext("trending.likes") %>:
+                <span class="font-semibold"><%= podcast.likes %></span>
+              </span>
             </div>
 
             <p class="text-sm text-zinc-700 mt-2 line-clamp-2">

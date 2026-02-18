@@ -15,10 +15,12 @@ defmodule BaladosSyncWeb.PrivacyController do
   plug JWTAuth, [scopes: ["user.privacy.write"]] when action in [:update]
 
   # Rate limits per user
-  plug RateLimiter, [limit: 100, window_ms: 60_000, key: :user_id, namespace: "privacy_read"]
+  plug RateLimiter,
+       [limit: 100, window_ms: 60_000, key: :user_id, namespace: "privacy_read"]
        when action in [:show]
 
-  plug RateLimiter, [limit: 30, window_ms: 60_000, key: :user_id, namespace: "privacy_write"]
+  plug RateLimiter,
+       [limit: 30, window_ms: 60_000, key: :user_id, namespace: "privacy_write"]
        when action in [:update]
 
   def update(conn, %{"privacy" => privacy} = params) do

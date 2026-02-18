@@ -9,8 +9,6 @@ defmodule BaladosSyncProjections.SystemRepo.Migrations.AddUserProfileFields do
       add :bio, :string, size: 500
     end
 
-    create index(:users, [:username, :public_profile_enabled],
-             prefix: "system",
-           )
+    create index(:users, [:username, :public_profile_enabled], prefix: "system")
   end
 end

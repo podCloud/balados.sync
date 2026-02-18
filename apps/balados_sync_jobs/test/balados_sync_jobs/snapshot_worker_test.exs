@@ -237,9 +237,14 @@ defmodule BaladosSyncJobs.SnapshotWorkerTest do
 
       assert length(result) == 5
       # First batch: 3 PlayRecorded events
-      assert Enum.count(result, &(&1.event_type == "Elixir.BaladosSyncCore.Events.PlayRecorded")) == 3
+      assert Enum.count(result, &(&1.event_type == "Elixir.BaladosSyncCore.Events.PlayRecorded")) ==
+               3
+
       # Second batch: 2 UserSubscribed events
-      assert Enum.count(result, &(&1.event_type == "Elixir.BaladosSyncCore.Events.UserSubscribed")) == 2
+      assert Enum.count(
+               result,
+               &(&1.event_type == "Elixir.BaladosSyncCore.Events.UserSubscribed")
+             ) == 2
     end
 
     test "returns empty list for empty event store" do
@@ -355,9 +360,11 @@ defmodule BaladosSyncJobs.SnapshotWorkerTest do
       # Should not crash, and cleanup_old_events=true should be ignored
       # because not all snapshots succeeded
       import ExUnit.CaptureLog
-      log = capture_log([level: :info], fn ->
-        SnapshotWorker.create_user_checkpoints("user-fail", true)
-      end)
+
+      log =
+        capture_log([level: :info], fn ->
+          SnapshotWorker.create_user_checkpoints("user-fail", true)
+        end)
 
       assert log =~ "Failed checkpoint"
       assert log =~ "user-fail"
@@ -370,10 +377,12 @@ defmodule BaladosSyncJobs.SnapshotWorkerTest do
       Application.put_env(:balados_sync_jobs, :dispatcher, mock)
 
       import ExUnit.CaptureLog
-      log = capture_log(fn ->
-        # cleanup_old_events=false so we don't need a real DB
-        SnapshotWorker.create_user_checkpoints("user-ok", false)
-      end)
+
+      log =
+        capture_log(fn ->
+          # cleanup_old_events=false so we don't need a real DB
+          SnapshotWorker.create_user_checkpoints("user-ok", false)
+        end)
 
       # No error logs should be emitted when all snapshots succeed
       refute log =~ "Failed checkpoint"

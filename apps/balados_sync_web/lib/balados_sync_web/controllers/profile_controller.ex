@@ -3,7 +3,14 @@ defmodule BaladosSyncWeb.ProfileController do
 
   alias BaladosSyncProjections.Schemas.User
   alias BaladosSyncProjections.Schemas.PublicEvent
-  alias BaladosSyncProjections.Schemas.{Playlist, PlaylistItem, Collection, CollectionSubscription}
+
+  alias BaladosSyncProjections.Schemas.{
+    Playlist,
+    PlaylistItem,
+    Collection,
+    CollectionSubscription
+  }
+
   alias BaladosSyncProjections.ProjectionsRepo
   alias BaladosSyncCore.SystemRepo
   alias BaladosSyncCore.RssCache
@@ -54,7 +61,13 @@ defmodule BaladosSyncWeb.ProfileController do
         # Get user's public playlists and collections
         playlists = get_user_public_playlists(user.id)
         collections = get_user_public_collections(user.id)
-        render(conn, :show, user: user, timeline: timeline, playlists: playlists, collections: collections)
+
+        render(conn, :show,
+          user: user,
+          timeline: timeline,
+          playlists: playlists,
+          collections: collections
+        )
 
       {:error, :not_found} ->
         conn
@@ -163,9 +176,11 @@ defmodule BaladosSyncWeb.ProfileController do
     with {:ok, user} <- get_public_user(username),
          {:ok, playlist} <- get_public_playlist(user.id, playlist_id) do
       # Preload and enrich items
-      playlist = ProjectionsRepo.preload(playlist,
-        items: from(i in PlaylistItem, where: is_nil(i.deleted_at), order_by: [asc: i.position])
-      )
+      playlist =
+        ProjectionsRepo.preload(playlist,
+          items: from(i in PlaylistItem, where: is_nil(i.deleted_at), order_by: [asc: i.position])
+        )
+
       enriched_items = PlaylistEnricher.enrich_items(playlist.items)
 
       render(conn, :show_playlist, user: user, playlist: playlist, enriched_items: enriched_items)
@@ -206,9 +221,11 @@ defmodule BaladosSyncWeb.ProfileController do
     with {:ok, user} <- get_public_user(username),
          {:ok, collection} <- get_public_collection(user.id, collection_id) do
       # Preload subscriptions with their feeds
-      collection = ProjectionsRepo.preload(collection,
-        collection_subscriptions: from(cs in CollectionSubscription, order_by: [asc: cs.position])
-      )
+      collection =
+        ProjectionsRepo.preload(collection,
+          collection_subscriptions:
+            from(cs in CollectionSubscription, order_by: [asc: cs.position])
+        )
 
       # Enrich with feed metadata
       feeds = enrich_collection_feeds(collection.collection_subscriptions)

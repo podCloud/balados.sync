@@ -199,7 +199,11 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
       is_public: false
     }
 
-    %{state | user_id: event.user_id, playlists: Map.put(playlists, event.playlist_id, new_playlist)}
+    %{
+      state
+      | user_id: event.user_id,
+        playlists: Map.put(playlists, event.playlist_id, new_playlist)
+    }
   end
 
   def apply(%__MODULE__{} = state, %EpisodeSaved{} = event) do
@@ -227,7 +231,12 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
       end
 
     updated_playlist = %{playlist | items: items}
-    %{state | user_id: event.user_id, playlists: Map.put(playlists, event.playlist, updated_playlist)}
+
+    %{
+      state
+      | user_id: event.user_id,
+        playlists: Map.put(playlists, event.playlist, updated_playlist)
+    }
   end
 
   def apply(%__MODULE__{} = state, %EpisodeUnsaved{} = event) do
@@ -259,8 +268,16 @@ defmodule BaladosSyncCore.Aggregates.Playlist do
 
       playlist ->
         updated_playlist = playlist
-        updated_playlist = if not is_nil(event.name), do: %{updated_playlist | name: event.name}, else: updated_playlist
-        updated_playlist = if not is_nil(event.description), do: %{updated_playlist | description: event.description}, else: updated_playlist
+
+        updated_playlist =
+          if not is_nil(event.name),
+            do: %{updated_playlist | name: event.name},
+            else: updated_playlist
+
+        updated_playlist =
+          if not is_nil(event.description),
+            do: %{updated_playlist | description: event.description},
+            else: updated_playlist
 
         %{state | playlists: Map.put(playlists, event.playlist, updated_playlist)}
     end
