@@ -1,9 +1,14 @@
-<%!-- Helper to get current path from conn or socket --%>
+<%!-- Helpers to get current path and params from conn or socket --%>
 <% current_path =
   case assigns do
     %{conn: %{request_path: path}} -> path
     %{socket: %{private: %{live_path: path}}} -> path
     _ -> "/"
+  end %>
+<% current_params =
+  case assigns do
+    %{conn: %{query_params: params}} -> params || %{}
+    _ -> %{}
   end %>
 <header class="px-4 sm:px-6 lg:px-8">
   <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
@@ -17,7 +22,7 @@
     </div>
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
       <% current_locale = Gettext.get_locale(BaladosSyncWeb.Gettext) %>
-      <% base_params = Map.drop(@conn.params || %{}, ["_csrf_token", "locale"]) %>
+      <% base_params = Map.drop(current_params, ["_csrf_token", "locale"]) %>
       <nav class="flex items-center gap-1 text-xs" aria-label={gettext("nav.language_selector")}>
         <%= if current_locale == "fr" do %>
           <span class="font-bold text-blue-600" aria-current="true" lang="fr">FR</span>
