@@ -3,7 +3,10 @@ defmodule BaladosSyncWeb.PlaylistsControllerTest do
   Integration tests for PlaylistsController.
 
   Tests authentication enforcement, form validation, redirects, and CRUD operations.
-  Uses direct database insertion for test data to avoid CQRS projection delays.
+  Uses direct database insertion for test data to avoid CQRS projection delays
+  (projectors don't run in test env). For write operations that go through the
+  aggregate (e.g. UpdatePlaylist), we also dispatch the CQRS command to seed
+  aggregate state in addition to the direct projection insert.
   """
 
   use BaladosSyncWeb.ConnCase, async: false
@@ -303,7 +306,8 @@ defmodule BaladosSyncWeb.PlaylistsControllerTest do
       other_user_id = Ecto.UUID.generate()
       conn = log_in_user(conn, user)
 
-      # Create playlist for other user
+      # Direct insert only — no CQRS dispatch needed because the controller's
+      # ownership check fails at the projection level before reaching the aggregate
       playlist = insert_playlist(other_user_id, "Other Playlist")
 
       conn =
