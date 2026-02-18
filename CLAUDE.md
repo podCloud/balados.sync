@@ -373,6 +373,7 @@ git pull origin main
 - CQRS/ES obligatoire pour les commands/events
 - Logging pour audit trail (ex: token expiration)
 - Backward compatibility si possible (champs optionnels)
+- **Ne JAMAIS ignorer des tests en échec** : si `mix test` révèle des échecs (même pré-existants et non liés au travail en cours), créer une issue GitHub pour les tracker
 
 ---
 
