@@ -210,7 +210,12 @@ defmodule BaladosSyncCore.Aggregates.CollectionTest do
       state = %Collection{
         user_id: "user-123",
         collections: %{
-          collection_id => %{title: "News", is_default: false, feed_ids: ["feed-1"]}
+          collection_id => %{
+            title: "News",
+            is_default: false,
+            feed_ids: ["feed-1"],
+            is_public: false
+          }
         }
       }
 
@@ -218,6 +223,27 @@ defmodule BaladosSyncCore.Aggregates.CollectionTest do
         user_id: "user-123",
         collection_id: collection_id,
         rss_source_feed: "feed-not-here",
+        event_infos: %{}
+      }
+
+      result = Collection.execute(state, cmd)
+      assert match?({:error, :feed_not_in_collection}, result)
+    end
+
+    test "returns error if collection has empty feed_ids" do
+      collection_id = Ecto.UUID.generate()
+
+      state = %Collection{
+        user_id: "user-123",
+        collections: %{
+          collection_id => %{title: "News", is_default: false, feed_ids: [], is_public: false}
+        }
+      }
+
+      cmd = %RemoveFeedFromCollection{
+        user_id: "user-123",
+        collection_id: collection_id,
+        rss_source_feed: "feed-1",
         event_infos: %{}
       }
 
