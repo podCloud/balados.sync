@@ -88,16 +88,24 @@ defmodule BaladosSyncCore.Aggregates.Collection do
   def execute(%__MODULE__{} = state, %RemoveFeedFromCollection{} = cmd) do
     collections = state.collections || %{}
 
-    if Map.has_key?(collections, cmd.collection_id) do
-      %FeedRemovedFromCollection{
-        user_id: cmd.user_id,
-        collection_id: cmd.collection_id,
-        rss_source_feed: cmd.rss_source_feed,
-        timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
-        event_infos: cmd.event_infos || %{}
-      }
-    else
-      {:error, :collection_not_found}
+    case Map.get(collections, cmd.collection_id) do
+      nil ->
+        {:error, :collection_not_found}
+
+      collection ->
+        feed_ids = collection.feed_ids || []
+
+        if cmd.rss_source_feed in feed_ids do
+          %FeedRemovedFromCollection{
+            user_id: cmd.user_id,
+            collection_id: cmd.collection_id,
+            rss_source_feed: cmd.rss_source_feed,
+            timestamp: DateTime.utc_now() |> DateTime.truncate(:second),
+            event_infos: cmd.event_infos || %{}
+          }
+        else
+          {:error, :feed_not_in_collection}
+        end
     end
   end
 
