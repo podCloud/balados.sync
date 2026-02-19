@@ -3016,6 +3016,9 @@ msgstr "Unknown podcast"
 msgid "listening_history.filter.all_podcasts"
 msgstr "All podcasts"
 
+msgid "listening_history.filter.loading_podcasts"
+msgstr "Loading..."
+
 msgid "listening_history.filter.all_time"
 msgstr "All time"
 

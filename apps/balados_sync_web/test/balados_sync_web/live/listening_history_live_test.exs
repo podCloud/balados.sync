@@ -129,6 +129,40 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
     end
   end
 
+  describe "async feed titles" do
+    test "shows loading state before feed titles are loaded", %{conn: conn, user: user} do
+      create_play_status(user.id, @feed_url_1, "guid1", %{
+        rss_feed_title: "Podcast A",
+        rss_item_title: "Ep A",
+        position: 100,
+        played: false
+      })
+
+      {:ok, _view, html} = live(conn, ~p"/listening-history")
+
+      # Before async load, shows loading placeholder
+      assert html =~ "Chargement..."
+    end
+
+    test "loads feed titles into dropdown after async load", %{conn: conn, user: user} do
+      create_play_status(user.id, @feed_url_1, "guid1", %{
+        rss_feed_title: "Podcast A",
+        rss_item_title: "Ep A",
+        position: 100,
+        played: false
+      })
+
+      {:ok, view, _html} = live(conn, ~p"/listening-history")
+
+      send(view.pid, :load_feed_titles)
+      html = render(view)
+
+      assert html =~ "Tous les podcasts"
+      assert html =~ "Podcast A"
+      refute html =~ "Chargement..."
+    end
+  end
+
   describe "filtering" do
     test "filters by feed", %{conn: conn, user: user} do
       create_play_status(user.id, @feed_url_1, "guid1", %{
@@ -148,6 +182,9 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
       encoded_feed_1 = Base.url_encode64(@feed_url_1, padding: false)
 
       {:ok, view, _html} = live(conn, ~p"/listening-history")
+
+      # Load feed titles async before filtering
+      send(view.pid, :load_feed_titles)
 
       view
       |> element("form")
