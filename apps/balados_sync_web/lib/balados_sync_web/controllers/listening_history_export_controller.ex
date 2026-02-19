@@ -9,6 +9,8 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
 
   alias BaladosSyncWeb.Queries
 
+  @max_export_rows Queries.max_export_rows()
+
   def export_csv(conn, params) do
     user = conn.assigns.current_user
     entries = get_filtered_entries(conn, params)
@@ -23,6 +25,7 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
     csv_content = build_csv(entries)
 
     conn
+    |> maybe_add_truncation_header(entries)
     |> put_resp_content_type("text/csv")
     |> put_resp_header("content-disposition", ~s(attachment; filename="listening-history.csv"))
     |> send_resp(200, csv_content)
@@ -53,6 +56,7 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
     )
 
     conn
+    |> maybe_add_truncation_header(entries)
     |> put_resp_content_type("application/json")
     |> put_resp_header("content-disposition", ~s(attachment; filename="listening-history.json"))
     |> send_resp(200, json_content)
@@ -73,6 +77,12 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
   defp maybe_add_opt(opts, _key, nil), do: opts
   defp maybe_add_opt(opts, _key, ""), do: opts
   defp maybe_add_opt(opts, key, value), do: Keyword.put(opts, key, value)
+
+  defp maybe_add_truncation_header(conn, entries) when length(entries) >= @max_export_rows do
+    put_resp_header(conn, "x-export-truncated", "true")
+  end
+
+  defp maybe_add_truncation_header(conn, _entries), do: conn
 
   defp build_csv(entries) do
     header = "Podcast,Episode,Status,Position (seconds),Date\r\n"
@@ -95,6 +105,14 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
   end
 
   defp csv_escape(value) do
+    # Prefix formula-like values to prevent spreadsheet formula injection
+    value =
+      if String.starts_with?(value, ["=", "+", "-", "@"]) do
+        "'" <> value
+      else
+        value
+      end
+
     if String.contains?(value, [",", "\"", "\n", "\r"]) do
       "\"" <> String.replace(value, "\"", "\"\"") <> "\""
     else
@@ -107,7 +125,7 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
   defp entry_status(_), do: "not_started"
 
   defp filter_params(params) do
-    %{}
+    []
     |> maybe_add_opt(:feed, params["feed"])
     |> maybe_add_opt(:period, params["period"])
     |> maybe_add_opt(:status, params["status"])

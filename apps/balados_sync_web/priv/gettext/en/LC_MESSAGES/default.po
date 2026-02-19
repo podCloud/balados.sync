@@ -3064,6 +3064,9 @@ msgstr "Day streak"
 msgid "listening_history.stats.top_podcasts"
 msgstr "Top podcasts"
 
+msgid "listening_history.stats.all_time_label"
+msgstr "All-time statistics"
+
 msgid "listening_history.pagination.previous"
 msgstr "Previous"
 

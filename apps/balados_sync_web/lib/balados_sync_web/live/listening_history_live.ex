@@ -118,6 +118,9 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
           </div>
         </div>
         <!-- Stats Panel -->
+        <h2 class="text-sm font-medium text-zinc-500 mb-2">
+          <%= gettext("listening_history.stats.all_time_label") %>
+        </h2>
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <div class="bg-white rounded-lg shadow p-4 text-center">
             <div class="text-2xl font-bold text-zinc-900">
@@ -362,7 +365,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
   end
 
   defp progress_percent(%{position: pos}) when pos > 0, do: nil
-  defp progress_percent(_), do: 0
+  defp progress_percent(_), do: nil
 
   defp format_position(%{played: true, rss_enclosure: %{"duration" => dur}})
        when is_integer(dur) do
@@ -403,7 +406,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
       diff < 3600 -> gettext("listening_history.time.minutes_ago", count: div(diff, 60))
       diff < 86400 -> gettext("listening_history.time.hours_ago", count: div(diff, 3600))
       diff < 604_800 -> gettext("listening_history.time.days_ago", count: div(diff, 86400))
-      true -> Calendar.strftime(dt, "%b %d, %Y")
+      true -> Date.to_iso8601(DateTime.to_date(dt))
     end
   end
 

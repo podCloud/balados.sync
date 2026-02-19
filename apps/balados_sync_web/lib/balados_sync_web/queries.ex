@@ -194,6 +194,8 @@ defmodule BaladosSyncWeb.Queries do
 
   @max_export_rows 10_000
 
+  def max_export_rows, do: @max_export_rows
+
   @doc """
   Get listening history entries for export (capped at #{@max_export_rows} rows).
 

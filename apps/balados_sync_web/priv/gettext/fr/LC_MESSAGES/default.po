@@ -3064,6 +3064,9 @@ msgstr "Jours consécutifs"
 msgid "listening_history.stats.top_podcasts"
 msgstr "Top podcasts"
 
+msgid "listening_history.stats.all_time_label"
+msgstr "Statistiques globales"
+
 msgid "listening_history.pagination.previous"
 msgstr "Précédent"
 
