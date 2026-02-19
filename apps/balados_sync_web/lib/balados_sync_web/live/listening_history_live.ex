@@ -310,7 +310,10 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
           </div>
           <!-- Pagination -->
           <%= if @total_pages > 1 do %>
-            <nav class="flex justify-center gap-2 mt-8" aria-label="Pagination">
+            <nav
+              class="flex justify-center gap-2 mt-8"
+              aria-label={gettext("listening_history.pagination.label")}
+            >
               <%= if @page > 1 do %>
                 <.link
                   patch={page_url(@page - 1, @filter_feed, @filter_period, @filter_status)}
@@ -357,14 +360,21 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
     ~p"/listening-history?#{params}"
   end
 
-  defp export_url(format, feed, period, status) do
-    params =
-      %{}
-      |> maybe_put("feed", feed)
-      |> maybe_put("period", period)
-      |> maybe_put("status", status)
+  defp export_url("csv", feed, period, status) do
+    params = build_export_params(feed, period, status)
+    ~p"/listening-history/export.csv?#{params}"
+  end
 
-    "/listening-history/export.#{format}?#{URI.encode_query(params)}"
+  defp export_url("json", feed, period, status) do
+    params = build_export_params(feed, period, status)
+    ~p"/listening-history/export.json?#{params}"
+  end
+
+  defp build_export_params(feed, period, status) do
+    %{}
+    |> maybe_put("feed", feed)
+    |> maybe_put("period", period)
+    |> maybe_put("status", status)
   end
 
   defp cover_url(%{rss_enclosure: %{"cover" => %{"src" => src}}}) when is_binary(src), do: src

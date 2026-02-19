@@ -3020,13 +3020,13 @@ msgid "listening_history.filter.all_time"
 msgstr "All time"
 
 msgid "listening_history.filter.this_week"
-msgstr "This week"
+msgstr "Last 7 days"
 
 msgid "listening_history.filter.this_month"
-msgstr "This month"
+msgstr "Last 30 days"
 
 msgid "listening_history.filter.this_year"
-msgstr "This year"
+msgstr "Last 365 days"
 
 msgid "listening_history.filter.all_status"
 msgstr "All statuses"
@@ -3081,6 +3081,9 @@ msgstr "Previous"
 
 msgid "listening_history.pagination.next"
 msgstr "Next"
+
+msgid "listening_history.pagination.label"
+msgstr "Pagination"
 
 msgid "listening_history.pagination.page_info"
 msgstr "Page %{page} of %{total}"

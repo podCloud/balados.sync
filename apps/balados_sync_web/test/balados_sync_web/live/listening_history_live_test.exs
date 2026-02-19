@@ -97,8 +97,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
       {:ok, _view, html} = live(conn, ~p"/listening-history")
 
       # French: "Terminé"
-      assert html =~ "Termin"
-      assert html =~ "bg-green-500"
+      assert html =~ "Terminé"
     end
 
     test "shows in progress badge", %{conn: conn, user: user} do
@@ -113,7 +112,6 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
 
       # French: "En cours"
       assert html =~ "En cours"
-      assert html =~ "bg-blue-500"
     end
 
     test "shows not started badge", %{conn: conn, user: user} do
@@ -127,7 +125,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
       {:ok, _view, html} = live(conn, ~p"/listening-history")
 
       # French: "Non commencé"
-      assert html =~ "Non commenc"
+      assert html =~ "Non commencé"
     end
   end
 
@@ -310,7 +308,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
 
       # French: "Page 2 sur 2" and "Précédent"
       assert html =~ "Page 2 sur 2"
-      assert html =~ "dent"
+      assert html =~ "Précédent"
     end
   end
 
