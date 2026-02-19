@@ -69,8 +69,9 @@ defmodule BaladosSyncProjections.Projectors.LikeProjector do
 
     Ecto.Multi.run(multi, :checkpoint, fn repo, _changes ->
       # Delete all existing likes for this user
-      from(ul in UserLike, where: ul.user_id == ^event.user_id)
-      |> repo.delete_all()
+      {_count, _} =
+        from(ul in UserLike, where: ul.user_id == ^event.user_id)
+        |> repo.delete_all()
 
       # Normalize keys: after JSON deserialization, nested map keys may be strings
       podcast_likes = LikeNormalizer.normalize(event.podcast_likes)

@@ -135,5 +135,15 @@ defmodule BaladosSyncWeb.LikeControllerTest do
       response = json_response(conn, 200)
       assert response["likes"] == []
     end
+
+    test "works with parent scope user.likes", %{conn: conn, user_id: user_id} do
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.likes"])
+        |> get("/api/v1/likes")
+
+      response = json_response(conn, 200)
+      assert response["likes"] == []
+    end
   end
 end

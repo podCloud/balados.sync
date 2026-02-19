@@ -397,6 +397,11 @@ defmodule BaladosSyncWeb.SyncController do
   # aggregate will re-emit a PodcastLiked event (projection no-ops via upsert,
   # but the event store accumulates a duplicate event). Low impact since likes
   # are lightweight events. Matches established pattern for subscriptions/plays.
+  #
+  # Additionally, SnapshotLike checkpoints are built from aggregate state only,
+  # so synced-only likes won't appear in snapshots. This is acceptable because
+  # snapshots serve to compact the event stream, and synced likes are already
+  # persisted in the projections table independently of the aggregate.
   defp sync_likes(multi, _user_id, likes, _now) when likes == [], do: multi
 
   defp sync_likes(multi, user_id, likes, now) do

@@ -29,6 +29,13 @@ defmodule BaladosSyncProjections.ProjectionsRepo.Migrations.CreateUserLikes do
 
     create index(:user_likes, [:user_id], prefix: "users")
     create index(:user_likes, [:rss_source_feed], prefix: "users")
+
+    # Partial index for active likes queries (GET /api/v1/likes filters on unliked_at IS NULL)
+    create index(:user_likes, [:user_id],
+             prefix: "users",
+             where: "unliked_at IS NULL",
+             name: "user_likes_user_active"
+           )
   end
 
   def down do
