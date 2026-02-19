@@ -203,11 +203,71 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
 
       {:ok, view, _html} = live(conn, ~p"/listening-history")
 
-      # Wait for stats to load (async via send/self message)
-      html = wait_for_stats(view)
+      # Trigger async stats load directly
+      send(view.pid, :load_stats)
+      html = render(view)
 
       # Total time should show formatted duration (1h30m = 5400s)
       assert html =~ "1:30:00"
+    end
+  end
+
+  describe "streak calculation" do
+    test "consecutive days including today returns correct streak", %{user: user} do
+      now = DateTime.utc_now()
+
+      for i <- 0..2 do
+        create_play_status(user.id, @feed_url_1, "streak-#{i}", %{
+          rss_feed_title: "Podcast",
+          rss_item_title: "Episode #{i}",
+          position: 100,
+          played: false,
+          updated_at: DateTime.add(now, -i, :day) |> DateTime.truncate(:second)
+        })
+      end
+
+      stats = BaladosSyncWeb.Queries.get_listening_stats(user.id)
+      assert stats.streak_days == 3
+    end
+
+    test "returns zero streak when last activity was 2+ days ago", %{user: user} do
+      create_play_status(user.id, @feed_url_1, "old-activity", %{
+        rss_feed_title: "Podcast",
+        rss_item_title: "Old Episode",
+        position: 100,
+        played: false,
+        updated_at: DateTime.utc_now() |> DateTime.add(-3, :day) |> DateTime.truncate(:second)
+      })
+
+      stats = BaladosSyncWeb.Queries.get_listening_stats(user.id)
+      assert stats.streak_days == 0
+    end
+
+    test "streak stops at gap in consecutive days", %{user: user} do
+      now = DateTime.utc_now()
+
+      # Today and yesterday (streak of 2)
+      for i <- 0..1 do
+        create_play_status(user.id, @feed_url_1, "recent-#{i}", %{
+          rss_feed_title: "Podcast",
+          rss_item_title: "Recent #{i}",
+          position: 100,
+          played: false,
+          updated_at: DateTime.add(now, -i, :day) |> DateTime.truncate(:second)
+        })
+      end
+
+      # 4 days ago (gap of 1 day breaks the streak)
+      create_play_status(user.id, @feed_url_1, "old", %{
+        rss_feed_title: "Podcast",
+        rss_item_title: "Old",
+        position: 100,
+        played: false,
+        updated_at: DateTime.add(now, -4, :day) |> DateTime.truncate(:second)
+      })
+
+      stats = BaladosSyncWeb.Queries.get_listening_stats(user.id)
+      assert stats.streak_days == 2
     end
   end
 
@@ -294,25 +354,5 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
       updated_at: merged.updated_at
     }
     |> ProjectionsRepo.insert!()
-  end
-
-  defp wait_for_stats(view, timeout \\ 500) do
-    deadline = System.monotonic_time(:millisecond) + timeout
-    do_wait_for_stats(view, deadline)
-  end
-
-  defp do_wait_for_stats(view, deadline) do
-    html = render(view)
-
-    if not String.contains?(html, "text-zinc-300\">...</span>") do
-      html
-    else
-      if System.monotonic_time(:millisecond) >= deadline do
-        html
-      else
-        Process.sleep(10)
-        do_wait_for_stats(view, deadline)
-      end
-    end
   end
 end

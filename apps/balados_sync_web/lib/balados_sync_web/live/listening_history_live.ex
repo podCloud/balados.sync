@@ -186,7 +186,11 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
         </div>
         <!-- Filters -->
         <form phx-change="filter" class="flex flex-wrap gap-3 mb-6">
+          <label for="filter-feed" class="sr-only">
+            <%= gettext("listening_history.filter.podcast_label") %>
+          </label>
           <select
+            id="filter-feed"
             name="feed"
             class="rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           >
@@ -198,7 +202,11 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
             <% end %>
           </select>
 
+          <label for="filter-period" class="sr-only">
+            <%= gettext("listening_history.filter.period_label") %>
+          </label>
           <select
+            id="filter-period"
             name="period"
             class="rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           >
@@ -216,7 +224,11 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
             </option>
           </select>
 
+          <label for="filter-status" class="sr-only">
+            <%= gettext("listening_history.filter.status_label") %>
+          </label>
           <select
+            id="filter-status"
             name="status"
             class="rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           >
@@ -270,11 +282,12 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
                   </p>
                   <!-- Progress bar -->
                   <div class="mt-2 flex items-center gap-2">
-                    <%= if progress_percent(entry) do %>
+                    <% pct = progress_percent(entry) %>
+                    <%= if pct do %>
                       <div class="flex-1 bg-zinc-200 rounded-full h-1.5 max-w-xs">
                         <div
                           class={"rounded-full h-1.5 " <> if entry.played, do: "bg-green-500", else: "bg-blue-500"}
-                          style={"width: #{progress_percent(entry)}%"}
+                          style={"width: #{pct}%"}
                         />
                       </div>
                     <% end %>

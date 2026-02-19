@@ -3067,6 +3067,15 @@ msgstr "Top podcasts"
 msgid "listening_history.stats.all_time_label"
 msgstr "Statistiques globales"
 
+msgid "listening_history.filter.podcast_label"
+msgstr "Filtrer par podcast"
+
+msgid "listening_history.filter.period_label"
+msgstr "Filtrer par période"
+
+msgid "listening_history.filter.status_label"
+msgstr "Filtrer par statut"
+
 msgid "listening_history.pagination.previous"
 msgstr "Précédent"
 
