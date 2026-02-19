@@ -280,7 +280,8 @@ defmodule BaladosSyncWeb.Queries do
     dates =
       from(ps in PlayStatus,
         where: ps.user_id == ^user_id,
-        select: fragment("DISTINCT DATE(?)", ps.updated_at),
+        distinct: true,
+        select: fragment("DATE(?)", ps.updated_at),
         order_by: [desc: fragment("DATE(?)", ps.updated_at)],
         limit: 366
       )

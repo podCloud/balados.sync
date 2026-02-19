@@ -60,7 +60,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
       assert html =~ "My Podcast"
       assert html =~ "Episode 1"
       # French: "1 épisode"
-      assert html =~ "pisode"
+      assert html =~ "1 épisode"
     end
 
     test "shows correct count for multiple entries", %{conn: conn, user: user} do
@@ -81,7 +81,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
       {:ok, _view, html} = live(conn, ~p"/listening-history")
 
       # French: "2 épisodes"
-      assert html =~ "pisodes"
+      assert html =~ "2 épisodes"
     end
   end
 
@@ -158,7 +158,9 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
       # Re-render to see filtered results after push_patch
       html = render(view)
       assert html =~ "Podcast A"
-      assert html =~ "1"
+      assert html =~ "Ep A"
+      # Ep B should not appear in the list (Podcast B still appears in filter dropdown)
+      refute html =~ "Ep B"
     end
 
     test "filters by status", %{conn: conn, user: user} do
@@ -180,8 +182,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
 
       html = render(view)
       assert html =~ "Completed Ep"
-      # Only 1 entry should be shown
-      assert html =~ "1"
+      refute html =~ "In Progress Ep"
     end
   end
 

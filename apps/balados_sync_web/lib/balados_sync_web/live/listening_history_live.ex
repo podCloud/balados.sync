@@ -411,6 +411,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
 
   defp format_time_ago(nil), do: ""
 
+  # PlayStatus.updated_at is :utc_datetime, so always a DateTime
   defp format_time_ago(%DateTime{} = dt) do
     diff = DateTime.diff(DateTime.utc_now(), dt, :second)
 

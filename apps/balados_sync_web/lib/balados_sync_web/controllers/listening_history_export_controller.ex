@@ -101,7 +101,7 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
       end)
       |> Enum.join("\r\n")
 
-    header <> rows
+    header <> rows <> "\r\n"
   end
 
   defp csv_escape(value) do
