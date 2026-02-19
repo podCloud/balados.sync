@@ -12,17 +12,16 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    user = socket.assigns.current_user
-    feed_titles = Queries.get_user_feed_titles(user.id)
-
     socket =
       socket
-      |> assign(:feed_titles, feed_titles)
+      |> assign(:feed_titles, [])
+      |> assign(:loading_feed_titles, true)
       |> assign(:page_title, gettext("listening_history.title"))
       |> assign(:stats, nil)
       |> assign(:loading_stats, true)
 
     if connected?(socket) do
+      send(self(), :load_feed_titles)
       send(self(), :load_stats)
     end
 
@@ -71,6 +70,16 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
       |> maybe_put("status", params["status"])
 
     {:noreply, push_patch(socket, to: ~p"/listening-history?#{query_params}")}
+  end
+
+  @impl true
+  def handle_info(:load_feed_titles, socket) do
+    feed_titles = Queries.get_user_feed_titles(socket.assigns.current_user.id)
+
+    {:noreply,
+     socket
+     |> assign(:feed_titles, feed_titles)
+     |> assign(:loading_feed_titles, false)}
   end
 
   @impl true
@@ -194,11 +203,15 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
             name="feed"
             class="rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           >
-            <option value=""><%= gettext("listening_history.filter.all_podcasts") %></option>
-            <%= for {feed_id, title} <- @feed_titles do %>
-              <option value={feed_id} selected={@filter_feed == feed_id}>
-                <%= title %>
-              </option>
+            <%= if @loading_feed_titles do %>
+              <option value=""><%= gettext("listening_history.filter.loading_podcasts") %></option>
+            <% else %>
+              <option value=""><%= gettext("listening_history.filter.all_podcasts") %></option>
+              <%= for {feed_id, title} <- @feed_titles do %>
+                <option value={feed_id} selected={@filter_feed == feed_id}>
+                  <%= title %>
+                </option>
+              <% end %>
             <% end %>
           </select>
 

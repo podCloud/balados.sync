@@ -3016,6 +3016,9 @@ msgstr "Podcast inconnu"
 msgid "listening_history.filter.all_podcasts"
 msgstr "Tous les podcasts"
 
+msgid "listening_history.filter.loading_podcasts"
+msgstr "Chargement..."
+
 msgid "listening_history.filter.all_time"
 msgstr "Toute la période"
 
