@@ -749,6 +749,10 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
 
   # ============================================================================
   # Popularity Projector Logic (Like events)
+  #
+  # Note: these test helpers assume all users are public (always add to likes_people).
+  # The real PopularityProjector checks UserPrivacy and conditionally adds users.
+  # Privacy-related behaviour is tested separately via the full projector integration.
   # ============================================================================
 
   @score_like 7

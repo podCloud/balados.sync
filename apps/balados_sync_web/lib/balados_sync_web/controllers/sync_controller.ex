@@ -700,6 +700,7 @@ defmodule BaladosSyncWeb.SyncController do
       }
     end)
     |> Enum.filter(fn like -> is_binary(like.rss_source_feed) end)
+    |> Enum.uniq_by(fn like -> {like.rss_source_feed, like.rss_source_item} end)
   end
 
   defp parse_likes(_), do: []

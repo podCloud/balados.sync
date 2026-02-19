@@ -474,7 +474,7 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
         )
       end)
 
-    # Also increment podcast score for episode likes
+    # Episode engagement signals the parent podcast's quality, so also bump podcast score
     Ecto.Multi.run(multi, :podcast_score_from_episode_like, fn repo, _changes ->
       popularity =
         repo.get(PodcastPopularity, event.rss_source_feed) ||
