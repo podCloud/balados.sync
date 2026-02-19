@@ -83,6 +83,33 @@ defmodule BaladosSyncWeb.ListeningHistoryExportControllerTest do
       assert body =~ "Podcast A"
       refute body =~ "Podcast B"
     end
+
+    test "period filter excludes old entries", %{conn: conn, user: user} do
+      create_play_status(user.id, "Recent Podcast", "Recent Ep", 100, false)
+
+      create_play_status_with_date(
+        user.id,
+        "Old Podcast",
+        "Old Ep",
+        100,
+        false,
+        DateTime.add(DateTime.utc_now(), -10, :day)
+      )
+
+      conn = get(conn, ~p"/listening-history/export.csv?period=week")
+      body = response(conn, 200)
+
+      assert body =~ "Recent Podcast"
+      refute body =~ "Old Podcast"
+    end
+
+    test "sets attachment Content-Disposition header", %{conn: conn} do
+      conn = get(conn, ~p"/listening-history/export.csv")
+
+      [disposition] = get_resp_header(conn, "content-disposition")
+      assert disposition =~ "attachment"
+      assert disposition =~ "filename="
+    end
   end
 
   describe "export_json" do
@@ -132,6 +159,17 @@ defmodule BaladosSyncWeb.ListeningHistoryExportControllerTest do
   # Helpers
 
   defp create_play_status(user_id, feed_title, item_title, position, played) do
+    create_play_status_with_date(
+      user_id,
+      feed_title,
+      item_title,
+      position,
+      played,
+      DateTime.utc_now()
+    )
+  end
+
+  defp create_play_status_with_date(user_id, feed_title, item_title, position, played, datetime) do
     encoded_feed = Base.url_encode64(@feed_url, padding: false)
     encoded_item = Base.url_encode64("#{item_title},#{@feed_url}/ep", padding: false)
 
@@ -144,7 +182,7 @@ defmodule BaladosSyncWeb.ListeningHistoryExportControllerTest do
       position: position,
       played: played,
       rss_enclosure: %{"duration" => 3600},
-      updated_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      updated_at: datetime |> DateTime.truncate(:second)
     }
     |> ProjectionsRepo.insert!()
   end

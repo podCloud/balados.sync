@@ -5,12 +5,20 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
 
   use BaladosSyncWeb, :controller
 
+  require Logger
+
   alias BaladosSyncWeb.Queries
 
-  plug :require_authenticated_user
-
   def export_csv(conn, params) do
+    user = conn.assigns.current_user
     entries = get_filtered_entries(conn, params)
+
+    Logger.info("Listening history export",
+      format: "csv",
+      user_id: user.id,
+      entry_count: length(entries),
+      filters: filter_params(params)
+    )
 
     csv_content = build_csv(entries)
 
@@ -21,6 +29,7 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
   end
 
   def export_json(conn, params) do
+    user = conn.assigns.current_user
     entries = get_filtered_entries(conn, params)
 
     json_content =
@@ -35,6 +44,13 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
         }
       end)
       |> Jason.encode!(pretty: true)
+
+    Logger.info("Listening history export",
+      format: "json",
+      user_id: user.id,
+      entry_count: length(entries),
+      filters: filter_params(params)
+    )
 
     conn
     |> put_resp_content_type("application/json")
@@ -90,14 +106,11 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
   defp entry_status(%{position: pos}) when pos > 0, do: "in_progress"
   defp entry_status(_), do: "not_started"
 
-  defp require_authenticated_user(conn, _opts) do
-    if conn.assigns[:current_user] do
-      conn
-    else
-      conn
-      |> put_flash(:error, gettext("auth.must_log_in"))
-      |> redirect(to: ~p"/users/log_in")
-      |> halt()
-    end
+  defp filter_params(params) do
+    %{}
+    |> maybe_add_opt(:feed, params["feed"])
+    |> maybe_add_opt(:period, params["period"])
+    |> maybe_add_opt(:status, params["status"])
+    |> Enum.into(%{})
   end
 end

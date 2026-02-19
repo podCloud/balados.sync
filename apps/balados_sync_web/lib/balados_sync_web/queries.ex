@@ -154,22 +154,21 @@ defmodule BaladosSyncWeb.Queries do
   - `:total_time` - Total listening time in seconds (sum of positions)
   - `:total_episodes` - Total episodes with any activity
   - `:completed_count` - Number of completed episodes
-  - `:streak_days` - Consecutive days of listening (based on updated_at)
+  - `:streak_days` - Consecutive days of listening (based on updated_at event timestamp)
   - `:top_podcasts` - Top 5 podcasts by episode count [{feed_title, count}]
   """
   def get_listening_stats(user_id) do
     base_query = from(ps in PlayStatus, where: ps.user_id == ^user_id)
 
-    total_time =
-      from(ps in base_query, select: coalesce(sum(ps.position), 0))
-      |> ProjectionsRepo.one()
-
-    total_episodes =
-      from(ps in base_query, select: count(ps.id))
-      |> ProjectionsRepo.one()
-
-    completed_count =
-      from(ps in base_query, where: ps.played == true, select: count(ps.id))
+    # Combine aggregates into a single query
+    {total_time, total_episodes, completed_count} =
+      from(ps in base_query,
+        select: {
+          coalesce(sum(ps.position), 0),
+          count(ps.id),
+          count(fragment("CASE WHEN ? = true THEN 1 END", ps.played))
+        }
+      )
       |> ProjectionsRepo.one()
 
     streak_days = compute_listening_streak(user_id)
@@ -193,14 +192,17 @@ defmodule BaladosSyncWeb.Queries do
     }
   end
 
+  @max_export_rows 10_000
+
   @doc """
-  Get all listening history entries for export (no pagination).
+  Get listening history entries for export (capped at #{@max_export_rows} rows).
 
   Accepts the same filter options as `get_listening_history/2` except `:page` and `:per_page`.
   """
   def get_listening_history_export(user_id, opts \\ []) do
     listening_history_base_query(user_id, opts)
     |> order_by([ps], desc: ps.updated_at)
+    |> limit(@max_export_rows)
     |> ProjectionsRepo.all()
     |> Enum.map(&format_play_status/1)
   end
@@ -271,6 +273,8 @@ defmodule BaladosSyncWeb.Queries do
 
   defp compute_listening_streak(user_id) do
     # Get distinct dates of activity, ordered descending
+    # updated_at reflects the event timestamp from the domain (not Ecto auto-timestamp),
+    # so it accurately represents when the user actually listened
     dates =
       from(ps in PlayStatus,
         where: ps.user_id == ^user_id,

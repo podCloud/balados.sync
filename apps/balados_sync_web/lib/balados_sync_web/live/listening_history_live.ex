@@ -267,12 +267,14 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
                   </p>
                   <!-- Progress bar -->
                   <div class="mt-2 flex items-center gap-2">
-                    <div class="flex-1 bg-zinc-200 rounded-full h-1.5 max-w-xs">
-                      <div
-                        class={"rounded-full h-1.5 " <> if entry.played, do: "bg-green-500", else: "bg-blue-500"}
-                        style={"width: #{progress_percent(entry)}%"}
-                      />
-                    </div>
+                    <%= if progress_percent(entry) do %>
+                      <div class="flex-1 bg-zinc-200 rounded-full h-1.5 max-w-xs">
+                        <div
+                          class={"rounded-full h-1.5 " <> if entry.played, do: "bg-green-500", else: "bg-blue-500"}
+                          style={"width: #{progress_percent(entry)}%"}
+                        />
+                      </div>
+                    <% end %>
                     <span class="text-xs text-zinc-500 whitespace-nowrap">
                       <%= format_position(entry) %>
                     </span>
@@ -359,7 +361,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
     min(round(pos / dur * 100), 100)
   end
 
-  defp progress_percent(%{position: pos}) when pos > 0, do: 50
+  defp progress_percent(%{position: pos}) when pos > 0, do: nil
   defp progress_percent(_), do: 0
 
   defp format_position(%{played: true, rss_enclosure: %{"duration" => dur}})
