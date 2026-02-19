@@ -178,13 +178,33 @@ defmodule BaladosSyncCore.Aggregates.Like do
   end
 
   def apply(%__MODULE__{} = state, %LikeCheckpoint{} = event) do
+    # Normalize keys: after JSON serialization/deserialization (event store replay),
+    # nested map keys may be strings instead of atoms (e.g. "liked_at" vs :liked_at).
     %{
       state
       | user_id: event.user_id,
-        podcast_likes: event.podcast_likes || %{},
-        episode_likes: event.episode_likes || %{}
+        podcast_likes: normalize_likes_map(event.podcast_likes || %{}),
+        episode_likes: normalize_likes_map(event.episode_likes || %{})
     }
   end
 
   def apply(%__MODULE__{} = state, _event), do: state
+
+  # Normalize nested like data maps to ensure atom keys after JSON deserialization.
+  # The event store serializes events as JSON, so after replay, nested maps have
+  # string keys (e.g. "liked_at") instead of atoms (:liked_at).
+  defp normalize_likes_map(likes) when is_map(likes) do
+    Map.new(likes, fn {key, value} -> {key, atomize_keys(value)} end)
+  end
+
+  defp normalize_likes_map(_), do: %{}
+
+  defp atomize_keys(map) when is_map(map) do
+    Map.new(map, fn
+      {key, value} when is_binary(key) -> {String.to_existing_atom(key), value}
+      {key, value} -> {key, value}
+    end)
+  end
+
+  defp atomize_keys(value), do: value
 end

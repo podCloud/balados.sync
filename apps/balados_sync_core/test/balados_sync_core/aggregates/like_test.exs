@@ -298,6 +298,38 @@ defmodule BaladosSyncCore.Aggregates.LikeTest do
       assert new_state.episode_likes == episode_likes
     end
 
+    test "LikeCheckpoint normalizes string keys from JSON deserialization" do
+      state = %Like{user_id: nil}
+
+      # Simulate what the event store returns after JSON deserialization:
+      # nested map keys become strings instead of atoms
+      event = %LikeCheckpoint{
+        user_id: "user-1",
+        podcast_likes: %{
+          "feed-1" => %{"liked_at" => ~U[2024-01-01 00:00:00Z], "unliked_at" => nil}
+        },
+        episode_likes: %{
+          "item-1" => %{
+            "liked_at" => ~U[2024-01-01 00:00:00Z],
+            "unliked_at" => nil,
+            "rss_source_feed" => "feed-1"
+          }
+        }
+      }
+
+      new_state = Like.apply(state, event)
+
+      # After normalization, keys should be atoms
+      assert new_state.podcast_likes["feed-1"].liked_at == ~U[2024-01-01 00:00:00Z]
+      assert new_state.podcast_likes["feed-1"].unliked_at == nil
+      assert new_state.episode_likes["item-1"].liked_at == ~U[2024-01-01 00:00:00Z]
+      assert new_state.episode_likes["item-1"].rss_source_feed == "feed-1"
+
+      # Idempotency should work after checkpoint replay with string keys
+      cmd = %LikePodcast{user_id: "user-1", rss_source_feed: "feed-1"}
+      assert [] = Like.execute(new_state, cmd)
+    end
+
     test "unknown events are ignored" do
       state = %Like{user_id: "user-1", podcast_likes: %{}, episode_likes: %{}}
       new_state = Like.apply(state, %{some: "unknown event"})

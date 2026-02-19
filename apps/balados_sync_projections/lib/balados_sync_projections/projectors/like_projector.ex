@@ -71,11 +71,12 @@ defmodule BaladosSyncProjections.Projectors.LikeProjector do
       from(ul in UserLike, where: ul.user_id == ^event.user_id)
       |> repo.delete_all()
 
-      # Re-insert podcast likes with error propagation
-      podcast_likes = event.podcast_likes || %{}
+      # Normalize keys: after JSON deserialization, nested map keys may be strings
+      podcast_likes = normalize_likes_map(event.podcast_likes || %{})
+      episode_likes = normalize_likes_map(event.episode_likes || %{})
 
       with :ok <- replay_podcast_likes(repo, event.user_id, podcast_likes),
-           :ok <- replay_episode_likes(repo, event.user_id, event.episode_likes || %{}) do
+           :ok <- replay_episode_likes(repo, event.user_id, episode_likes) do
         Logger.debug("[LikeProjector] Checkpoint applied successfully for user=#{event.user_id}")
         {:ok, :checkpoint_applied}
       end
@@ -172,4 +173,20 @@ defmodule BaladosSyncProjections.Projectors.LikeProjector do
     )
     |> repo.one()
   end
+
+  # Normalize nested like data maps to ensure atom keys after JSON deserialization.
+  defp normalize_likes_map(likes) when is_map(likes) do
+    Map.new(likes, fn {key, value} -> {key, atomize_keys(value)} end)
+  end
+
+  defp normalize_likes_map(_), do: %{}
+
+  defp atomize_keys(map) when is_map(map) do
+    Map.new(map, fn
+      {key, value} when is_binary(key) -> {String.to_existing_atom(key), value}
+      {key, value} -> {key, value}
+    end)
+  end
+
+  defp atomize_keys(value), do: value
 end

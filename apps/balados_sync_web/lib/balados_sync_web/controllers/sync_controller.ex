@@ -392,10 +392,11 @@ defmodule BaladosSyncWeb.SyncController do
   # NOTE: Like subscriptions and play statuses, synced likes are written directly
   # to the projections table rather than dispatched as CQRS commands. This is an
   # intentional trade-off: sync data arrives already validated from the client's
-  # event history. The Like aggregate state won't reflect synced likes, so a
-  # subsequent LikePodcast command on a podcast already liked via sync may
-  # re-emit a PodcastLiked event (idempotency gap between sync and CQRS paths).
-  # This matches the established pattern for subscriptions/plays in this codebase.
+  # event history. The Like aggregate state won't reflect synced likes, so if a
+  # device calls POST /api/v1/likes for a feed it already synced as liked, the
+  # aggregate will re-emit a PodcastLiked event (projection no-ops via upsert,
+  # but the event store accumulates a duplicate event). Low impact since likes
+  # are lightweight events. Matches established pattern for subscriptions/plays.
   defp sync_likes(multi, _user_id, likes, _now) when likes == [], do: multi
 
   defp sync_likes(multi, user_id, likes, now) do
