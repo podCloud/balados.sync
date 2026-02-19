@@ -13,7 +13,11 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
     PlayRecorded,
     EpisodeSaved,
     EpisodeShared,
-    PopularityRecalculated
+    PopularityRecalculated,
+    PodcastLiked,
+    PodcastUnliked,
+    EpisodeLiked,
+    EpisodeUnliked
   }
 
   alias BaladosSyncCore.RssCache
@@ -23,6 +27,7 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
 
   # Scores par type d'action
   @score_subscribe 10
+  @score_like 7
   @score_play 5
   @score_save 3
   @score_share 2
@@ -378,6 +383,146 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
         EpisodePopularity.changeset(updated, %{}),
         on_conflict: :replace_all,
         conflict_target: :rss_source_item
+      )
+    end)
+  end)
+
+  project(%PodcastLiked{} = event, _metadata, fn multi ->
+    Ecto.Multi.run(multi, :podcast_liked, fn repo, _changes ->
+      is_public = is_user_public_with_repo?(repo, event.user_id, event.rss_source_feed, nil)
+
+      popularity =
+        repo.get(PodcastPopularity, event.rss_source_feed) ||
+          %PodcastPopularity{rss_source_feed: event.rss_source_feed}
+
+      updated = %{
+        popularity
+        | score: popularity.score + @score_like,
+          likes: popularity.likes + 1,
+          likes_people:
+            if(is_public,
+              do: add_recent_user(popularity.likes_people, event.user_id),
+              else: popularity.likes_people
+            )
+      }
+
+      repo.insert_or_update(
+        PodcastPopularity.changeset(updated, %{}),
+        on_conflict: :replace_all,
+        conflict_target: :rss_source_feed
+      )
+    end)
+  end)
+
+  project(%PodcastUnliked{} = event, _metadata, fn multi ->
+    Ecto.Multi.run(multi, :podcast_unliked, fn repo, _changes ->
+      popularity =
+        repo.get(PodcastPopularity, event.rss_source_feed) ||
+          %PodcastPopularity{rss_source_feed: event.rss_source_feed}
+
+      updated = %{
+        popularity
+        | score: max(popularity.score - @score_like, 0),
+          likes: max(popularity.likes - 1, 0),
+          likes_people: Enum.reject(popularity.likes_people || [], &(&1 == event.user_id))
+      }
+
+      repo.insert_or_update(
+        PodcastPopularity.changeset(updated, %{}),
+        on_conflict: :replace_all,
+        conflict_target: :rss_source_feed
+      )
+    end)
+  end)
+
+  project(%EpisodeLiked{} = event, _metadata, fn multi ->
+    # Increment episode popularity
+    multi =
+      Ecto.Multi.run(multi, :episode_liked, fn repo, _changes ->
+        is_public =
+          is_user_public_with_repo?(
+            repo,
+            event.user_id,
+            event.rss_source_feed,
+            event.rss_source_item
+          )
+
+        popularity =
+          repo.get(EpisodePopularity, event.rss_source_item) ||
+            %EpisodePopularity{
+              rss_source_item: event.rss_source_item,
+              rss_source_feed: event.rss_source_feed
+            }
+
+        updated = %{
+          popularity
+          | score: popularity.score + @score_like,
+            likes: popularity.likes + 1,
+            likes_people:
+              if(is_public,
+                do: add_recent_user(popularity.likes_people, event.user_id),
+                else: popularity.likes_people
+              )
+        }
+
+        repo.insert_or_update(
+          EpisodePopularity.changeset(updated, %{}),
+          on_conflict: :replace_all,
+          conflict_target: :rss_source_item
+        )
+      end)
+
+    # Also increment podcast score for episode likes
+    Ecto.Multi.run(multi, :podcast_score_from_episode_like, fn repo, _changes ->
+      popularity =
+        repo.get(PodcastPopularity, event.rss_source_feed) ||
+          %PodcastPopularity{rss_source_feed: event.rss_source_feed}
+
+      updated = %{popularity | score: popularity.score + @score_like}
+
+      repo.insert_or_update(
+        PodcastPopularity.changeset(updated, %{}),
+        on_conflict: :replace_all,
+        conflict_target: :rss_source_feed
+      )
+    end)
+  end)
+
+  project(%EpisodeUnliked{} = event, _metadata, fn multi ->
+    multi =
+      Ecto.Multi.run(multi, :episode_unliked, fn repo, _changes ->
+        popularity =
+          repo.get(EpisodePopularity, event.rss_source_item) ||
+            %EpisodePopularity{
+              rss_source_item: event.rss_source_item,
+              rss_source_feed: event.rss_source_feed
+            }
+
+        updated = %{
+          popularity
+          | score: max(popularity.score - @score_like, 0),
+            likes: max(popularity.likes - 1, 0),
+            likes_people: Enum.reject(popularity.likes_people || [], &(&1 == event.user_id))
+        }
+
+        repo.insert_or_update(
+          EpisodePopularity.changeset(updated, %{}),
+          on_conflict: :replace_all,
+          conflict_target: :rss_source_item
+        )
+      end)
+
+    Ecto.Multi.run(multi, :podcast_score_from_episode_unlike, fn repo, _changes ->
+      popularity =
+        repo.get(PodcastPopularity, event.rss_source_feed) ||
+          %PodcastPopularity{rss_source_feed: event.rss_source_feed}
+
+      updated = %{popularity | score: max(popularity.score - @score_like, 0)}
+
+      repo.insert_or_update(
+        PodcastPopularity.changeset(updated, %{}),
+        on_conflict: :replace_all,
+        conflict_target: :rss_source_feed
       )
     end)
   end)

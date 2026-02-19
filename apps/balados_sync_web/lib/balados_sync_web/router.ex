@@ -253,6 +253,12 @@ defmodule BaladosSyncWeb.Router do
     post "/collections/:id/feeds", CollectionsController, :add_feed
     delete "/collections/:id/feeds/:feed_id", CollectionsController, :remove_feed
 
+    # Likes
+    post "/likes", LikeController, :create
+    delete "/likes/:feed", LikeController, :delete_podcast
+    delete "/likes/:feed/:item", LikeController, :delete_episode
+    get "/likes", LikeController, :index
+
     # Play status
     post "/play", PlayController, :record
     put "/play/:item/position", PlayController, :update_position

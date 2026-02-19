@@ -20,7 +20,8 @@ defmodule BaladosSyncProjections.Application do
         BaladosSyncProjections.Projectors.PlayStatusesProjector,
         BaladosSyncProjections.Projectors.PublicEventsProjector,
         BaladosSyncProjections.Projectors.PopularityProjector,
-        BaladosSyncProjections.Projectors.CollectionsProjector
+        BaladosSyncProjections.Projectors.CollectionsProjector,
+        BaladosSyncProjections.Projectors.LikeProjector
       ]
     else
       []
