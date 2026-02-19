@@ -404,6 +404,7 @@ git pull origin main
 - Podcast Ownership & Verification (v2.4) ✅ [#68](https://github.com/podCloud/balados.sync/issues/68)
 - Email Verification for Ownership (v2.5) ✅ [#69](https://github.com/podCloud/balados.sync/issues/69)
 - Bounded Context Aggregate Split (v2.6) ✅ [#148](https://github.com/podCloud/balados.sync/issues/148) / [PR #238](https://github.com/podCloud/balados.sync/pull/238)
+- Listening History (v2.7) ✅ [#200](https://github.com/podCloud/balados.sync/issues/200)
 
 ---
 

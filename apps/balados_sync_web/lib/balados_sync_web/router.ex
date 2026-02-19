@@ -140,6 +140,10 @@ defmodule BaladosSyncWeb.Router do
     # App management (HTML interface)
     get "/apps", AppAuthController, :manage_apps
 
+    # Listening History exports
+    get "/listening-history/export.csv", ListeningHistoryExportController, :export_csv
+    get "/listening-history/export.json", ListeningHistoryExportController, :export_json
+
     # Profile settings (authenticated user only)
     get "/settings/profile", ProfileController, :edit
     put "/settings/profile", ProfileController, :update
@@ -152,6 +156,7 @@ defmodule BaladosSyncWeb.Router do
     live_session :authenticated,
       on_mount: [{BaladosSyncWeb.Plugs.UserAuth, :ensure_authenticated}] do
       live "/subscriptions", SubscriptionsLive
+      live "/listening-history", ListeningHistoryLive
     end
   end
 

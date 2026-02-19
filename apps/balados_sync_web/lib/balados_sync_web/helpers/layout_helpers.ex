@@ -37,4 +37,12 @@ defmodule BaladosSyncWeb.Helpers.LayoutHelpers do
       "hover:text-zinc-700"
     end
   end
+
+  @doc """
+  Returns "page" if the current path matches the prefix, nil otherwise.
+  Used for `aria-current` attribute on nav links.
+  """
+  def nav_aria_current(current_path, path_prefix) do
+    if String.starts_with?(current_path, path_prefix), do: "page"
+  end
 end

@@ -251,6 +251,9 @@ msgstr "Synchronisez vos abonnements, votre historique d'écoute et vos playlist
 msgid "nav.admin"
 msgstr "Admin"
 
+msgid "nav.listening_history"
+msgstr "Historique"
+
 #: lib/balados_sync_web/components/layouts/app.html.heex:54
 #, elixir-autogen, elixir-format
 msgid "nav.dashboard"
@@ -2984,3 +2987,115 @@ msgstr "Abonné à"
 #, elixir-autogen, elixir-format
 msgid "subscriptions.unknown_error"
 msgstr "Erreur inconnue."
+
+# Listening History
+
+msgid "listening_history.title"
+msgstr "Historique d'écoute"
+
+msgid "listening_history.count.one"
+msgid_plural "listening_history.count.other"
+msgstr[0] "%{count} épisode"
+msgstr[1] "%{count} épisodes"
+
+msgid "listening_history.export_csv"
+msgstr "Exporter CSV"
+
+msgid "listening_history.export_json"
+msgstr "Exporter JSON"
+
+msgid "listening_history.empty"
+msgstr "Aucun historique d'écoute."
+
+msgid "listening_history.unknown_episode"
+msgstr "Épisode inconnu"
+
+msgid "listening_history.unknown_podcast"
+msgstr "Podcast inconnu"
+
+msgid "listening_history.filter.all_podcasts"
+msgstr "Tous les podcasts"
+
+msgid "listening_history.filter.all_time"
+msgstr "Toute la période"
+
+msgid "listening_history.filter.this_week"
+msgstr "7 derniers jours"
+
+msgid "listening_history.filter.this_month"
+msgstr "30 derniers jours"
+
+msgid "listening_history.filter.this_year"
+msgstr "365 derniers jours"
+
+msgid "listening_history.filter.all_status"
+msgstr "Tous les statuts"
+
+msgid "listening_history.filter.completed"
+msgstr "Terminés"
+
+msgid "listening_history.filter.in_progress"
+msgstr "En cours"
+
+msgid "listening_history.filter.not_started"
+msgstr "Non commencés"
+
+msgid "listening_history.status.completed"
+msgstr "Terminé"
+
+msgid "listening_history.status.in_progress"
+msgstr "En cours"
+
+msgid "listening_history.status.not_started"
+msgstr "Non commencé"
+
+msgid "listening_history.stats.total_time"
+msgstr "Temps d'écoute total"
+
+msgid "listening_history.stats.episodes"
+msgstr "Épisodes"
+
+msgid "listening_history.stats.completed"
+msgstr "Terminés"
+
+msgid "listening_history.stats.streak"
+msgstr "Jours consécutifs"
+
+msgid "listening_history.stats.top_podcasts"
+msgstr "Top podcasts"
+
+msgid "listening_history.stats.all_time_label"
+msgstr "Statistiques globales"
+
+msgid "listening_history.filter.podcast_label"
+msgstr "Filtrer par podcast"
+
+msgid "listening_history.filter.period_label"
+msgstr "Filtrer par période"
+
+msgid "listening_history.filter.status_label"
+msgstr "Filtrer par statut"
+
+msgid "listening_history.pagination.previous"
+msgstr "Précédent"
+
+msgid "listening_history.pagination.next"
+msgstr "Suivant"
+
+msgid "listening_history.pagination.label"
+msgstr "Pagination"
+
+msgid "listening_history.pagination.page_info"
+msgstr "Page %{page} sur %{total}"
+
+msgid "listening_history.time.just_now"
+msgstr "À l'instant"
+
+msgid "listening_history.time.minutes_ago"
+msgstr "Il y a %{count} min"
+
+msgid "listening_history.time.hours_ago"
+msgstr "Il y a %{count}h"
+
+msgid "listening_history.time.days_ago"
+msgstr "Il y a %{count}j"

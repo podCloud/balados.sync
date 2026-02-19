@@ -698,6 +698,29 @@ const queues = response.playlists.filter(p => p.type === "queue");
 
 ---
 
+## 📜 Listening History (v2.7)
+
+Detailed listening history page with filters, stats, and export.
+
+**Route**: `/listening-history` (LiveView, authenticated)
+
+**Features**:
+- Paginated list of all play statuses (50 per page)
+- Filter by podcast, time period (week/month/year), and status (completed/in progress/not started)
+- Stats panel (async-loaded): total listening time, episode count, completed count, listening streak, top 5 podcasts
+- Episode cards with cover art, progress bar, status badge, and relative time
+- Export to CSV and JSON with same filter support (`/listening-history/export.csv`, `/listening-history/export.json`)
+- Full i18n support (French and English)
+
+**Files**:
+| File | Purpose |
+|------|---------|
+| `live/listening_history_live.ex` | LiveView with filters, stats, pagination |
+| `controllers/listening_history_export_controller.ex` | CSV/JSON export |
+| `queries.ex` | Paginated query, stats query, export query |
+
+---
+
 ## 🔐 Gestion de la Confidentialité
 
 ### Privacy Choice Modal (v1.4)
