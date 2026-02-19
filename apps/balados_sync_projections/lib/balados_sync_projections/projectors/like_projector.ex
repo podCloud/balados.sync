@@ -109,12 +109,14 @@ defmodule BaladosSyncProjections.Projectors.LikeProjector do
       entries = podcast_entries ++ episode_entries
 
       if entries != [] do
-        repo.insert_all(UserLike, entries)
-      end
+        {count, _} = repo.insert_all(UserLike, entries)
 
-      Logger.debug(
-        "[LikeProjector] Checkpoint applied: #{length(entries)} likes for user=#{event.user_id}"
-      )
+        Logger.debug(
+          "[LikeProjector] Checkpoint applied: #{count} likes for user=#{event.user_id}"
+        )
+      else
+        Logger.debug("[LikeProjector] Checkpoint applied: 0 likes for user=#{event.user_id}")
+      end
 
       {:ok, :checkpoint_applied}
     end)

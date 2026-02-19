@@ -7,7 +7,14 @@ defmodule BaladosSyncWeb.LikeController do
   - `POST /api/v1/likes` - Like a podcast or episode
   - `DELETE /api/v1/likes/:feed` - Unlike a podcast
   - `DELETE /api/v1/likes/:feed/:item` - Unlike an episode
-  - `GET /api/v1/likes` - List all active likes for the user
+  - `GET /api/v1/likes` - List all active likes for the user (paginated)
+
+  ## Path Parameters
+
+  The `:feed` and `:item` path parameters must be **URL-safe base64** encoded
+  (RFC 4648 §5: `-` instead of `+`, `_` instead of `/`, no `=` padding).
+  Standard base64 contains `/` which would break path routing.
+  See `balados.app/src/utils/rssEncoding.ts` for the shared encoding functions.
   """
 
   use BaladosSyncWeb, :controller
@@ -132,13 +139,19 @@ defmodule BaladosSyncWeb.LikeController do
     end
   end
 
-  def index(conn, _params) do
+  @max_likes 500
+
+  def index(conn, params) do
     user_id = conn.assigns.current_user_id
+    limit = min(parse_int(params["limit"], @max_likes), @max_likes)
+    offset = parse_int(params["offset"], 0)
 
     likes =
       from(ul in UserLike,
         where: ul.user_id == ^user_id and is_nil(ul.unliked_at),
         order_by: [desc: ul.liked_at],
+        limit: ^(limit + 1),
+        offset: ^offset,
         select: %{
           rss_source_feed: ul.rss_source_feed,
           rss_source_item: ul.rss_source_item,
@@ -147,6 +160,23 @@ defmodule BaladosSyncWeb.LikeController do
       )
       |> ProjectionsRepo.all()
 
-    json(conn, %{likes: likes})
+    has_more = length(likes) > limit
+
+    json(conn, %{
+      likes: Enum.take(likes, limit),
+      has_more: has_more
+    })
   end
+
+  defp parse_int(nil, default), do: default
+
+  defp parse_int(val, default) when is_binary(val) do
+    case Integer.parse(val) do
+      {n, _} when n >= 0 -> n
+      _ -> default
+    end
+  end
+
+  defp parse_int(val, _default) when is_integer(val) and val >= 0, do: val
+  defp parse_int(_, default), do: default
 end

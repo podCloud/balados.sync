@@ -119,6 +119,7 @@ defmodule BaladosSyncWeb.LikeControllerTest do
 
       response = json_response(conn, 200)
       assert response["likes"] == []
+      assert response["has_more"] == false
     end
 
     test "returns likes after liking a podcast", %{conn: conn, user_id: user_id} do
@@ -141,6 +142,30 @@ defmodule BaladosSyncWeb.LikeControllerTest do
       response = json_response(conn, 200)
       assert length(response["likes"]) == 1
       assert hd(response["likes"])["rss_source_feed"] == "dGVzdC1mZWVk"
+      assert response["has_more"] == false
+    end
+
+    test "respects limit parameter", %{conn: conn, user_id: user_id} do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      for i <- 1..3 do
+        ProjectionsRepo.insert!(%UserLike{
+          user_id: user_id,
+          rss_source_feed: "feed-#{i}",
+          rss_source_item: nil,
+          liked_at: DateTime.add(now, i, :second),
+          unliked_at: nil
+        })
+      end
+
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.likes.read"])
+        |> get("/api/v1/likes?limit=2")
+
+      response = json_response(conn, 200)
+      assert length(response["likes"]) == 2
+      assert response["has_more"] == true
     end
 
     test "works with wildcard scope", %{conn: conn, user_id: user_id} do
@@ -151,6 +176,7 @@ defmodule BaladosSyncWeb.LikeControllerTest do
 
       response = json_response(conn, 200)
       assert response["likes"] == []
+      assert response["has_more"] == false
     end
 
     test "works with parent scope user.likes", %{conn: conn, user_id: user_id} do
@@ -161,6 +187,7 @@ defmodule BaladosSyncWeb.LikeControllerTest do
 
       response = json_response(conn, 200)
       assert response["likes"] == []
+      assert response["has_more"] == false
     end
   end
 end
