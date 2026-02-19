@@ -15,6 +15,7 @@ defmodule BaladosSyncProjections.Projectors.LikeProjector do
     LikeCheckpoint
   }
 
+  alias BaladosSyncCore.LikeNormalizer
   alias BaladosSyncProjections.Schemas.UserLike
 
   project(%PodcastLiked{} = event, _metadata, fn multi ->
@@ -72,55 +73,51 @@ defmodule BaladosSyncProjections.Projectors.LikeProjector do
       |> repo.delete_all()
 
       # Normalize keys: after JSON deserialization, nested map keys may be strings
-      podcast_likes = normalize_likes_map(event.podcast_likes || %{})
-      episode_likes = normalize_likes_map(event.episode_likes || %{})
+      podcast_likes = LikeNormalizer.normalize(event.podcast_likes)
+      episode_likes = LikeNormalizer.normalize(event.episode_likes)
 
-      with :ok <- replay_podcast_likes(repo, event.user_id, podcast_likes),
-           :ok <- replay_episode_likes(repo, event.user_id, episode_likes) do
-        Logger.debug("[LikeProjector] Checkpoint applied successfully for user=#{event.user_id}")
-        {:ok, :checkpoint_applied}
+      # Build all entries for bulk insert (no N+1 queries since we deleted everything above)
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      podcast_entries =
+        Enum.map(podcast_likes, fn {feed, like_data} ->
+          %{
+            user_id: event.user_id,
+            rss_source_feed: feed,
+            rss_source_item: nil,
+            liked_at: like_data.liked_at,
+            unliked_at: like_data[:unliked_at],
+            inserted_at: now,
+            updated_at: now
+          }
+        end)
+
+      episode_entries =
+        Enum.map(episode_likes, fn {item, like_data} ->
+          %{
+            user_id: event.user_id,
+            rss_source_feed: like_data.rss_source_feed,
+            rss_source_item: item,
+            liked_at: like_data.liked_at,
+            unliked_at: like_data[:unliked_at],
+            inserted_at: now,
+            updated_at: now
+          }
+        end)
+
+      entries = podcast_entries ++ episode_entries
+
+      if entries != [] do
+        repo.insert_all(UserLike, entries)
       end
+
+      Logger.debug(
+        "[LikeProjector] Checkpoint applied: #{length(entries)} likes for user=#{event.user_id}"
+      )
+
+      {:ok, :checkpoint_applied}
     end)
   end)
-
-  defp replay_podcast_likes(repo, user_id, podcast_likes) do
-    Enum.reduce_while(podcast_likes, :ok, fn {feed, like_data}, :ok ->
-      with {:ok, _} <- upsert_like(repo, user_id, feed, nil, like_data.liked_at),
-           {:ok, _} <- maybe_unlike(repo, user_id, feed, nil, like_data.unliked_at) do
-        {:cont, :ok}
-      else
-        {:error, reason} ->
-          Logger.error(
-            "[LikeProjector] Checkpoint failed for podcast feed=#{feed}: #{inspect(reason)}"
-          )
-
-          {:halt, {:error, reason}}
-      end
-    end)
-  end
-
-  defp replay_episode_likes(repo, user_id, episode_likes) do
-    Enum.reduce_while(episode_likes, :ok, fn {item, like_data}, :ok ->
-      with {:ok, _} <-
-             upsert_like(repo, user_id, like_data.rss_source_feed, item, like_data.liked_at),
-           {:ok, _} <-
-             maybe_unlike(repo, user_id, like_data.rss_source_feed, item, like_data.unliked_at) do
-        {:cont, :ok}
-      else
-        {:error, reason} ->
-          Logger.error(
-            "[LikeProjector] Checkpoint failed for episode item=#{item}: #{inspect(reason)}"
-          )
-
-          {:halt, {:error, reason}}
-      end
-    end)
-  end
-
-  defp maybe_unlike(_repo, _user_id, _feed, _item, nil), do: {:ok, nil}
-
-  defp maybe_unlike(repo, user_id, feed, item, unliked_at),
-    do: unlike(repo, user_id, feed, item, unliked_at)
 
   defp upsert_like(repo, user_id, feed, item, liked_at) do
     existing = find_like(repo, user_id, feed, item)
@@ -173,20 +170,4 @@ defmodule BaladosSyncProjections.Projectors.LikeProjector do
     )
     |> repo.one()
   end
-
-  # Normalize nested like data maps to ensure atom keys after JSON deserialization.
-  defp normalize_likes_map(likes) when is_map(likes) do
-    Map.new(likes, fn {key, value} -> {key, atomize_keys(value)} end)
-  end
-
-  defp normalize_likes_map(_), do: %{}
-
-  defp atomize_keys(map) when is_map(map) do
-    Map.new(map, fn
-      {key, value} when is_binary(key) -> {String.to_existing_atom(key), value}
-      {key, value} -> {key, value}
-    end)
-  end
-
-  defp atomize_keys(value), do: value
 end

@@ -98,7 +98,9 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
         CollectionSubscription,
         PublicEvent,
         UserPrivacy,
-        UserLike
+        UserLike,
+        PodcastPopularity,
+        EpisodePopularity
       }
     end
   end
@@ -184,6 +186,33 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
 
       _ ->
         {:error, {:unsupported_event, event.__struct__}}
+    end
+  end
+
+  @doc """
+  Apply an event to the popularity projections.
+
+  Separate from `apply_event` because popularity projections are handled by
+  a different projector (PopularityProjector) and require different schemas.
+  """
+  def apply_popularity_event(event) do
+    alias BaladosSyncProjections.ProjectionsRepo
+
+    case event do
+      %BaladosSyncCore.Events.PodcastLiked{} ->
+        apply_popularity_podcast_liked(event, ProjectionsRepo)
+
+      %BaladosSyncCore.Events.PodcastUnliked{} ->
+        apply_popularity_podcast_unliked(event, ProjectionsRepo)
+
+      %BaladosSyncCore.Events.EpisodeLiked{} ->
+        apply_popularity_episode_liked(event, ProjectionsRepo)
+
+      %BaladosSyncCore.Events.EpisodeUnliked{} ->
+        apply_popularity_episode_unliked(event, ProjectionsRepo)
+
+      _ ->
+        {:error, {:unsupported_popularity_event, event.__struct__}}
     end
   end
 
@@ -717,6 +746,144 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
 
     {:ok, :checkpoint_applied}
   end
+
+  # ============================================================================
+  # Popularity Projector Logic (Like events)
+  # ============================================================================
+
+  @score_like 7
+
+  defp apply_popularity_podcast_liked(event, repo) do
+    alias BaladosSyncProjections.Schemas.PodcastPopularity
+
+    popularity =
+      repo.get(PodcastPopularity, event.rss_source_feed) ||
+        %PodcastPopularity{rss_source_feed: event.rss_source_feed}
+
+    attrs = %{
+      rss_source_feed: event.rss_source_feed,
+      score: popularity.score + @score_like,
+      likes: popularity.likes + 1,
+      likes_people: add_recent_user(popularity.likes_people, event.user_id)
+    }
+
+    repo.insert_or_update(
+      PodcastPopularity.changeset(popularity, attrs),
+      on_conflict: :replace_all,
+      conflict_target: :rss_source_feed
+    )
+  end
+
+  defp apply_popularity_podcast_unliked(event, repo) do
+    alias BaladosSyncProjections.Schemas.PodcastPopularity
+
+    case repo.get(PodcastPopularity, event.rss_source_feed) do
+      nil ->
+        {:ok, nil}
+
+      popularity ->
+        attrs = %{
+          score: max(popularity.score - @score_like, 0),
+          likes: max(popularity.likes - 1, 0),
+          likes_people: Enum.reject(popularity.likes_people || [], &(&1 == event.user_id))
+        }
+
+        repo.insert_or_update(
+          PodcastPopularity.changeset(popularity, attrs),
+          on_conflict: :replace_all,
+          conflict_target: :rss_source_feed
+        )
+    end
+  end
+
+  defp apply_popularity_episode_liked(event, repo) do
+    alias BaladosSyncProjections.Schemas.{EpisodePopularity, PodcastPopularity}
+
+    # Episode popularity
+    episode_pop =
+      repo.get(EpisodePopularity, event.rss_source_item) ||
+        %EpisodePopularity{
+          rss_source_item: event.rss_source_item,
+          rss_source_feed: event.rss_source_feed
+        }
+
+    episode_attrs = %{
+      rss_source_item: event.rss_source_item,
+      rss_source_feed: event.rss_source_feed,
+      score: episode_pop.score + @score_like,
+      likes: episode_pop.likes + 1,
+      likes_people: add_recent_user(episode_pop.likes_people, event.user_id)
+    }
+
+    {:ok, _} =
+      repo.insert_or_update(
+        EpisodePopularity.changeset(episode_pop, episode_attrs),
+        on_conflict: :replace_all,
+        conflict_target: :rss_source_item
+      )
+
+    # Also increment podcast score
+    podcast_pop =
+      repo.get(PodcastPopularity, event.rss_source_feed) ||
+        %PodcastPopularity{rss_source_feed: event.rss_source_feed}
+
+    podcast_attrs = %{
+      rss_source_feed: event.rss_source_feed,
+      score: podcast_pop.score + @score_like
+    }
+
+    repo.insert_or_update(
+      PodcastPopularity.changeset(podcast_pop, podcast_attrs),
+      on_conflict: :replace_all,
+      conflict_target: :rss_source_feed
+    )
+  end
+
+  defp apply_popularity_episode_unliked(event, repo) do
+    alias BaladosSyncProjections.Schemas.{EpisodePopularity, PodcastPopularity}
+
+    # Episode popularity
+    case repo.get(EpisodePopularity, event.rss_source_item) do
+      nil ->
+        :ok
+
+      episode_pop ->
+        attrs = %{
+          score: max(episode_pop.score - @score_like, 0),
+          likes: max(episode_pop.likes - 1, 0),
+          likes_people: Enum.reject(episode_pop.likes_people || [], &(&1 == event.user_id))
+        }
+
+        {:ok, _} =
+          repo.insert_or_update(
+            EpisodePopularity.changeset(episode_pop, attrs),
+            on_conflict: :replace_all,
+            conflict_target: :rss_source_item
+          )
+    end
+
+    # Also decrement podcast score
+    case repo.get(PodcastPopularity, event.rss_source_feed) do
+      nil ->
+        {:ok, nil}
+
+      podcast_pop ->
+        attrs = %{score: max(podcast_pop.score - @score_like, 0)}
+
+        repo.insert_or_update(
+          PodcastPopularity.changeset(podcast_pop, attrs),
+          on_conflict: :replace_all,
+          conflict_target: :rss_source_feed
+        )
+    end
+  end
+
+  defp add_recent_user(people_list, user_id) when is_list(people_list) do
+    [user_id | Enum.reject(people_list, &(&1 == user_id))]
+    |> Enum.take(10)
+  end
+
+  defp add_recent_user(_people_list, user_id), do: [user_id]
 
   # ============================================================================
   # DateTime Helpers
