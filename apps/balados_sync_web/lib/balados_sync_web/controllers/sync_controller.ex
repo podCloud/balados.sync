@@ -437,9 +437,11 @@ defmodule BaladosSyncWeb.SyncController do
             |> repo.insert()
 
           record ->
-            # LWW: update if client is newer
-            client_ts = like.liked_at || now
-            server_ts = record.liked_at || ~U[1970-01-01 00:00:00Z]
+            # LWW: compare latest action timestamp (max of liked_at, unliked_at)
+            client_ts = max_datetime(like.liked_at, like.unliked_at) || now
+
+            server_ts =
+              max_datetime(record.liked_at, record.unliked_at) || ~U[1970-01-01 00:00:00Z]
 
             if DateTime.compare(client_ts, server_ts) != :lt do
               record
@@ -452,6 +454,11 @@ defmodule BaladosSyncWeb.SyncController do
       end)
     end)
   end
+
+  defp max_datetime(nil, nil), do: nil
+  defp max_datetime(a, nil), do: a
+  defp max_datetime(nil, b), do: b
+  defp max_datetime(a, b), do: if(DateTime.compare(a, b) != :lt, do: a, else: b)
 
   defp get_server_subscriptions(user_id) do
     from(s in Subscription, where: s.user_id == ^user_id)
