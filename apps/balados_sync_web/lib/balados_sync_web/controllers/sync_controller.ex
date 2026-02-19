@@ -704,7 +704,7 @@ defmodule BaladosSyncWeb.SyncController do
         unliked_at: parse_datetime(like["unliked_at"])
       }
     end)
-    |> Enum.filter(fn like -> is_binary(like.rss_source_feed) end)
+    |> Enum.filter(fn like -> is_binary(like.rss_source_feed) and like.rss_source_feed != "" end)
     |> Enum.uniq_by(fn like -> {like.rss_source_feed, like.rss_source_item} end)
   end
 

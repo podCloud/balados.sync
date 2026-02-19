@@ -530,6 +530,13 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjector do
     end)
   end)
 
+  # TODO: LikeCheckpoint is not handled here. If the event store is ever partially
+  # replayed starting from a LikeCheckpoint (e.g. stream compaction), this projector
+  # won't see the original PodcastLiked/EpisodeLiked events and counts will be
+  # incorrect. For now this is low-risk (no stream compaction exists). If compaction
+  # is added, consider re-deriving popularity counts from the UserLike projection
+  # table when a LikeCheckpoint is encountered. See issue #258.
+
   project(%PopularityRecalculated{} = event, _metadata, fn multi ->
     # Event émis par le worker après recalcul depuis public_events
     if event.rss_source_item do

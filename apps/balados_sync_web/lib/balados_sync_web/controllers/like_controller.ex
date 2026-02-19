@@ -138,6 +138,7 @@ defmodule BaladosSyncWeb.LikeController do
     likes =
       from(ul in UserLike,
         where: ul.user_id == ^user_id and is_nil(ul.unliked_at),
+        order_by: [desc: ul.liked_at],
         select: %{
           rss_source_feed: ul.rss_source_feed,
           rss_source_item: ul.rss_source_item,

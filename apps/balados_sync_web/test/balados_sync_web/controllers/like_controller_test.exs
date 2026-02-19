@@ -88,6 +88,23 @@ defmodule BaladosSyncWeb.LikeControllerTest do
     end
   end
 
+  describe "DELETE /api/v1/likes/:feed/:item - unlike episode" do
+    test "returns 401 without authorization", %{conn: conn} do
+      conn = delete(conn, "/api/v1/likes/dGVzdC1mZWVk/dGVzdC1pdGVt")
+      assert json_response(conn, 401)["error"] == "UNAUTHORIZED"
+    end
+
+    test "successfully unlikes an episode", %{conn: conn, user_id: user_id} do
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.likes.write"])
+        |> delete("/api/v1/likes/dGVzdC1mZWVk/dGVzdC1pdGVt")
+
+      response = json_response(conn, 200)
+      assert response["status"] == "success"
+    end
+  end
+
   describe "GET /api/v1/likes - list likes" do
     test "returns 401 without authorization", %{conn: conn} do
       conn = get(conn, "/api/v1/likes")
