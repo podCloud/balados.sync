@@ -42,7 +42,7 @@ defmodule BaladosSyncCore.Aggregates.Like do
 
   # LikePodcast - idempotent: no-op if already liked
   def execute(%__MODULE__{} = state, %LikePodcast{} = cmd) do
-    case get_in_map(state.podcast_likes, cmd.rss_source_feed) do
+    case Map.get(state.podcast_likes, cmd.rss_source_feed) do
       %{liked_at: liked_at, unliked_at: unliked_at}
       when not is_nil(liked_at) and is_nil(unliked_at) ->
         []
@@ -60,7 +60,7 @@ defmodule BaladosSyncCore.Aggregates.Like do
 
   # UnlikePodcast - idempotent: no-op if not currently liked
   def execute(%__MODULE__{} = state, %UnlikePodcast{} = cmd) do
-    case get_in_map(state.podcast_likes, cmd.rss_source_feed) do
+    case Map.get(state.podcast_likes, cmd.rss_source_feed) do
       %{liked_at: liked_at, unliked_at: unliked_at}
       when not is_nil(liked_at) and is_nil(unliked_at) ->
         %PodcastUnliked{
@@ -78,7 +78,7 @@ defmodule BaladosSyncCore.Aggregates.Like do
 
   # LikeEpisode - idempotent
   def execute(%__MODULE__{} = state, %LikeEpisode{} = cmd) do
-    case get_in_map(state.episode_likes, cmd.rss_source_item) do
+    case Map.get(state.episode_likes, cmd.rss_source_item) do
       %{liked_at: liked_at, unliked_at: unliked_at}
       when not is_nil(liked_at) and is_nil(unliked_at) ->
         []
@@ -97,7 +97,7 @@ defmodule BaladosSyncCore.Aggregates.Like do
 
   # UnlikeEpisode - idempotent
   def execute(%__MODULE__{} = state, %UnlikeEpisode{} = cmd) do
-    case get_in_map(state.episode_likes, cmd.rss_source_item) do
+    case Map.get(state.episode_likes, cmd.rss_source_item) do
       %{liked_at: liked_at, unliked_at: unliked_at}
       when not is_nil(liked_at) and is_nil(unliked_at) ->
         %EpisodeUnliked{
@@ -120,8 +120,8 @@ defmodule BaladosSyncCore.Aggregates.Like do
   def execute(%__MODULE__{} = state, %SnapshotLike{}) do
     %LikeCheckpoint{
       user_id: state.user_id,
-      podcast_likes: state.podcast_likes || %{},
-      episode_likes: state.episode_likes || %{},
+      podcast_likes: state.podcast_likes,
+      episode_likes: state.episode_likes,
       timestamp: DateTime.utc_now() |> DateTime.truncate(:second)
     }
   end
@@ -129,8 +129,6 @@ defmodule BaladosSyncCore.Aggregates.Like do
   # Apply events
 
   def apply(%__MODULE__{} = state, %PodcastLiked{} = event) do
-    likes = state.podcast_likes || %{}
-
     updated = %{
       liked_at: event.liked_at,
       unliked_at: nil
@@ -139,26 +137,22 @@ defmodule BaladosSyncCore.Aggregates.Like do
     %{
       state
       | user_id: event.user_id,
-        podcast_likes: Map.put(likes, event.rss_source_feed, updated)
+        podcast_likes: Map.put(state.podcast_likes, event.rss_source_feed, updated)
     }
   end
 
   def apply(%__MODULE__{} = state, %PodcastUnliked{} = event) do
-    likes = state.podcast_likes || %{}
-
-    case Map.get(likes, event.rss_source_feed) do
+    case Map.get(state.podcast_likes, event.rss_source_feed) do
       nil ->
         state
 
       like ->
         updated = Map.put(like, :unliked_at, event.unliked_at)
-        %{state | podcast_likes: Map.put(likes, event.rss_source_feed, updated)}
+        %{state | podcast_likes: Map.put(state.podcast_likes, event.rss_source_feed, updated)}
     end
   end
 
   def apply(%__MODULE__{} = state, %EpisodeLiked{} = event) do
-    likes = state.episode_likes || %{}
-
     updated = %{
       liked_at: event.liked_at,
       unliked_at: nil,
@@ -168,20 +162,18 @@ defmodule BaladosSyncCore.Aggregates.Like do
     %{
       state
       | user_id: event.user_id,
-        episode_likes: Map.put(likes, event.rss_source_item, updated)
+        episode_likes: Map.put(state.episode_likes, event.rss_source_item, updated)
     }
   end
 
   def apply(%__MODULE__{} = state, %EpisodeUnliked{} = event) do
-    likes = state.episode_likes || %{}
-
-    case Map.get(likes, event.rss_source_item) do
+    case Map.get(state.episode_likes, event.rss_source_item) do
       nil ->
         state
 
       like ->
         updated = Map.put(like, :unliked_at, event.unliked_at)
-        %{state | episode_likes: Map.put(likes, event.rss_source_item, updated)}
+        %{state | episode_likes: Map.put(state.episode_likes, event.rss_source_item, updated)}
     end
   end
 
@@ -195,7 +187,4 @@ defmodule BaladosSyncCore.Aggregates.Like do
   end
 
   def apply(%__MODULE__{} = state, _event), do: state
-
-  defp get_in_map(nil, _key), do: nil
-  defp get_in_map(map, key), do: Map.get(map, key)
 end

@@ -77,6 +77,12 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
         CollectionVisibilityChanged,
         FeedAddedToCollection,
         FeedRemovedFromCollection,
+        # Likes
+        PodcastLiked,
+        PodcastUnliked,
+        EpisodeLiked,
+        EpisodeUnliked,
+        LikeCheckpoint,
         # Public events / Privacy
         PrivacyChanged,
         EventsRemoved
@@ -91,7 +97,8 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
         Collection,
         CollectionSubscription,
         PublicEvent,
-        UserPrivacy
+        UserPrivacy,
+        UserLike
       }
     end
   end
@@ -159,6 +166,21 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
 
       %BaladosSyncCore.Events.CollectionFeedReordered{} ->
         apply_collection_feed_reordered(event, ProjectionsRepo)
+
+      %BaladosSyncCore.Events.PodcastLiked{} ->
+        apply_podcast_liked(event, ProjectionsRepo)
+
+      %BaladosSyncCore.Events.PodcastUnliked{} ->
+        apply_podcast_unliked(event, ProjectionsRepo)
+
+      %BaladosSyncCore.Events.EpisodeLiked{} ->
+        apply_episode_liked(event, ProjectionsRepo)
+
+      %BaladosSyncCore.Events.EpisodeUnliked{} ->
+        apply_episode_unliked(event, ProjectionsRepo)
+
+      %BaladosSyncCore.Events.LikeCheckpoint{} ->
+        apply_like_checkpoint(event, ProjectionsRepo)
 
       _ ->
         {:error, {:unsupported_event, event.__struct__}}
@@ -546,6 +568,154 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
       end)
 
     {:ok, %{reordered: results}}
+  end
+
+  # ============================================================================
+  # Like Projector Logic
+  # ============================================================================
+
+  defp apply_podcast_liked(event, repo) do
+    import Ecto.Query
+    alias BaladosSyncProjections.Schemas.UserLike
+
+    existing =
+      from(ul in UserLike,
+        where:
+          ul.user_id == ^event.user_id and ul.rss_source_feed == ^event.rss_source_feed and
+            is_nil(ul.rss_source_item)
+      )
+      |> repo.one()
+
+    case existing do
+      nil ->
+        repo.insert(%UserLike{
+          user_id: event.user_id,
+          rss_source_feed: event.rss_source_feed,
+          rss_source_item: nil,
+          liked_at: event.liked_at,
+          unliked_at: nil
+        })
+
+      like ->
+        like
+        |> Ecto.Changeset.change(%{liked_at: event.liked_at, unliked_at: nil})
+        |> repo.update()
+    end
+  end
+
+  defp apply_podcast_unliked(event, repo) do
+    import Ecto.Query
+    alias BaladosSyncProjections.Schemas.UserLike
+
+    existing =
+      from(ul in UserLike,
+        where:
+          ul.user_id == ^event.user_id and ul.rss_source_feed == ^event.rss_source_feed and
+            is_nil(ul.rss_source_item)
+      )
+      |> repo.one()
+
+    case existing do
+      nil ->
+        {:ok, nil}
+
+      like ->
+        like
+        |> Ecto.Changeset.change(%{unliked_at: event.unliked_at})
+        |> repo.update()
+    end
+  end
+
+  defp apply_episode_liked(event, repo) do
+    import Ecto.Query
+    alias BaladosSyncProjections.Schemas.UserLike
+
+    existing =
+      from(ul in UserLike,
+        where:
+          ul.user_id == ^event.user_id and ul.rss_source_feed == ^event.rss_source_feed and
+            ul.rss_source_item == ^event.rss_source_item
+      )
+      |> repo.one()
+
+    case existing do
+      nil ->
+        repo.insert(%UserLike{
+          user_id: event.user_id,
+          rss_source_feed: event.rss_source_feed,
+          rss_source_item: event.rss_source_item,
+          liked_at: event.liked_at,
+          unliked_at: nil
+        })
+
+      like ->
+        like
+        |> Ecto.Changeset.change(%{liked_at: event.liked_at, unliked_at: nil})
+        |> repo.update()
+    end
+  end
+
+  defp apply_episode_unliked(event, repo) do
+    import Ecto.Query
+    alias BaladosSyncProjections.Schemas.UserLike
+
+    existing =
+      from(ul in UserLike,
+        where:
+          ul.user_id == ^event.user_id and ul.rss_source_feed == ^event.rss_source_feed and
+            ul.rss_source_item == ^event.rss_source_item
+      )
+      |> repo.one()
+
+    case existing do
+      nil ->
+        {:ok, nil}
+
+      like ->
+        like
+        |> Ecto.Changeset.change(%{unliked_at: event.unliked_at})
+        |> repo.update()
+    end
+  end
+
+  defp apply_like_checkpoint(event, repo) do
+    import Ecto.Query
+    alias BaladosSyncProjections.Schemas.UserLike
+
+    # Delete all existing likes for this user
+    from(ul in UserLike, where: ul.user_id == ^event.user_id)
+    |> repo.delete_all()
+
+    podcast_likes = event.podcast_likes || %{}
+    episode_likes = event.episode_likes || %{}
+
+    # Re-insert podcast likes
+    for {feed, like_data} <- podcast_likes do
+      attrs = %{
+        user_id: event.user_id,
+        rss_source_feed: feed,
+        rss_source_item: nil,
+        liked_at: like_data.liked_at,
+        unliked_at: like_data[:unliked_at]
+      }
+
+      repo.insert!(%UserLike{} |> Ecto.Changeset.change(attrs))
+    end
+
+    # Re-insert episode likes
+    for {item, like_data} <- episode_likes do
+      attrs = %{
+        user_id: event.user_id,
+        rss_source_feed: like_data.rss_source_feed,
+        rss_source_item: item,
+        liked_at: like_data.liked_at,
+        unliked_at: like_data[:unliked_at]
+      }
+
+      repo.insert!(%UserLike{} |> Ecto.Changeset.change(attrs))
+    end
+
+    {:ok, :checkpoint_applied}
   end
 
   # ============================================================================

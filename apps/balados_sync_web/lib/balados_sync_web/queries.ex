@@ -119,6 +119,9 @@ defmodule BaladosSyncWeb.Queries do
     }
   end
 
+  # Returns only active likes (unliked_at IS NULL) for the initial full sync payload.
+  # Incremental sync (get_likes_since) includes unliked entries so clients can
+  # process unlike events that happened since their last sync.
   def get_user_likes(user_id) do
     from(ul in UserLike,
       where: ul.user_id == ^user_id and is_nil(ul.unliked_at),

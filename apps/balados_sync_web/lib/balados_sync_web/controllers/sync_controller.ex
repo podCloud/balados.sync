@@ -388,6 +388,14 @@ defmodule BaladosSyncWeb.SyncController do
   end
 
   # Sync likes with LWW
+  #
+  # NOTE: Like subscriptions and play statuses, synced likes are written directly
+  # to the projections table rather than dispatched as CQRS commands. This is an
+  # intentional trade-off: sync data arrives already validated from the client's
+  # event history. The Like aggregate state won't reflect synced likes, so a
+  # subsequent LikePodcast command on a podcast already liked via sync may
+  # re-emit a PodcastLiked event (idempotency gap between sync and CQRS paths).
+  # This matches the established pattern for subscriptions/plays in this codebase.
   defp sync_likes(multi, _user_id, likes, _now) when likes == [], do: multi
 
   defp sync_likes(multi, user_id, likes, now) do

@@ -70,15 +70,13 @@ defmodule BaladosSyncWeb.LikeControllerTest do
     end
 
     test "successfully unlikes a podcast", %{conn: conn, user_id: user_id} do
-      # First like the podcast
+      # Dispatch command only - unlike dispatches its own command regardless of projection state
       Dispatcher.dispatch(%LikePodcast{
         user_id: user_id,
         rss_source_feed: "dGVzdC1mZWVk",
         liked_at: DateTime.utc_now() |> DateTime.truncate(:second),
         event_infos: %{}
       })
-
-      Process.sleep(50)
 
       conn =
         conn
