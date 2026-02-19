@@ -276,7 +276,9 @@ defmodule BaladosSyncWeb.Queries do
   defp compute_listening_streak(user_id) do
     # Get distinct dates of activity, ordered descending
     # updated_at reflects the event timestamp from the domain (not Ecto auto-timestamp),
-    # so it accurately represents when the user actually listened
+    # so it accurately represents when the user actually listened.
+    # Note: DATE() is evaluated in PostgreSQL UTC. Users in non-UTC timezones may see
+    # activity attributed to the wrong day near midnight. This is a known limitation.
     dates =
       from(ps in PlayStatus,
         where: ps.user_id == ^user_id,

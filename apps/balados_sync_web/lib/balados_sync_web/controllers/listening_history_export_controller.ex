@@ -14,18 +14,19 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
   def export_csv(conn, params) do
     user = conn.assigns.current_user
     entries = get_filtered_entries(conn, params)
+    entry_count = length(entries)
 
     Logger.info("Listening history export",
       format: "csv",
       user_id: user.id,
-      entry_count: length(entries),
+      entry_count: entry_count,
       filters: filter_params(params)
     )
 
     csv_content = build_csv(entries)
 
     conn
-    |> maybe_add_truncation_header(entries)
+    |> maybe_add_truncation_header(entry_count)
     |> put_resp_content_type("text/csv")
     |> put_resp_header("content-disposition", ~s(attachment; filename="listening-history.csv"))
     |> send_resp(200, csv_content)
@@ -34,6 +35,7 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
   def export_json(conn, params) do
     user = conn.assigns.current_user
     entries = get_filtered_entries(conn, params)
+    entry_count = length(entries)
 
     json_content =
       entries
@@ -51,12 +53,12 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
     Logger.info("Listening history export",
       format: "json",
       user_id: user.id,
-      entry_count: length(entries),
+      entry_count: entry_count,
       filters: filter_params(params)
     )
 
     conn
-    |> maybe_add_truncation_header(entries)
+    |> maybe_add_truncation_header(entry_count)
     |> put_resp_content_type("application/json")
     |> put_resp_header("content-disposition", ~s(attachment; filename="listening-history.json"))
     |> send_resp(200, json_content)
@@ -78,11 +80,11 @@ defmodule BaladosSyncWeb.ListeningHistoryExportController do
   defp maybe_add_opt(opts, _key, ""), do: opts
   defp maybe_add_opt(opts, key, value), do: Keyword.put(opts, key, value)
 
-  defp maybe_add_truncation_header(conn, entries) when length(entries) >= @max_export_rows do
+  defp maybe_add_truncation_header(conn, entry_count) when entry_count >= @max_export_rows do
     put_resp_header(conn, "x-export-truncated", "true")
   end
 
-  defp maybe_add_truncation_header(conn, _entries), do: conn
+  defp maybe_add_truncation_header(conn, _entry_count), do: conn
 
   defp build_csv(entries) do
     header = "Podcast,Episode,Status,Position (seconds),Date\r\n"

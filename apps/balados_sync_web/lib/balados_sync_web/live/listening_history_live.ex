@@ -383,7 +383,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
   defp progress_percent(%{played: true}), do: 100
 
   defp progress_percent(%{position: pos, rss_enclosure: %{"duration" => dur}})
-       when is_integer(dur) and dur > 0 do
+       when is_integer(dur) and dur > 0 and pos > 0 do
     min(round(pos / dur * 100), 100)
   end
 
