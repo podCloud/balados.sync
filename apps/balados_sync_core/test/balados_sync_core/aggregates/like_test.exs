@@ -401,5 +401,23 @@ defmodule BaladosSyncCore.Aggregates.LikeTest do
       assert Map.has_key?(event.episode_likes, "item-active")
       refute Map.has_key?(event.episode_likes, "item-old-unlike")
     end
+
+    test "preserves entry where unliked_at equals liked_at (same timestamp)" do
+      same_time = DateTime.add(DateTime.utc_now(), -60, :day)
+
+      state = %Like{
+        user_id: "user-1",
+        podcast_likes: %{
+          "feed-same-ts" => %{liked_at: same_time, unliked_at: same_time}
+        },
+        episode_likes: %{}
+      }
+
+      cmd = %SnapshotLike{user_id: "user-1"}
+      event = Like.execute(state, cmd)
+
+      # unliked_at == liked_at does NOT satisfy the :gt guard, so entry is preserved
+      assert Map.has_key?(event.podcast_likes, "feed-same-ts")
+    end
   end
 end

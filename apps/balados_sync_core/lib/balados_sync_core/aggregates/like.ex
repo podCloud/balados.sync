@@ -194,6 +194,10 @@ defmodule BaladosSyncCore.Aggregates.Like do
   # Filters out likes that were unliked more than 45 days ago.
   # Active likes and recent unlikes are preserved for idempotence.
   # Matches the subscription aggregate pruning pattern.
+  #
+  # The unliked_at > liked_at guard (condition 2) prevents pruning entries with
+  # corrupted timestamps (e.g. unliked before liked). When liked_at is nil,
+  # falls back to epoch so any valid unliked_at passes the guard.
   defp filter_old_unlikes(likes) do
     forty_five_days_ago = DateTime.add(DateTime.utc_now(), -45, :day)
 
