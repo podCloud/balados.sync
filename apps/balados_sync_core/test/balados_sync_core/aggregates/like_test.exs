@@ -335,5 +335,71 @@ defmodule BaladosSyncCore.Aggregates.LikeTest do
       new_state = Like.apply(state, %{some: "unknown event"})
       assert new_state == state
     end
+
+    test "LikeCheckpoint drops unknown string keys from JSON deserialization" do
+      state = %Like{user_id: nil}
+
+      event = %LikeCheckpoint{
+        user_id: "user-1",
+        podcast_likes: %{
+          "feed-1" => %{
+            "liked_at" => ~U[2024-01-01 00:00:00Z],
+            "unliked_at" => nil,
+            "some_future_field" => "should be dropped"
+          }
+        },
+        episode_likes: %{}
+      }
+
+      new_state = Like.apply(state, event)
+
+      # Known keys are preserved
+      assert new_state.podcast_likes["feed-1"].liked_at == ~U[2024-01-01 00:00:00Z]
+      # Unknown keys are silently dropped
+      refute Map.has_key?(new_state.podcast_likes["feed-1"], :some_future_field)
+      refute Map.has_key?(new_state.podcast_likes["feed-1"], "some_future_field")
+    end
+  end
+
+  describe "SnapshotLike 45-day pruning" do
+    test "prunes unliked entries older than 45 days" do
+      old_date = DateTime.add(DateTime.utc_now(), -60, :day)
+      recent_date = DateTime.add(DateTime.utc_now(), -10, :day)
+
+      state = %Like{
+        user_id: "user-1",
+        podcast_likes: %{
+          "feed-active" => %{liked_at: ~U[2024-01-01 00:00:00Z], unliked_at: nil},
+          "feed-old-unlike" => %{liked_at: ~U[2024-01-01 00:00:00Z], unliked_at: old_date},
+          "feed-recent-unlike" => %{liked_at: ~U[2024-01-01 00:00:00Z], unliked_at: recent_date}
+        },
+        episode_likes: %{
+          "item-active" => %{
+            liked_at: ~U[2024-01-01 00:00:00Z],
+            unliked_at: nil,
+            rss_source_feed: "feed-1"
+          },
+          "item-old-unlike" => %{
+            liked_at: ~U[2024-01-01 00:00:00Z],
+            unliked_at: old_date,
+            rss_source_feed: "feed-1"
+          }
+        }
+      }
+
+      cmd = %SnapshotLike{user_id: "user-1"}
+      event = Like.execute(state, cmd)
+
+      assert %LikeCheckpoint{} = event
+      # Active likes preserved
+      assert Map.has_key?(event.podcast_likes, "feed-active")
+      # Recent unlikes preserved (for idempotence)
+      assert Map.has_key?(event.podcast_likes, "feed-recent-unlike")
+      # Old unlikes pruned
+      refute Map.has_key?(event.podcast_likes, "feed-old-unlike")
+      # Episode: active preserved, old pruned
+      assert Map.has_key?(event.episode_likes, "item-active")
+      refute Map.has_key?(event.episode_likes, "item-old-unlike")
+    end
   end
 end

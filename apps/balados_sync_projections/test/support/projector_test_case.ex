@@ -195,18 +195,18 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
   Separate from `apply_event` because popularity projections are handled by
   a different projector (PopularityProjector) and require different schemas.
   """
-  def apply_popularity_event(event) do
+  def apply_popularity_event(event, opts \\ []) do
     alias BaladosSyncProjections.ProjectionsRepo
 
     case event do
       %BaladosSyncCore.Events.PodcastLiked{} ->
-        apply_popularity_podcast_liked(event, ProjectionsRepo)
+        apply_popularity_podcast_liked(event, ProjectionsRepo, opts)
 
       %BaladosSyncCore.Events.PodcastUnliked{} ->
         apply_popularity_podcast_unliked(event, ProjectionsRepo)
 
       %BaladosSyncCore.Events.EpisodeLiked{} ->
-        apply_popularity_episode_liked(event, ProjectionsRepo)
+        apply_popularity_episode_liked(event, ProjectionsRepo, opts)
 
       %BaladosSyncCore.Events.EpisodeUnliked{} ->
         apply_popularity_episode_unliked(event, ProjectionsRepo)
@@ -750,25 +750,32 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
   # ============================================================================
   # Popularity Projector Logic (Like events)
   #
-  # Note: these test helpers assume all users are public (always add to likes_people).
-  # The real PopularityProjector checks UserPrivacy and conditionally adds users.
-  # Privacy-related behaviour is tested separately via the full projector integration.
+  # By default, these test helpers assume all users are public (add to likes_people).
+  # Pass `is_public: false` in opts to simulate a private user (increments likes
+  # count but does not add to likes_people), matching PopularityProjector behaviour.
   # ============================================================================
 
   @score_like 7
 
-  defp apply_popularity_podcast_liked(event, repo) do
+  defp apply_popularity_podcast_liked(event, repo, opts \\ []) do
     alias BaladosSyncProjections.Schemas.PodcastPopularity
+
+    is_public = Keyword.get(opts, :is_public, true)
 
     popularity =
       repo.get(PodcastPopularity, event.rss_source_feed) ||
         %PodcastPopularity{rss_source_feed: event.rss_source_feed}
 
+    likes_people =
+      if is_public,
+        do: add_recent_user(popularity.likes_people, event.user_id),
+        else: popularity.likes_people || []
+
     attrs = %{
       rss_source_feed: event.rss_source_feed,
       score: popularity.score + @score_like,
       likes: popularity.likes + 1,
-      likes_people: add_recent_user(popularity.likes_people, event.user_id)
+      likes_people: likes_people
     }
 
     repo.insert_or_update(
@@ -800,8 +807,10 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
     end
   end
 
-  defp apply_popularity_episode_liked(event, repo) do
+  defp apply_popularity_episode_liked(event, repo, opts \\ []) do
     alias BaladosSyncProjections.Schemas.{EpisodePopularity, PodcastPopularity}
+
+    is_public = Keyword.get(opts, :is_public, true)
 
     # Episode popularity
     episode_pop =
@@ -811,12 +820,17 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
           rss_source_feed: event.rss_source_feed
         }
 
+    likes_people =
+      if is_public,
+        do: add_recent_user(episode_pop.likes_people, event.user_id),
+        else: episode_pop.likes_people || []
+
     episode_attrs = %{
       rss_source_item: event.rss_source_item,
       rss_source_feed: event.rss_source_feed,
       score: episode_pop.score + @score_like,
       likes: episode_pop.likes + 1,
-      likes_people: add_recent_user(episode_pop.likes_people, event.user_id)
+      likes_people: likes_people
     }
 
     {:ok, _} =

@@ -57,6 +57,38 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjectorTest do
       assert pop.score == 14
       assert user2 in pop.likes_people
     end
+
+    test "private user increments likes but is not added to likes_people" do
+      feed = encode_feed("https://example.com/feed.xml")
+      public_user = uuid()
+      private_user = uuid()
+
+      # Public user likes first
+      event1 = %PodcastLiked{
+        user_id: public_user,
+        rss_source_feed: feed,
+        liked_at: now(),
+        timestamp: now(),
+        event_infos: %{}
+      }
+
+      assert {:ok, _} = apply_popularity_event(event1)
+
+      # Private user likes
+      event2 = %PodcastLiked{
+        user_id: private_user,
+        rss_source_feed: feed,
+        liked_at: now(),
+        timestamp: now(),
+        event_infos: %{}
+      }
+
+      assert {:ok, pop} = apply_popularity_event(event2, is_public: false)
+      assert pop.likes == 2
+      assert pop.score == 14
+      assert public_user in pop.likes_people
+      refute private_user in pop.likes_people
+    end
   end
 
   describe "PodcastUnliked" do
@@ -162,6 +194,28 @@ defmodule BaladosSyncProjections.Projectors.PopularityProjectorTest do
       # Check podcast score was also incremented
       podcast_pop = ProjectionsRepo.get(PodcastPopularity, feed)
       assert podcast_pop.score == 7
+    end
+
+    test "private user increments episode likes but is not added to likes_people" do
+      feed = encode_feed("https://example.com/feed.xml")
+      item = encode_item("episode-1", "https://example.com/ep1.mp3")
+      private_user = uuid()
+
+      event = %EpisodeLiked{
+        user_id: private_user,
+        rss_source_feed: feed,
+        rss_source_item: item,
+        liked_at: now(),
+        timestamp: now(),
+        event_infos: %{}
+      }
+
+      assert {:ok, _} = apply_popularity_event(event, is_public: false)
+
+      episode_pop = ProjectionsRepo.get(EpisodePopularity, item)
+      assert episode_pop.likes == 1
+      assert episode_pop.score == 7
+      refute private_user in (episode_pop.likes_people || [])
     end
   end
 

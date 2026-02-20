@@ -122,8 +122,8 @@ defmodule BaladosSyncCore.Aggregates.Like do
   def execute(%__MODULE__{} = state, %SnapshotLike{}) do
     %LikeCheckpoint{
       user_id: state.user_id,
-      podcast_likes: state.podcast_likes,
-      episode_likes: state.episode_likes,
+      podcast_likes: filter_old_unlikes(state.podcast_likes),
+      episode_likes: filter_old_unlikes(state.episode_likes),
       timestamp: DateTime.utc_now() |> DateTime.truncate(:second)
     }
   end
@@ -190,4 +190,19 @@ defmodule BaladosSyncCore.Aggregates.Like do
   end
 
   def apply(%__MODULE__{} = state, _event), do: state
+
+  # Filters out likes that were unliked more than 45 days ago.
+  # Active likes and recent unlikes are preserved for idempotence.
+  # Matches the subscription aggregate pruning pattern.
+  defp filter_old_unlikes(likes) do
+    forty_five_days_ago = DateTime.add(DateTime.utc_now(), -45, :day)
+
+    likes
+    |> Enum.reject(fn {_key, like} ->
+      like[:unliked_at] != nil &&
+        DateTime.compare(like[:unliked_at], like[:liked_at] || DateTime.from_unix!(0)) == :gt &&
+        DateTime.compare(like[:unliked_at], forty_five_days_ago) == :lt
+    end)
+    |> Enum.into(%{})
+  end
 end
