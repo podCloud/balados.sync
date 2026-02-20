@@ -2,9 +2,9 @@ defmodule BaladosSyncWeb.SyncControllerTest do
   use BaladosSyncWeb.ConnCase
 
   alias BaladosSyncCore.Dispatcher
-  alias BaladosSyncCore.Commands.{Subscribe, RecordPlay, CreatePlaylist}
+  alias BaladosSyncCore.Commands.{Subscribe, CreatePlaylist}
   alias BaladosSyncProjections.ProjectionsRepo
-  alias BaladosSyncProjections.Schemas.{Subscription, PlayStatus}
+  alias BaladosSyncProjections.Schemas.{Subscription, PlayStatus, UserLike}
   alias BaladosSyncWeb.JwtTestHelper
 
   @moduletag :sync_controller
@@ -613,6 +613,172 @@ defmodule BaladosSyncWeb.SyncControllerTest do
       assert is_list(response["changes"]["subscriptions"])
       assert is_list(response["changes"]["plays"])
       assert is_list(response["changes"]["playlists"])
+    end
+  end
+
+  describe "POST /api/v1/sync - like sync LWW" do
+    defp insert_like(user_id, feed, liked_at, unliked_at \\ nil) do
+      %UserLike{}
+      |> UserLike.changeset(%{
+        user_id: user_id,
+        rss_source_feed: feed,
+        rss_source_item: nil,
+        liked_at: liked_at,
+        unliked_at: unliked_at
+      })
+      |> ProjectionsRepo.insert!()
+    end
+
+    test "client like newer than server wins", %{conn: conn, user_id: user_id} do
+      feed = "aHR0cHM6Ly9saWtlLWx3dy5leGFtcGxlLmNvbQ=="
+      old_time = ~U[2025-01-01 00:00:00Z]
+      new_time = ~U[2025-06-01 00:00:00Z]
+
+      insert_like(user_id, feed, old_time)
+
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.sync"])
+        |> post("/api/v1/sync", %{
+          "changes" => %{
+            "likes" => [
+              %{
+                "rss_source_feed" => feed,
+                "liked_at" => DateTime.to_iso8601(new_time)
+              }
+            ]
+          }
+        })
+
+      assert json_response(conn, 200)["sync_token"]
+
+      # Verify server was updated
+      like = ProjectionsRepo.get_by(UserLike, user_id: user_id, rss_source_feed: feed)
+      assert like.liked_at == new_time
+    end
+
+    test "server like newer than client is preserved", %{conn: conn, user_id: user_id} do
+      feed = "aHR0cHM6Ly9saWtlLWx3dzIuZXhhbXBsZS5jb20="
+      old_time = ~U[2025-01-01 00:00:00Z]
+      new_time = ~U[2025-06-01 00:00:00Z]
+
+      insert_like(user_id, feed, new_time)
+
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.sync"])
+        |> post("/api/v1/sync", %{
+          "changes" => %{
+            "likes" => [
+              %{
+                "rss_source_feed" => feed,
+                "liked_at" => DateTime.to_iso8601(old_time)
+              }
+            ]
+          }
+        })
+
+      assert json_response(conn, 200)["sync_token"]
+
+      # Server data should be preserved
+      like = ProjectionsRepo.get_by(UserLike, user_id: user_id, rss_source_feed: feed)
+      assert like.liked_at == new_time
+    end
+
+    test "client unlike with newer timestamp wins over server like", %{
+      conn: conn,
+      user_id: user_id
+    } do
+      feed = "aHR0cHM6Ly9saWtlLWx3dzMuZXhhbXBsZS5jb20="
+      liked_time = ~U[2025-01-01 00:00:00Z]
+      unlike_time = ~U[2025-06-01 00:00:00Z]
+
+      # Server has an active like
+      insert_like(user_id, feed, liked_time)
+
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.sync"])
+        |> post("/api/v1/sync", %{
+          "changes" => %{
+            "likes" => [
+              %{
+                "rss_source_feed" => feed,
+                "liked_at" => DateTime.to_iso8601(liked_time),
+                "unliked_at" => DateTime.to_iso8601(unlike_time)
+              }
+            ]
+          }
+        })
+
+      assert json_response(conn, 200)["sync_token"]
+
+      # Verify unlike was applied
+      like = ProjectionsRepo.get_by(UserLike, user_id: user_id, rss_source_feed: feed)
+      assert like.unliked_at == unlike_time
+    end
+
+    test "server unlike is preserved when client sends stale like", %{
+      conn: conn,
+      user_id: user_id
+    } do
+      feed = "aHR0cHM6Ly9saWtlLWx3dzQuZXhhbXBsZS5jb20="
+      liked_time = ~U[2025-01-01 00:00:00Z]
+      unlike_time = ~U[2025-06-01 00:00:00Z]
+
+      # Server has an unliked record (liked at T1, unliked at T2)
+      insert_like(user_id, feed, liked_time, unlike_time)
+
+      # Client sends stale like (only knows about T1 like, missed the T2 unlike)
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.sync"])
+        |> post("/api/v1/sync", %{
+          "changes" => %{
+            "likes" => [
+              %{
+                "rss_source_feed" => feed,
+                "liked_at" => DateTime.to_iso8601(liked_time)
+              }
+            ]
+          }
+        })
+
+      assert json_response(conn, 200)["sync_token"]
+
+      # Server unlike should be preserved (T2 > T1)
+      like = ProjectionsRepo.get_by(UserLike, user_id: user_id, rss_source_feed: feed)
+      assert like.unliked_at == unlike_time
+    end
+
+    test "new client like creates record when none exists on server", %{
+      conn: conn,
+      user_id: user_id
+    } do
+      feed = "aHR0cHM6Ly9saWtlLWx3dzUuZXhhbXBsZS5jb20="
+      liked_time = ~U[2025-06-01 00:00:00Z]
+
+      conn =
+        conn
+        |> JwtTestHelper.authenticate_conn(user_id, scopes: ["user.sync"])
+        |> post("/api/v1/sync", %{
+          "changes" => %{
+            "likes" => [
+              %{
+                "rss_source_feed" => feed,
+                "liked_at" => DateTime.to_iso8601(liked_time)
+              }
+            ]
+          }
+        })
+
+      assert json_response(conn, 200)["sync_token"]
+
+      # Verify like was created
+      like = ProjectionsRepo.get_by(UserLike, user_id: user_id, rss_source_feed: feed)
+      assert like != nil
+      assert like.liked_at == liked_time
+      assert like.unliked_at == nil
     end
   end
 end

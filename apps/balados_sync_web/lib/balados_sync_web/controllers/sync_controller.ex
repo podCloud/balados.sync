@@ -15,7 +15,15 @@ defmodule BaladosSyncWeb.SyncController do
   import Ecto.Query
   alias Ecto.Multi
   alias BaladosSyncProjections.ProjectionsRepo
-  alias BaladosSyncProjections.Schemas.{Subscription, PlayStatus, Playlist, PlaylistItem}
+
+  alias BaladosSyncProjections.Schemas.{
+    Subscription,
+    PlayStatus,
+    Playlist,
+    PlaylistItem,
+    UserLike
+  }
+
   alias BaladosSyncCore.SyncResolver
   alias BaladosSyncWeb.Plugs.JWTAuth
   alias BaladosSyncWeb.Plugs.RateLimiter
@@ -67,6 +75,7 @@ defmodule BaladosSyncWeb.SyncController do
       parse_play_statuses(client_changes["plays"] || client_changes["play_statuses"] || [])
 
     playlists = parse_playlists(client_changes["playlists"] || [])
+    likes = parse_likes(client_changes["likes"] || [])
 
     # Get server state for conflict detection
     server_data = %{
@@ -78,7 +87,8 @@ defmodule BaladosSyncWeb.SyncController do
     client_data = %{
       subscriptions: subscriptions,
       play_statuses: play_statuses,
-      playlists: playlists
+      playlists: playlists,
+      likes: likes
     }
 
     # Build multi transaction with conflict resolution
@@ -140,6 +150,9 @@ defmodule BaladosSyncWeb.SyncController do
         server_data.playlists,
         now
       )
+
+    # Sync likes (LWW)
+    multi = sync_likes(multi, user_id, client_data.likes, now)
 
     all_conflicts =
       (sub_conflicts ++ play_conflicts ++ playlist_conflicts)
@@ -374,6 +387,84 @@ defmodule BaladosSyncWeb.SyncController do
     end)
   end
 
+  # Sync likes with LWW
+  #
+  # NOTE: Like subscriptions and play statuses, synced likes are written directly
+  # to the projections table rather than dispatched as CQRS commands. This is an
+  # intentional trade-off: sync data arrives already validated from the client's
+  # event history. The Like aggregate state won't reflect synced likes, so if a
+  # device calls POST /api/v1/likes for a feed it already synced as liked, the
+  # aggregate will re-emit a PodcastLiked event (projection no-ops via upsert,
+  # but the event store accumulates a duplicate event). Low impact since likes
+  # are lightweight events. Matches established pattern for subscriptions/plays.
+  #
+  # Additionally, SnapshotLike checkpoints are built from aggregate state only,
+  # so synced-only likes won't appear in snapshots. This is acceptable because
+  # snapshots serve to compact the event stream, and synced likes are already
+  # persisted in the projections table independently of the aggregate.
+  defp sync_likes(multi, _user_id, likes, _now) when likes == [], do: multi
+
+  defp sync_likes(multi, user_id, likes, now) do
+    Enum.reduce(likes, multi, fn like, acc_multi ->
+      feed = like.rss_source_feed
+      item = like.rss_source_item
+
+      Multi.run(acc_multi, {:like, feed, item || "podcast"}, fn repo, _changes ->
+        existing =
+          if is_nil(item) do
+            from(ul in UserLike,
+              where:
+                ul.user_id == ^user_id and ul.rss_source_feed == ^feed and
+                  is_nil(ul.rss_source_item)
+            )
+            |> repo.one()
+          else
+            from(ul in UserLike,
+              where:
+                ul.user_id == ^user_id and ul.rss_source_feed == ^feed and
+                  ul.rss_source_item == ^item
+            )
+            |> repo.one()
+          end
+
+        attrs = %{
+          user_id: user_id,
+          rss_source_feed: feed,
+          rss_source_item: item,
+          liked_at: like.liked_at || now,
+          unliked_at: like.unliked_at
+        }
+
+        case existing do
+          nil ->
+            %UserLike{}
+            |> UserLike.changeset(attrs)
+            |> repo.insert()
+
+          record ->
+            # LWW: compare latest action timestamp (max of liked_at, unliked_at)
+            client_ts = max_datetime(like.liked_at, like.unliked_at) || now
+
+            server_ts =
+              max_datetime(record.liked_at, record.unliked_at) || ~U[1970-01-01 00:00:00Z]
+
+            if DateTime.compare(client_ts, server_ts) != :lt do
+              record
+              |> UserLike.changeset(attrs)
+              |> repo.update()
+            else
+              {:ok, record}
+            end
+        end
+      end)
+    end)
+  end
+
+  defp max_datetime(nil, nil), do: nil
+  defp max_datetime(a, nil), do: a
+  defp max_datetime(nil, b), do: b
+  defp max_datetime(a, b), do: if(DateTime.compare(a, b) != :lt, do: a, else: b)
+
   defp get_server_subscriptions(user_id) do
     from(s in Subscription, where: s.user_id == ^user_id)
     |> ProjectionsRepo.all()
@@ -428,7 +519,8 @@ defmodule BaladosSyncWeb.SyncController do
     %{
       subscriptions: get_subscriptions_since(user_id, last_sync),
       plays: get_play_statuses_since(user_id, last_sync),
-      playlists: get_playlists_since(user_id, last_sync)
+      playlists: get_playlists_since(user_id, last_sync),
+      likes: get_likes_since(user_id, last_sync)
     }
   end
 
@@ -490,6 +582,19 @@ defmodule BaladosSyncWeb.SyncController do
           end)
       }
     end)
+  end
+
+  defp get_likes_since(user_id, since) do
+    from(ul in UserLike,
+      where: ul.user_id == ^user_id and ul.updated_at > ^since,
+      select: %{
+        rss_source_feed: ul.rss_source_feed,
+        rss_source_item: ul.rss_source_item,
+        liked_at: ul.liked_at,
+        unliked_at: ul.unliked_at
+      }
+    )
+    |> ProjectionsRepo.all()
   end
 
   # Format conflicts for API response
@@ -590,6 +695,21 @@ defmodule BaladosSyncWeb.SyncController do
 
   defp parse_playlist_items(_), do: []
 
+  defp parse_likes(likes) when is_list(likes) do
+    Enum.map(likes, fn like ->
+      %{
+        rss_source_feed: like["rss_source_feed"],
+        rss_source_item: like["rss_source_item"],
+        liked_at: parse_datetime(like["liked_at"]),
+        unliked_at: parse_datetime(like["unliked_at"])
+      }
+    end)
+    |> Enum.filter(fn like -> is_binary(like.rss_source_feed) and like.rss_source_feed != "" end)
+    |> Enum.uniq_by(fn like -> {like.rss_source_feed, like.rss_source_item} end)
+  end
+
+  defp parse_likes(_), do: []
+
   defp parse_datetime(nil), do: nil
 
   defp parse_datetime(dt) when is_binary(dt) do
@@ -610,7 +730,8 @@ defmodule BaladosSyncWeb.SyncController do
       subscriptions: BaladosSyncWeb.Queries.get_user_subscriptions(user_id),
       plays: BaladosSyncWeb.Queries.get_user_play_statuses(user_id),
       # Include all playlist types (regular playlists and queues) for sync
-      playlists: BaladosSyncWeb.Queries.get_user_playlists(user_id, include_all_types: true)
+      playlists: BaladosSyncWeb.Queries.get_user_playlists(user_id, include_all_types: true),
+      likes: BaladosSyncWeb.Queries.get_user_likes(user_id)
     }
   end
 end

@@ -19,6 +19,9 @@ defmodule BaladosSyncWeb.Scopes do
   - `user.plays` - Play status management (includes read and write)
     - `user.plays.read` - List play statuses and positions
     - `user.plays.write` - Update play positions and mark as played
+  - `user.likes` - Like management (includes read and write)
+    - `user.likes.read` - List likes
+    - `user.likes.write` - Like/unlike podcasts and episodes
   - `user.playlists` - Playlist management (includes read and write)
     - `user.playlists.read` - List playlists
     - `user.playlists.write` - Create/update/delete playlists
@@ -64,6 +67,9 @@ defmodule BaladosSyncWeb.Scopes do
     "user.plays" => "Full access to play status and positions",
     "user.plays.read" => "Read playback positions and play status",
     "user.plays.write" => "Update playback positions and mark episodes as played",
+    "user.likes" => "Full access to likes",
+    "user.likes.read" => "List liked podcasts and episodes",
+    "user.likes.write" => "Like and unlike podcasts and episodes",
     "user.playlists" => "Full access to playlists",
     "user.playlists.read" => "List playlists and their contents",
     "user.playlists.write" => "Create, update, and delete playlists",

@@ -1,7 +1,14 @@
 defmodule BaladosSyncWeb.Queries do
   import Ecto.Query
   alias BaladosSyncProjections.ProjectionsRepo
-  alias BaladosSyncProjections.Schemas.{Subscription, PlayStatus, Playlist, PlaylistItem}
+
+  alias BaladosSyncProjections.Schemas.{
+    Subscription,
+    PlayStatus,
+    Playlist,
+    PlaylistItem,
+    UserLike
+  }
 
   def get_user_subscriptions(user_id) do
     from(s in Subscription,
@@ -109,6 +116,26 @@ defmodule BaladosSyncWeb.Queries do
       item_title: item.item_title,
       feed_title: item.feed_title,
       created_at: item.inserted_at
+    }
+  end
+
+  # Returns only active likes (unliked_at IS NULL) for the initial full sync payload.
+  # Incremental sync (get_likes_since) includes unliked entries so clients can
+  # process unlike events that happened since their last sync.
+  def get_user_likes(user_id) do
+    from(ul in UserLike,
+      where: ul.user_id == ^user_id and is_nil(ul.unliked_at),
+      order_by: [desc: ul.liked_at]
+    )
+    |> ProjectionsRepo.all()
+    |> Enum.map(&format_like/1)
+  end
+
+  defp format_like(like) do
+    %{
+      rss_source_feed: like.rss_source_feed,
+      rss_source_item: like.rss_source_item,
+      liked_at: like.liked_at
     }
   end
 

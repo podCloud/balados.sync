@@ -5,6 +5,7 @@ defmodule BaladosSyncCore.Dispatcher.Router do
   alias BaladosSyncCore.Aggregates.PlayTracking
   alias BaladosSyncCore.Aggregates.Playlist
   alias BaladosSyncCore.Aggregates.Collection
+  alias BaladosSyncCore.Aggregates.Like
   alias BaladosSyncCore.Middleware.ValidateSubscription
 
   alias BaladosSyncCore.Commands.{
@@ -32,7 +33,12 @@ defmodule BaladosSyncCore.Dispatcher.Router do
     UpdateCollection,
     DeleteCollection,
     ReorderCollectionFeed,
-    ChangeCollectionVisibility
+    ChangeCollectionVisibility,
+    LikePodcast,
+    UnlikePodcast,
+    LikeEpisode,
+    UnlikeEpisode,
+    SnapshotLike
   }
 
   # Registered globally (runs for all commands) because Commanded doesn't support
@@ -103,5 +109,19 @@ defmodule BaladosSyncCore.Dispatcher.Router do
       SnapshotCollection
     ],
     to: Collection
+  )
+
+  # Like aggregate (podcast and episode likes)
+  identify(Like, by: :user_id, prefix: "like-")
+
+  dispatch(
+    [
+      LikePodcast,
+      UnlikePodcast,
+      LikeEpisode,
+      UnlikeEpisode,
+      SnapshotLike
+    ],
+    to: Like
   )
 end
