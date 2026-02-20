@@ -91,7 +91,8 @@ These items address gaps identified in the [architectural audit](docs/ARCHITECTU
 | Collaborative playlists | Multiple users can contribute to a playlist | [#153](https://github.com/podCloud/balados.sync/issues/153) - Requires permissions model |
 | Listening history page | Detailed history with filters and stats | [#200](https://github.com/podCloud/balados.sync/issues/200) - Privacy-respecting |
 | Discovery + Recommendations | Trending, search, MinHash recommendations | [#201](https://github.com/podCloud/balados.sync/issues/201) - Comprehensive discovery |
-| Podcast reviews/ratings | Users can rate and review podcasts | #154 - Privacy considerations |
+| ~~Podcast likes~~ | ~~Users can like podcasts and episodes~~ | ✅ #154 / PR #255 - Implemented |
+| Podcast reviews/ratings | Users can rate and review podcasts | #261 - Privacy considerations |
 | Follow other users | See what friends are listening to | #155 - Social graph |
 | Hashtags/topics | Categorize podcasts by topic | #158 - User-generated taxonomy |
 

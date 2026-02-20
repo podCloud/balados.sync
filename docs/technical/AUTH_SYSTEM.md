@@ -193,6 +193,9 @@ Les scopes suivent une **hiérarchie en arbre** :
     ├── user.playlists
     │   ├── user.playlists.read
     │   └── user.playlists.write
+    ├── user.likes
+    │   ├── user.likes.read
+    │   └── user.likes.write
     ├── user.privacy
     │   ├── user.privacy.read
     │   └── user.privacy.write
@@ -222,6 +225,7 @@ Accorde tous les scopes `.read` :
 - `user.subscriptions.read`
 - `user.plays.read`
 - `user.playlists.read`
+- `user.likes.read`
 - `user.privacy.read`
 
 #### `*.write` - Write All
@@ -257,6 +261,9 @@ Accorde tous les scopes `.read` sous `user`.
 | `user.playlists` | Accès complet aux playlists |
 | `user.playlists.read` | Lister les playlists et leur contenu |
 | `user.playlists.write` | Créer, modifier, supprimer des playlists |
+| `user.likes` | Accès complet aux likes (podcasts et épisodes) |
+| `user.likes.read` | Lister les podcasts et épisodes likés |
+| `user.likes.write` | Liker/unliker des podcasts et épisodes |
 | `user.privacy` | Accès complet aux paramètres de confidentialité |
 | `user.privacy.read` | Voir les paramètres de confidentialité |
 | `user.privacy.write` | Modifier les paramètres de confidentialité |
@@ -318,6 +325,9 @@ plug JWTAuth, [scopes_any: ["user.sync", "user"]] when action in [:sync]
 | `/api/v1/playlists` | GET | `user.playlists.read` |
 | `/api/v1/playlists` | POST | `user.playlists.write` |
 | `/api/v1/playlists/:id` | PUT/DELETE | `user.playlists.write` |
+| `/api/v1/likes` | GET | `user.likes.read` |
+| `/api/v1/likes` | POST | `user.likes.write` |
+| `/api/v1/likes` | DELETE | `user.likes.write` |
 | `/api/v1/privacy` | GET | `user.privacy.read` |
 | `/api/v1/privacy` | PUT | `user.privacy.write` |
 | `/api/v1/sync` | POST | `user.sync` OR `user` |

@@ -2,7 +2,7 @@
 
 Documentation complète de toutes les fonctionnalités implémentées, organisées par domaine.
 
-**Last Updated**: 2026-01-12 | **See also**: [Architectural Audit](ARCHITECTURAL_AUDIT.md) | [Ideas & Roadmap](../IDEAS.md)
+**Last Updated**: 2026-02-20 | **See also**: [Architectural Audit](ARCHITECTURAL_AUDIT.md) | [Ideas & Roadmap](../IDEAS.md)
 
 ---
 
@@ -26,6 +26,7 @@ Documentation complète de toutes les fonctionnalités implémentées, organisé
     ├── user.subscriptions.{read,write}
     ├── user.plays.{read,write}
     ├── user.playlists.{read,write}
+    ├── user.likes.{read,write}
     ├── user.privacy.{read,write}
     └── user.sync
 ```
@@ -698,6 +699,76 @@ const queues = response.playlists.filter(p => p.type === "queue");
 
 ---
 
+## ❤️ Likes System (v2.8)
+
+Like/unlike podcasts and episodes with full CQRS/Event Sourcing and sync support.
+
+**Issue**: [#154](https://github.com/podCloud/balados.sync/issues/154) | **PR**: [#255](https://github.com/podCloud/balados.sync/pull/255)
+
+### Aggregate
+
+- `Like` aggregate - 5th bounded context (stream prefix: `like-`)
+- State: `%Like{user_id, liked_podcasts, liked_episodes}`
+
+### Commands
+
+- `LikePodcast` - Like a podcast (by rss_source_feed)
+- `UnlikePodcast` - Unlike a podcast
+- `LikeEpisode` - Like an episode (by rss_source_feed + rss_source_item)
+- `UnlikeEpisode` - Unlike an episode
+- `SnapshotLike` - Create checkpoint for cleanup
+
+### Events
+
+- `PodcastLiked` - Podcast liked with timestamp
+- `PodcastUnliked` - Podcast unliked with timestamp
+- `EpisodeLiked` - Episode liked with timestamp
+- `EpisodeUnliked` - Episode unliked with timestamp
+- `LikeCheckpoint` - Snapshot of all likes state
+
+### Projections
+
+- `user_likes` table - Stores all likes (type: "podcast" or "episode")
+- `LikeProjector` - Handles like/unlike events, upserts into user_likes
+- `PopularityProjector` - Updated to handle like events (score += 7 per like)
+
+### API Endpoints
+
+| Method | Endpoint | Description | Auth Scope |
+|--------|----------|-------------|------------|
+| GET | `/api/v1/likes` | List user likes (paginated) | `user.likes.read` |
+| POST | `/api/v1/likes` | Like a podcast or episode | `user.likes.write` |
+| DELETE | `/api/v1/likes` | Unlike a podcast or episode | `user.likes.write` |
+
+- All feed/item identifiers use URL-safe base64 encoding
+- Paginated responses with cursor-based pagination
+
+### Sync Integration
+
+- Likes included in `POST /api/v1/sync` request/response
+- LWW (Last-Write-Wins) conflict resolution based on timestamps
+- Bidirectional merge: client likes with newer timestamps win
+
+### Shared Module
+
+- `LikeNormalizer` - Shared normalization logic for like data
+
+### JWT Scopes
+
+- `user.likes` - Full access to likes
+- `user.likes.read` - Read likes
+- `user.likes.write` - Write likes
+
+### Follow-up Issues
+
+- [#256](https://github.com/podCloud/balados.sync/issues/256) - String.to_existing_atom safety
+- [#257](https://github.com/podCloud/balados.sync/issues/257) - Unbounded aggregate growth
+- [#258](https://github.com/podCloud/balados.sync/issues/258) - Checkpoint gap handling
+- [#259](https://github.com/podCloud/balados.sync/issues/259) - Sync CQRS bypass
+- [#260](https://github.com/podCloud/balados.sync/issues/260) - Private user tests
+
+---
+
 ## 📜 Listening History (v2.7)
 
 Detailed listening history page with filters, stats, and export.
@@ -926,12 +997,13 @@ Suppression :
 - `PrivacyChanged`
 
 **Aggregates** :
-- 4 bounded context aggregates : `Subscription`, `PlayTracking`, `Playlist`, `Collection` (séparés depuis PR #238)
+- 5 bounded context aggregates : `Subscription`, `PlayTracking`, `Playlist`, `Collection`, `Like` (séparés depuis PR #238, Like ajouté dans PR #255)
 
 **Projections** :
 - `subscriptions` - Liste abonnements
 - `user_privacy` - Niveaux confidentialité
 - `plays` - Historique lectures
+- `user_likes` - Liked podcasts and episodes
 - `podcast_popularity` - Stats podcasts
 - `episode_popularity` - Stats épisodes
 
@@ -1054,6 +1126,7 @@ WCAG 2.1 Level AA compliance (partial). See [docs/technical/ACCESSIBILITY.md](te
 - [x] Shareable public URLs (v2.2 ✅) - via `/u/:username/playlists/:id` et `/u/:username/collections/:id`
 - [x] Public visibility for collections (v2.3 ✅) - via PR #109
 - [ ] Playlists collaboratives - [#153](https://github.com/podCloud/balados.sync/issues/153)
+- [x] Likes system (podcasts & episodes) - [#154](https://github.com/podCloud/balados.sync/issues/154) ✅ PR #255
 - [ ] Historique d'écoute détaillé - [#200](https://github.com/podCloud/balados.sync/issues/200)
 - [ ] Découverte communautaire avec recommandations MinHash - [#201](https://github.com/podCloud/balados.sync/issues/201)
 

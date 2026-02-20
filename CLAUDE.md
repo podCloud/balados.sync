@@ -78,7 +78,7 @@ mix phx.server    # http://localhost:4000
 
 - **Commands** : Intentions (Subscribe, RecordPlay, ...)
 - **Events** : Faits immuables (UserSubscribed, PlayRecorded, ...)
-- **Aggregates** : Logique métier (4 bounded contexts : Subscription, PlayTracking, Playlist, Collection)
+- **Aggregates** : Logique métier (5 bounded contexts : Subscription, PlayTracking, Playlist, Collection, Like)
 - **Projections** : Read models dénormalisés
 
 **👉 Patterns** : [docs/technical/CQRS_PATTERNS.md](docs/technical/CQRS_PATTERNS.md)
@@ -107,6 +107,7 @@ OAuth-style JWT flow avec scopes hiérarchiques :
     ├── user.subscriptions.{read,write}
     ├── user.plays.{read,write}
     ├── user.playlists.{read,write}
+    ├── user.likes.{read,write}
     ├── user.privacy.{read,write}
     └── user.sync
 ```
@@ -405,6 +406,7 @@ git pull origin main
 - Email Verification for Ownership (v2.5) ✅ [#69](https://github.com/podCloud/balados.sync/issues/69)
 - Bounded Context Aggregate Split (v2.6) ✅ [#148](https://github.com/podCloud/balados.sync/issues/148) / [PR #238](https://github.com/podCloud/balados.sync/pull/238)
 - Listening History (v2.7) ✅ [#200](https://github.com/podCloud/balados.sync/issues/200)
+- Likes System (v2.8) ✅ [#154](https://github.com/podCloud/balados.sync/issues/154) / [PR #255](https://github.com/podCloud/balados.sync/pull/255)
 
 ---
 

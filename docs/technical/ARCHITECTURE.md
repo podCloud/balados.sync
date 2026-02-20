@@ -34,7 +34,8 @@ apps/balados_sync_core/lib/balados_sync_core/
 │   ├── subscription.ex            # Subscriptions, privacy, sharing
 │   ├── play_tracking.ex           # Play positions
 │   ├── playlist.ex                # Playlists and episodes
-│   └── collection.ex              # Feed organization
+│   ├── collection.ex              # Feed organization
+│   └── like.ex                    # Liked podcasts and episodes
 ├── middleware/
 │   └── validate_subscription.ex   # Cross-aggregate validation
 ├── process_managers/
@@ -47,10 +48,15 @@ apps/balados_sync_core/lib/balados_sync_core/
 │   ├── change_privacy.ex
 │   ├── create_collection.ex
 │   ├── create_playlist.ex
+│   ├── like_podcast.ex
+│   ├── unlike_podcast.ex
+│   ├── like_episode.ex
+│   ├── unlike_episode.ex
 │   ├── snapshot_subscription.ex
 │   ├── snapshot_play_tracking.ex
 │   ├── snapshot_playlist.ex
 │   ├── snapshot_collection.ex
+│   ├── snapshot_like.ex
 │   └── ...
 ├── events/
 │   ├── user_subscribed.ex
@@ -60,10 +66,15 @@ apps/balados_sync_core/lib/balados_sync_core/
 │   ├── privacy_changed.ex
 │   ├── collection_created.ex
 │   ├── playlist_created.ex
+│   ├── podcast_liked.ex
+│   ├── podcast_unliked.ex
+│   ├── episode_liked.ex
+│   ├── episode_unliked.ex
 │   ├── subscription_checkpoint.ex
 │   ├── play_tracking_checkpoint.ex
 │   ├── playlist_checkpoint.ex
 │   ├── collection_checkpoint.ex
+│   ├── like_checkpoint.ex
 │   └── ...
 ├── dispatcher.ex                  # Command routing (Commanded)
 └── event_store.ex                 # EventStore config
@@ -71,7 +82,7 @@ apps/balados_sync_core/lib/balados_sync_core/
 
 ### Bounded Context Aggregates
 
-Le domaine est séparé en **4 aggregates** par bounded context (anciennement un seul monolithique `User` aggregate) :
+Le domaine est séparé en **5 aggregates** par bounded context (anciennement un seul monolithique `User` aggregate) :
 
 | Aggregate | Responsabilité | Stream prefix |
 |-----------|---------------|---------------|
@@ -79,6 +90,7 @@ Le domaine est séparé en **4 aggregates** par bounded context (anciennement un
 | `PlayTracking` | Positions de lecture | `play_tracking-` |
 | `Playlist` | Playlists et épisodes | `playlist-` |
 | `Collection` | Organisation des feeds | `collection-` |
+| `Like` | Podcasts et épisodes favoris | `like-` |
 
 Chaque aggregate maintient son propre état :
 
@@ -98,6 +110,11 @@ defstruct [:user_id, :playlists]
 # Collection
 defstruct [:user_id, :collections]
 # collections: %{collection_id => %{title, is_default, feed_ids, is_public, ...}}
+
+# Like
+defstruct [:user_id, :liked_podcasts, :liked_episodes]
+# liked_podcasts: %{feed => %{liked_at, unliked_at}}
+# liked_episodes: %{item => %{feed, liked_at, unliked_at}}
 ```
 
 #### Flux de Traitement
@@ -120,6 +137,7 @@ identify Subscription, by: :user_id, prefix: "subscription-"
 identify PlayTracking, by: :user_id, prefix: "play_tracking-"
 identify Playlist, by: :user_id, prefix: "playlist-"
 identify Collection, by: :user_id, prefix: "collection-"
+identify Like, by: :user_id, prefix: "like-"
 ```
 
 #### Cross-Aggregate Validation
@@ -195,8 +213,9 @@ end
 - **SubscriptionProjector** : Gère subscriptions
 - **PlayStatusProjector** : Gère play_statuses
 - **PlaylistProjector** : Gère playlists et playlist_items
+- **LikeProjector** : Gère user_likes (liked podcasts and episodes)
 - **PublicEventsProjector** : Construit site.public_events selon privacy
-- **PopularityProjector** : Calcule les scores de popularité
+- **PopularityProjector** : Calcule les scores de popularité (includes +7 per like)
 - **UserPrivacyProjector** : Gère user_privacy
 
 ---
@@ -282,8 +301,9 @@ Exécuté toutes les **5 minutes** :
 #### Scores de Popularité
 
 - **Subscribe** : 10 points
+- **Like** : 7 points
 - **Play** : 5 points
-- **Save/Like** : 3 points
+- **Save** : 3 points
 - **Share** : 2 points
 
 ---
@@ -410,6 +430,7 @@ Since the aggregate split (#148), checkpoints are per-aggregate:
 %PlayTrackingCheckpoint{user_id, play_statuses, timestamp}
 %PlaylistCheckpoint{user_id, playlists, timestamp}
 %CollectionCheckpoint{user_id, collections, timestamp}
+%LikeCheckpoint{user_id, liked_podcasts, liked_episodes, timestamp}
 ```
 
 **Legacy `UserCheckpoint`** (deprecated): The old monolithic checkpoint event is still
@@ -494,11 +515,12 @@ Après sync, crée un **checkpoint** pour cet utilisateur.
 ┌─────────────────────────┐   ┌─────────────────────────────┐
 │  balados_sync_core      │   │  balados_sync_projections   │
 │  ┌────────────────────┐ │   │  ┌────────────────────────┐ │
-│  │ 4 Aggregates       │ │   │  │  PostgreSQL Schemas    │ │
+│  │ 5 Aggregates       │ │   │  │  PostgreSQL Schemas    │ │
 │  │  - Subscription    │ │   │  │   - users              │ │
 │  │  - PlayTracking    │ │   │  │   - site               │ │
 │  │  - Playlist        │ │   │  │   - events             │ │
-│  │  - Collection      │ │   │  └────────────────────────┘ │
+│  │  - Collection      │ │
+│  │  - Like            │ │   │  └────────────────────────┘ │
 │  └─────────┬──────────┘ │   │                              │
 │            │ Events      │   │                              │
 │            ▼            │   │            ▲                 │
@@ -559,6 +581,7 @@ Données générées par les **actions utilisateur** et nécessitant un **histor
 | Play statuses | Progression, écoutes | Event Store |
 | Playlists | Création, items, ordre | Event Store |
 | Collections | Création, feeds, ordre | Event Store |
+| Likes | Podcasts et épisodes favoris | Event Store |
 | Privacy | Changements de visibilité | Event Store |
 
 **Caractéristiques** :

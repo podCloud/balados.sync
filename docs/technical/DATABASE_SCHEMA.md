@@ -136,6 +136,7 @@ mix db.migrate  # applies both repos
 | `public_events` | Public activity feed | All events (filtered by privacy) | Seconds |
 | `podcast_popularity` | Podcast popularity scores | `PopularityRecalculated` | Seconds |
 | `episode_popularity` | Episode popularity scores | `PopularityRecalculated` | Seconds |
+| `user_likes` | Liked podcasts and episodes | `PodcastLiked`, `PodcastUnliked`, `EpisodeLiked`, `EpisodeUnliked`, `LikeCheckpoint` | Seconds |
 | `subscriptions` | User subscriptions (public aggregation) | `UserSubscribed`, `UserUnsubscribed` | Seconds |
 
 **Migration Management:**
@@ -735,6 +736,7 @@ Complete list of all tables with classification:
 | `users.play_statuses` | Projection | ✅ Yes | ✅ Yes |
 | `users.playlists` | Projection | ✅ Yes | ✅ Yes |
 | `users.playlist_items` | Projection | ✅ Yes | ✅ Yes |
+| `users.user_likes` | Projection | ✅ Yes | ✅ Yes |
 | `users.user_privacy` | Projection | ✅ Yes | ✅ Yes |
 
 ### Public Schema (Projections)

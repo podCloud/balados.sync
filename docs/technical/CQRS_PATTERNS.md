@@ -104,6 +104,7 @@ end
 > | `PlayTracking` | `play_tracking-{user_id}` | `%PlayTracking{}` |
 > | `Playlist` | `playlist-{user_id}` | `%Playlist{}` |
 > | `Collection` | `collection-{user_id}` | `%Collection{}` |
+> | `Like` | `like-{user_id}` | `%Like{}` |
 >
 > Les noms courts sont utilisés ici à titre illustratif. Les modules complets
 > sont `BaladosSyncCore.Aggregates.<Aggregate>` (ex: `BaladosSyncCore.Aggregates.Subscription`).
@@ -317,7 +318,7 @@ end
 
 ### Structure (Bounded Contexts)
 
-Le domaine est séparé en 4 aggregates par bounded context :
+Le domaine est séparé en 5 aggregates par bounded context :
 
 ```elixir
 # Subscription aggregate — subscriptions, privacy, sharing
@@ -353,6 +354,19 @@ defmodule BaladosSyncCore.Aggregates.Collection do
   defstruct [:user_id, :collections]
   # ...
 end
+
+# Like aggregate — liked podcasts and episodes
+defmodule BaladosSyncCore.Aggregates.Like do
+  defstruct [:user_id, :liked_podcasts, :liked_episodes]
+
+  def execute(%__MODULE__{}, %LikePodcast{} = cmd), do: # ...
+  def execute(%__MODULE__{}, %UnlikePodcast{} = cmd), do: # ...
+  def execute(%__MODULE__{}, %LikeEpisode{} = cmd), do: # ...
+  def execute(%__MODULE__{}, %UnlikeEpisode{} = cmd), do: # ...
+
+  def apply(%__MODULE__{}, %PodcastLiked{} = event), do: # ...
+  def apply(%__MODULE__{}, %PodcastUnliked{} = event), do: # ...
+end
 ```
 
 ### Aggregate Identity & Stream Prefixes
@@ -365,6 +379,7 @@ identify Subscription,  by: :user_id, prefix: "subscription-"
 identify PlayTracking,  by: :user_id, prefix: "play_tracking-"
 identify Playlist,      by: :user_id, prefix: "playlist-"
 identify Collection,    by: :user_id, prefix: "collection-"
+identify Like,          by: :user_id, prefix: "like-"
 
 # Command Subscribe avec user_id = "abc123"
 # → Routée vers stream "subscription-abc123"
@@ -553,6 +568,7 @@ Depuis le split en bounded contexts (#148), les checkpoints sont par aggregate :
 %PlayTrackingCheckpoint{user_id, play_statuses, timestamp}
 %PlaylistCheckpoint{user_id, playlists, timestamp}
 %CollectionCheckpoint{user_id, collections, timestamp}
+%LikeCheckpoint{user_id, liked_podcasts, liked_episodes, timestamp}
 ```
 
 **Legacy** : L'ancien `BaladosSyncCore.Events.UserCheckpoint` monolithique
@@ -571,12 +587,13 @@ defmodule BaladosSyncJobs.SnapshotWorker do
     old_events = find_old_events(45)
 
     for user_id <- extract_user_ids(old_events) do
-      # 2. Dispatch 4 per-aggregate snapshot commands
+      # 2. Dispatch 5 per-aggregate snapshot commands
       results = [
         Dispatcher.dispatch(%SnapshotSubscription{user_id: user_id}),
         Dispatcher.dispatch(%SnapshotPlayTracking{user_id: user_id}),
         Dispatcher.dispatch(%SnapshotPlaylist{user_id: user_id}),
-        Dispatcher.dispatch(%SnapshotCollection{user_id: user_id})
+        Dispatcher.dispatch(%SnapshotCollection{user_id: user_id}),
+        Dispatcher.dispatch(%SnapshotLike{user_id: user_id})
       ]
 
       # 3. All-or-nothing: only cleanup if ALL snapshots succeed
