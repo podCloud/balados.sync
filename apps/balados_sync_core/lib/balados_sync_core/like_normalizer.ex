@@ -11,6 +11,7 @@ defmodule BaladosSyncCore.LikeNormalizer do
   # Explicit whitelist of allowed keys in like data maps.
   # Using a whitelist instead of String.to_existing_atom avoids unhelpful
   # ArgumentError on checkpoint replay if a field is ever renamed.
+  # When adding new fields to like data maps, add the mapping here too.
   @allowed_keys %{
     "liked_at" => :liked_at,
     "unliked_at" => :unliked_at,

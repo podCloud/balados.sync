@@ -207,6 +207,6 @@ defmodule BaladosSyncCore.Aggregates.Like do
         DateTime.compare(like[:unliked_at], like[:liked_at] || DateTime.from_unix!(0)) == :gt &&
         DateTime.compare(like[:unliked_at], forty_five_days_ago) == :lt
     end)
-    |> Enum.into(%{})
+    |> Map.new()
   end
 end
