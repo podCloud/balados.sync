@@ -76,7 +76,46 @@ git push
 
 Add tasks here. Claude will create GitHub issues for them.
 
-(empty)
+### RSS Proxy hardening — fermer l'open proxy + (futur) proxy d'images HMAC
+
+**Contexte / problème**
+`GET /api/v1/rss/proxy/:encoded_feed_id` passe par le pipeline `:rss_api` qui **ne vérifie aucune auth** : l'endpoint est **public** et **ignore le JWT** envoyé par le front (`Authorization: Bearer`). C'est un **open proxy** (modulo SSRF déjà en place). Pas de rate limiting non plus.
+
+**Décision d'architecture (issue de brainstorming) :**
+- Le **HMAC ne sert PAS au feed XML.** Pour signer un feed arbitraire il faudrait que le client (PWA) détienne le secret → extractible → open proxy à nouveau. Le `fetch()` du feed **peut** porter le header → **enforcer le JWT suffit**.
+- Le **HMAC ne sert QU'AUX images** : `<img>`/`<audio>` ne peuvent pas envoyer de header, donc la légitimité doit être **dans l'URL** (capability URL signée par le serveur).
+- L'**audio (enclosures) n'est PAS proxifié** : proxifier l'audio centraliserait le trafic et **casserait les stats de download/écoute du podcasteur**. L'audio = consommation volontaire → reste en direct + (côté app) modal d'avertissement trackers au play/download. On ne proxifie que le **subi** (images qui se chargent toutes seules).
+
+---
+
+#### Phase A — MAINTENANT : enforcer le JWT sur le proxy du feed (ferme l'open proxy)
+
+- [ ] Mettre `GET /api/v1/rss/proxy/:encoded_feed_id` (et `/:encoded_feed_id/:encoded_episode_id`) derrière l'auth JWT (scope `user.sync` ou équivalent), au lieu du pipeline `:rss_api` non authentifié.
+- [ ] Ajouter un **rate limit par user** (réutiliser l'infra de #123 — rate limiting all API endpoints).
+- [ ] Conserver tel quel : décodage base64url, validation SSRF (`UrlValidator`), cache Cachex 5 min.
+- [ ] **Acceptance** : requête sans JWT → 401 ; avec JWT valide → feed proxifié ; dépassement quota → 429.
+
+*Note front associée : l'app envoie déjà le JWT sur ce proxy ; côté serveur c'est purement de l'enforcement. Voir aussi la gestion du 401 côté app (ROADMAP balados.app).*
+
+---
+
+#### Phase B — FUTUR : proxy d'images HMAC (privacy / strip trackers show notes)
+
+Bonus privacy à valeur marginale → **reporté**, design figé ci-dessous, à ressortir tel quel.
+
+Pattern **capability-URL / endpoint de signature** (l'attribution/rate-limit se fait à l'émission JWT ; l'URL signée est **sans uid** donc partageable/cachable entre tous les users) :
+
+- [ ] `POST /api/v1/rss/sign` — **JWT + rate-limit par user**. Body `{ feed }`. Valide SSRF. Renvoie `{ proxyUrl: "/api/v1/rss/proxy/{feedB64}?sig=HMAC(secret_serveur, feedB64)" }`. **Signature SANS uid.**
+- [ ] `GET /api/v1/rss/proxy/{feedB64}?sig=...` — **pas de JWT, valide `sig`**. Fetch+cache le **XML brut** (partagé). Réécrit **toutes les URLs d'images** (artwork + `<img>` des show notes) en `/api/v1/rss/asset/{urlB64}?sig=HMAC(secret_serveur, urlB64)`. **Laisse les `<enclosure>` audio intactes.** Réécriture **déterministe** → réponse identique pour tous → cache partagé.
+- [ ] `GET /api/v1/rss/asset/{urlB64}?sig=...` — **pas de JWT, valide `sig` + SSRF**. Fetch+cache l'image, sert. Chargeable en `<img>` sans header.
+- [ ] **Signatures STABLES** (pas d'`exp` roulant) — sinon l'URL change à chaque refresh et casse le cache image 30 j du Service Worker. `exp` grossier/bucketisé (ex. arrondi au mois) seulement si défense en profondeur souhaitée.
+- [ ] **Rotation du secret** = kill-switch global (incident).
+- [ ] **Bornes d'abus** : rate-limit/user sur `/sign` + SSRF + rotation. **Résidu accepté** : une capability URL fuitée est réutilisable anonymement jusqu'à rotation (prix du `<img>` sans header).
+- [ ] **Acceptance** : `/proxy` et `/asset` sans `sig` valide → 4xx ; deux users différents signant le même feed → **même URL** (cache partagé) ; enclosures audio inchangées dans le XML réécrit.
+
+*Note : ne PAS cacher le XML déjà réécrit par user (le cache serveur est partagé) — cacher le brut, réécrire à la requête (déterministe).*
+
+*Feature sœur (côté app, pas ici) : modal d'avertissement trackers au play/download — pendant « audio » de la même philosophie.*
 
 ---
 
