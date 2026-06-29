@@ -199,7 +199,7 @@ config :balados_sync_jobs,
 
 ### Workflow de Développement
 
-**⚠️ IMPORTANT**: Le workflow de développement complet est défini dans [.claude/agents/development-workflow.md](.claude/agents/development-workflow.md). Ce fichier doit être suivi à la lettre pour toute tâche de développement.
+**⚠️ IMPORTANT**: Le workflow de développement complet est défini dans la skill partagée [`balados/.claude/skills/development-workflow/`](../.claude/skills/development-workflow/) (lancer avec « continue le workflow »). La configuration spécifique à ce repo est dans [`.claude/workflow-stack.md`](.claude/workflow-stack.md).
 
 ### Task Queue (TODOS.md)
 
@@ -265,10 +265,9 @@ Closes #<issue-number>"
 # Pousser branche
 git push -u origin feature/issue-<number>-<title-slug>
 
-# Créer PR avec label (IMPORTANT: utiliser le wrapper gh.sh)
+# Créer PR (IMPORTANT: utiliser le wrapper gh.sh)
 ~/.config/podclaude/gh.sh pr create \
   --title "feat: description (Closes #<number>)" \
-  --label "needs-claude-review" \
   --body "## Summary
 
 Brief description
@@ -280,7 +279,7 @@ Brief description
 
 **⚠️ IMPORTANT: Attendre la review !**
 - Ne JAMAIS merger une PR sans review
-- Le label `needs-claude-review` déclenche une review par d'autres agents Claude
+- La review est **locale** via la skill `development-workflow` (adversarial subagents, verdicts postés en commentaires PR)
 - Attendre que la review soit complétée avant de passer à Phase 6
 
 #### Phase 6: Post-Merge Follow-up (si PR mergee avec comments)
@@ -360,8 +359,7 @@ git pull origin main
 
 **GitHub CLI (gh):**
 - **TOUJOURS** utiliser le wrapper `~/.config/podclaude/gh.sh` au lieu de `gh` directement (il injecte le bon token automatiquement)
-- À la création de PR: inclure `--label "needs-claude-review"`
-- **ATTENDRE la review** avant de merger - ne jamais merger sans review
+- **ATTENDRE la review locale** (skill `development-workflow`) avant de merger - ne jamais merger sans review
 
 **Tests & Database:**
 - Migrations en test: `MIX_ENV=test mix db.migrate`
