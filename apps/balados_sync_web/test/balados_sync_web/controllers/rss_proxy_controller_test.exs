@@ -72,7 +72,7 @@ defmodule BaladosSyncWeb.RssProxyControllerTest do
     @quota_path "/api/v1/rss/proxy/!!!not-base64!!!"
 
     setup %{user_id: user_id} do
-      Hammer.delete_buckets("rss_proxy:user:#{user_id}")
+      BaladosSyncWeb.RateLimit.reset()
       :ok
     end
 

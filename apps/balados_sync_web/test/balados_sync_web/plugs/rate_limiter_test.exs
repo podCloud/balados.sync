@@ -32,12 +32,47 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
     end
   end
 
+  describe "call/2 limit and Retry-After" do
+    test "second request with limit: 1 gets 429 with a Retry-After within the window" do
+      opts = RateLimiter.init(limit: 1, window_ms: 60_000, key: :ip, namespace: "test_limit_one")
+      BaladosSyncWeb.RateLimit.reset()
+
+      first =
+        build_conn(:get, "/test")
+        |> Map.put(:remote_ip, {127, 0, 0, 1})
+        |> RateLimiter.call(opts)
+
+      refute first.halted
+
+      second =
+        build_conn(:get, "/test")
+        |> Map.put(:remote_ip, {127, 0, 0, 1})
+        |> RateLimiter.call(opts)
+
+      assert second.halted
+      assert second.status == 429
+      [retry_after] = Plug.Conn.get_resp_header(second, "retry-after")
+      retry_after = String.to_integer(retry_after)
+      assert retry_after >= 1 and retry_after <= 60
+      assert Jason.decode!(second.resp_body)["retry_after_seconds"] == retry_after
+    end
+
+    test "Retry-After shrinks as the window elapses" do
+      opts = RateLimiter.init(limit: 1, window_ms: 2_000, key: :ip, namespace: "test_shrink")
+      BaladosSyncWeb.RateLimit.reset()
+      conn = build_conn(:get, "/test") |> Map.put(:remote_ip, {127, 0, 0, 1})
+      refute RateLimiter.call(conn, opts).halted
+      [first] = RateLimiter.call(conn, opts) |> Plug.Conn.get_resp_header("retry-after")
+      assert String.to_integer(first) <= 2
+    end
+  end
+
   describe "call/2 with :ip key" do
     test "allows requests under the limit" do
       opts = RateLimiter.init(limit: 5, window_ms: 60_000, key: :ip, namespace: "test_ip")
 
       # Clear any previous rate limit data
-      Hammer.delete_buckets("test_ip:ip:127.0.0.1")
+      BaladosSyncWeb.RateLimit.reset()
 
       conn =
         build_conn(:get, "/test")
@@ -51,7 +86,7 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
       opts = RateLimiter.init(limit: 2, window_ms: 60_000, key: :ip, namespace: "test_over_limit")
 
       # Clear any previous rate limit data
-      Hammer.delete_buckets("test_over_limit:ip:127.0.0.1")
+      BaladosSyncWeb.RateLimit.reset()
 
       # Make requests up to the limit
       conn1 =
@@ -76,7 +111,10 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
 
       assert conn3.halted
       assert conn3.status == 429
-      assert get_resp_header(conn3, "retry-after") == ["60"]
+      # Hammer 7 fixed windows are aligned on the wall clock: the header carries
+      # the seconds left in the current window, not the whole window.
+      [retry_after] = get_resp_header(conn3, "retry-after")
+      assert String.to_integer(retry_after) in 1..60
 
       body = Jason.decode!(conn3.resp_body)
       assert body["error"] == "RATE_LIMIT_EXCEEDED"
@@ -86,7 +124,7 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
       opts = RateLimiter.init(limit: 1, window_ms: 60_000, key: :ip, namespace: "test_xff")
 
       # Clear any previous rate limit data
-      Hammer.delete_buckets("test_xff:ip:192.168.1.100")
+      BaladosSyncWeb.RateLimit.reset()
 
       conn =
         build_conn(:get, "/test")
@@ -125,7 +163,7 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
       user_id = Ecto.UUID.generate()
 
       # Clear any previous rate limit data
-      Hammer.delete_buckets("test_user_limit:user:#{user_id}")
+      BaladosSyncWeb.RateLimit.reset()
 
       conn1 =
         build_conn(:get, "/test")
@@ -156,7 +194,7 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
         )
 
       # Clear any previous rate limit data
-      Hammer.delete_buckets("test_param:param:my_token")
+      BaladosSyncWeb.RateLimit.reset()
 
       conn1 =
         build_conn(:get, "/test", %{"token" => "my_token"})
@@ -172,7 +210,7 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
       assert conn2.halted
 
       # Different token should not be blocked
-      Hammer.delete_buckets("test_param:param:other_token")
+      BaladosSyncWeb.RateLimit.reset()
 
       conn3 =
         build_conn(:get, "/test", %{"token" => "other_token"})
@@ -213,7 +251,7 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
         )
 
       # First request without skip
-      Hammer.delete_buckets("test_skip:ip:127.0.0.1")
+      BaladosSyncWeb.RateLimit.reset()
 
       conn1 =
         build_conn(:get, "/test")

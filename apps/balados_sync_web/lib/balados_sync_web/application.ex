@@ -14,7 +14,9 @@ defmodule BaladosSyncWeb.Application do
       # Start to serve requests, typically the last entry
       BaladosSyncWeb.Endpoint,
       # LRU avec max 500 entrées
-      {Cachex, name: :rss_feed_cache, limit: 500}
+      {Cachex, name: :rss_feed_cache, limit: 500},
+      # Rate limiter buckets (Hammer 7, ETS table named after the module)
+      BaladosSyncWeb.RateLimit
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
