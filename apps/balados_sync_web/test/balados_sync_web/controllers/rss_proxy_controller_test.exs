@@ -133,6 +133,7 @@ defmodule BaladosSyncWeb.RssProxyControllerTest do
         ~s(<rss><channel><item><guid>g1</guid><enclosure url="https://cached.example.com/e.mp3"/></item></channel></rss>)
 
       BaladosSyncCore.RssCache.put({:feed, feed_url}, xml)
+      on_exit(fn -> Cachex.del(:rss_feed_cache, {:feed, feed_url}) end)
 
       conn_feed = get(conn, "/api/v1/rss/proxy/#{encode_feed(feed_url)}")
       assert response(conn_feed, 200) == xml

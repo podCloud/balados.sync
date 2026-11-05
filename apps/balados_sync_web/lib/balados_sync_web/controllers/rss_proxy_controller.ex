@@ -18,18 +18,17 @@ defmodule BaladosSyncWeb.RssProxyController do
   alias BaladosSyncWeb.Plugs.{JWTAuth, RateLimiter}
   import BaladosSyncWeb.ErrorHelpers
 
-  plug(JWTAuth, scopes_any: ["user.sync", "user.subscriptions.read"])
+  plug JWTAuth, scopes_any: ["user.sync", "user.subscriptions.read"]
 
   # 120/min is well above `subs_metadata` (20/min) on purpose: the app only
   # reaches the proxy for feeds that block CORS and refreshes a whole library
   # at once; the quota is shared by all devices of the account.
 
-  plug(RateLimiter,
+  plug RateLimiter,
     limit: 120,
     window_ms: 60_000,
     key: :user_id,
     namespace: "rss_proxy"
-  )
 
   @doc "Cache policy for proxied feeds: the response is per-user (JWT), so never shared caches."
   def cache_control, do: "private, max-age=300"
