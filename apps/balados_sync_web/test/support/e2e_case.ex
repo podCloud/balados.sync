@@ -67,6 +67,8 @@ defmodule BaladosSyncWeb.E2ECase do
   defmodule Helpers do
     @moduledoc false
 
+    import Wallaby.Browser, only: [assert_has: 2, execute_query: 2]
+
     alias Wallaby.Query
     alias BaladosSyncProjections.Schemas.User
     alias BaladosSyncCore.SystemRepo
@@ -97,7 +99,7 @@ defmodule BaladosSyncWeb.E2ECase do
       |> Wallaby.Browser.fill_in(Query.text_field("Nom d'utilisateur"), with: email)
       |> Wallaby.Browser.fill_in(Query.text_field("Mot de passe"), with: password)
       |> Wallaby.Browser.click(Query.button("Se connecter"))
-      |> Wallaby.Browser.assert_has(Query.link("Log out"))
+      |> assert_has(Query.link("Log out"))
     end
 
     @doc """
@@ -112,7 +114,7 @@ defmodule BaladosSyncWeb.E2ECase do
     wait for a particular LiveView element.
     """
     def wait_for_liveview(session, selector \\ "main") do
-      Wallaby.Browser.assert_has(session, Query.css(selector))
+      assert_has(session, Query.css(selector))
       session
     end
   end

@@ -360,7 +360,6 @@ defmodule BaladosSyncWeb.Opml.Parser do
 
   # ===== Date Parsing =====
 
-  defp parse_rfc822(nil), do: nil
   defp parse_rfc822(""), do: nil
 
   defp parse_rfc822(str) do

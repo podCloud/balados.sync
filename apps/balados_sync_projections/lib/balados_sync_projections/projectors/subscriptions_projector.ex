@@ -4,7 +4,6 @@ defmodule BaladosSyncProjections.Projectors.SubscriptionsProjector do
     repo: BaladosSyncProjections.ProjectionsRepo,
     name: "SubscriptionsProjector"
 
-  require Logger
   import Ecto.Query
 
   alias BaladosSyncCore.Events.{
