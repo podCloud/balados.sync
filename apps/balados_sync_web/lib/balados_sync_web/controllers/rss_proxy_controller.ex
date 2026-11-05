@@ -49,10 +49,6 @@ defmodule BaladosSyncWeb.RssProxyController do
 
       {:error, :fetch_failed} ->
         bad_gateway(conn, "Failed to fetch RSS feed")
-
-      {:error, reason} ->
-        Logger.error("RSS proxy error: #{inspect(reason)}")
-        internal_server_error(conn, reason)
     end
   end
 
@@ -80,10 +76,6 @@ defmodule BaladosSyncWeb.RssProxyController do
 
       {:error, :episode_not_found} ->
         not_found(conn, "Episode not found in feed")
-
-      {:error, reason} ->
-        Logger.error("RSS proxy episode error: #{inspect(reason)}")
-        internal_server_error(conn, reason)
     end
   end
 

@@ -67,7 +67,9 @@ defmodule BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollectionTest do
 
       feed_added_events =
         events
-        |> Enum.filter(fn event -> String.contains?(event.event_type, "FeedAddedToCollection") end)
+        |> Enum.filter(fn event ->
+          String.contains?(event.event_type, "FeedAddedToCollection")
+        end)
 
       assert length(collection_created_events) > 0,
              "CollectionCreated event should be emitted by process manager"
@@ -125,7 +127,9 @@ defmodule BaladosSyncCore.ProcessManagers.AddFeedToDefaultCollectionTest do
       # Count FeedAddedToCollection events - should have 2 (one for each feed)
       feed_added_events =
         events
-        |> Enum.filter(fn event -> String.contains?(event.event_type, "FeedAddedToCollection") end)
+        |> Enum.filter(fn event ->
+          String.contains?(event.event_type, "FeedAddedToCollection")
+        end)
 
       assert length(feed_added_events) >= 2,
              "Both feeds should be added to the default collection"

@@ -1,8 +1,8 @@
 # Workflow stack — balados.sync (Elixir umbrella / Phoenix 1.7 / CQRS-ES)
 
 ## Commands
-- Install (worktree) : `mix deps.get`, puis `MIX_ENV=test mix db.migrate` avant les tests.
-- Test : `mix test --exclude wallaby` (suite rapide, ~890 tests) | UI : `mix test --only wallaby` quand le rendu change.
+- Install (worktree) : `mix deps.get`, puis `MIX_ENV=test mix db.create && MIX_ENV=test mix db.init` sur une base vierge (sinon `MIX_ENV=test mix db.migrate`) avant les tests.
+- Test : `mix test --exclude e2e` (suite rapide, ~940 tests ; les tests navigateur sont déjà exclus par défaut) | navigateur : `mix test --include e2e` quand le rendu change (ChromeDriver requis).
 - Compile : `mix compile --warnings-as-errors`
 - Format : `mix format --check-formatted` depuis la racine de l'umbrella (voir piège ci-dessous).
 - Migrations : `mix db.migrate` ET `MIX_ENV=test mix db.migrate`. Ne jamais `mix ecto.*` directement.
@@ -22,7 +22,8 @@
 ## Pièges connus
 - Hook pre-commit (`.githooks/`) : lance `mix format <fichiers>` depuis la racine, sans le `locals_without_parens` de Phoenix, et réécrit `plug X` en `plug(X)` (#272). Tant que ce n'est pas corrigé : vérifier `git diff <base> -- <fichier>` juste avant chaque commit touchant `endpoint.ex` / `router.ex` / des plugs de controller ; si le hook réintroduit des parenthèses, `mix format --check-formatted` à la main puis `git commit --no-verify`.
 - `mix gettext.extract --check-up-to-date` échoue sur main (#269) : ne pas l'ajouter au gate tant que ce n'est pas corrigé.
-- Tests flaky connus : `MessageHandlerTest` PLAY_RATE_LIMITED (#266) ; LiveView historiques (#246).
+- Tests flaky connus : `MessageHandlerTest` PLAY_RATE_LIMITED (#266) ; `LiveWebSocket.RateLimiterTest` bucket vide (#274) ; LiveView historiques (#246).
+- CI : workflow `Tests` (job `Compile, format and test`) sur chaque PR ; vérifier `~/.config/podclaude/gh.sh pr checks <n>` avant de merger.
 
 ## TODOS.md
 - Au DISCOVER : synchroniser TODOS.md ↔ GitHub (issues/PR), mettre à jour les statuts.

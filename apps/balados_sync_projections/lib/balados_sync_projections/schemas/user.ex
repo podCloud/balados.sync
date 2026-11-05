@@ -8,8 +8,6 @@ defmodule BaladosSyncProjections.Schemas.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  require Logger
-
   # Argon2id configuration (OWASP 2025 recommendations)
   # t_cost: 3 iterations
   # m_cost: 16 = 64 MiB memory (2^16 KiB)

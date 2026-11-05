@@ -41,10 +41,6 @@ defmodule BaladosSyncWeb.RssAggregateController do
     else
       {:error, :invalid_token} ->
         unauthorized(conn, "Invalid or revoked token")
-
-      {:error, reason} ->
-        Logger.error("RSS aggregate error: #{inspect(reason)}")
-        internal_server_error(conn, reason)
     end
   end
 
@@ -66,10 +62,6 @@ defmodule BaladosSyncWeb.RssAggregateController do
 
       {:error, :not_found} ->
         not_found(conn, "Collection not found")
-
-      {:error, reason} ->
-        Logger.error("RSS collection error: #{inspect(reason)}")
-        internal_server_error(conn, reason)
     end
   end
 
@@ -89,10 +81,6 @@ defmodule BaladosSyncWeb.RssAggregateController do
 
       {:error, :not_found} ->
         not_found(conn, "Playlist not found")
-
-      {:error, reason} ->
-        Logger.error("RSS playlist error: #{inspect(reason)}")
-        internal_server_error(conn, reason)
     end
   end
 
@@ -275,7 +263,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
          encoded_feed,
          feed_title,
          user_token,
-         filter_item_ids \\ nil
+         filter_item_ids
        ) do
     import SweetXml
 

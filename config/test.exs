@@ -25,6 +25,18 @@ config :balados_sync_projections, BaladosSyncProjections.ProjectionsRepo,
 # with Ecto Sandbox. Tests use fixtures or test projectors directly.
 config :balados_sync_projections, start_projectors: false
 
+# The PostgreSQL EventStore keeps the dev defaults from config.exs otherwise
+# (database "balados_sync_dev"), which makes `mix db.init` fail on a machine
+# that only has the test database (CI). Point it at the test database, same
+# "events" schema as in dev, so event_store.init and the tests share one DB.
+config :balados_sync_core, BaladosSyncCore.EventStore,
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "balados_sync_test#{System.get_env("MIX_TEST_PARTITION")}",
+  schema: "events",
+  pool_size: 10
+
 # Configure Dispatcher with In-Memory EventStore for test isolation
 # This provides perfect isolation between tests - each test gets a fresh event store
 # See: https://github.com/commanded/commanded/blob/master/guides/Testing.md

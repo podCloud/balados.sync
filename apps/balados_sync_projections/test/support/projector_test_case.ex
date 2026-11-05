@@ -757,7 +757,7 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
 
   @score_like 7
 
-  defp apply_popularity_podcast_liked(event, repo, opts \\ []) do
+  defp apply_popularity_podcast_liked(event, repo, opts) do
     alias BaladosSyncProjections.Schemas.PodcastPopularity
 
     is_public = Keyword.get(opts, :is_public, true)
@@ -807,7 +807,7 @@ defmodule BaladosSyncProjections.ProjectorTestCase do
     end
   end
 
-  defp apply_popularity_episode_liked(event, repo, opts \\ []) do
+  defp apply_popularity_episode_liked(event, repo, opts) do
     alias BaladosSyncProjections.Schemas.{EpisodePopularity, PodcastPopularity}
 
     is_public = Keyword.get(opts, :is_public, true)

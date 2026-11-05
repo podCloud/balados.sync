@@ -291,7 +291,7 @@ defmodule BaladosSyncWeb.Opml.DataImporter do
     # Take highest position
     position = max(existing.position || 0, incoming.position || 0)
     # Played is true if either is true
-    played = existing.played || false or (incoming.played || false)
+    played = (existing.played || false) or (incoming.played || false)
 
     %{
       position: position,

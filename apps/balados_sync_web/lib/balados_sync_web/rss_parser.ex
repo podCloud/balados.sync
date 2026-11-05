@@ -340,8 +340,8 @@ defmodule BaladosSyncWeb.RssParser do
           tz_offset = parse_tz_offset(tz_str)
 
           # Create NaiveDateTime then convert to DateTime
-          {:ok, naive_dt} = NaiveDateTime.new(year_int, month_int, day_int, h, m, s, 0)
-          {:ok, dt_utc} = DateTime.from_naive(naive_dt, "UTC")
+          {:ok, naive_dt} = NaiveDateTime.new(year_int, month_int, day_int, h, m, s)
+          {:ok, dt_utc} = DateTime.from_naive(naive_dt, "Etc/UTC")
           DateTime.add(dt_utc, -tz_offset, :second)
         rescue
           _ -> nil
@@ -371,13 +371,13 @@ defmodule BaladosSyncWeb.RssParser do
   defp parse_tz_offset(tz_str) do
     case String.slice(tz_str, 0..0) do
       "+" ->
-        offset_int = String.to_integer(String.slice(tz_str, 1..-1))
+        offset_int = String.to_integer(String.slice(tz_str, 1..-1//1))
         hours = div(offset_int, 100)
         minutes = rem(offset_int, 100)
         hours * 3600 + minutes * 60
 
       "-" ->
-        offset_int = String.to_integer(String.slice(tz_str, 1..-1))
+        offset_int = String.to_integer(String.slice(tz_str, 1..-1//1))
         hours = div(offset_int, 100)
         minutes = rem(offset_int, 100)
         -(hours * 3600 + minutes * 60)

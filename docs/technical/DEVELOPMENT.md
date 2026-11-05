@@ -6,8 +6,8 @@ Ce guide couvre toutes les commandes et workflows pour développer sur Balados S
 
 ### Prérequis
 
-- **Elixir 1.14+** et **Erlang/OTP 25+**
-- **PostgreSQL 14+**
+- **Elixir** et **Erlang/OTP** aux versions de `.tool-versions` (`asdf install` à la racine ; c'est la seule combinaison vérifiée en CI, `mix.exs` déclare `~> 1.14` sans que les versions plus anciennes soient testées)
+- **PostgreSQL 14+** (la CI utilise 16)
 - **Git**
 
 ### Setup du Projet
@@ -20,17 +20,12 @@ cd balados.sync
 # Installer les dépendances
 mix deps.get
 
-# Créer les bases de données
-mix ecto.create
-mix event_store.create -a balados_sync_core
+# Créer les bases de données et le schéma de l'Event Store
+# (`mix ecto.create/drop/reset` sont désactivées dans ce projet, utiliser `mix db.*`)
+mix db.create
 
-# Initialiser l'Event Store
-mix event_store.init -a balados_sync_core
-
-# Migrer les projections
-cd apps/balados_sync_projections
-mix ecto.migrate
-cd ../..
+# Initialiser l'Event Store, le schéma système et migrer les projections
+mix db.init
 
 # Créer un utilisateur (optionnel pour dev)
 # Via l'interface web après avoir démarré le serveur
@@ -93,7 +88,7 @@ mix test
 mix test --cover
 
 # Tests d'une app spécifique
-cd apps/balados_sync_core && mix test
+mix test apps/balados_sync_core/test   # depuis la racine : le test_helper de core démarre projections
 
 # Test d'un fichier spécifique
 mix test apps/balados_sync_core/test/aggregates/user_test.exs
@@ -104,6 +99,26 @@ mix test apps/balados_sync_core/test/aggregates/user_test.exs:42
 # Tests en mode watch (reruns automatiques)
 mix test.watch
 ```
+
+### Intégration continue (GitHub Actions)
+
+Le workflow `.github/workflows/test.yml` tourne sur chaque pull request et chaque
+push sur `main`, avec Postgres 16 en service et les versions de `.tool-versions`.
+Il exécute, dans l'ordre :
+
+```bash
+export MIX_ENV=test   # positionné globalement dans le workflow, y compris pour deps.get / format / compile
+mix deps.get
+mix format --check-formatted
+mix compile --warnings-as-errors
+mix db.create
+mix db.init
+mix test --exclude e2e
+```
+
+Les tests navigateur (Wallaby, tag `:e2e`) sont exclus par défaut dans
+`test_helper.exs` et restent locaux : `mix test --include e2e` (ChromeDriver
+requis). Pour reproduire la CI en local, enchaîner les mêmes commandes.
 
 ### Tests Spécifiques par Tag
 
@@ -350,40 +365,41 @@ end
 
 ## 🗄️ Gestion de la Base de Données
 
+Les commandes `mix ecto.create|drop|reset` sont désactivées à la racine (alias
+`ecto.disabled.*`) : passer par les tâches `mix db.*` / `system.*` /
+`projections.*` décrites dans [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) et le
+`CLAUDE.md`.
+
 ### Migrations
 
 ```bash
-# Créer une nouvelle migration
+# Créer une nouvelle migration de projection
 cd apps/balados_sync_projections
 mix ecto.gen.migration add_some_field
+cd ../..
 
-# Exécuter les migrations
-mix ecto.migrate
+# Exécuter toutes les migrations (system + projections)
+mix db.migrate
+mix system.migrate          # seulement le schéma system
+mix projections.migrate     # seulement les projections
 
-# Rollback dernière migration
-mix ecto.rollback
+# Reset des projections — ⚠️ aujourd'hui la tâche fait un DROP DATABASE et
+# emporte aussi les schémas system et events tant que les repos partagent une
+# base (#279) ; ne pas l'utiliser sur des données à conserver
+mix db.reset --projections
 
-# Rollback X migrations
-mix ecto.rollback --step 3
-
-# Reset complet (ATTENTION : supprime tout)
-mix ecto.reset
-
-# Voir le statut des migrations
-mix ecto.migrations
+# Reset complet (☢️ DANGER : détruit events, system et projections)
+mix db.reset --all
 ```
 
 ### Event Store
 
 ```bash
-# Créer l'Event Store
-mix event_store.create -a balados_sync_core
+# Créer les bases et le schéma de l'Event Store
+mix db.create
 
-# Initialiser (créer les tables)
-mix event_store.init -a balados_sync_core
-
-# Drop l'Event Store (ATTENTION)
-mix event_store.drop -a balados_sync_core
+# Initialiser l'Event Store, le schéma system et migrer
+mix db.init
 ```
 
 ### Console PostgreSQL
@@ -945,7 +961,7 @@ mix test apps/balados_sync_web/test/controllers/my_controller_test.exs
 
 - ❌ **NE JAMAIS** modifier manuellement la database `events`
 - ✅ Toujours passer par Commanded pour émettre des events
-- ✅ Pour reset projections : `mix ecto.reset` (safe)
+- ⚠️ Pour reset projections : `mix db.reset --projections` détruit aussi `system` et `events` tant que #279 n'est pas corrigé
 - ❌ Pour reset events : attention, perte de données
 
 ### Immutabilité des Events
