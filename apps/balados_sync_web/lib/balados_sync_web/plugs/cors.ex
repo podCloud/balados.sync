@@ -14,7 +14,7 @@ defmodule BaladosSyncWeb.Plugs.CORS do
   (auth, rate limiting), on controller responses and on router 404s. Errors
   raised *before* this plug (malformed JSON body in `Plug.Parsers`, request
   too large) are rendered from the pre-pipeline conn and carry no CORS
-  headers; see the follow-up issue referenced in the PR.
+  headers (follow-up #270).
 
   Mounted in the endpoint before the router so preflights are answered even
   for paths the router does not know.

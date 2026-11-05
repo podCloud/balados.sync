@@ -729,7 +729,7 @@ echo "JWT_TOKEN" | cut -d'.' -f2 | base64 -d | jq
 
 `GET /api/v1/rss/proxy/:feed` et `/:feed/:episode` (`RssProxyController`) **ne sont pas publics** : ils exigent un JWT dont les scopes couvrent `user.sync` ou `user.subscriptions.read` (le scope parent `user` couvre les deux). Un token valide sans scope couvrant reçoit `403`, l'absence de token `401`. Sans cela l'endpoint serait un open proxy (#264).
 
-Les requêtes sont limitées **par utilisateur** (`RateLimiter`, 120 requêtes / minute, namespace `rss_proxy`) : le quota est partagé entre les appareils d'un même compte ; `429` porte `Retry-After`. Les réponses sont `Cache-Control: private` (jamais stockées par un cache partagé). Le plug `BaladosSyncWeb.Plugs.CORS` répond au preflight `OPTIONS` et pose `Access-Control-Allow-Origin: *` sur toutes les réponses `/api/*`, erreurs comprises, pour que le navigateur laisse l'app lire les statuts 401/403/429.
+Les requêtes sont limitées **par utilisateur** (`RateLimiter`, 120 requêtes / minute, namespace `rss_proxy`) : le quota est partagé entre les appareils d'un même compte ; `429` porte `Retry-After`. Les réponses sont `Cache-Control: private` (jamais stockées par un cache partagé). Le plug `BaladosSyncWeb.Plugs.CORS` répond au preflight `OPTIONS` et pose `Access-Control-Allow-Origin: *` sur toutes les réponses `/api/*`, erreurs comprises (hors celles levées avant le routeur, #270), pour que le navigateur laisse l'app lire les statuts 401/403/429.
 
 Côté app, balados.app #70 (PR #72, en cours au moment où ces lignes sont écrites) fait remonter `401`/`403`/`429` à l'utilisateur au lieu de retomber en silence sur les proxies CORS publics.
 
