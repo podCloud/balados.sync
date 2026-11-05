@@ -5,6 +5,8 @@ defmodule BaladosSyncWeb.Application do
 
   use Application
 
+  import Cachex.Spec, only: [hook: 1]
+
   @impl true
   def start(_type, _args) do
     children = [
@@ -13,8 +15,11 @@ defmodule BaladosSyncWeb.Application do
       # {BaladosSyncWeb.Worker, arg},
       # Start to serve requests, typically the last entry
       BaladosSyncWeb.Endpoint,
-      # LRU avec max 500 entrées
-      {Cachex, name: :rss_feed_cache, limit: 500}
+      # RSS feed cache: 5-minute expiration set per entry (RssCache.put/2),
+      # bounded to 500 entries by Cachex 4's scheduled least-recently-written
+      # eviction (the Cachex 3 `limit:` option no longer exists)
+      {Cachex,
+       name: :rss_feed_cache, hooks: [hook(module: Cachex.Limit.Scheduled, args: {500, [], []})]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

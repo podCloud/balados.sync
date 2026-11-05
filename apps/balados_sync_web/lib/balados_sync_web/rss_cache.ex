@@ -48,7 +48,7 @@ defmodule BaladosSyncWeb.RssCache do
   Met en cache avec TTL
   """
   def put(key, value) do
-    Cachex.put(@cache_name, key, value, ttl: @cache_ttl)
+    Cachex.put(@cache_name, key, value, expire: @cache_ttl)
   end
 
   @doc """
