@@ -164,7 +164,6 @@ Le projet nécessite les dépendances suivantes (déjà dans mix.exs) :
 {:httpoison, "~> 2.2"}
 {:cachex, "~> 3.6"}
 {:sweet_xml, "~> 0.7"}
-{:timex, "~> 3.7"}
 
 # Jobs
 {:quantum, "~> 3.5"}
