@@ -71,6 +71,7 @@ defmodule BaladosSyncWeb.Rfc1123Test do
       assert :error = Rfc1123.parse("Mon, 03 Nov 2025 10:00:00 +-100")
       assert :error = Rfc1123.parse("Mon, 03 Nov 2025 10:00:00 +0099")
       assert :error = Rfc1123.parse("Mon, 03 Nov 2025 10:00:00 CET")
+      assert :error = Rfc1123.parse("Mon, 03 Nov 2025 10:00:00 +2400")
     end
 
     test "trims surrounding whitespace" do

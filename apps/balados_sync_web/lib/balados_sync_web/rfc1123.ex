@@ -87,7 +87,7 @@ defmodule BaladosSyncWeb.Rfc1123 do
   end
 
   defp parse_offset(<<sign, hhmm::binary-size(4)>>) when sign in [?+, ?-] do
-    with {:ok, hours} <- parse_digits(binary_part(hhmm, 0, 2), 2..2),
+    with {:ok, hours} when hours < 24 <- parse_digits(binary_part(hhmm, 0, 2), 2..2),
          {:ok, minutes} when minutes < 60 <- parse_digits(binary_part(hhmm, 2, 2), 2..2) do
       seconds = hours * 3600 + minutes * 60
       {:ok, if(sign == ?-, do: -seconds, else: seconds)}
@@ -102,7 +102,7 @@ defmodule BaladosSyncWeb.Rfc1123 do
   defp parse_digits(string, min..max//_) do
     len = byte_size(string)
 
-    if len >= min and len <= max and string =~ ~r/^[0-9]+$/ do
+    if len >= min and len <= max and string =~ ~r/\A[0-9]+\z/ do
       {:ok, String.to_integer(string)}
     else
       :error
