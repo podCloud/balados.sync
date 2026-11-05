@@ -146,9 +146,28 @@ mix db.reset --all          # ☢️  DANGER - tout détruit
 
 ```bash
 mix test                    # Tous les tests
+mix test --exclude wallaby  # Sans les tests navigateur (ce que la CI exécute)
 mix test --cover           # Avec couverture
 cd apps/balados_sync_core && mix test  # App spécifique
 ```
+
+### Intégration continue
+
+`.github/workflows/test.yml` tourne sur chaque pull request et chaque push sur
+`main` : Postgres 16 en service, Erlang/Elixir installés depuis `.tool-versions`
+(`erlef/setup-beam`), cache `deps`/`_build`, puis exactement :
+
+```bash
+mix deps.get
+mix format --check-formatted
+mix compile --warnings-as-errors
+MIX_ENV=test mix db.init
+MIX_ENV=test mix test --exclude wallaby
+```
+
+Versions épinglées dans `.tool-versions` (`asdf install` les reproduit en local).
+Une PR dont le workflow est rouge ne se merge pas ; un échec sans rapport avec
+la PR donne une issue (voir « Ne JAMAIS ignorer des tests en échec »).
 
 ---
 

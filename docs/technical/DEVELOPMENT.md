@@ -6,8 +6,8 @@ Ce guide couvre toutes les commandes et workflows pour développer sur Balados S
 
 ### Prérequis
 
-- **Elixir 1.14+** et **Erlang/OTP 25+**
-- **PostgreSQL 14+**
+- **Elixir** et **Erlang/OTP** aux versions de `.tool-versions` (`asdf install` à la racine ; minimum Elixir 1.14 / OTP 25)
+- **PostgreSQL 14+** (la CI utilise 16)
 - **Git**
 
 ### Setup du Projet
@@ -104,6 +104,23 @@ mix test apps/balados_sync_core/test/aggregates/user_test.exs:42
 # Tests en mode watch (reruns automatiques)
 mix test.watch
 ```
+
+### Intégration continue (GitHub Actions)
+
+Le workflow `.github/workflows/test.yml` tourne sur chaque pull request et chaque
+push sur `main`, avec Postgres 16 en service et les versions de `.tool-versions`.
+Il exécute, dans l'ordre :
+
+```bash
+mix deps.get
+mix format --check-formatted
+mix compile --warnings-as-errors
+MIX_ENV=test mix db.init
+MIX_ENV=test mix test --exclude wallaby
+```
+
+Les tests Wallaby (navigateur) restent locaux : `mix test --only wallaby`.
+Pour reproduire la CI en local, enchaîner les mêmes commandes.
 
 ### Tests Spécifiques par Tag
 
