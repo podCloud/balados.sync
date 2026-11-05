@@ -216,136 +216,18 @@ Lors du workflow, toujours vérifier TODOS.md pour :
 
 ### Résumé du Workflow (Issue → PR)
 
-#### Phase 1: Analyser l'Issue
-```bash
-# Récupérer issues ouvertes
-~/.config/podclaude/gh.sh issue list --state open --json number,title,labels,createdAt
+La boucle complète (claim lock, worktree, TDD, review adversariale locale,
+merge, synchronisation de la doc racine et du plan directeur) est définie dans la
+skill `development-workflow` ; les commandes et pièges propres à ce dépôt sont
+dans [`.claude/workflow-stack.md`](.claude/workflow-stack.md). Résumé :
 
-# Afficher détails d'une issue
-~/.config/podclaude/gh.sh issue view <number>
-
-# Prioriser par: labels (phase-N, priority), age, réactions
-```
-
-#### Phase 2: Créer une Branche Feature
-```bash
-git checkout main
-git pull origin main
-git checkout -b feature/issue-<number>-<slugified-title>
-
-# Exemple: feature/issue-9-add-playtoken-expiration
-```
-
-#### Phase 3: Implémenter avec Tests
-- Respecter CQRS/ES : [docs/technical/CQRS_PATTERNS.md](docs/technical/CQRS_PATTERNS.md)
-- Events immuables : toujours émettre nouveaux events
-- Ajouter tests pour nouveaux commands/events/projectors
-- Mettre à jour docs/ si changements d'architecture
-- Tester localement: `mix test`
-- Appliquer migrations: `mix db.migrate`
-
-#### Phase 4: Committer
-```bash
-# Vérifier changements
-git diff main
-git status
-
-# Committer avec auteur Claude
-git add -A
-git commit --author="Claude <noreply@anthropic.com>" -m "feat: description
-
-- Changement 1
-- Changement 2
-
-Closes #<issue-number>"
-```
-
-#### Phase 5: Créer la PR
-```bash
-# Pousser branche
-git push -u origin feature/issue-<number>-<title-slug>
-
-# Créer PR (IMPORTANT: utiliser le wrapper gh.sh)
-~/.config/podclaude/gh.sh pr create \
-  --title "feat: description (Closes #<number>)" \
-  --body "## Summary
-
-Brief description
-
-## Test Plan
-- Test 1
-- Test 2"
-```
-
-**⚠️ IMPORTANT: Attendre la review !**
-- Ne JAMAIS merger une PR sans review
-- La review est **locale** via la skill `development-workflow` (adversarial subagents, verdicts postés en commentaires PR)
-- Attendre que la review soit complétée avant de passer à Phase 6
-
-#### Phase 6: Post-Merge Follow-up (si PR mergee avec comments)
-```bash
-# Verifier si la PR a des follow-ups necessaires
-~/.config/podclaude/gh.sh pr view <number> --comments
-
-# Criteres pour creer des issues de suivi:
-# - MUST-FIX: tests manquants, logging absent, docs non a jour
-# - SHOULD-FIX: error handling incomplet, TODOs dans le code
-# - NICE-TO-HAVE: optimisations, refactoring suggere
-
-# Creer les issues de suivi
-~/.config/podclaude/gh.sh issue create \
-  --title "[Follow-up #<PR>] <description>" \
-  --label "follow-up,from-pr-<PR>,<priority-label>" \
-  --body "## Context
-Follow-up from PR #<PR>: <title>
-
-## Original Finding
-> <quote du commentaire>
-
-## Acceptance Criteria
-- [ ] Critere 1
-- [ ] Critere 2
-- [ ] Tests ajoutes"
-```
-
-#### Phase 7: Boucler sur Main
-```bash
-# Retourner a main
-git checkout main
-git pull origin main
-
-# Boucler: revenir a Phase 1 (issues/PRs)
-```
-
-### Post-Merge Follow-up Issues
-
-**Quand creer des issues de suivi:**
-| Categorie | Labels | Exemples |
-|-----------|--------|----------|
-| **must-fix** | `priority-critical` | Tests manquants, logging absent, security |
-| **should-fix** | `priority-high` | Error handling, validation, TODOs |
-| **nice-to-have** | `enhancement` | Optimisations, refactoring, UX |
-
-**Labels obligatoires:** `follow-up`, `from-pr-<N>`
-
-**Triggers automatiques:**
-- Commentaires avec "TODO", "FIXME", "later", "follow-up"
-- Tests coverage < 80% sur nouveau code
-- Threads non resolus dans la review
-- PR mergee avec "approved with comments"
-
-**Format titre:** `[Follow-up #<PR>] <type>: <description>`
-
-**⚠️ RÈGLE IMPORTANTE: Pas de follow-up de follow-up !**
-- Si tu travailles sur une issue de suivi (follow-up), tu dois la résoudre complètement
-- Ne jamais créer une issue de suivi pour une issue qui est déjà un follow-up
-- Si le problème est trop complexe, demander de l'aide ou simplifier l'approche
-- Les issues de suivi doivent être terminées, pas reportées
-
-**🚫 RÈGLE DE MERGE: Aucun MUST-FIX ou SHOULD-FIX en suspens !**
-- Une PR ne peut être mergée que si **tous** les points MUST-FIX et SHOULD-FIX de la review sont corrigés
-- Seuls les NICE-TO-HAVE peuvent être reportés en follow-up issues
-- Si la review dit "APPROVED WITH COMMENTS" avec des SHOULD-FIX, il faut corriger avant de merger
+1. **Claim** : commenter l'issue (`🔧 Implementation in progress`) avant toute lecture de code.
+2. **Branche** : `feature/issue-<n>-<slug>` dans un worktree `.worktrees/<branche>`.
+3. **Implémenter** en TDD, CQRS/ES obligatoire ([docs/technical/CQRS_PATTERNS.md](docs/technical/CQRS_PATTERNS.md)), docs et gettext dans le même commit.
+4. **Vérifier** : `mix compile --warnings-as-errors && mix test --exclude wallaby` (plus `--only wallaby` si le rendu change).
+5. **PR** : `git push -u origin <branche>` puis `~/.config/podclaude/gh.sh pr create --title "feat: … (Closes #<n>)" --body "…"`.
+6. **Review locale** : sous-agents adversariaux, verdicts postés en commentaire de PR. Aucun must-fix/should-fix en suspens ; chaque nice-to-have fixé ou tracé (`[Follow-up #<PR>] <type>: <description>`, labels `follow-up,from-pr-<PR>`) **avant** le merge. Pas de follow-up de follow-up.
+7. **Merge** : `~/.config/podclaude/gh.sh pr merge <n> --merge --delete-branch`, puis mise à jour de `balados/CLAUDE.md` et du plan directeur à la racine.
 
 ### Points Importants
 
@@ -360,6 +242,7 @@ git pull origin main
 **GitHub CLI (gh):**
 - **TOUJOURS** utiliser le wrapper `~/.config/podclaude/gh.sh` au lieu de `gh` directement (il injecte le bon token automatiquement)
 - **ATTENDRE la review locale** (skill `development-workflow`) avant de merger - ne jamais merger sans review
+- Pas de `--no-verify` sauf le cas documenté du hook de formatage (#272), avec `mix format --check-formatted` passé à la main
 
 **Tests & Database:**
 - Migrations en test: `MIX_ENV=test mix db.migrate`
