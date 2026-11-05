@@ -92,7 +92,7 @@ mix phx.server    # http://localhost:4000
 ### Projections = Eventual Consistency
 
 - Délai normal : quelques millisecondes
-- Pour reset : `mix db.reset --projections` (SAFE, replay automatique)
+- Pour reset : `mix db.reset --projections` — ⚠️ détruit aujourd'hui toute la base partagée (`system` et `events` compris), voir #279
 
 ---
 
@@ -132,7 +132,7 @@ OAuth-style JWT flow avec scopes hiérarchiques :
 mix db.migrate              # Tous les repos
 mix system.migrate          # Seulement system
 mix projections.migrate     # Seulement projections
-mix db.reset --projections  # ✅ SAFE - reset projections
+mix db.reset --projections  # ⚠️ fait un DROP DATABASE tant que #279 n'est pas corrigé
 mix db.reset --all          # ☢️  DANGER - tout détruit
 ```
 

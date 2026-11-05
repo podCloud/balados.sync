@@ -247,7 +247,7 @@ defmodule BaladosSyncCore.RssParser do
           tz_offset = parse_tz_offset(tz_str)
 
           # Create NaiveDateTime then convert to DateTime
-          {:ok, naive_dt} = NaiveDateTime.new(year_int, month_int, day_int, h, m, s, 0)
+          {:ok, naive_dt} = NaiveDateTime.new(year_int, month_int, day_int, h, m, s)
           {:ok, dt_utc} = DateTime.from_naive(naive_dt, "Etc/UTC")
           DateTime.add(dt_utc, -tz_offset, :second)
         rescue
