@@ -59,5 +59,6 @@ defmodule BaladosSyncWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+  plug BaladosSyncWeb.Plugs.CORS
   plug BaladosSyncWeb.Router
 end

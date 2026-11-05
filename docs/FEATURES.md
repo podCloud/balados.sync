@@ -632,6 +632,17 @@ API REST pour synchronisation bidirectionnelle des données utilisateur (subscri
 - Direct projection updates via `Ecto.Multi`
 - No event emission (direct DB merge)
 
+### RSS Proxy CORS authentifié (v3.1, #264)
+
+Proxy `GET /api/v1/rss/proxy/:feed` (et `/:feed/:episode`) utilisé par balados.app quand un flux n'autorise pas les requêtes cross-origin.
+
+- **⚠️ Breaking** pour les appels sans token. **Authentifié** : JWT avec scope `user.sync` ou `user.subscriptions.read` (`401` sans token, `403` sans scope). Avant #264 l'endpoint était public et ignorait le JWT (open proxy).
+- **Rate limit par utilisateur** : 120 requêtes / minute, namespace `rss_proxy`, quota partagé entre les appareils d'un même compte, `429` + `Retry-After` au-delà.
+- CORS géré par `BaladosSyncWeb.Plugs.CORS` (preflight `OPTIONS`, `Access-Control-Allow-Origin: *` sur tout `/api/*`, erreurs comprises hors celles levées avant le routeur, #270) ; `Cache-Control: private`.
+- Décodage base64url **sans padding** (contrat API ; le padding et le base64 standard restent acceptés), validation SSRF (`UrlValidator`), cache Cachex 5 min (en-tête `cache-control: private, max-age=300`).
+- Erreurs normalisées sur la route épisode : `400` id invalide, `502` flux injoignable, `404` épisode absent.
+- Hors périmètre, volontairement : l'audio n'est jamais proxifié ; le proxy d'images HMAC est la Phase B de `TODOS.md`.
+
 ### Device Playback Queues (v2.7)
 
 Support for device-specific playback queues via the playlist `type` field.
