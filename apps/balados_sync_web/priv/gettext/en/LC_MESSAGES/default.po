@@ -2208,7 +2208,7 @@ msgstr "Generated Links"
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:25
 #, elixir-autogen, elixir-format
 msgid "admin.rss.info_text"
-msgstr "Encode a feed URL to get the proxy's base64url id and inspect its cache. Since #264 the proxy requires a JWT (scope user.sync or user.subscriptions.read): the link does not open as-is in a browser or a reader, it must be sent with an Authorization: Bearer header."
+msgstr "Encode a feed URL to get the proxy's base64url id and inspect its cache. The proxy requires a JWT (scope user.sync or user.subscriptions.read): the link does not open as-is in a browser or a reader, it must be sent with an Authorization: Bearer header."
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:71
 #, elixir-autogen, elixir-format

@@ -731,7 +731,7 @@ echo "JWT_TOKEN" | cut -d'.' -f2 | base64 -d | jq
 
 Les requêtes sont limitées **par utilisateur** (`RateLimiter`, 120 requêtes / minute, namespace `rss_proxy`) : le quota est partagé entre les appareils d'un même compte ; `429` porte `Retry-After`. Les réponses sont `Cache-Control: private` (jamais stockées par un cache partagé). Le plug `BaladosSyncWeb.Plugs.CORS` répond au preflight `OPTIONS` et pose `Access-Control-Allow-Origin: *` sur toutes les réponses `/api/*`, erreurs comprises, pour que le navigateur laisse l'app lire les statuts 401/403/429.
 
-Côté app, balados.app #70 (PR #72) remonte ces statuts à l'utilisateur au lieu de retomber en silence sur les proxies CORS publics.
+Côté app, balados.app #70 (PR #72, en cours au moment où ces lignes sont écrites) fait remonter `401`/`403`/`429` à l'utilisateur au lieu de retomber en silence sur les proxies CORS publics.
 
 Les URLs signées HMAC ne sont volontairement **pas** utilisées pour le XML du flux (le `fetch` client peut porter le header) ; elles sont réservées aux images (`TODOS.md`, Phase B). L'audio n'est jamais proxifié.
 

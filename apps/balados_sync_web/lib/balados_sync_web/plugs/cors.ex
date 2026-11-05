@@ -11,7 +11,10 @@ defmodule BaladosSyncWeb.Plugs.CORS do
   The API uses bearer tokens, never cookies, so `*` is a safe allowed origin
   (no credentials are involved). Headers are added through
   `register_before_send` so they are present on responses halted by plugs
-  (auth, rate limiting) as well as on controller responses.
+  (auth, rate limiting), on controller responses and on router 404s. Errors
+  raised *before* this plug (malformed JSON body in `Plug.Parsers`, request
+  too large) are rendered from the pre-pipeline conn and carry no CORS
+  headers; see the follow-up issue referenced in the PR.
 
   Mounted in the endpoint before the router so preflights are answered even
   for paths the router does not know.

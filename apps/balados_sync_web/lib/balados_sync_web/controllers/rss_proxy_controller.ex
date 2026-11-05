@@ -96,7 +96,7 @@ defmodule BaladosSyncWeb.RssProxyController do
 
       :error ->
         # Fallback to standard base64 for backwards compatibility
-        case Base.decode64(encoded) do
+        case Base.decode64(encoded, padding: false) do
           {:ok, decoded} -> {:ok, decoded}
           :error -> {:error, :invalid_base64}
         end
@@ -112,7 +112,7 @@ defmodule BaladosSyncWeb.RssProxyController do
 
         :error ->
           # Fallback to standard base64 for backwards compatibility
-          Base.decode64(encoded)
+          Base.decode64(encoded, padding: false)
       end
 
     case decoded do

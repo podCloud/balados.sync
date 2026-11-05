@@ -2208,7 +2208,7 @@ msgstr "Liens générés"
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:25
 #, elixir-autogen, elixir-format
 msgid "admin.rss.info_text"
-msgstr "Encodez une URL de flux pour obtenir l'identifiant base64url du proxy et inspecter son cache. Depuis #264 le proxy exige un JWT (scope user.sync ou user.subscriptions.read) : le lien ne s'ouvre pas tel quel dans un navigateur ou un lecteur, il faut lui joindre l'en-tête Authorization: Bearer."
+msgstr "Encodez une URL de flux pour obtenir l'identifiant base64url du proxy et inspecter son cache. Le proxy exige un JWT (scope user.sync ou user.subscriptions.read) : le lien ne s'ouvre pas tel quel dans un navigateur ou un lecteur, il faut lui joindre l'en-tête Authorization: Bearer."
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:71
 #, elixir-autogen, elixir-format
