@@ -21,7 +21,7 @@ cd balados.sync
 mix deps.get
 
 # Créer les bases de données et le schéma de l'Event Store
-# (les commandes `mix ecto.*` sont désactivées dans ce projet)
+# (`mix ecto.create/drop/reset` sont désactivées dans ce projet, utiliser `mix db.*`)
 mix db.create
 
 # Initialiser l'Event Store, le schéma système et migrer les projections
@@ -365,40 +365,39 @@ end
 
 ## 🗄️ Gestion de la Base de Données
 
+Les commandes `mix ecto.create|drop|reset` sont désactivées à la racine (alias
+`ecto.disabled.*`) : passer par les tâches `mix db.*` / `system.*` /
+`projections.*` décrites dans [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) et le
+`CLAUDE.md`.
+
 ### Migrations
 
 ```bash
-# Créer une nouvelle migration
+# Créer une nouvelle migration de projection
 cd apps/balados_sync_projections
 mix ecto.gen.migration add_some_field
+cd ../..
 
-# Exécuter les migrations
-mix ecto.migrate
+# Exécuter toutes les migrations (system + projections)
+mix db.migrate
+mix system.migrate          # seulement le schéma system
+mix projections.migrate     # seulement les projections
 
-# Rollback dernière migration
-mix ecto.rollback
+# Reset des projections (SAFE : replay automatique depuis l'Event Store)
+mix db.reset --projections
 
-# Rollback X migrations
-mix ecto.rollback --step 3
-
-# Reset complet (ATTENTION : supprime tout)
-mix ecto.reset
-
-# Voir le statut des migrations
-mix ecto.migrations
+# Reset complet (☢️ DANGER : détruit events, system et projections)
+mix db.reset --all
 ```
 
 ### Event Store
 
 ```bash
-# Créer l'Event Store
-mix event_store.create -a balados_sync_core
+# Créer les bases et le schéma de l'Event Store
+mix db.create
 
-# Initialiser (créer les tables)
-mix event_store.init -a balados_sync_core
-
-# Drop l'Event Store (ATTENTION)
-mix event_store.drop -a balados_sync_core
+# Initialiser l'Event Store, le schéma system et migrer
+mix db.init
 ```
 
 ### Console PostgreSQL
@@ -960,7 +959,7 @@ mix test apps/balados_sync_web/test/controllers/my_controller_test.exs
 
 - ❌ **NE JAMAIS** modifier manuellement la database `events`
 - ✅ Toujours passer par Commanded pour émettre des events
-- ✅ Pour reset projections : `mix ecto.reset` (safe)
+- ✅ Pour reset projections : `mix db.reset --projections` (safe)
 - ❌ Pour reset events : attention, perte de données
 
 ### Immutabilité des Events

@@ -124,15 +124,11 @@ Pattern **capability-URL / endpoint de signature** (l'attribution/rate-limit se 
 Issues créées pour les fonctionnalités futures :
 
 - [#153 - Playlists collaboratives](https://github.com/podCloud/balados.sync/issues/153)
-- [#200 - Historique d'écoute détaillé](https://github.com/podCloud/balados.sync/issues/200)
+- [#155 - Suivre d'autres utilisateurs](https://github.com/podCloud/balados.sync/issues/155)
+- [#158 - Hashtags et sujets](https://github.com/podCloud/balados.sync/issues/158)
 - [#201 - Découverte communautaire avec recommandations MinHash](https://github.com/podCloud/balados.sync/issues/201)
-- [#239 - Validate feed exists in collection before RemoveFeedFromCollection](https://github.com/podCloud/balados.sync/issues/239)
-- [#240 - Explore per-command middleware when Commanded supports it](https://github.com/podCloud/balados.sync/issues/240)
-- [#256 - String.to_existing_atom safety in LikeNormalizer](https://github.com/podCloud/balados.sync/issues/256)
-- [#257 - Unbounded Like aggregate growth](https://github.com/podCloud/balados.sync/issues/257)
-- [#258 - Checkpoint gap handling in LikeProjector](https://github.com/podCloud/balados.sync/issues/258)
-- [#259 - Sync CQRS bypass for likes](https://github.com/podCloud/balados.sync/issues/259)
-- [#260 - Private user tests for likes](https://github.com/podCloud/balados.sync/issues/260)
+- [#262 - Tags communautaires](https://github.com/podCloud/balados.sync/issues/262) (spec à écrire, plan directeur phase 4)
+- [#263 - Réactions sur les épisodes](https://github.com/podCloud/balados.sync/issues/263) (spec à écrire, plan directeur phase 4)
 
 ---
 
@@ -140,7 +136,6 @@ Issues créées pour les fonctionnalités futures :
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
-(vide)
 
 ---
 
@@ -150,6 +145,8 @@ Format: `- [x] Description - [#N](url)`
 
 - [x] CI: test suite on every PR, Elixir 1.20.1 / OTP 28 pinned - [#273](https://github.com/podCloud/balados.sync/issues/273) - PR #275 (follow-ups #276, #277, #278)
 - [x] E2E UI testing with Wallaby - [#197](https://github.com/podCloud/balados.sync/issues/197) - PR #198
+- [x] RSS proxy hardening: JWT + rate limit + CORS - [#264](https://github.com/podCloud/balados.sync/issues/264) - PR #265
+- [x] Detailed listening history - [#200](https://github.com/podCloud/balados.sync/issues/200) - PR #252
 - [x] Likes system (podcasts & episodes) - [#154](https://github.com/podCloud/balados.sync/issues/154) - PR #255
 - [x] Split User aggregate into bounded contexts - [#148](https://github.com/podCloud/balados.sync/issues/148) - PR #238
 - [x] Extended OPML format with balados namespace - [#195](https://github.com/podCloud/balados.sync/issues/195) - PR #196

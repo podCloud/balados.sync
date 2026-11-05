@@ -48,8 +48,9 @@ jobs:
           version-file: .tool-versions
           version-type: strict
 
-      # restore/save are split so the cache is also saved when the job fails:
-      # the next push of a red PR then recompiles only what changed.
+      # restore/save are split so the cache is also saved when the job fails
+      # (not when it is cancelled mid-compile): the next push of a red PR then
+      # recompiles only what changed.
       - name: Restore deps and build cache
         id: cache
         uses: actions/cache/restore@v5
@@ -80,7 +81,7 @@ jobs:
         run: mix test --exclude e2e
 
       - name: Save deps and build cache
-        if: always() && steps.cache.outputs.cache-hit != 'true'
+        if: ${{ !cancelled() && steps.cache.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v5
         with:
           path: |

@@ -149,7 +149,7 @@ mix test                    # Tous les tests
 mix test --exclude e2e      # Sans les tests navigateur, déjà exclus par défaut (ce que la CI exécute)
 mix test --include e2e      # Avec les tests navigateur Wallaby (ChromeDriver requis)
 mix test --cover           # Avec couverture
-cd apps/balados_sync_core && mix test  # App spécifique
+mix test apps/balados_sync_core/test  # App spécifique (depuis la racine : le test_helper de core démarre projections)
 ```
 
 ### Intégration continue
@@ -250,7 +250,7 @@ dans [`.claude/workflow-stack.md`](.claude/workflow-stack.md). Résumé :
 1. **Claim** : commenter l'issue (`🔧 Implementation in progress`) avant toute lecture de code.
 2. **Branche** : `feature/issue-<n>-<slug>` dans un worktree `.worktrees/<branche>`.
 3. **Implémenter** en TDD, CQRS/ES obligatoire ([docs/technical/CQRS_PATTERNS.md](docs/technical/CQRS_PATTERNS.md)), docs et gettext dans le même commit.
-4. **Vérifier** : `mix compile --warnings-as-errors && mix test --exclude wallaby` (plus `--only wallaby` si le rendu change).
+4. **Vérifier** : `mix compile --warnings-as-errors && mix test --exclude e2e` (plus `mix test --include e2e` si le rendu change, ChromeDriver requis).
 5. **PR** : `git push -u origin <branche>` puis `~/.config/podclaude/gh.sh pr create --title "feat: … (Closes #<n>)" --body "…"`.
 6. **Review locale** : sous-agents adversariaux, verdicts postés en commentaire de PR. Aucun must-fix/should-fix en suspens ; chaque nice-to-have fixé ou tracé (`[Follow-up #<PR>] <type>: <description>`, labels `follow-up,from-pr-<PR>`) **avant** le merge. Pas de follow-up de follow-up.
 7. **Merge** : `~/.config/podclaude/gh.sh pr merge <n> --merge --delete-branch`, puis mise à jour de `balados/CLAUDE.md` et du plan directeur à la racine.

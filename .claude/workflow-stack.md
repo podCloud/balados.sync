@@ -2,7 +2,7 @@
 
 ## Commands
 - Install (worktree) : `mix deps.get`, puis `MIX_ENV=test mix db.create && MIX_ENV=test mix db.init` sur une base vierge (sinon `MIX_ENV=test mix db.migrate`) avant les tests.
-- Test : `mix test --exclude e2e` (suite rapide, ~935 tests ; les tests navigateur sont déjà exclus par défaut) | navigateur : `mix test --include e2e` quand le rendu change (ChromeDriver requis).
+- Test : `mix test --exclude e2e` (suite rapide, ~940 tests ; les tests navigateur sont déjà exclus par défaut) | navigateur : `mix test --include e2e` quand le rendu change (ChromeDriver requis).
 - Compile : `mix compile --warnings-as-errors`
 - Format : `mix format --check-formatted` depuis la racine de l'umbrella (voir piège ci-dessous).
 - Migrations : `mix db.migrate` ET `MIX_ENV=test mix db.migrate`. Ne jamais `mix ecto.*` directement.
