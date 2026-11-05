@@ -725,6 +725,16 @@ echo "JWT_TOKEN" | cut -d'.' -f2 | base64 -d | jq
 
 ---
 
+## Proxy RSS
+
+`GET /api/v1/rss/proxy/:feed` et `/:feed/:episode` (`RssProxyController`) **ne sont pas publics** : ils exigent un JWT dont les scopes couvrent `user.sync` ou `user.subscriptions.read` (le scope parent `user` couvre les deux). Un token valide sans scope couvrant reçoit `403`, l'absence de token `401`. Sans cela l'endpoint serait un open proxy (#264).
+
+Les requêtes sont limitées **par utilisateur** (`RateLimiter`, 120 requêtes / minute, namespace `rss_proxy`) : le quota est partagé entre les appareils d'un même compte ; `429` porte `Retry-After`. Les réponses sont `Cache-Control: private` (jamais stockées par un cache partagé). Le plug `BaladosSyncWeb.Plugs.CORS` répond au preflight `OPTIONS` et pose `Access-Control-Allow-Origin: *` sur toutes les réponses `/api/*`, erreurs comprises, pour que le navigateur laisse l'app lire les statuts 401/403/429.
+
+Côté app, balados.app #70 (PR #72) remonte ces statuts à l'utilisateur au lieu de retomber en silence sur les proxies CORS publics.
+
+Les URLs signées HMAC ne sont volontairement **pas** utilisées pour le XML du flux (le `fetch` client peut porter le header) ; elles sont réservées aux images (`TODOS.md`, Phase B). L'audio n'est jamais proxifié.
+
 ## Files Reference
 
 ### Key Files
@@ -749,13 +759,4 @@ echo "JWT_TOKEN" | cut -d'.' -f2 | base64 -d | jq
 - [docs/api/authentication.livemd](../api/authentication.livemd) : Documentation API détaillée
 - [TESTING_GUIDE.md](../../TESTING_GUIDE.md) : Guide de tests du système d'auth
 
-**Dernière mise à jour** : 2025-11-24
-
-## RSS proxy
-
-`GET /api/v1/rss/proxy/:feed` and `/:feed/:episode` (`RssProxyController`) are **not public**: they require a JWT whose scopes grant `user.sync` or `user.subscriptions.read` (the parent scope `user` grants both). A valid token without a covering scope gets `403`, no token gets `401`. Without this the endpoint would be an open proxy.
-
-Requests are rate limited **per user** (`RateLimiter`, 120 requests / minute, namespace `rss_proxy`), so the quota is shared across a user's devices; `429` carries `Retry-After`. The app side (`balados.app` `proxyManager.ts`) never falls back to public CORS proxies on `401`/`403`/`429`.
-
-HMAC-signed capability URLs are deliberately **not** used for the feed XML (the client `fetch` can carry the header); they are only planned for images (`TODOS.md`, Phase B). Audio enclosures are never proxied.
-
+**Dernière mise à jour** : 2026-11-05

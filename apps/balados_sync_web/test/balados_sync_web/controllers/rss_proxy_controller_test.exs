@@ -11,7 +11,7 @@ defmodule BaladosSyncWeb.RssProxyControllerTest do
     {:ok, conn: authed, anon_conn: conn, user_id: user_id}
   end
 
-  # Helper to encode feed URLs with padding (required by the controller's url_decode64)
+  # Helper to encode feed URLs (padded form; the unpadded contract form is tested separately)
   defp encode_feed(url), do: Base.url_encode64(url)
 
   # Helper to encode episode IDs
@@ -109,6 +109,65 @@ defmodule BaladosSyncWeb.RssProxyControllerTest do
     end
   end
 
+  describe "GET /api/v1/rss/proxy - blocked URLs and caching" do
+    test "returns 400 when the feed URL is rejected by the SSRF validator", %{conn: conn} do
+      conn = get(conn, "/api/v1/rss/proxy/#{encode_feed("http://127.0.0.1/feed.xml")}")
+      assert json_response(conn, 400)["error"] == "BAD_REQUEST"
+    end
+
+    test "returns 400 on the episode route when the feed URL is rejected", %{conn: conn} do
+      conn =
+        get(
+          conn,
+          "/api/v1/rss/proxy/#{encode_feed("not a url")}/#{encode_episode("g", "https://example.com/e.mp3")}"
+        )
+
+      assert json_response(conn, 400)["error"] == "BAD_REQUEST"
+    end
+
+    test "marks successful responses as privately cacheable", %{conn: conn} do
+      # Authenticated responses must not be stored by shared caches.
+      assert "private, max-age=300" == BaladosSyncWeb.RssProxyController.cache_control()
+    end
+  end
+
+  describe "CORS (the app calls the proxy cross-origin with an Authorization header)" do
+    test "answers the preflight with the allowed headers", %{anon_conn: conn} do
+      conn =
+        conn
+        |> put_req_header("origin", "https://app.example.com")
+        |> put_req_header("access-control-request-method", "GET")
+        |> put_req_header("access-control-request-headers", "authorization")
+        |> options("/api/v1/rss/proxy/#{encode_feed("https://example.com/feed.xml")}")
+
+      assert conn.status == 204
+      assert get_resp_header(conn, "access-control-allow-origin") == ["*"]
+      assert [headers] = get_resp_header(conn, "access-control-allow-headers")
+      assert headers =~ ~r/authorization/i
+      assert [methods] = get_resp_header(conn, "access-control-allow-methods")
+      assert methods =~ "GET"
+    end
+
+    test "exposes the origin header on error responses so the app can read the status", %{
+      anon_conn: conn
+    } do
+      conn =
+        conn
+        |> put_req_header("origin", "https://app.example.com")
+        |> get("/api/v1/rss/proxy/#{encode_feed("https://example.com/feed.xml")}")
+
+      assert conn.status == 401
+      assert get_resp_header(conn, "access-control-allow-origin") == ["*"]
+      assert [exposed] = get_resp_header(conn, "access-control-expose-headers")
+      assert exposed =~ ~r/retry-after/i
+    end
+
+    test "does not touch non-API routes", %{anon_conn: conn} do
+      conn = conn |> put_req_header("origin", "https://app.example.com") |> get("/")
+      assert get_resp_header(conn, "access-control-allow-origin") == []
+    end
+  end
+
   describe "GET /api/v1/rss/proxy/:encoded_feed_id - input validation" do
     test "returns 400 for invalid base64 encoding", %{conn: conn} do
       conn = get(conn, "/api/v1/rss/proxy/!!!not-valid-base64!!!")
@@ -126,6 +185,15 @@ defmodule BaladosSyncWeb.RssProxyControllerTest do
       response = json_response(conn, 502)
       assert response["error"] == "BAD_GATEWAY"
       assert response["message"] == "Failed to fetch RSS feed"
+    end
+
+    test "accepts unpadded base64url ids (the API contract)", %{conn: conn} do
+      unpadded = Base.url_encode64("https://example.com/nonexistent-feed.xml", padding: false)
+      refute String.ends_with?(unpadded, "=")
+
+      conn = get(conn, "/api/v1/rss/proxy/#{unpadded}")
+
+      assert json_response(conn, 502)["error"] == "BAD_GATEWAY"
     end
 
     test "accepts standard base64 encoding (backwards compatibility)", %{conn: conn} do

@@ -18,27 +18,35 @@ defmodule BaladosSyncWeb.RssProxyController do
   alias BaladosSyncWeb.Plugs.{JWTAuth, RateLimiter}
   import BaladosSyncWeb.ErrorHelpers
 
-  plug JWTAuth, scopes_any: ["user.sync", "user.subscriptions.read"]
+  plug(JWTAuth, scopes_any: ["user.sync", "user.subscriptions.read"])
 
-  plug RateLimiter,
+  # 120/min is well above `subs_metadata` (20/min) on purpose: the app only
+  # reaches the proxy for feeds that block CORS and refreshes a whole library
+  # at once; the quota is shared by all devices of the account.
+
+  plug(RateLimiter,
     limit: 120,
     window_ms: 60_000,
     key: :user_id,
     namespace: "rss_proxy"
+  )
+
+  @doc "Cache policy for proxied feeds: the response is per-user (JWT), so never shared caches."
+  def cache_control, do: "private, max-age=300"
 
   def proxy(conn, %{"encoded_feed_id" => encoded_feed_id}) do
     with {:ok, feed_url} <- decode_feed_id(encoded_feed_id),
          {:ok, feed_xml} <- RssCache.fetch_feed(feed_url) do
       conn
       |> put_resp_header("content-type", "application/xml; charset=utf-8")
-      |> put_resp_header("access-control-allow-origin", "*")
-      |> put_resp_header("access-control-allow-methods", "GET, OPTIONS")
-      |> put_resp_header("access-control-allow-headers", "Content-Type")
-      |> put_resp_header("cache-control", "public, max-age=300")
+      |> put_resp_header("cache-control", cache_control())
       |> send_resp(200, feed_xml)
     else
       {:error, :invalid_base64} ->
         bad_request(conn, "Invalid feed ID encoding")
+
+      {:error, :url_blocked} ->
+        bad_request(conn, "Feed URL not allowed")
 
       {:error, :fetch_failed} ->
         bad_gateway(conn, "Failed to fetch RSS feed")
@@ -59,17 +67,14 @@ defmodule BaladosSyncWeb.RssProxyController do
          {:ok, filtered_xml} <- filter_episode(feed_xml, guid, enclosure) do
       conn
       |> put_resp_header("content-type", "application/xml; charset=utf-8")
-      |> put_resp_header("access-control-allow-origin", "*")
-      |> put_resp_header("access-control-allow-methods", "GET, OPTIONS")
-      |> put_resp_header("access-control-allow-headers", "Content-Type")
-      |> put_resp_header("cache-control", "public, max-age=300")
+      |> put_resp_header("cache-control", cache_control())
       |> send_resp(200, filtered_xml)
     else
       {:error, :invalid_base64} ->
         bad_request(conn, "Invalid feed or episode ID encoding")
 
-      {:error, :invalid_format} ->
-        bad_request(conn, "Invalid episode ID format")
+      {:error, :url_blocked} ->
+        bad_request(conn, "Feed URL not allowed")
 
       {:error, :fetch_failed} ->
         bad_gateway(conn, "Failed to fetch RSS feed")
@@ -85,7 +90,7 @@ defmodule BaladosSyncWeb.RssProxyController do
 
   defp decode_feed_id(encoded) do
     # Try URL-safe base64 first, fallback to standard base64
-    case Base.url_decode64(encoded) do
+    case Base.url_decode64(encoded, padding: false) do
       {:ok, decoded} ->
         {:ok, decoded}
 
@@ -101,7 +106,7 @@ defmodule BaladosSyncWeb.RssProxyController do
   defp decode_episode_id(encoded) do
     # Try URL-safe base64 first, fallback to standard base64
     decoded =
-      case Base.url_decode64(encoded) do
+      case Base.url_decode64(encoded, padding: false) do
         {:ok, decoded} ->
           {:ok, decoded}
 
@@ -115,7 +120,6 @@ defmodule BaladosSyncWeb.RssProxyController do
         case String.split(decoded, ",", parts: 2) do
           [guid, enclosure] -> {:ok, {guid, enclosure}}
           [guid] -> {:ok, {guid, nil}}
-          _ -> {:error, :invalid_format}
         end
 
       :error ->

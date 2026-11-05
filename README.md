@@ -361,24 +361,30 @@ GET /api/v1/public/episode/ZXBpc29kZV8xMjM=/popularity
 GET /api/v1/public/timeline?limit=50&offset=0&event_type=play&feed=aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk
 ```
 
-#### 7. RSS Proxy avec cache LRU (pas d'auth)
+#### 7. RSS Proxy avec cache LRU (JWT requis)
 
-Proxy CORS pour accéder aux flux RSS depuis le navigateur avec cache de 5 minutes :
+> ⚠️ **Breaking (#264)** : les appels sans token reçoivent désormais `401`.
+
+Proxy CORS pour accéder aux flux RSS depuis le navigateur avec cache de 5 minutes. Depuis #264 il exige un JWT portant `user.sync` ou `user.subscriptions.read` (`401` sans token, `403` sans scope) et applique un quota de 120 requêtes / minute par utilisateur (`429` + `Retry-After`).
 
 ```bash
 # Récupérer un flux RSS complet
-GET /api/v1/rss/proxy/aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVkLnhtbA==
+GET /api/v1/rss/proxy/aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVkLnhtbA
+Authorization: Bearer <jwt>
 Accept: application/xml
 
 # Filtrer pour un seul épisode (par guid ET enclosure)
-GET /api/v1/rss/proxy/aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVkLnhtbA==/ZXBpc29kZV8xMjMsaHR0cHM6Ly9leGFtcGxlLmNvbS9lcC5tcDM=
+GET /api/v1/rss/proxy/aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVkLnhtbA/ZXBpc29kZV8xMjMsaHR0cHM6Ly9leGFtcGxlLmNvbS9lcC5tcDM
+Authorization: Bearer <jwt>
 Accept: application/xml
 ```
 
 **Headers de réponse :**
-- `Access-Control-Allow-Origin: *`
-- `Cache-Control: public, max-age=300`
+- `Access-Control-Allow-Origin: *` (posé par `BaladosSyncWeb.Plugs.CORS` sur tout `/api/*`, preflight `OPTIONS` inclus)
+- `Cache-Control: private, max-age=300`
 - `Content-Type: application/xml`
+
+**Erreurs :** `400` identifiant invalide ou URL refusée (SSRF), `502` flux injoignable, `404` épisode absent.
 
 **Cache LRU :**
 - 500 entrées max

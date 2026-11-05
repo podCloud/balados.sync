@@ -2208,12 +2208,12 @@ msgstr "Liens générés"
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:25
 #, elixir-autogen, elixir-format
 msgid "admin.rss.info_text"
-msgstr "Cet utilitaire génère des liens proxy RSS en cache. Le cache a un TTL de 5 minutes et valide automatiquement les flux."
+msgstr "Encodez une URL de flux pour obtenir l'identifiant base64url du proxy et inspecter son cache. Depuis #264 le proxy exige un JWT (scope user.sync ou user.subscriptions.read) : le lien ne s'ouvre pas tel quel dans un navigateur ou un lecteur, il faut lui joindre l'en-tête Authorization: Bearer."
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:71
 #, elixir-autogen, elixir-format
 msgid "admin.rss.proxy_link_label"
-msgstr "Lien proxy (flux complet, cache 5 min)"
+msgstr "Lien proxy (flux complet, cache 5 min, JWT requis)"
 
 #: lib/balados_sync_web/controllers/admin_html/rss_utility.html.heex:5
 #, elixir-autogen, elixir-format
