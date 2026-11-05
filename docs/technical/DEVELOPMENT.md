@@ -6,7 +6,7 @@ Ce guide couvre toutes les commandes et workflows pour développer sur Balados S
 
 ### Prérequis
 
-- **Elixir** et **Erlang/OTP** aux versions de `.tool-versions` (`asdf install` à la racine ; minimum Elixir 1.14 / OTP 25)
+- **Elixir** et **Erlang/OTP** aux versions de `.tool-versions` (`asdf install` à la racine ; c'est la seule combinaison vérifiée en CI, `mix.exs` déclare `~> 1.14` sans que les versions plus anciennes soient testées)
 - **PostgreSQL 14+** (la CI utilise 16)
 - **Git**
 
@@ -20,17 +20,12 @@ cd balados.sync
 # Installer les dépendances
 mix deps.get
 
-# Créer les bases de données
-mix ecto.create
-mix event_store.create -a balados_sync_core
+# Créer les bases de données et le schéma de l'Event Store
+# (les commandes `mix ecto.*` sont désactivées dans ce projet)
+mix db.create
 
-# Initialiser l'Event Store
-mix event_store.init -a balados_sync_core
-
-# Migrer les projections
-cd apps/balados_sync_projections
-mix ecto.migrate
-cd ../..
+# Initialiser l'Event Store, le schéma système et migrer les projections
+mix db.init
 
 # Créer un utilisateur (optionnel pour dev)
 # Via l'interface web après avoir démarré le serveur
@@ -112,15 +107,18 @@ push sur `main`, avec Postgres 16 en service et les versions de `.tool-versions`
 Il exécute, dans l'ordre :
 
 ```bash
+export MIX_ENV=test   # positionné globalement dans le workflow, y compris pour deps.get / format / compile
 mix deps.get
 mix format --check-formatted
 mix compile --warnings-as-errors
-MIX_ENV=test mix db.init
-MIX_ENV=test mix test --exclude wallaby
+mix db.create
+mix db.init
+mix test --exclude e2e
 ```
 
-Les tests Wallaby (navigateur) restent locaux : `mix test --only wallaby`.
-Pour reproduire la CI en local, enchaîner les mêmes commandes.
+Les tests navigateur (Wallaby, tag `:e2e`) sont exclus par défaut dans
+`test_helper.exs` et restent locaux : `mix test --include e2e` (ChromeDriver
+requis). Pour reproduire la CI en local, enchaîner les mêmes commandes.
 
 ### Tests Spécifiques par Tag
 

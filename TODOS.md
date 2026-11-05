@@ -140,7 +140,7 @@ Issues créées pour les fonctionnalités futures :
 
 Format: `- [ ] Description - [#N](url) - STATUS`
 
-- [ ] E2E UI testing with Wallaby - [#197](https://github.com/podCloud/balados.sync/issues/197) - PR [#198](https://github.com/podCloud/balados.sync/pull/198) - REVIEW
+(vide)
 
 ---
 
@@ -148,6 +148,8 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] CI: test suite on every PR, Elixir 1.20.1 / OTP 28 pinned - [#273](https://github.com/podCloud/balados.sync/issues/273) - PR #275 (follow-ups #276, #277, #278)
+- [x] E2E UI testing with Wallaby - [#197](https://github.com/podCloud/balados.sync/issues/197) - PR #198
 - [x] Likes system (podcasts & episodes) - [#154](https://github.com/podCloud/balados.sync/issues/154) - PR #255
 - [x] Split User aggregate into bounded contexts - [#148](https://github.com/podCloud/balados.sync/issues/148) - PR #238
 - [x] Extended OPML format with balados namespace - [#195](https://github.com/podCloud/balados.sync/issues/195) - PR #196

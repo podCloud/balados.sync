@@ -371,13 +371,13 @@ defmodule BaladosSyncWeb.RssParser do
   defp parse_tz_offset(tz_str) do
     case String.slice(tz_str, 0..0) do
       "+" ->
-        offset_int = String.to_integer(String.slice(tz_str, 1..-1//-1))
+        offset_int = String.to_integer(String.slice(tz_str, 1..-1//1))
         hours = div(offset_int, 100)
         minutes = rem(offset_int, 100)
         hours * 3600 + minutes * 60
 
       "-" ->
-        offset_int = String.to_integer(String.slice(tz_str, 1..-1//-1))
+        offset_int = String.to_integer(String.slice(tz_str, 1..-1//1))
         hours = div(offset_int, 100)
         minutes = rem(offset_int, 100)
         -(hours * 3600 + minutes * 60)

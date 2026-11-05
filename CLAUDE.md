@@ -146,7 +146,8 @@ mix db.reset --all          # ☢️  DANGER - tout détruit
 
 ```bash
 mix test                    # Tous les tests
-mix test --exclude wallaby  # Sans les tests navigateur (ce que la CI exécute)
+mix test --exclude e2e      # Sans les tests navigateur, déjà exclus par défaut (ce que la CI exécute)
+mix test --include e2e      # Avec les tests navigateur Wallaby (ChromeDriver requis)
 mix test --cover           # Avec couverture
 cd apps/balados_sync_core && mix test  # App spécifique
 ```
@@ -158,16 +159,22 @@ cd apps/balados_sync_core && mix test  # App spécifique
 (`erlef/setup-beam`), cache `deps`/`_build`, puis exactement :
 
 ```bash
+export MIX_ENV=test   # positionné globalement dans le workflow, y compris pour deps.get / format / compile
 mix deps.get
 mix format --check-formatted
 mix compile --warnings-as-errors
-MIX_ENV=test mix db.init
-MIX_ENV=test mix test --exclude wallaby
+mix db.create
+mix db.init
+mix test --exclude e2e
 ```
 
 Versions épinglées dans `.tool-versions` (`asdf install` les reproduit en local).
-Une PR dont le workflow est rouge ne se merge pas ; un échec sans rapport avec
-la PR donne une issue (voir « Ne JAMAIS ignorer des tests en échec »).
+GitHub n'impose pas encore ce check sur `main` (pas de protection de branche,
+décision dans balados.app#80) : c'est le mergeur qui vérifie qu'il est vert sur
+le dernier commit de la PR (`~/.config/podclaude/gh.sh pr checks <n>`). Un
+échec sans rapport avec la PR donne une issue, ou un commentaire sur l'issue
+existante (tests flaky connus : #246, #266, #274 ; certains tests font encore
+des appels HTTP sortants réels, #276).
 
 ---
 
