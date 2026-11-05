@@ -44,6 +44,35 @@ defmodule BaladosSyncWeb.Rfc1123Test do
       assert DateTime.compare(dt, ~U[2025-11-03 10:00:00Z]) == :eq
     end
 
+    test "accepts a full weekday name" do
+      assert {:ok, dt} = Rfc1123.parse("Monday, 03 Nov 2025 10:00:00 +0000")
+      assert DateTime.compare(dt, ~U[2025-11-03 10:00:00Z]) == :eq
+    end
+
+    test "accepts the RFC 822 North American zone names" do
+      for {zone, expected} <- [
+            {"EST", ~U[2025-11-03 15:00:00Z]},
+            {"EDT", ~U[2025-11-03 14:00:00Z]},
+            {"CST", ~U[2025-11-03 16:00:00Z]},
+            {"CDT", ~U[2025-11-03 15:00:00Z]},
+            {"MST", ~U[2025-11-03 17:00:00Z]},
+            {"MDT", ~U[2025-11-03 16:00:00Z]},
+            {"PST", ~U[2025-11-03 18:00:00Z]},
+            {"PDT", ~U[2025-11-03 17:00:00Z]}
+          ] do
+        assert {:ok, dt} = Rfc1123.parse("Mon, 03 Nov 2025 10:00:00 #{zone}")
+        assert DateTime.compare(dt, expected) == :eq, zone
+      end
+    end
+
+    test "rejects signed or malformed numeric fields" do
+      assert :error = Rfc1123.parse("Mon, +3 Nov 2025 10:00:00 +0000")
+      assert :error = Rfc1123.parse("Mon, 03 Nov -2025 10:00:00 +0000")
+      assert :error = Rfc1123.parse("Mon, 03 Nov 2025 10:00:00 +-100")
+      assert :error = Rfc1123.parse("Mon, 03 Nov 2025 10:00:00 +0099")
+      assert :error = Rfc1123.parse("Mon, 03 Nov 2025 10:00:00 CET")
+    end
+
     test "trims surrounding whitespace" do
       assert {:ok, _} = Rfc1123.parse("  Mon, 03 Nov 2025 10:00:00 +0000  ")
     end
