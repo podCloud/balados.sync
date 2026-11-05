@@ -143,7 +143,7 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
-- [x] CI: test suite on every PR, Elixir 1.20.1 / OTP 28 pinned - [#273](https://github.com/podCloud/balados.sync/issues/273) - PR #275 (follow-ups #276, #277, #278)
+- [x] CI: test suite on every PR, Elixir 1.20.1 / OTP 28 pinned - [#273](https://github.com/podCloud/balados.sync/issues/273) - PR #275 (follow-ups #274, #276, #277, #278, #279)
 - [x] E2E UI testing with Wallaby - [#197](https://github.com/podCloud/balados.sync/issues/197) - PR #198
 - [x] RSS proxy hardening: JWT + rate limit + CORS - [#264](https://github.com/podCloud/balados.sync/issues/264) - PR #265
 - [x] Detailed listening history - [#200](https://github.com/podCloud/balados.sync/issues/200) - PR #252

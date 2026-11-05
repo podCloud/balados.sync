@@ -384,8 +384,8 @@ mix system.migrate          # seulement le schéma system
 mix projections.migrate     # seulement les projections
 
 # Reset des projections — ⚠️ aujourd'hui la tâche fait un DROP DATABASE et
-# emporte aussi les schémas system et events tant que les repos partagent une
-# base (#279) ; ne pas l'utiliser sur des données à conserver
+# emporte aussi les schémas system et events tant que #279 n'est pas corrigé ;
+# ne pas l'utiliser sur des données à conserver
 mix db.reset --projections
 
 # Reset complet (☢️ DANGER : détruit events, system et projections)
