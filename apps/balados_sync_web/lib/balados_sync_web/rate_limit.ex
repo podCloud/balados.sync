@@ -8,10 +8,12 @@ defmodule BaladosSyncWeb.RateLimit do
 
   use Hammer, backend: :ets
 
-  @doc "Drops every bucket. Test helper: never call it in production code."
-  @spec reset() :: :ok
-  def reset do
-    :ets.delete_all_objects(__MODULE__)
-    :ok
+  if Mix.env() == :test do
+    @doc "Drops every bucket. Compiled in the test environment only."
+    @spec reset() :: :ok
+    def reset do
+      :ets.delete_all_objects(__MODULE__)
+      :ok
+    end
   end
 end
