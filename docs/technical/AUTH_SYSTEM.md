@@ -750,3 +750,12 @@ echo "JWT_TOKEN" | cut -d'.' -f2 | base64 -d | jq
 - [TESTING_GUIDE.md](../../TESTING_GUIDE.md) : Guide de tests du système d'auth
 
 **Dernière mise à jour** : 2025-11-24
+
+## RSS proxy
+
+`GET /api/v1/rss/proxy/:feed` and `/:feed/:episode` (`RssProxyController`) are **not public**: they require a JWT whose scopes grant `user.sync` or `user.subscriptions.read` (the parent scope `user` grants both). A valid token without a covering scope gets `403`, no token gets `401`. Without this the endpoint would be an open proxy.
+
+Requests are rate limited **per user** (`RateLimiter`, 120 requests / minute, namespace `rss_proxy`), so the quota is shared across a user's devices; `429` carries `Retry-After`. The app side (`balados.app` `proxyManager.ts`) never falls back to public CORS proxies on `401`/`403`/`429`.
+
+HMAC-signed capability URLs are deliberately **not** used for the feed XML (the client `fetch` can carry the header); they are only planned for images (`TODOS.md`, Phase B). Audio enclosures are never proxied.
+

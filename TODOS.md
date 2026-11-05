@@ -88,12 +88,12 @@ Add tasks here. Claude will create GitHub issues for them.
 
 ---
 
-#### Phase A — MAINTENANT : enforcer le JWT sur le proxy du feed (ferme l'open proxy)
+#### Phase A — ✅ FAIT (#264) : enforcer le JWT sur le proxy du feed (ferme l'open proxy)
 
-- [ ] Mettre `GET /api/v1/rss/proxy/:encoded_feed_id` (et `/:encoded_feed_id/:encoded_episode_id`) derrière l'auth JWT (scope `user.sync` ou équivalent), au lieu du pipeline `:rss_api` non authentifié.
-- [ ] Ajouter un **rate limit par user** (réutiliser l'infra de #123 — rate limiting all API endpoints).
-- [ ] Conserver tel quel : décodage base64url, validation SSRF (`UrlValidator`), cache Cachex 5 min.
-- [ ] **Acceptance** : requête sans JWT → 401 ; avec JWT valide → feed proxifié ; dépassement quota → 429.
+- [x] Mettre `GET /api/v1/rss/proxy/:encoded_feed_id` (et `/:encoded_feed_id/:encoded_episode_id`) derrière l'auth JWT (scope `user.sync` ou équivalent), au lieu du pipeline `:rss_api` non authentifié.
+- [x] Ajouter un **rate limit par user** (réutiliser l'infra de #123 — rate limiting all API endpoints). Retenu : 120 req/min/user, namespace `rss_proxy` (quota partagé entre appareils).
+- [x] Conserver tel quel : décodage base64url, validation SSRF (`UrlValidator`), cache Cachex 5 min.
+- [x] **Acceptance** : requête sans JWT → 401 ; avec JWT valide → feed proxifié ; dépassement quota → 429.
 
 *Note front associée : l'app envoie déjà le JWT sur ce proxy ; côté serveur c'est purement de l'enforcement. Voir aussi la gestion du 401 côté app (ROADMAP balados.app).*
 

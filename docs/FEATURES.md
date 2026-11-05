@@ -301,6 +301,16 @@ Authentifié + abonné :
 
 ---
 
+### RSS Proxy CORS (v2.9, #264)
+
+Proxy `GET /api/v1/rss/proxy/:feed` (et `/:feed/:episode`) utilisé par balados.app quand un flux n'autorise pas les requêtes cross-origin.
+
+- **Authentifié** : JWT avec scope `user.sync` ou `user.subscriptions.read` (`401` sans token, `403` sans scope). Avant #264 l'endpoint était public et ignorait le JWT (open proxy).
+- **Rate limit par utilisateur** : 120 requêtes / minute, namespace `rss_proxy`, quota partagé entre les appareils d'un même compte, `429` + `Retry-After` au-delà.
+- Inchangé : décodage base64url (repli base64 standard), validation SSRF (`UrlValidator`), cache Cachex 5 min, `cache-control: public, max-age=300`.
+- Erreurs normalisées sur la route épisode : `400` id invalide, `502` flux injoignable, `404` épisode absent.
+- Hors périmètre, volontairement : l'audio n'est jamais proxifié ; le proxy d'images HMAC est la Phase B de `TODOS.md`.
+
 ## 🎙️ Découverte Publique
 
 ### Trending & Public Pages

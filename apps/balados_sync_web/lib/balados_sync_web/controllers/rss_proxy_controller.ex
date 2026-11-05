@@ -1,9 +1,30 @@
 defmodule BaladosSyncWeb.RssProxyController do
+  @moduledoc """
+  CORS proxy for RSS feeds, used by balados.app when a feed does not allow
+  cross-origin requests.
+
+  The proxy requires a JWT with a scope that already grants access to the
+  user's subscriptions (`user.sync` or `user.subscriptions.read`): without it
+  the endpoint would be an open proxy. Requests are rate limited per user
+  (quota shared across the user's devices) so a leaked token cannot turn the
+  server into a free fetcher.
+
+  Audio enclosures are never proxied; only the feed XML is.
+  """
   use BaladosSyncWeb, :controller
   require Logger
 
   alias BaladosSyncCore.RssCache
+  alias BaladosSyncWeb.Plugs.{JWTAuth, RateLimiter}
   import BaladosSyncWeb.ErrorHelpers
+
+  plug JWTAuth, scopes_any: ["user.sync", "user.subscriptions.read"]
+
+  plug RateLimiter,
+    limit: 120,
+    window_ms: 60_000,
+    key: :user_id,
+    namespace: "rss_proxy"
 
   def proxy(conn, %{"encoded_feed_id" => encoded_feed_id}) do
     with {:ok, feed_url} <- decode_feed_id(encoded_feed_id),
@@ -44,6 +65,15 @@ defmodule BaladosSyncWeb.RssProxyController do
       |> put_resp_header("cache-control", "public, max-age=300")
       |> send_resp(200, filtered_xml)
     else
+      {:error, :invalid_base64} ->
+        bad_request(conn, "Invalid feed or episode ID encoding")
+
+      {:error, :invalid_format} ->
+        bad_request(conn, "Invalid episode ID format")
+
+      {:error, :fetch_failed} ->
+        bad_gateway(conn, "Failed to fetch RSS feed")
+
       {:error, :episode_not_found} ->
         not_found(conn, "Episode not found in feed")
 
