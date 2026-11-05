@@ -71,7 +71,7 @@ defmodule BaladosSyncWeb.RssProxyControllerTest do
     # not depend on what ran before it.
     @quota_path "/api/v1/rss/proxy/!!!not-base64!!!"
 
-    setup %{user_id: user_id} do
+    setup do
       BaladosSyncWeb.RateLimit.reset()
       :ok
     end
