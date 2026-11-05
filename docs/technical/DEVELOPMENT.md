@@ -6,7 +6,7 @@ Ce guide couvre toutes les commandes et workflows pour développer sur Balados S
 
 ### Prérequis
 
-- **Elixir** et **Erlang/OTP** aux versions de `.tool-versions` (`asdf install` à la racine ; c'est la seule combinaison vérifiée en CI, `mix.exs` déclare `~> 1.16`, minimum imposé par joken 2.7 et swoosh 1.29, sans que les versions plus anciennes soient testées)
+- **Elixir** et **Erlang/OTP** aux versions de `.tool-versions` (`asdf install` à la racine ; c'est la seule combinaison vérifiée en CI, `mix.exs` déclare `~> 1.16`, minimum imposé par joken 2.7 et swoosh 1.29 ; la suite de tests exige 1.17 via wallaby 0.31, sans que les versions plus anciennes soient testées)
 - **PostgreSQL 14+** (la CI utilise 16)
 - **Git**
 

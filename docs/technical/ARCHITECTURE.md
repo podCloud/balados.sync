@@ -621,7 +621,7 @@ Données de **configuration** ou **administratives** ne nécessitant pas d'histo
 ## Technologies
 
 ### Core Stack
-- **Elixir 1.14+** : Langage principal
+- **Elixir 1.16+** (1.17+ pour la suite de tests, wallaby 0.31) : Langage principal
 - **Phoenix 1.7+** : Framework web
 - **Commanded** : CQRS/ES framework
 - **EventStore** : Event persistence (PostgreSQL)
