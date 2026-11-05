@@ -125,9 +125,28 @@ defmodule BaladosSyncWeb.RssProxyControllerTest do
       assert json_response(conn, 400)["error"] == "BAD_REQUEST"
     end
 
-    test "marks successful responses as privately cacheable", %{conn: conn} do
-      # Authenticated responses must not be stored by shared caches.
-      assert "private, max-age=300" == BaladosSyncWeb.RssProxyController.cache_control()
+    test "serves a cached feed with private cache-control and CORS on both routes", %{conn: conn} do
+      # Seed the cache so no network call happens; the cache is checked first.
+      feed_url = "https://cached.example.com/feed.xml"
+
+      xml =
+        ~s(<rss><channel><item><guid>g1</guid><enclosure url="https://cached.example.com/e.mp3"/></item></channel></rss>)
+
+      BaladosSyncCore.RssCache.put({:feed, feed_url}, xml)
+
+      conn_feed = get(conn, "/api/v1/rss/proxy/#{encode_feed(feed_url)}")
+      assert response(conn_feed, 200) == xml
+      assert get_resp_header(conn_feed, "cache-control") == ["private, max-age=300"]
+      assert get_resp_header(conn_feed, "access-control-allow-origin") == ["*"]
+
+      conn_ep =
+        get(
+          conn,
+          "/api/v1/rss/proxy/#{encode_feed(feed_url)}/#{encode_episode("g1", "https://cached.example.com/e.mp3")}"
+        )
+
+      assert response(conn_ep, 200) == xml
+      assert get_resp_header(conn_ep, "cache-control") == ["private, max-age=300"]
     end
   end
 
@@ -188,12 +207,16 @@ defmodule BaladosSyncWeb.RssProxyControllerTest do
     end
 
     test "accepts unpadded base64url ids (the API contract)", %{conn: conn} do
-      unpadded = Base.url_encode64("https://example.com/nonexistent-feed.xml", padding: false)
+      # A URL whose encoding contains url-safe characters, so the standard
+      # base64 fallback cannot rescue it; the loopback host is rejected by the
+      # SSRF validator before any network call.
+      unpadded = Base.url_encode64("http://127.0.0.1/feed.xml?b=~~~", padding: false)
       refute String.ends_with?(unpadded, "=")
+      assert unpadded =~ ~r/[-_]/
 
       conn = get(conn, "/api/v1/rss/proxy/#{unpadded}")
 
-      assert json_response(conn, 502)["error"] == "BAD_GATEWAY"
+      assert json_response(conn, 400)["message"] == "Feed URL not allowed"
     end
 
     test "accepts standard base64 encoding (backwards compatibility)", %{conn: conn} do
@@ -202,7 +225,7 @@ defmodule BaladosSyncWeb.RssProxyControllerTest do
       conn = get(conn, "/api/v1/rss/proxy/#{URI.encode(encoded)}")
 
       # Should decode OK but fail on fetch, not on decoding
-      assert conn.status in [500, 502]
+      assert json_response(conn, 502)["error"] == "BAD_GATEWAY"
     end
   end
 
@@ -219,7 +242,7 @@ defmodule BaladosSyncWeb.RssProxyControllerTest do
       conn = get(conn, "/api/v1/rss/proxy/#{feed_encoded}/!!!invalid!!!")
 
       # Feed decoding succeeds but either episode decoding or fetch fails
-      assert conn.status >= 400
+      assert json_response(conn, 400)["error"] == "BAD_REQUEST"
     end
 
     test "returns error when feed URL is unreachable", %{conn: conn} do
