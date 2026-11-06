@@ -130,6 +130,31 @@ defmodule BaladosSyncCore.SafeHttpTest do
     refute_received :hit
   end
 
+  test "a Finch pool checkout failure is returned as a network error, not raised" do
+    stub(fn _conn ->
+      raise RuntimeError, "Finch was unable to provide a connection within the timeout"
+    end)
+
+    assert {:error, {:network_error, %RuntimeError{}}} = get("https://feeds.example.org/feed")
+  end
+
+  test "passes the body through untouched and identifies Balados" do
+    gz = :zlib.gzip("<rss/>")
+
+    stub(fn conn ->
+      assert Plug.Conn.get_req_header(conn, "accept-encoding") == []
+      assert [ua] = Plug.Conn.get_req_header(conn, "user-agent")
+      assert ua =~ ~r/^Balados\//
+
+      conn
+      |> Plug.Conn.put_resp_header("content-encoding", "gzip")
+      |> Plug.Conn.put_resp_header("content-type", "application/json")
+      |> Plug.Conn.send_resp(200, gz)
+    end)
+
+    assert {:ok, ^gz} = get("https://feeds.example.org/feed")
+  end
+
   test "sends the given headers" do
     stub(fn conn ->
       assert Plug.Conn.get_req_header(conn, "cache-control") == ["no-cache"]

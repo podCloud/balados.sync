@@ -144,6 +144,9 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 Format: `- [x] Description - [#N](url)`
 
 - [x] httpoison replaced by Req (`BaladosSyncCore.SafeHttp`), every redirect re-validated against SSRF - [#292](https://github.com/podCloud/balados.sync/issues/292)
+- [x] gettext 1.0 upgrade - [#284](https://github.com/podCloud/balados.sync/issues/284) - PR #296
+- [x] timex removed (native RFC 1123, Quantum jobs on :utc) - [#285](https://github.com/podCloud/balados.sync/issues/285) - PR #287 (follow-ups #290, #295)
+- [x] Hammer 7 (exact Retry-After, limiter before the endpoint) - [#286](https://github.com/podCloud/balados.sync/issues/286) - PR #289 (closes flaky #266)
 - [x] Cachex 4 upgrade (expire:, scheduled 500-entry bound) - [#288](https://github.com/podCloud/balados.sync/issues/288) - PR #291
 - [x] Minor dependency updates within current constraints - [#281](https://github.com/podCloud/balados.sync/issues/281) - PR #283 (e2e failures pre-existing: #282)
 - [x] CI: test suite on every PR, Elixir 1.20.1 / OTP 28 pinned - [#273](https://github.com/podCloud/balados.sync/issues/273) - PR #275 (follow-ups #274, #276, #277, #278, #279)

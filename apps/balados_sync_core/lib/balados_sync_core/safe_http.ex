@@ -56,6 +56,7 @@ defmodule BaladosSyncCore.SafeHttp do
     [
       url: url,
       headers: Keyword.get(opts, :headers, []),
+      user_agent: user_agent(),
       redirect: false,
       retry: false,
       decode_body: false,
@@ -64,6 +65,15 @@ defmodule BaladosSyncCore.SafeHttp do
     ]
     |> Keyword.merge(Keyword.get(opts, :req_options, []))
     |> Req.get()
+  rescue
+    # Finch raises (instead of returning) when no pooled connection frees up
+    # within its pool timeout; hackney used to return {:error, :checkout_timeout}.
+    # Keep the tuple contract so callers degrade to :fetch_failed, not a 500.
+    e in RuntimeError -> {:error, e}
+  end
+
+  defp user_agent do
+    "Balados/#{Application.spec(:balados_sync_core, :vsn) || "dev"} (+https://github.com/podCloud/balados.sync)"
   end
 
   defp handle_response({:ok, %Req.Response{status: 200, body: body}}, _url, _opts, _hops),
