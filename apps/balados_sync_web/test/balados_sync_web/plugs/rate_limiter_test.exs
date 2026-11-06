@@ -58,7 +58,7 @@ defmodule BaladosSyncWeb.Plugs.RateLimiterTest do
     end
 
     test "Retry-After is bounded by the window" do
-      opts = RateLimiter.init(limit: 1, window_ms: 2_000, key: :ip, namespace: "test_shrink")
+      opts = RateLimiter.init(limit: 1, window_ms: 2_000, key: :ip, namespace: "test_bounded")
       BaladosSyncWeb.RateLimit.reset()
       conn = build_conn(:get, "/test") |> Map.put(:remote_ip, {127, 0, 0, 1})
       refute RateLimiter.call(conn, opts).halted

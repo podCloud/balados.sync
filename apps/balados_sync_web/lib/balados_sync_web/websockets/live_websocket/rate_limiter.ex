@@ -17,7 +17,7 @@ defmodule BaladosSyncWeb.LiveWebSocket.RateLimiter do
      - Scope: Per WebSocket connection
      - Error code: `CONNECTION_RATE_LIMITED`
 
-  2. **Command-level (Hammer (`BaladosSyncWeb.RateLimit`) in MessageHandler)**: Per-user rate limit for `record_play`
+  2. **Command-level** (`BaladosSyncWeb.RateLimit`, Hammer 7, in MessageHandler): Per-user rate limit for `record_play`
      - Purpose: Business logic, prevent excessive play events
      - Scope: Per user ID (across all their connections)
      - Error code: `PLAY_RATE_LIMITED`
