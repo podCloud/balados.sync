@@ -96,26 +96,29 @@ config :balados_sync_core, BaladosSyncCore.EventStore,
 config :hammer,
   backend: {Hammer.Backend.ETS, [expiry_ms: 60_000, cleanup_interval_ms: 5_000]}
 
-# Configure Quantum scheduler for background jobs
+# Configure Quantum scheduler for background jobs.
+# `timezone: :utc` is Quantum's built-in UTC: a string zone such as "UTC"
+# needs a time zone database (tzdata), which the app no longer ships; Quantum
+# would log "Invalid Timezone" and drop the job from the schedule.
 config :balados_sync_jobs, BaladosSyncJobs.Scheduler,
   jobs: [
     # Run snapshot worker every 5 minutes
     snapshot_worker: [
       schedule: "*/5 * * * *",
       task: {BaladosSyncJobs.SnapshotWorker, :perform, []},
-      timezone: "UTC"
+      timezone: :utc
     ],
     # Run play token cleanup daily at 2 AM UTC
     play_token_cleanup: [
       schedule: "0 2 * * *",
       task: {BaladosSyncJobs.PlayTokenCleanupWorker, :perform, []},
-      timezone: "UTC"
+      timezone: :utc
     ],
     # Run ownership claim cleanup daily at 3 AM UTC
     ownership_claim_cleanup: [
       schedule: "0 3 * * *",
       task: {BaladosSyncJobs.OwnershipClaimCleanupWorker, :perform, []},
-      timezone: "UTC"
+      timezone: :utc
     ]
   ]
 
