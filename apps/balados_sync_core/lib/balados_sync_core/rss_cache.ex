@@ -1,6 +1,6 @@
 defmodule BaladosSyncCore.RssCache do
   @moduledoc """
-  Module de cache LRU pour les flux RSS avec TTL de 5 minutes
+  Module de cache borné (500 entrées, éviction LRW) pour les flux RSS avec TTL de 5 minutes
   """
   require Logger
   alias BaladosSyncCore.RssParser
@@ -49,7 +49,7 @@ defmodule BaladosSyncCore.RssCache do
   Met en cache avec TTL
   """
   def put(key, value) do
-    Cachex.put(@cache_name, key, value, ttl: @cache_ttl)
+    Cachex.put(@cache_name, key, value, expire: @cache_ttl)
   end
 
   @doc """
