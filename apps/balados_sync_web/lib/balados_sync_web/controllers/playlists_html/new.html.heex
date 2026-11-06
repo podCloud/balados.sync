@@ -3,16 +3,16 @@
     <!-- Header -->
     <div class="mb-8">
       <.link navigate={~p"/playlists"} class="text-blue-600 hover:underline text-sm">
-        &larr; <%= gettext("playlists.back") %>
+        &larr; {gettext("playlists.back")}
       </.link>
-      <h1 class="text-3xl font-bold text-zinc-900 mt-4"><%= gettext("playlists.new_title") %></h1>
+      <h1 class="text-3xl font-bold text-zinc-900 mt-4">{gettext("playlists.new_title")}</h1>
     </div>
     <!-- Form -->
     <div class="bg-white shadow rounded-lg p-6">
       <.form for={%{}} action={~p"/playlists"} method="post" class="space-y-6">
         <div>
           <label for="playlist_name" class="block text-sm font-medium text-zinc-700">
-            <%= gettext("playlists.name_label") %>
+            {gettext("playlists.name_label")}
           </label>
           <input
             type="text"
@@ -26,7 +26,7 @@
 
         <div>
           <label for="playlist_description" class="block text-sm font-medium text-zinc-700">
-            <%= gettext("playlists.description_label") %>
+            {gettext("playlists.description_label")}
           </label>
           <textarea
             name="playlist[description]"
@@ -42,13 +42,13 @@
             navigate={~p"/playlists"}
             class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-zinc-700 border border-zinc-300 hover:bg-zinc-50 transition"
           >
-            <%= gettext("common.cancel") %>
+            {gettext("common.cancel")}
           </.link>
           <button
             type="submit"
             class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
           >
-            <%= gettext("playlists.create") %>
+            {gettext("playlists.create")}
           </button>
         </div>
       </.form>

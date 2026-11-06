@@ -45,11 +45,11 @@
           BaladosSyncWeb.Helpers.LayoutHelpers.nav_aria_current(current_path, "/trending")
         }
       >
-        <%= gettext("nav.discover") %>
+        {gettext("nav.discover")}
       </.link>
       <%= if @current_user do %>
         <span class="text-zinc-600">
-          <%= @current_user.email %>
+          {@current_user.email}
         </span>
         <.link
           navigate={~p"/dashboard"}
@@ -58,7 +58,7 @@
             BaladosSyncWeb.Helpers.LayoutHelpers.nav_aria_current(current_path, "/dashboard")
           }
         >
-          <%= gettext("nav.dashboard") %>
+          {gettext("nav.dashboard")}
         </.link>
         <.link
           navigate={~p"/subscriptions"}
@@ -69,7 +69,7 @@
             BaladosSyncWeb.Helpers.LayoutHelpers.nav_aria_current(current_path, "/subscriptions")
           }
         >
-          <%= gettext("nav.subscriptions") %>
+          {gettext("nav.subscriptions")}
         </.link>
         <.link
           navigate={~p"/listening-history"}
@@ -86,7 +86,7 @@
             )
           }
         >
-          <%= gettext("nav.listening_history") %>
+          {gettext("nav.listening_history")}
         </.link>
         <.link
           navigate={~p"/privacy-manager"}
@@ -100,7 +100,7 @@
             )
           }
         >
-          <%= gettext("nav.privacy") %>
+          {gettext("nav.privacy")}
         </.link>
         <%= if BaladosSyncWeb.Accounts.admin?(@current_user) do %>
           <.link
@@ -110,7 +110,7 @@
               BaladosSyncWeb.Helpers.LayoutHelpers.nav_aria_current(current_path, "/admin")
             }
           >
-            <%= gettext("nav.admin") %>
+            {gettext("nav.admin")}
           </.link>
         <% end %>
         <.link
@@ -118,17 +118,17 @@
           method="delete"
           class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
         >
-          <%= gettext("nav.log_out") %>
+          {gettext("nav.log_out")}
         </.link>
       <% else %>
         <.link navigate={~p"/users/register"} class="hover:text-zinc-700">
-          <%= gettext("nav.register") %>
+          {gettext("nav.register")}
         </.link>
         <.link
           navigate={~p"/users/log_in"}
           class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
         >
-          <%= gettext("nav.log_in") %> <span aria-hidden="true">&rarr;</span>
+          {gettext("nav.log_in")} <span aria-hidden="true">&rarr;</span>
         </.link>
       <% end %>
     </div>
@@ -137,6 +137,6 @@
 <main class="px-4 py-20 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-2xl">
     <.flash_group flash={@flash} />
-    <%= @inner_content %>
+    {@inner_content}
   </div>
 </main>

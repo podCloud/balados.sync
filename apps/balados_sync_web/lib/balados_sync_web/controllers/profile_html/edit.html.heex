@@ -1,14 +1,14 @@
 <div class="mx-auto max-w-sm">
   <.header class="text-center">
-    <%= gettext("profile.settings_title") %>
+    {gettext("profile.settings_title")}
     <:subtitle>
-      <%= gettext("profile.settings_subtitle") %>
+      {gettext("profile.settings_subtitle")}
     </:subtitle>
   </.header>
 
   <.simple_form :let={f} for={@changeset} action={~p"/settings/profile"}>
     <.error :if={@changeset.action}>
-      <%= gettext("common.form_error") %>
+      {gettext("common.form_error")}
     </.error>
 
     <.input
@@ -18,7 +18,7 @@
       placeholder={@user.username}
     />
     <div class="text-sm text-zinc-500 -mt-4 mb-2">
-      <%= gettext("profile.display_name_hint") %>
+      {gettext("profile.display_name_hint")}
     </div>
 
     <.input
@@ -28,7 +28,7 @@
       placeholder={gettext("profile.bio_placeholder")}
     />
     <div class="text-sm text-zinc-500 -mt-4 mb-2">
-      <%= gettext("profile.bio_hint") %>
+      {gettext("profile.bio_hint")}
     </div>
 
     <.input
@@ -37,22 +37,22 @@
       label={gettext("profile.enable_public")}
     />
     <div class="text-sm text-zinc-500 -mt-2 mb-4">
-      <%= gettext("profile.public_hint") %>
+      {gettext("profile.public_hint")}
       <.link navigate={~p"/u/#{@user.username}"} class="font-mono text-brand hover:underline">
-        /u/<%= @user.username %>
+        /u/{@user.username}
       </.link>
     </div>
 
     <:actions>
       <.button phx-disable-with={gettext("common.saving")} class="w-full">
-        <%= gettext("profile.save") %>
+        {gettext("profile.save")}
       </.button>
     </:actions>
   </.simple_form>
 
   <div class="mt-8 pt-8 border-t border-zinc-200">
     <.link navigate={~p"/dashboard"} class="text-sm text-zinc-600 hover:text-zinc-900">
-      ← <%= gettext("common.back_to_dashboard") %>
+      ← {gettext("common.back_to_dashboard")}
     </.link>
   </div>
 </div>

@@ -3,16 +3,16 @@
     <!-- Header -->
     <div class="mb-8">
       <.link navigate={~p"/playlists"} class="text-blue-600 hover:underline text-sm">
-        &larr; <%= gettext("playlists.back") %>
+        &larr; {gettext("playlists.back")}
       </.link>
       <div class="mt-4 flex items-start justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-zinc-900"><%= @playlist.name %></h1>
+          <h1 class="text-3xl font-bold text-zinc-900">{@playlist.name}</h1>
           <%= if @playlist.description do %>
-            <p class="text-zinc-600 mt-2"><%= @playlist.description %></p>
+            <p class="text-zinc-600 mt-2">{@playlist.description}</p>
           <% end %>
           <p class="text-sm text-zinc-500 mt-2">
-            <%= item_count(@playlist) %> episode<%= if item_count(@playlist) != 1, do: "s" %>
+            {item_count(@playlist)} episode{if item_count(@playlist) != 1, do: "s"}
           </p>
         </div>
         <div class="flex gap-2">
@@ -41,7 +41,7 @@
                   d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <%= gettext("common.public") %>
+              {gettext("common.public")}
             <% else %>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -51,14 +51,14 @@
                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                 />
               </svg>
-              <%= gettext("common.private") %>
+              {gettext("common.private")}
             <% end %>
           </.link>
           <.link
             navigate={~p"/playlists/#{@playlist.id}/edit"}
             class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-zinc-700 border border-zinc-300 hover:bg-zinc-50 transition"
           >
-            <%= gettext("common.edit") %>
+            {gettext("common.edit")}
           </.link>
           <.link
             href={~p"/playlists/#{@playlist.id}"}
@@ -66,7 +66,7 @@
             data-confirm={gettext("playlists.delete_confirm")}
             class="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700 transition"
           >
-            <%= gettext("common.delete") %>
+            {gettext("common.delete")}
           </.link>
         </div>
       </div>
@@ -88,9 +88,9 @@
               d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
             />
           </svg>
-          <p class="mt-4"><%= gettext("playlists.show_empty") %></p>
+          <p class="mt-4">{gettext("playlists.show_empty")}</p>
           <p class="text-sm text-zinc-400 mt-2">
-            <%= gettext("playlists.show_empty_hint") %>
+            {gettext("playlists.show_empty_hint")}
           </p>
         </div>
       <% else %>
@@ -124,10 +124,10 @@
                 <div class="flex items-start justify-between gap-2">
                   <div class="min-w-0 flex-1">
                     <h3 class="font-semibold text-zinc-900 line-clamp-2">
-                      <%= item.item_title || gettext("playlists.unknown_episode") %>
+                      {item.item_title || gettext("playlists.unknown_episode")}
                     </h3>
                     <p class="text-sm text-zinc-600 mt-0.5">
-                      <%= item.feed_title || gettext("playlists.unknown_podcast") %>
+                      {item.feed_title || gettext("playlists.unknown_podcast")}
                     </p>
                   </div>
                   <!-- Drag Handle -->
@@ -154,7 +154,7 @@
                           d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                         />
                       </svg>
-                      <%= BaladosSyncWeb.PlaylistEnricher.format_pub_date(item.pub_date) %>
+                      {BaladosSyncWeb.PlaylistEnricher.format_pub_date(item.pub_date)}
                     </span>
                   <% end %>
                   <%= if item.duration do %>
@@ -172,7 +172,7 @@
                           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <%= BaladosSyncWeb.PlaylistEnricher.format_duration(item.duration) %>
+                      {BaladosSyncWeb.PlaylistEnricher.format_duration(item.duration)}
                     </span>
                   <% end %>
                   <%= if not item.enriched do %>
@@ -193,15 +193,15 @@
                           d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                         />
                       </svg>
-                      <%= gettext("playlists.cached") %>
+                      {gettext("playlists.cached")}
                     </span>
                   <% end %>
                 </div>
                 <!-- Description (truncated) -->
                 <%= if item.description && item.description != "" do %>
                   <p class="text-sm text-zinc-600 mt-2 line-clamp-2">
-                    <%= BaladosSyncWeb.PlaylistEnricher.strip_html_tags(item.description)
-                    |> String.slice(0, 200) %>
+                    {BaladosSyncWeb.PlaylistEnricher.strip_html_tags(item.description)
+                    |> String.slice(0, 200)}
                   </p>
                 <% end %>
                 <!-- Actions -->
@@ -216,7 +216,7 @@
                       <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z" />
                       </svg>
-                      <%= gettext("common.play") %>
+                      {gettext("common.play")}
                     </a>
                   <% end %>
                   <%= if item.link do %>
@@ -226,7 +226,7 @@
                       rel="noopener"
                       class="text-sm text-zinc-600 hover:text-zinc-800"
                     >
-                      <%= gettext("playlists.view_episode") %>
+                      {gettext("playlists.view_episode")}
                     </a>
                   <% end %>
                 </div>

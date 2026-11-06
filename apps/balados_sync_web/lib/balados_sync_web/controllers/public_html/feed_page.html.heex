@@ -14,7 +14,7 @@
       navigate={~p"/trending/podcasts"}
       class="text-sm font-semibold text-blue-600 hover:text-blue-700 mb-6 inline-block"
     >
-      <%= gettext("common.back_to_trending") %>
+      {gettext("common.back_to_trending")}
     </.link>
     <!-- Feed Header -->
     <div
@@ -34,15 +34,15 @@
           />
         <% else %>
           <div class="w-48 h-48 rounded-lg bg-zinc-200 flex items-center justify-center">
-            <span class="text-zinc-400"><%= gettext("common.no_cover") %></span>
+            <span class="text-zinc-400">{gettext("common.no_cover")}</span>
           </div>
         <% end %>
       </div>
 
       <div class="flex-1">
-        <h1 class="text-3xl font-bold text-zinc-900"><%= @metadata.title %></h1>
-        <p class="text-zinc-600 mt-1"><%= gettext("feed_page.by") %> <%= @metadata.author %></p>
-        <p class="text-sm text-zinc-700 mt-4"><%= @metadata.description %></p>
+        <h1 class="text-3xl font-bold text-zinc-900">{@metadata.title}</h1>
+        <p class="text-zinc-600 mt-1">{gettext("feed_page.by")} {@metadata.author}</p>
+        <p class="text-sm text-zinc-700 mt-4">{@metadata.description}</p>
         <!-- Enriched Links Section -->
         <%= if @enrichment && @enrichment.links && length(@enrichment.links) > 0 do %>
           <div class="mt-4 flex flex-wrap gap-2">
@@ -89,8 +89,8 @@
                     </svg>
                 <% end %>
                 <span>
-                  <%= link["title"] ||
-                    String.replace(link["type"], "_", " ") |> String.capitalize() %>
+                  {link["title"] ||
+                    String.replace(link["type"], "_", " ") |> String.capitalize()}
                 </span>
               </a>
             <% end %>
@@ -104,14 +104,14 @@
                 navigate={~p"/admin/enriched-podcasts/#{@enrichment.id}/edit"}
                 class="text-xs text-zinc-500 hover:text-zinc-700"
               >
-                <%= gettext("feed_page.edit_enrichment") %>
+                {gettext("feed_page.edit_enrichment")}
               </.link>
             <% else %>
               <.link
                 navigate={~p"/admin/enriched-podcasts/new?feed_url=#{@feed_url}"}
                 class="text-xs text-zinc-500 hover:text-zinc-700"
               >
-                <%= gettext("feed_page.create_enrichment") %>
+                {gettext("feed_page.create_enrichment")}
               </.link>
             <% end %>
           </div>
@@ -133,16 +133,16 @@
           >
             <!-- Icon -->
             <span>
-              <%= case @current_privacy do
+              {case @current_privacy do
                 "public" -> "🌍"
                 "anonymous" -> "👤"
                 "private" -> "🔒"
                 _ -> "?"
-              end %>
+              end}
             </span>
             <!-- Text -->
             <span class="font-medium">
-              <%= gettext("feed_page.activities_are") %> <strong><%= @current_privacy %></strong>
+              {gettext("feed_page.activities_are")} <strong>{@current_privacy}</strong>
             </span>
             <!-- Edit button -->
             <button
@@ -151,7 +151,7 @@
               class="ml-2 text-sm opacity-75 hover:opacity-100 cursor-pointer transition"
               aria-label="Change privacy level"
             >
-              <%= gettext("feed_page.change_privacy") %>
+              {gettext("feed_page.change_privacy")}
             </button>
           </div>
         <% end %>
@@ -159,20 +159,20 @@
         <%= if @popularity do %>
           <div class="mt-6 p-4 bg-zinc-50 rounded-lg">
             <h3 class="font-semibold text-zinc-900 mb-2">
-              <%= gettext("common.popularity_stats") %>
+              {gettext("common.popularity_stats")}
             </h3>
             <div class="grid grid-cols-3 gap-4 text-sm">
               <div>
-                <div class="text-zinc-600"><%= gettext("trending.score") %></div>
-                <div class="font-semibold text-lg"><%= @popularity.score %></div>
+                <div class="text-zinc-600">{gettext("trending.score")}</div>
+                <div class="font-semibold text-lg">{@popularity.score}</div>
               </div>
               <div>
-                <div class="text-zinc-600"><%= gettext("trending.plays") %></div>
-                <div class="font-semibold text-lg"><%= @popularity.plays %></div>
+                <div class="text-zinc-600">{gettext("trending.plays")}</div>
+                <div class="font-semibold text-lg">{@popularity.plays}</div>
               </div>
               <div>
-                <div class="text-zinc-600"><%= gettext("trending.likes") %></div>
-                <div class="font-semibold text-lg"><%= @popularity.likes %></div>
+                <div class="text-zinc-600">{gettext("trending.likes")}</div>
+                <div class="font-semibold text-lg">{@popularity.likes}</div>
               </div>
             </div>
           </div>
@@ -188,13 +188,13 @@
                 data-confirm={gettext("feed_page.unsubscribe_confirm")}
                 class="inline-block rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
               >
-                <%= gettext("feed_page.unsubscribe") %>
+                {gettext("feed_page.unsubscribe")}
               </.link>
               <.link
                 navigate={~p"/subscriptions"}
                 class="inline-block rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
               >
-                <%= gettext("feed_page.manage_subscriptions") %>
+                {gettext("feed_page.manage_subscriptions")}
               </.link>
             <% else %>
               <!-- Quick subscribe button (authenticated + not subscribed) -->
@@ -204,7 +204,7 @@
                 data-feed={@encoded_feed}
                 data-subscribe-url={~p"/podcasts/#{@encoded_feed}/subscribe"}
               >
-                <%= gettext("feed_page.subscribe") %>
+                {gettext("feed_page.subscribe")}
               </button>
               <button
                 type="button"
@@ -212,7 +212,7 @@
                 data-encoded-feed={@encoded_feed}
                 class="inline-block rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 js-show-subscribe-modal"
               >
-                <%= gettext("feed_page.add_custom_rss") %>
+                {gettext("feed_page.add_custom_rss")}
               </button>
             <% end %>
           <% else %>
@@ -223,13 +223,13 @@
               data-encoded-feed={@encoded_feed}
               class="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 js-show-login-modal"
             >
-              <%= gettext("feed_page.subscribe") %>
+              {gettext("feed_page.subscribe")}
             </button>
             <.link
               navigate={~p"/users/register"}
               class="inline-block rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
             >
-              <%= gettext("feed_page.create_account") %>
+              {gettext("feed_page.create_account")}
             </.link>
           <% end %>
         </div>
@@ -238,12 +238,12 @@
     <!-- Episodes List -->
     <div class="mt-10">
       <h2 class="text-2xl font-semibold text-zinc-900 mb-4">
-        <%= gettext("feed_page.recent_episodes") %> (<%= length(@episodes) %>)
+        {gettext("feed_page.recent_episodes")} ({length(@episodes)})
       </h2>
 
       <%= if Enum.empty?(@episodes) do %>
         <div class="bg-white shadow rounded-lg p-6 text-center text-zinc-500">
-          <%= gettext("feed_page.no_episodes") %>
+          {gettext("feed_page.no_episodes")}
         </div>
       <% else %>
         <div class="space-y-4" data-episodes-list>
@@ -324,21 +324,21 @@
                 </div>
                 <!-- Content (right on desktop, bottom on mobile) -->
                 <div class="flex-1 min-w-0 pr-12 sm:pr-0">
-                  <h3 class="font-semibold text-zinc-900"><%= episode.title %></h3>
+                  <h3 class="font-semibold text-zinc-900">{episode.title}</h3>
 
                   <div class="flex gap-4 text-sm text-zinc-500 mt-2">
                     <%= if episode.pub_date do %>
                       <span title={Calendar.strftime(episode.pub_date, "%B %d, %Y at %H:%M")}>
-                        <%= time_ago_in_words(episode.pub_date) %>
+                        {time_ago_in_words(episode.pub_date)}
                       </span>
                     <% end %>
                     <%= if episode.duration do %>
-                      <span><%= format_duration(episode.duration) %></span>
+                      <span>{format_duration(episode.duration)}</span>
                     <% end %>
                   </div>
 
                   <p class="text-sm text-zinc-700 mt-2 line-clamp-3">
-                    <%= episode.description %>
+                    {episode.description}
                   </p>
                   <!-- Links -->
                   <div class="mt-4 flex gap-3">
@@ -349,7 +349,7 @@
                         rel="noopener noreferrer"
                         class="text-blue-600 hover:underline text-sm"
                       >
-                        <%= gettext("feed_page.read_article") %>
+                        {gettext("feed_page.read_article")}
                       </a>
                     <% end %>
                     <a
@@ -366,7 +366,7 @@
                       rel="noopener noreferrer"
                       class="text-blue-600 hover:underline text-sm"
                     >
-                      <%= gettext("feed_page.download_play") %>
+                      {gettext("feed_page.download_play")}
                     </a>
                   </div>
                 </div>
@@ -385,7 +385,7 @@
       register_url={~p"/users/register"}
     >
       <p class="text-zinc-700 mb-4">
-        <%= gettext("feed_page.login_modal_text") %>
+        {gettext("feed_page.login_modal_text")}
       </p>
     </.login_modal>
   <% end %>
@@ -393,7 +393,7 @@
   <%= if @current_user && !@is_subscribed do %>
     <.subscribe_modal id="subscribe-modal" subscribe_url={~p"/subscriptions"} feed_url={@feed_url}>
       <p class="text-zinc-700 mb-4">
-        <%= gettext("feed_page.subscribe_modal_text") %>
+        {gettext("feed_page.subscribe_modal_text")}
       </p>
     </.subscribe_modal>
   <% end %>
@@ -409,11 +409,11 @@
     >
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
         <h2 id="privacy-change-title" class="text-2xl font-bold text-zinc-900 mb-4">
-          <%= gettext("privacy.change_title") %>
+          {gettext("privacy.change_title")}
         </h2>
 
         <p id="privacy-change-desc" class="text-zinc-600 mb-6">
-          <%= gettext("privacy.change_description") %>
+          {gettext("privacy.change_description")}
         </p>
         <!-- Privacy Options -->
         <div class="space-y-3">
@@ -426,9 +426,9 @@
               checked={@current_privacy == "public"}
             />
             <div class="ml-3">
-              <div class="font-semibold text-zinc-900">🌍 <%= gettext("privacy.public") %></div>
+              <div class="font-semibold text-zinc-900">🌍 {gettext("privacy.public")}</div>
               <div class="text-sm text-zinc-600">
-                <%= gettext("privacy.public_description") %>
+                {gettext("privacy.public_description")}
               </div>
             </div>
           </label>
@@ -442,9 +442,9 @@
               checked={@current_privacy == "anonymous"}
             />
             <div class="ml-3">
-              <div class="font-semibold text-zinc-900">👤 <%= gettext("privacy.anonymous") %></div>
+              <div class="font-semibold text-zinc-900">👤 {gettext("privacy.anonymous")}</div>
               <div class="text-sm text-zinc-600">
-                <%= gettext("privacy.anonymous_description") %>
+                {gettext("privacy.anonymous_description")}
               </div>
             </div>
           </label>
@@ -458,9 +458,9 @@
               checked={@current_privacy == "private"}
             />
             <div class="ml-3">
-              <div class="font-semibold text-zinc-900">🔒 <%= gettext("privacy.private") %></div>
+              <div class="font-semibold text-zinc-900">🔒 {gettext("privacy.private")}</div>
               <div class="text-sm text-zinc-600">
-                <%= gettext("privacy.private_description") %>
+                {gettext("privacy.private_description")}
               </div>
             </div>
           </label>
@@ -472,14 +472,14 @@
             type="button"
             class="flex-1 px-4 py-2 text-zinc-700 border border-zinc-300 rounded-lg hover:bg-zinc-50"
           >
-            <%= gettext("common.cancel") %>
+            {gettext("common.cancel")}
           </button>
           <button
             id="privacy-save-btn"
             type="button"
             class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            <%= gettext("common.save_changes") %>
+            {gettext("common.save_changes")}
           </button>
         </div>
         <!-- Loading/Error State -->

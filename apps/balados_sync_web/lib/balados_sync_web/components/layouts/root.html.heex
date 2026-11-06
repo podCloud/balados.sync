@@ -7,7 +7,7 @@
     <meta name="ws-endpoint" content={get_ws_endpoint(@conn)} />
     <meta name="ws-token" content={get_ws_token(@conn)} />
     <.live_title suffix=" · Phoenix Framework">
-      <%= assigns[:page_title] || "BaladosSync" %>
+      {assigns[:page_title] || "BaladosSync"}
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
@@ -17,7 +17,7 @@
     class="bg-white antialiased"
     data-current-user-id={assigns[:current_user] && assigns[:current_user].id}
   >
-    <%= @inner_content %>
+    {@inner_content}
     <!-- Privacy Modal (dynamically populated by JavaScript) -->
     <.privacy_modal id="privacy-modal" feed="" context="subscribe" />
   </body>

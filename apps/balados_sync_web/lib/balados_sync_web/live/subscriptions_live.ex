@@ -465,7 +465,7 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                   class="w-4 h-4 rounded-full inline-block"
                   style={"background-color: #{@current_collection.color || "#3b82f6"}"}
                 />
-                <%= @current_collection.title %>
+                {@current_collection.title}
                 <%= if @current_collection.is_default do %>
                   <span class="text-sm font-normal text-zinc-500">(Default)</span>
                 <% end %>
@@ -474,9 +474,9 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
               <% end %>
             </h1>
             <p class="text-sm text-zinc-500 mt-1">
-              <%= length(@subscriptions) %> <%= if length(@subscriptions) == 1,
+              {length(@subscriptions)} {if length(@subscriptions) == 1,
                 do: "subscription",
-                else: "subscriptions" %>
+                else: "subscriptions"}
               <%= if @loading_metadata do %>
                 <span class="ml-2 inline-flex items-center">
                   <svg
@@ -506,7 +506,7 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
               <% end %>
               <%= if @current_collection && @current_collection.description do %>
                 <span class="mx-2">&middot;</span>
-                <%= @current_collection.description %>
+                {@current_collection.description}
               <% end %>
             </p>
           </div>
@@ -539,7 +539,7 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                   "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                 end}
             >
-              All <span class="ml-1 text-xs opacity-70">(<%= length(@all_subscriptions) %>)</span>
+              All <span class="ml-1 text-xs opacity-70">({length(@all_subscriptions)})</span>
             </button>
             <!-- Collection badges with edit/delete buttons -->
             <%= for collection <- @collections do %>
@@ -567,8 +567,8 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                       ""
                     end}
                 >
-                  <%= collection.title %>
-                  <span class="ml-1 text-xs opacity-70">(<%= feed_count %>)</span>
+                  {collection.title}
+                  <span class="ml-1 text-xs opacity-70">({feed_count})</span>
                   <%= if collection.is_default do %>
                     <span class="ml-1">*</span>
                   <% end %>
@@ -787,9 +787,9 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                   <h3 class="font-semibold text-zinc-900 line-clamp-2">
                     <%= cond do %>
                       <% is_map(sub.metadata) && sub.metadata.title -> %>
-                        <%= sub.metadata.title %>
+                        {sub.metadata.title}
                       <% sub.rss_feed_title -> %>
-                        <%= sub.rss_feed_title %>
+                        {sub.rss_feed_title}
                       <% sub.metadata == :error -> %>
                         <span class="text-red-600">Unable to load</span>
                       <% true -> %>
@@ -798,7 +798,7 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                   </h3>
                   <%= if is_map(sub.metadata) && sub.metadata.description do %>
                     <p class="text-sm text-zinc-600 mt-2 line-clamp-2">
-                      <%= sub.metadata.description %>
+                      {sub.metadata.description}
                     </p>
                   <% end %>
                   <%= if sub.metadata == :error do %>
@@ -834,7 +834,7 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
         >
           <div class="p-6">
             <h2 class="text-xl font-bold text-zinc-900 mb-4">
-              <%= if @editing_collection, do: "Edit Collection", else: "Create Collection" %>
+              {if @editing_collection, do: "Edit Collection", else: "Create Collection"}
             </h2>
 
             <div class="space-y-4">
@@ -899,7 +899,7 @@ defmodule BaladosSyncWeb.SubscriptionsLive do
                 phx-click="save_collection"
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
               >
-                <%= if @editing_collection, do: "Save Changes", else: "Create" %>
+                {if @editing_collection, do: "Save Changes", else: "Create"}
               </button>
             </div>
           </div>

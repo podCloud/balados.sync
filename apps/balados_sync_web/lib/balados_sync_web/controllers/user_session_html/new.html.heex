@@ -1,18 +1,18 @@
 <div class="mx-auto max-w-sm">
   <.header class="text-center">
-    <%= gettext("auth.login.title") %>
+    {gettext("auth.login.title")}
     <:subtitle>
-      <%= gettext("auth.login.no_account") %>
+      {gettext("auth.login.no_account")}
       <.link navigate={~p"/users/register"} class="font-semibold text-brand hover:underline">
-        <%= gettext("auth.login.register_link") %>
+        {gettext("auth.login.register_link")}
       </.link>
-      <%= gettext("auth.login.register_suffix") %>
+      {gettext("auth.login.register_suffix")}
     </:subtitle>
   </.header>
 
   <.simple_form :let={f} for={%{}} as={:user} action={~p"/users/log_in"}>
     <.error :if={@error_message}>
-      <%= @error_message %>
+      {@error_message}
     </.error>
     <.input
       field={f[:username]}
@@ -30,7 +30,7 @@
 
     <:actions>
       <.button phx-disable-with={gettext("auth.login.submitting")} class="w-full">
-        <%= gettext("auth.login.submit") %> <span aria-hidden="true">→</span>
+        {gettext("auth.login.submit")} <span aria-hidden="true">→</span>
       </.button>
     </:actions>
   </.simple_form>
