@@ -185,6 +185,16 @@ defmodule BaladosSyncCore.SafeHttpTest do
                "https://feeds.example.com/rss"
     end
 
+    test "keeps IPv6 brackets and port while dropping the query" do
+      assert SafeHttp.loggable("http://[2001:db8::1]:8080/rss?token=x") ==
+               "http://[2001:db8::1]:8080/rss"
+    end
+
+    test "hides a URL without a host, whose credentials URI.parse leaves in place" do
+      assert SafeHttp.loggable("alice:pw@host/rss") == "<url without host>"
+      assert SafeHttp.loggable("//alice:pw@host/x") == "//host/x"
+    end
+
     test "keeps a plain URL unchanged" do
       assert SafeHttp.loggable("https://feeds.example.com/rss") ==
                "https://feeds.example.com/rss"

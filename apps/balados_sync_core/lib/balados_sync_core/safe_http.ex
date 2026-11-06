@@ -108,13 +108,24 @@ defmodule BaladosSyncCore.SafeHttp do
 
   @doc """
   URL safe to log: the `user:pass@` part, the query string and the fragment
-  are removed (private feeds carry their access token in either).
+  are removed (private feeds carry their access token in either). A string
+  without a host (`alice:pw@host/rss` parses as scheme `alice`) is replaced by
+  a placeholder, since its credentials cannot be told apart.
+
+  Limits: a token embedded in the path (`/private/<token>/rss`) is still
+  logged, and an IPv6 zone id (`[fe80::1%25eth0]`) shows as the host `URI`
+  parses it into (`fe80`).
   """
   @spec loggable(String.t()) :: String.t()
   def loggable(url) do
-    url
-    |> URI.parse()
-    |> Map.merge(%{userinfo: nil, query: nil, fragment: nil})
-    |> URI.to_string()
+    case URI.parse(url) do
+      %URI{host: host} when host in [nil, ""] ->
+        "<url without host>"
+
+      uri ->
+        uri
+        |> Map.merge(%{userinfo: nil, query: nil, fragment: nil})
+        |> URI.to_string()
+    end
   end
 end

@@ -12,16 +12,14 @@ defmodule BaladosSyncCore.UrlValidator do
   - Private ranges (10/8, 172.16/12, 192.168/16, fc00::/7)
   - Link-local (169.254/16, fe80::/10), including cloud metadata endpoints
   - Multicast (224/4, ff00::/8) and special-use ranges (100.64/10,
-    192.0.0/24, 198.18/15, 240/4, fec0::/10, 64:ff9b:1::/48)
+    192.0.0/24, 198.18/15, 240/4, unassigned fe00::/9, fec0::/10,
+    64:ff9b:1::/48)
   - IPv6 forms embedding a blocked IPv4 address: mapped `::ffff:a.b.c.d`,
     SIIT `::ffff:0:a.b.c.d`, compatible `::a.b.c.d`, NAT64 `64:ff9b::/96`,
     6to4 `2002::/16`
   - Host names: `localhost`, `*.localhost`, `localhost.localdomain`,
     `*.internal`, `*.local`, cloud metadata names (case-insensitive, trailing
     dot ignored)
-
-  The unassigned `fe00::/9` range is not listed: it is not routable on the
-  internet, so a connection to it fails anyway.
 
   Host names are **not resolved**: a name whose DNS (or `/etc/hosts`) points
   to a blocked address passes this check (issue #297). Callers fetching
@@ -211,6 +209,10 @@ defmodule BaladosSyncCore.UrlValidator do
   defp is_reserved?({198, second, _, _}) when second in [18, 19], do: true
   # 240.0.0.0/4 (reserved) including 255.255.255.255 (broadcast)
   defp is_reserved?({first, _, _, _}) when first >= 240, do: true
+  # fe00::/9 (unassigned, below link-local fe80::/10)
+  defp is_reserved?({first, _, _, _, _, _, _, _}) when first >= 0xFE00 and first <= 0xFE7F,
+    do: true
+
   # fec0::/10 (deprecated IPv6 site-local)
   defp is_reserved?({first, _, _, _, _, _, _, _}) when first >= 0xFEC0 and first <= 0xFEFF,
     do: true
