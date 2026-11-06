@@ -23,7 +23,7 @@ defmodule BaladosSyncCore.Application do
 
   @doc """
   DNS query used by `DNSCluster` for node discovery, set by `config/runtime.exs`
-  from `DNS_CLUSTER_QUERY` (surrounding spaces trimmed); `:ignore` (no
+  from `DNS_CLUSTER_QUERY` (surrounding whitespace trimmed); `:ignore` (no
   clustering) when unset or blank.
   Clustering also needs Erlang distribution with long names
   (`RELEASE_DISTRIBUTION=name`, `RELEASE_NODE=balados_sync@<ip-or-fqdn>`);
