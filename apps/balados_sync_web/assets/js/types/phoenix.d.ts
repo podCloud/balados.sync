@@ -1,6 +1,9 @@
 /**
- * Type definitions for Phoenix and Phoenix LiveView
- * These are custom definitions since Phoenix doesn't provide official TS types
+ * Hand-written type definitions for Phoenix and Phoenix LiveView, covering only
+ * what the app uses. LiveView 1.x ships its own types
+ * (deps/phoenix_live_view/assets/js/types), but the assets resolve deps through
+ * esbuild's NODE_PATH rather than node_modules, so these declarations stay until
+ * the switch tracked in balados.sync#306.
  */
 
 declare module 'phoenix' {
