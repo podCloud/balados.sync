@@ -134,6 +134,13 @@ export SECRET_KEY_BASE="your-secret-key"
 # Production
 export PHX_HOST="api.example.com"
 export PORT=4000
+
+# Production, plusieurs nœuds (optionnel) : découverte DNS des autres nœuds.
+# Exige une distribution Erlang en noms longs, sinon DNSCluster se contente
+# d'un avertissement : RELEASE_DISTRIBUTION=name et
+# RELEASE_NODE=balados_sync@<ip-ou-fqdn> dans une release, `elixir --name` hors
+# release (vide, blanc ou absent = pas de cluster ; espaces autour rognés)
+export DNS_CLUSTER_QUERY="balados-sync.internal"
 ```
 
 ### Génération de clés JWT (RS256)
