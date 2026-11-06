@@ -174,6 +174,20 @@ defmodule BaladosSyncCore.SafeHttpTest do
              get("https://feeds.example.org/feed", headers: [{"cache-control", "no-cache"}])
   end
 
+  test "a request-target error does not carry the URL path and query" do
+    # Mint rejects a target with a space or quote that UrlValidator accepts and
+    # puts the raw path+query in the reason; callers log inspect(reason).
+    adapter = fn request ->
+      {request,
+       %Req.HTTPError{protocol: :http1, reason: {:invalid_request_target, "/rss?token=SEKRET a"}}}
+    end
+
+    assert {:error, {:network_error, :invalid_request_target}} =
+             SafeHttp.get("https://feeds.example.org/rss?token=SEKRET a",
+               req_options: [adapter: adapter]
+             )
+  end
+
   describe "loggable/1" do
     test "removes user:pass@ credentials" do
       assert SafeHttp.loggable("https://alice:s3cret@feeds.example.com/rss") ==
@@ -193,6 +207,9 @@ defmodule BaladosSyncCore.SafeHttpTest do
     test "hides a URL without a host, whose credentials URI.parse leaves in place" do
       assert SafeHttp.loggable("alice:pw@host/rss") == "<url without host>"
       assert SafeHttp.loggable("//alice:pw@host/x") == "//host/x"
+      assert SafeHttp.loggable("https://alice:pw@:80/x") == "<url without host>"
+      assert SafeHttp.loggable("https://alice:pw@/x") == "<url without host>"
+      assert SafeHttp.loggable("https:alice:pw@host/x") == "<url without host>"
     end
 
     test "keeps a plain URL unchanged" do

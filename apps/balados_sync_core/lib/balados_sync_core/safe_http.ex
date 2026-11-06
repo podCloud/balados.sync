@@ -101,10 +101,16 @@ defmodule BaladosSyncCore.SafeHttp do
     do: {:error, {:http_error, status}}
 
   defp handle_response({:error, %{reason: reason}}, _url, _opts, _hops),
-    do: {:error, {:network_error, reason}}
+    do: {:error, {:network_error, scrub_reason(reason)}}
 
   defp handle_response({:error, exception}, _url, _opts, _hops),
     do: {:error, {:network_error, exception}}
+
+  # Callers log inspect(reason). Mint request-building errors such as
+  # {:invalid_request_target, "/rss?token=..."} embed the raw path and query
+  # (UrlValidator accepts characters Mint refuses), so keep only the tag.
+  defp scrub_reason({tag, detail}) when is_atom(tag) and is_binary(detail), do: tag
+  defp scrub_reason(reason), do: reason
 
   @doc """
   URL safe to log: the `user:pass@` part, the query string and the fragment
