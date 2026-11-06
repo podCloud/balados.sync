@@ -165,11 +165,11 @@ defmodule BaladosSyncWeb.LiveWebSocket.MessageHandler do
     # Check rate limit before dispatching
     rate_limit_key = "websocket_play:#{state.user_id}"
 
-    case Hammer.check_rate(rate_limit_key, @rate_limit_scale, @rate_limit_limit) do
+    case BaladosSyncWeb.RateLimit.hit(rate_limit_key, @rate_limit_scale, @rate_limit_limit) do
       {:allow, _count} ->
         do_dispatch_play_command(message, opid, state)
 
-      {:deny, _limit} ->
+      {:deny, _retry_after_ms} ->
         Logger.warning("Play command rate limit exceeded for user #{state.user_id}")
 
         {:error,

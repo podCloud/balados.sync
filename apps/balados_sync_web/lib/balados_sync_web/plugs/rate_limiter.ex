@@ -1,6 +1,6 @@
 defmodule BaladosSyncWeb.Plugs.RateLimiter do
   @moduledoc """
-  Reusable rate limiting plug using Hammer.
+  Reusable rate limiting plug using Hammer 7 (`BaladosSyncWeb.RateLimit`).
 
   This plug provides configurable rate limiting for HTTP endpoints with support for
   different rate limit strategies (per-user, per-IP) and proper 429 responses.
@@ -43,13 +43,15 @@ defmodule BaladosSyncWeb.Plugs.RateLimiter do
   ## Response
 
   When rate limited, returns a 429 Too Many Requests response with:
-  - `Retry-After` header indicating seconds until limit resets
+  - `Retry-After` header with the seconds left in the current window (at least 1)
   - JSON body with error details
   """
 
   import Plug.Conn
   use Gettext, backend: BaladosSyncWeb.Gettext
   require Logger
+
+  alias BaladosSyncWeb.RateLimit
 
   @behaviour Plug
 
@@ -153,18 +155,18 @@ defmodule BaladosSyncWeb.Plugs.RateLimiter do
   defp check_rate_limit(conn, key, opts) do
     bucket = "#{opts.namespace}:#{key}"
 
-    case Hammer.check_rate(bucket, opts.window_ms, opts.limit) do
+    case RateLimit.hit(bucket, opts.window_ms, opts.limit) do
       {:allow, _count} ->
         conn
 
-      {:deny, _limit} ->
+      {:deny, retry_after_ms} ->
         Logger.warning("[RateLimiter] Rate limit exceeded for #{bucket}")
-        send_rate_limit_response(conn, opts.window_ms)
+        send_rate_limit_response(conn, retry_after_ms)
     end
   end
 
-  defp send_rate_limit_response(conn, window_ms) do
-    retry_after_seconds = ceil(window_ms / 1000)
+  defp send_rate_limit_response(conn, retry_after_ms) do
+    retry_after_seconds = max(1, ceil(retry_after_ms / 1000))
 
     conn
     |> put_resp_header("retry-after", to_string(retry_after_seconds))

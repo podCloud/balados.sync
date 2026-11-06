@@ -9,12 +9,13 @@ defmodule BaladosSyncWeb.Application do
   def start(_type, _args) do
     children = [
       BaladosSyncWeb.Telemetry,
-      # Start a worker by calling: BaladosSyncWeb.Worker.start_link(arg)
-      # {BaladosSyncWeb.Worker, arg},
-      # Start to serve requests, typically the last entry
-      BaladosSyncWeb.Endpoint,
       # LRU avec max 500 entrées
-      {Cachex, name: :rss_feed_cache, limit: 500}
+      {Cachex, name: :rss_feed_cache, limit: 500},
+      # Rate limiter buckets (Hammer 7, ETS table named after the module);
+      # must be up before the endpoint accepts its first rate-limited request
+      BaladosSyncWeb.RateLimit,
+      # Start to serve requests, typically the last entry
+      BaladosSyncWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
