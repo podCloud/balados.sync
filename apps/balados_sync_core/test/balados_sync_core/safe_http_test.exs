@@ -3,6 +3,14 @@ defmodule BaladosSyncCore.SafeHttpTest do
 
   alias BaladosSyncCore.SafeHttp
 
+  # Req adapter returning the error Mint gives for a request target it refuses.
+  defmodule InvalidTargetAdapter do
+    def run(request) do
+      {request,
+       %Req.HTTPError{protocol: :http1, reason: {:invalid_request_target, "/rss?token=SEKRET a"}}}
+    end
+  end
+
   # Every request goes through Req.Test: no network. Host validation still
   # runs on the URL (and on every redirect target) before Req is called.
   defp get(url, opts \\ []),
@@ -177,14 +185,9 @@ defmodule BaladosSyncCore.SafeHttpTest do
   test "a request-target error does not carry the URL path and query" do
     # Mint rejects a target with a space or quote that UrlValidator accepts and
     # puts the raw path+query in the reason; callers log inspect(reason).
-    adapter = fn request ->
-      {request,
-       %Req.HTTPError{protocol: :http1, reason: {:invalid_request_target, "/rss?token=SEKRET a"}}}
-    end
-
     assert {:error, {:network_error, :invalid_request_target}} =
              SafeHttp.get("https://feeds.example.org/rss?token=SEKRET a",
-               req_options: [adapter: adapter]
+               req_options: [adapter: __MODULE__.InvalidTargetAdapter]
              )
   end
 
