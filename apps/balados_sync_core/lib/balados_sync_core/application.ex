@@ -23,7 +23,8 @@ defmodule BaladosSyncCore.Application do
 
   @doc """
   DNS query used by `DNSCluster` for node discovery, set by `config/runtime.exs`
-  from `DNS_CLUSTER_QUERY`; `:ignore` (no clustering) when unset or blank.
+  from `DNS_CLUSTER_QUERY` (surrounding spaces trimmed); `:ignore` (no
+  clustering) when unset or blank.
   Clustering also needs Erlang distribution with long names
   (`RELEASE_DISTRIBUTION=name`, `RELEASE_NODE=balados_sync@<ip-or-fqdn>`);
   without it DNSCluster only logs a warning.
@@ -31,8 +32,14 @@ defmodule BaladosSyncCore.Application do
   @spec dns_cluster_query() :: String.t() | :ignore
   def dns_cluster_query do
     case Application.get_env(:balados_sync_core, :dns_cluster_query) do
-      nil -> :ignore
-      query -> if String.trim(query) == "", do: :ignore, else: query
+      nil ->
+        :ignore
+
+      query ->
+        case String.trim(query) do
+          "" -> :ignore
+          trimmed -> trimmed
+        end
     end
   end
 end
