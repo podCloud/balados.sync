@@ -792,6 +792,13 @@ export EVENT_STORE_URL="postgresql://user:pass@localhost/balados_sync_eventstore
 export SECRET_KEY_BASE="long_secret_key"
 export PHX_HOST="localhost"
 export PORT=4000
+
+# Production, plusieurs nœuds (optionnel) : découverte DNS des autres nœuds.
+# Exige une distribution Erlang en noms longs, sinon DNSCluster se contente
+# d'un avertissement : RELEASE_DISTRIBUTION=name et
+# RELEASE_NODE=balados_sync@<ip-ou-fqdn> dans une release, `elixir --name` hors
+# release (vide, blanc ou absent = pas de cluster ; espaces autour rognés)
+export DNS_CLUSTER_QUERY="balados-sync.internal"
 ```
 
 ### Fichiers de Configuration

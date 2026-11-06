@@ -10,7 +10,7 @@ defmodule BaladosSyncCore.Application do
     children = [
       BaladosSyncCore.SystemRepo,
       BaladosSyncCore.Dispatcher,
-      {DNSCluster, query: Application.get_env(:balados_sync, :dns_cluster_query) || :ignore},
+      {DNSCluster, query: dns_cluster_query()},
       {Phoenix.PubSub, name: BaladosSyncCore.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: BaladosSyncCore.Finch}
@@ -19,5 +19,27 @@ defmodule BaladosSyncCore.Application do
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: BaladosSyncCore.Supervisor)
+  end
+
+  @doc """
+  DNS query used by `DNSCluster` for node discovery, set by `config/runtime.exs`
+  from `DNS_CLUSTER_QUERY` (surrounding whitespace trimmed); `:ignore` (no
+  clustering) when unset or blank.
+  Clustering also needs Erlang distribution with long names
+  (`RELEASE_DISTRIBUTION=name`, `RELEASE_NODE=balados_sync@<ip-or-fqdn>`);
+  without it DNSCluster only logs a warning.
+  """
+  @spec dns_cluster_query() :: String.t() | :ignore
+  def dns_cluster_query do
+    case Application.get_env(:balados_sync_core, :dns_cluster_query) do
+      nil ->
+        :ignore
+
+      query ->
+        case String.trim(query) do
+          "" -> :ignore
+          trimmed -> trimmed
+        end
+    end
   end
 end

@@ -39,7 +39,6 @@ defmodule BaladosSyncProjections.MixProject do
       {:commanded, "~> 1.4"},
       {:commanded_ecto_projections, "~> 1.4"},
       {:eventstore, "~> 1.4"},
-      {:dns_cluster, "~> 0.1.1"},
       {:phoenix_pubsub, "~> 2.1"},
       {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
