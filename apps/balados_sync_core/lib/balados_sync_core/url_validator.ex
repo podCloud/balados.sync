@@ -69,12 +69,20 @@ defmodule BaladosSyncCore.UrlValidator do
     {:error, :invalid_scheme}
   end
 
-  # Validate the host
+  # Validate the host. A trailing dot ("localhost.") names the same host and
+  # is stripped first; IPv6 forms that embed an IPv4 address (mapped,
+  # compatible, NAT64, 6to4) are checked against the IPv4 rules too.
   defp validate_host(host) do
-    # First check if it's an IP address
+    host = host |> String.trim_trailing(".") |> String.downcase()
+
     case parse_ip(host) do
       {:ok, ip} ->
-        validate_ip_address(ip)
+        with :ok <- validate_ip_address(ip) do
+          case embedded_ipv4(ip) do
+            nil -> :ok
+            ipv4 -> validate_ip_address(ipv4)
+          end
+        end
 
       :not_ip ->
         # It's a hostname - check for obvious bad patterns
@@ -99,8 +107,9 @@ defmodule BaladosSyncCore.UrlValidator do
     host_lower = String.downcase(host)
 
     cond do
-      # Block localhost variations
-      host_lower == "localhost" ->
+      # Block localhost variations (RFC 6761: *.localhost is loopback too)
+      host_lower in ["localhost", "localhost.localdomain"] or
+          String.ends_with?(host_lower, ".localhost") ->
         Logger.warning("[UrlValidator] Blocked localhost: #{host}")
         {:error, :localhost_blocked}
 
@@ -127,9 +136,30 @@ defmodule BaladosSyncCore.UrlValidator do
     end
   end
 
+  # IPv4 address embedded in an IPv6 one, or nil
+  # ::ffff:a.b.c.d (IPv4-mapped)
+  defp embedded_ipv4({0, 0, 0, 0, 0, 0xFFFF, hi, lo}), do: v4(hi, lo)
+  # ::a.b.c.d (deprecated IPv4-compatible); :: and ::1 are handled as IPv6
+  defp embedded_ipv4({0, 0, 0, 0, 0, 0, hi, lo}) when hi != 0 or lo > 1, do: v4(hi, lo)
+  # 64:ff9b::a.b.c.d (NAT64 well-known prefix)
+  defp embedded_ipv4({0x64, 0xFF9B, 0, 0, 0, 0, hi, lo}), do: v4(hi, lo)
+  # 2002:aabb:ccdd::/48 (6to4)
+  defp embedded_ipv4({0x2002, hi, lo, _, _, _, _, _}), do: v4(hi, lo)
+  defp embedded_ipv4(_), do: nil
+
+  defp v4(hi, lo), do: {div(hi, 256), rem(hi, 256), div(lo, 256), rem(lo, 256)}
+
   # Validate IP address against blocked ranges
   defp validate_ip_address(ip) do
     cond do
+      is_unspecified?(ip) ->
+        Logger.warning("[UrlValidator] Blocked unspecified IP: #{format_ip(ip)}")
+        {:error, :unspecified_ip_blocked}
+
+      is_reserved?(ip) ->
+        Logger.warning("[UrlValidator] Blocked special-use IP: #{format_ip(ip)}")
+        {:error, :reserved_ip_blocked}
+
       is_loopback?(ip) ->
         Logger.warning("[UrlValidator] Blocked loopback IP: #{format_ip(ip)}")
         {:error, :loopback_blocked}
@@ -150,6 +180,22 @@ defmodule BaladosSyncCore.UrlValidator do
         :ok
     end
   end
+
+  # 0.0.0.0/8 ("this network", reaches the local host) and ::
+  defp is_unspecified?({0, _, _, _}), do: true
+  defp is_unspecified?({0, 0, 0, 0, 0, 0, 0, 0}), do: true
+  defp is_unspecified?(_), do: false
+
+  # Special-use IPv4 ranges that are never public feed hosts
+  # 100.64.0.0/10 (carrier-grade NAT, internal on some clouds)
+  defp is_reserved?({100, second, _, _}) when second >= 64 and second <= 127, do: true
+  # 192.0.0.0/24 (IETF protocol assignments)
+  defp is_reserved?({192, 0, 0, _}), do: true
+  # 198.18.0.0/15 (benchmarking)
+  defp is_reserved?({198, second, _, _}) when second in [18, 19], do: true
+  # 240.0.0.0/4 (reserved) including 255.255.255.255 (broadcast)
+  defp is_reserved?({first, _, _, _}) when first >= 240, do: true
+  defp is_reserved?(_), do: false
 
   # IPv4 loopback: 127.0.0.0/8
   defp is_loopback?({127, _, _, _}), do: true

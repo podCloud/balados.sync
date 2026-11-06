@@ -45,7 +45,7 @@ defmodule BaladosSyncCore.SafeHttp do
         url |> request(opts) |> handle_response(url, opts, hops)
 
       {:error, reason} ->
-        Logger.warning("[SafeHttp] URL blocked (#{reason}): #{url}")
+        Logger.warning("[SafeHttp] URL blocked (#{reason}): #{loggable(url)}")
         {:error, :url_blocked}
     end
   end
@@ -76,7 +76,7 @@ defmodule BaladosSyncCore.SafeHttp do
         {:error, {:http_error, status}}
 
       [_location | _] when hops >= @max_redirects ->
-        Logger.warning("[SafeHttp] too many redirects from #{url}")
+        Logger.warning("[SafeHttp] too many redirects from #{loggable(url)}")
         {:error, :too_many_redirects}
 
       [location | _] ->
@@ -92,4 +92,12 @@ defmodule BaladosSyncCore.SafeHttp do
 
   defp handle_response({:error, exception}, _url, _opts, _hops),
     do: {:error, {:network_error, exception}}
+
+  # Never log credentials a URL or a redirect target may carry (user:pass@host)
+  defp loggable(url) do
+    case URI.parse(url) do
+      %URI{userinfo: nil} -> url
+      uri -> URI.to_string(%{uri | userinfo: nil})
+    end
+  end
 end

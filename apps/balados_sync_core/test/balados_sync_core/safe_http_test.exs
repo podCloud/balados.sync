@@ -32,7 +32,21 @@ defmodule BaladosSyncCore.SafeHttpTest do
     assert {:error, :url_blocked} = get("http://localhost/feed.xml")
   end
 
-  test "follows a redirect to a public URL" do
+  for status <- [301, 302, 303, 307, 308] do
+    test "follows a #{status} redirect to a public URL" do
+      stub(fn
+        %{request_path: "/old"} = conn ->
+          redirect(conn, unquote(status), "https://cdn.example.net/new")
+
+        %{request_path: "/new"} = conn ->
+          Plug.Conn.send_resp(conn, 200, "moved")
+      end)
+
+      assert {:ok, "moved"} = get("https://feeds.example.org/old")
+    end
+  end
+
+  test "follows a redirect to a public URL on another host" do
     stub(fn
       %{request_path: "/old"} = conn ->
         redirect(conn, 301, "https://cdn.example.net/new")
@@ -58,6 +72,9 @@ defmodule BaladosSyncCore.SafeHttpTest do
         "http://127.0.0.1:4000/admin",
         "http://10.0.0.5/internal",
         "http://localhost/",
+        "http://[::ffff:169.254.169.254]/latest/",
+        "http://0.0.0.0:4000/",
+        "http://localhost./",
         "file:///etc/passwd"
       ] do
     test "blocks a redirect to #{target}" do
@@ -70,9 +87,29 @@ defmodule BaladosSyncCore.SafeHttpTest do
     end
   end
 
-  test "gives up after 5 redirects" do
-    stub(fn conn -> redirect(conn, 302, "https://feeds.example.org/loop") end)
+  test "follows exactly 5 redirects and refuses the 6th" do
+    test_pid = self()
+
+    stub(fn conn ->
+      send(test_pid, :hit)
+      redirect(conn, 302, "https://feeds.example.org/loop")
+    end)
+
     assert {:error, :too_many_redirects} = get("https://feeds.example.org/loop")
+    # the initial request plus 5 followed redirects
+    for _ <- 1..6, do: assert_received(:hit)
+    refute_received :hit
+  end
+
+  test "a chain of exactly 5 redirects succeeds" do
+    stub(fn %{request_path: "/r" <> n} = conn ->
+      case String.to_integer(n) do
+        5 -> Plug.Conn.send_resp(conn, 200, "end of chain")
+        i -> redirect(conn, 302, "/r#{i + 1}")
+      end
+    end)
+
+    assert {:ok, "end of chain"} = get("https://feeds.example.org/r0")
   end
 
   test "a redirect without Location is an HTTP error" do
@@ -80,9 +117,17 @@ defmodule BaladosSyncCore.SafeHttpTest do
     assert {:error, {:http_error, 302}} = get("https://feeds.example.org/feed")
   end
 
-  test "transport errors become {:network_error, reason}" do
-    stub(fn conn -> Req.Test.transport_error(conn, :timeout) end)
+  test "transport errors become {:network_error, reason}, without retries" do
+    test_pid = self()
+
+    stub(fn conn ->
+      send(test_pid, :hit)
+      Req.Test.transport_error(conn, :timeout)
+    end)
+
     assert {:error, {:network_error, :timeout}} = get("https://feeds.example.org/feed")
+    assert_received :hit
+    refute_received :hit
   end
 
   test "sends the given headers" do
