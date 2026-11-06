@@ -25,6 +25,8 @@ defmodule BaladosSyncCore.ApplicationTest do
     test "is :ignore when DNS_CLUSTER_QUERY is set but empty" do
       Application.put_env(:balados_sync_core, :dns_cluster_query, "")
       assert CoreApp.dns_cluster_query() == :ignore
+      Application.put_env(:balados_sync_core, :dns_cluster_query, "  ")
+      assert CoreApp.dns_cluster_query() == :ignore
     end
 
     test "is :ignore when no query is configured" do
