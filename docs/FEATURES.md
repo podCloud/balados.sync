@@ -1256,7 +1256,7 @@ Full French/English i18n for the entire Web UI using Elixir Gettext.
 - Inserted in both `:browser` and `:api` pipelines
 - Browser mode: persists locale in session across navigation
 - API mode: stateless, reads `Accept-Language` header or `?locale=` param per-request
-- Sets `Gettext.put_locale/1` for each request
+- Sets `Gettext.put_locale/2` for each request
 
 **Coverage** :
 - ~37 templates (home, login, registration, dashboard, playlists, privacy, timeline, trending, admin, enriched podcasts, ownership, profiles, app auth, setup, subscriptions, OPML import)
