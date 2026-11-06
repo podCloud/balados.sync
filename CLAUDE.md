@@ -182,7 +182,8 @@ des appels HTTP sortants réels, #276).
 
 Les tâches planifiées (Quantum, `config/config.exs`) doivent utiliser
 `timezone: :utc` : aucune base de fuseaux (tzdata) n'est embarquée, et un fuseau
-nommé comme `"UTC"` fait sortir la tâche du planning sans erreur visible (garde :
+nommé comme `"UTC"` fait sortir la tâche du planning sans faire échouer le
+démarrage (seul un avertissement « Invalid Timezone » est journalisé ; garde :
 `BaladosSyncJobs.SchedulerConfigTest`).
 
 ### PlayToken Expiration Cleanup
