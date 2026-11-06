@@ -62,7 +62,6 @@ defmodule BaladosSyncWeb.MixProject do
       {:bandit, "~> 1.2"},
       {:joken, "~> 2.6"},
       {:joken_jwks, "~> 1.6"},
-      {:httpoison, "~> 2.2"},
       {:cachex, "~> 4.0"},
       {:sweet_xml, "~> 0.7"},
       {:hammer, "~> 7.0"}

@@ -34,7 +34,7 @@ defmodule BaladosSyncWeb.PodcastOwnership do
     UserPodcastSettings
   }
 
-  alias BaladosSyncCore.UrlValidator
+  alias BaladosSyncCore.SafeHttp
   alias BaladosSyncWeb.RssParser
 
   require Logger
@@ -137,42 +137,32 @@ defmodule BaladosSyncWeb.PodcastOwnership do
   ## RSS Feed Fetching (Bypass Cache)
 
   defp fetch_feed_raw(feed_url) do
-    # Validate URL before fetching to prevent SSRF attacks
-    case UrlValidator.validate_rss_url(feed_url) do
-      :ok ->
-        do_fetch_raw(feed_url)
-
-      {:error, reason} ->
-        Logger.warning("Feed fetch blocked by URL validation: #{reason} for #{feed_url}")
-        {:error, :url_blocked}
-    end
-  end
-
-  defp do_fetch_raw(feed_url) do
-    # Use HTTPoison with cache-busting headers
+    # SafeHttp validates the URL and every redirect target (SSRF protection)
     headers = [
       {"Cache-Control", "no-cache, no-store, must-revalidate"},
       {"Pragma", "no-cache"},
       {"Expires", "0"}
     ]
 
-    options = [
-      timeout: @verification_timeout_ms,
-      recv_timeout: @verification_timeout_ms,
-      follow_redirect: true
-    ]
-
-    case HTTPoison.get(feed_url, headers, options) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+    case SafeHttp.get(feed_url, headers: headers, timeout: @verification_timeout_ms) do
+      {:ok, body} ->
         {:ok, body}
 
-      {:ok, %HTTPoison.Response{status_code: status}} ->
+      {:error, :url_blocked} ->
+        Logger.warning("Feed fetch blocked by URL validation for #{feed_url}")
+        {:error, :url_blocked}
+
+      {:error, {:http_error, status}} ->
         Logger.error("Feed fetch failed with status #{status}: #{feed_url}")
         {:error, {:http_error, status}}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
+      {:error, {:network_error, reason}} ->
         Logger.error("Feed fetch network error: #{inspect(reason)}")
         {:error, {:network_error, reason}}
+
+      {:error, :too_many_redirects} ->
+        Logger.error("Feed fetch: too many redirects for #{feed_url}")
+        {:error, {:network_error, :too_many_redirects}}
     end
   end
 

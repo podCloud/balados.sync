@@ -3,7 +3,7 @@ defmodule BaladosSyncWeb.RssCache do
   Module de cache borné (500 entrées, éviction LRW) pour les flux RSS avec TTL de 5 minutes
   """
   require Logger
-  alias BaladosSyncCore.UrlValidator
+  alias BaladosSyncCore.SafeHttp
 
   @cache_name :rss_feed_cache
   @cache_ttl :timer.minutes(5)
@@ -90,29 +90,21 @@ defmodule BaladosSyncWeb.RssCache do
     end
   end
 
-  # Fetch HTTP d'un flux RSS with SSRF protection
+  # Fetch HTTP d'un flux RSS : SafeHttp valide l'URL et chaque redirection (SSRF)
   defp fetch_from_url(url) do
-    # Validate URL before fetching to prevent SSRF attacks
-    case UrlValidator.validate_rss_url(url) do
-      :ok ->
-        do_fetch(url)
-
-      {:error, reason} ->
-        Logger.warning("RSS fetch blocked by URL validation: #{reason} for #{url}")
-        {:error, :url_blocked}
-    end
-  end
-
-  defp do_fetch(url) do
-    case HTTPoison.get(url, [], follow_redirect: true, timeout: 10_000, recv_timeout: 10_000) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+    case SafeHttp.get(url) do
+      {:ok, body} ->
         {:ok, body}
 
-      {:ok, %HTTPoison.Response{status_code: status}} ->
+      {:error, :url_blocked} ->
+        Logger.warning("RSS fetch blocked by URL validation for #{url}")
+        {:error, :url_blocked}
+
+      {:error, {:http_error, status}} ->
         Logger.error("RSS fetch failed with status #{status}: #{url}")
         {:error, :fetch_failed}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
+      {:error, reason} ->
         Logger.error("RSS fetch error: #{inspect(reason)}")
         {:error, :fetch_failed}
     end
