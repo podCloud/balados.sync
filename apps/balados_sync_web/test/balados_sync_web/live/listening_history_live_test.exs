@@ -164,6 +164,11 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
   end
 
   describe "filtering" do
+    test "the filter form has an id so LiveView can recover it", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/listening-history")
+      assert has_element?(view, "form#history-filters[phx-change=filter]")
+    end
+
     test "filters by feed", %{conn: conn, user: user} do
       create_play_status(user.id, @feed_url_1, "guid1", %{
         rss_feed_title: "Podcast A",

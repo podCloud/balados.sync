@@ -194,7 +194,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
           </div>
         </div>
         <!-- Filters -->
-        <form phx-change="filter" class="flex flex-wrap gap-3 mb-6">
+        <form id="history-filters" phx-change="filter" class="flex flex-wrap gap-3 mb-6">
           <label for="filter-feed" class="sr-only">
             {gettext("listening_history.filter.podcast_label")}
           </label>
