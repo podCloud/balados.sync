@@ -143,6 +143,7 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] Phoenix 1.8, LiveView 1.2, LiveDashboard 0.9 (used_input?, curly interpolation, lazy_html) - [#302](https://github.com/podCloud/balados.sync/issues/302)
 - [x] httpoison replaced by Req (`BaladosSyncCore.SafeHttp`), every redirect re-validated against SSRF, UrlValidator hardened - [#292](https://github.com/podCloud/balados.sync/issues/292) - PR #298 (follow-ups #297, #300, #301)
 - [x] dns_cluster 0.3, `DNS_CLUSTER_QUERY` read from the right config key (blank = no cluster) - [#293](https://github.com/podCloud/balados.sync/issues/293) - PR #294
 - [x] gettext 1.0 upgrade - [#284](https://github.com/podCloud/balados.sync/issues/284) - PR #296

@@ -622,7 +622,11 @@ Données de **configuration** ou **administratives** ne nécessitant pas d'histo
 
 ### Core Stack
 - **Elixir 1.16+** (1.17+ pour la suite de tests, wallaby 0.31) : Langage principal
-- **Phoenix 1.7+** : Framework web
+- **Phoenix 1.8** et **Phoenix LiveView 1.2** (#302) : Framework web et pages temps réel
+  - HEEx interpole `{...}` dans le texte : une accolade littérale (ex. format d'URL affiché) exige `phx-no-curly-interpolation` sur l'élément
+  - plus de `phx-feedback-for` : `CoreComponents.input/1` masque les erreurs tant que `Phoenix.Component.used_input?/1` est faux
+  - tout `<form phx-change>` porte un `id` (restauration du formulaire après reconnexion)
+  - layouts implicites conservés (`layouts:` dans `use Phoenix.Controller`, `layout:` dans `use Phoenix.LiveView`) ; `core_components.ex` garde le style Tailwind 3 maison plutôt que celui du générateur 1.8
 - **Commanded** : CQRS/ES framework
 - **EventStore** : Event persistence (PostgreSQL)
 - **Ecto** : Database ORM
