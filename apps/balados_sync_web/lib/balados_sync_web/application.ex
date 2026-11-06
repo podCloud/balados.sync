@@ -5,12 +5,18 @@ defmodule BaladosSyncWeb.Application do
 
   use Application
 
+  import Cachex.Spec, only: [hook: 1]
+
   @impl true
   def start(_type, _args) do
     children = [
       BaladosSyncWeb.Telemetry,
-      # LRU avec max 500 entrées
-      {Cachex, name: :rss_feed_cache, limit: 500},
+      # RSS feed cache: 5-minute expiration set per entry (RssCache.put/2),
+      # bounded to 500 entries by Cachex 4's scheduled least-recently-written
+      # eviction, checked every 3 s (Cachex 3's `limit:` checked on each write
+      # and no longer exists)
+      {Cachex,
+       name: :rss_feed_cache, hooks: [hook(module: Cachex.Limit.Scheduled, args: {500, [], []})]},
       # Rate limiter buckets (Hammer 7, ETS table named after the module);
       # must be up before the endpoint accepts its first rate-limited request
       BaladosSyncWeb.RateLimit,

@@ -180,6 +180,12 @@ des appels HTTP sortants réels, #276).
 
 ## 🔄 Background Workers & Cleanup Tasks
 
+Les tâches planifiées (Quantum, `config/config.exs`) doivent utiliser
+`timezone: :utc` : aucune base de fuseaux (tzdata) n'est embarquée, et un fuseau
+nommé comme `"UTC"` fait sortir la tâche du planning sans faire échouer le
+démarrage (seule une erreur « Invalid Timezone » est journalisée ; garde :
+`BaladosSyncJobs.SchedulerConfigTest`).
+
 ### PlayToken Expiration Cleanup
 
 PlayTokens are automatically expired based on configuration (default: 365 days). Expired tokens are periodically cleaned up to maintain database performance.

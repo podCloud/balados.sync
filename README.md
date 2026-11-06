@@ -169,9 +169,8 @@ Le projet nécessite les dépendances suivantes (déjà dans mix.exs) :
 
 # RSS Proxy & Aggregation
 {:httpoison, "~> 2.2"}
-{:cachex, "~> 3.6"}
+{:cachex, "~> 4.0"}
 {:sweet_xml, "~> 0.7"}
-{:timex, "~> 3.7"}
 
 # Jobs
 {:quantum, "~> 3.5"}
@@ -368,7 +367,7 @@ GET /api/v1/public/episode/ZXBpc29kZV8xMjM=/popularity
 GET /api/v1/public/timeline?limit=50&offset=0&event_type=play&feed=aHR0cHM6Ly9leGFtcGxlLmNvbS9mZWVk
 ```
 
-#### 7. RSS Proxy avec cache LRU (JWT requis)
+#### 7. RSS Proxy avec cache borné (JWT requis)
 
 > ⚠️ **Breaking (#264)** : les appels sans token reçoivent désormais `401`.
 
@@ -393,10 +392,9 @@ Accept: application/xml
 
 **Erreurs :** `400` identifiant invalide ou URL refusée (SSRF), `502` flux injoignable, `404` épisode absent.
 
-**Cache LRU :**
-- 500 entrées max
+**Cache :**
+- 500 entrées max (éviction des entrées les moins récemment écrites, vérifiée toutes les 3 s : le cache peut dépasser brièvement 500 entrées)
 - TTL de 5 minutes
-- Eviction automatique LRU (Least Recently Used)
 
 #### 8. RSS Agrégé par utilisateur (avec user_token)
 

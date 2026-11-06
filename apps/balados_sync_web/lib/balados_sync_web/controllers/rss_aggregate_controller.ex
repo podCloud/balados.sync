@@ -4,6 +4,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
 
   alias BaladosSyncCore.RssCache
   alias BaladosSyncWeb.PlayTokenHelper
+  alias BaladosSyncWeb.Rfc1123
   alias BaladosSyncWeb.Plugs.RateLimiter
   alias BaladosSyncCore.SystemRepo
   alias BaladosSyncProjections.ProjectionsRepo
@@ -345,9 +346,9 @@ defmodule BaladosSyncWeb.RssAggregateController do
   end
 
   defp parse_pub_date(date_str) do
-    case Timex.parse(date_str, "{RFC1123}") do
+    case Rfc1123.parse(date_str) do
       {:ok, datetime} -> datetime
-      _ -> DateTime.utc_now()
+      :error -> DateTime.utc_now()
     end
   end
 
@@ -381,9 +382,7 @@ defmodule BaladosSyncWeb.RssAggregateController do
 
   defp escape_xml(other), do: to_string(other) |> escape_xml()
 
-  defp format_rfc1123(datetime) do
-    Timex.format!(datetime, "{RFC1123}")
-  end
+  defp format_rfc1123(datetime), do: Rfc1123.format(datetime)
 
   defp decode_feed_url(encoded_feed) do
     case Base.url_decode64(encoded_feed, padding: false) do
