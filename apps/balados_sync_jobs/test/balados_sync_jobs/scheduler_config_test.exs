@@ -18,14 +18,17 @@ defmodule BaladosSyncJobs.SchedulerConfigTest do
              [:ownership_claim_cleanup, :play_token_cleanup, :snapshot_worker]
   end
 
-  for {name, _opts} <-
-        Application.compile_env!(:balados_sync_jobs, [BaladosSyncJobs.Scheduler, :jobs]) do
-    test "job #{name} has a time zone Quantum can use without tzdata" do
+  for {name, _opts} <- @configured_jobs do
+    test "job #{name} is registered and schedulable without tzdata" do
       job = BaladosSyncJobs.Scheduler.find_job(unquote(name))
+      # Registration alone proves little: Quantum keeps a job with an unusable
+      # zone registered and only leaves it out of the run schedule. The red
+      # signal comes from the two conversions Quantum performs when scheduling.
       assert job, "job #{unquote(name)} is not registered in the scheduler"
 
       now = NaiveDateTime.utc_now()
-      assert %NaiveDateTime{} = DateLibrary.to_tz!(now, job.timezone)
+      assert %NaiveDateTime{} = local = DateLibrary.to_tz!(now, job.timezone)
+      assert %NaiveDateTime{} = DateLibrary.to_utc!(local, job.timezone)
     end
   end
 end
