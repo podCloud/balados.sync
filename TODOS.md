@@ -143,6 +143,7 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] dns_cluster 0.3, `DNS_CLUSTER_QUERY` read from the right config key (blank = no cluster) - [#293](https://github.com/podCloud/balados.sync/issues/293) - PR #294
 - [x] gettext 1.0 upgrade - [#284](https://github.com/podCloud/balados.sync/issues/284) - PR #296
 - [x] timex removed (native RFC 1123, Quantum jobs on :utc) - [#285](https://github.com/podCloud/balados.sync/issues/285) - PR #287 (follow-ups #290, #295)
 - [x] Hammer 7 (exact Retry-After, limiter before the endpoint) - [#286](https://github.com/podCloud/balados.sync/issues/286) - PR #289 (closes flaky #266)
