@@ -6,7 +6,13 @@ defmodule BaladosSyncCore.ApplicationTest do
 
   setup do
     previous = Application.get_env(:balados_sync_core, :dns_cluster_query)
-    on_exit(fn -> Application.put_env(:balados_sync_core, :dns_cluster_query, previous) end)
+
+    on_exit(fn ->
+      if is_nil(previous),
+        do: Application.delete_env(:balados_sync_core, :dns_cluster_query),
+        else: Application.put_env(:balados_sync_core, :dns_cluster_query, previous)
+    end)
+
     :ok
   end
 
