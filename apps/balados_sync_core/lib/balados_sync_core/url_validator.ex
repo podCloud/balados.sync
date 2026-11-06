@@ -7,12 +7,23 @@ defmodule BaladosSyncCore.UrlValidator do
 
   ## Blocked Resources
 
-  - Private IP ranges (10.x, 172.16-31.x, 192.168.x)
-  - Localhost and loopback addresses (127.x)
-  - Link-local addresses (169.254.x) - includes cloud metadata endpoints
-  - IPv6 loopback and link-local addresses
-  - Non-HTTP(S) schemes
-  - Hostnames that resolve to blocked IPs
+  - Non-HTTP(S) schemes, missing or empty hosts
+  - Loopback (127.0.0.0/8, ::1) and unspecified addresses (0.0.0.0/8, ::)
+  - Private ranges (10/8, 172.16/12, 192.168/16, fc00::/7)
+  - Link-local (169.254/16, fe80::/10), including cloud metadata endpoints
+  - Multicast (224/4, ff00::/8) and special-use ranges (100.64/10,
+    192.0.0/24, 198.18/15, 240/4, fec0::/10, 64:ff9b:1::/48)
+  - IPv6 forms embedding a blocked IPv4 address: mapped `::ffff:a.b.c.d`,
+    SIIT `::ffff:0:a.b.c.d`, compatible `::a.b.c.d`, NAT64 `64:ff9b::/96`,
+    6to4 `2002::/16`
+  - Host names: `localhost`, `*.localhost`, `localhost.localdomain`,
+    `*.internal`, `*.local`, cloud metadata names (case-insensitive, trailing
+    dot ignored)
+
+  Host names are **not resolved**: a name whose DNS (or `/etc/hosts`) points
+  to a blocked address passes this check (issue #297). Callers fetching
+  third-party URLs should go through `BaladosSyncCore.SafeHttp`, which also
+  re-validates every redirect target.
 
   ## Usage
 

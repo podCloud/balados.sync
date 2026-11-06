@@ -143,7 +143,7 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
-- [x] httpoison replaced by Req (`BaladosSyncCore.SafeHttp`), every redirect re-validated against SSRF - [#292](https://github.com/podCloud/balados.sync/issues/292)
+- [x] httpoison replaced by Req (`BaladosSyncCore.SafeHttp`), every redirect re-validated against SSRF, UrlValidator hardened - [#292](https://github.com/podCloud/balados.sync/issues/292) - PR #298 (follow-ups #297, #300)
 - [x] gettext 1.0 upgrade - [#284](https://github.com/podCloud/balados.sync/issues/284) - PR #296
 - [x] timex removed (native RFC 1123, Quantum jobs on :utc) - [#285](https://github.com/podCloud/balados.sync/issues/285) - PR #287 (follow-ups #290, #295)
 - [x] Hammer 7 (exact Retry-After, limiter before the endpoint) - [#286](https://github.com/podCloud/balados.sync/issues/286) - PR #289 (closes flaky #266)
