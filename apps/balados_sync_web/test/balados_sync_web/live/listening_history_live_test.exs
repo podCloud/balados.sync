@@ -173,7 +173,7 @@ defmodule BaladosSyncWeb.ListeningHistoryLiveTest do
     # the handler rebuilds the URL without `page`, so a reconnect on page 3 would
     # jump back to page 1. The URL already carries the whole state.
     test "the filter form opts out of form recovery", %{conn: conn} do
-      {:ok, view, _html} = live(conn, ~p"/listening-history?page=1")
+      {:ok, view, _html} = live(conn, ~p"/listening-history?page=3")
       assert has_element?(view, "form#history-filters[phx-auto-recover=ignore]")
     end
 
