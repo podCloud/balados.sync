@@ -1,4 +1,4 @@
-# Workflow stack — balados.sync (Elixir umbrella / Phoenix 1.7 / CQRS-ES)
+# Workflow stack — balados.sync (Elixir umbrella / Phoenix 1.8 / LiveView 1.2 / CQRS-ES)
 
 ## Commands
 - Install (worktree) : `mix deps.get`, puis `MIX_ENV=test mix db.create && MIX_ENV=test mix db.init` sur une base vierge (sinon `MIX_ENV=test mix db.migrate`) avant les tests.
@@ -21,6 +21,7 @@
 
 ## Pièges connus
 - Hook pre-commit (`.githooks/`) : lance `mix format <fichiers>` depuis la racine, sans le `locals_without_parens` de Phoenix, et réécrit `plug X` en `plug(X)` (#272). Tant que ce n'est pas corrigé : vérifier `git diff <base> -- <fichier>` juste avant chaque commit touchant `endpoint.ex` / `router.ex` / des plugs de controller ; si le hook réintroduit des parenthèses, `mix format --check-formatted` à la main puis `git commit --no-verify`.
+- HEEx (LiveView 1.x) : une accolade littérale dans le texte d'un gabarit est une expression ; mettre `phx-no-curly-interpolation` sur l'élément. Un `<form phx-change>` sans `id` déclenche un avertissement en test. `Phoenix.LiveViewTest` repose sur `lazy_html` (plus de Floki). Le formateur HEEx change d'une version de LiveView à l'autre : relancer `mix format` après une montée.
 - `mix gettext.extract --check-up-to-date` échoue sur main (#269) : ne pas l'ajouter au gate tant que ce n'est pas corrigé.
 - Tests flaky connus : `MessageHandlerTest` PLAY_RATE_LIMITED (#266) ; `LiveWebSocket.RateLimiterTest` bucket vide (#274) ; LiveView historiques (#246).
 - CI : workflow `Tests` (job `Compile, format and test`) sur chaque PR ; vérifier `~/.config/podclaude/gh.sh pr checks <n>` avant de merger.

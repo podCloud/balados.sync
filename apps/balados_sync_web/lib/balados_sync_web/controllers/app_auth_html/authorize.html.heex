@@ -14,7 +14,7 @@
       <% end %>
 
       <h1 class="text-2xl font-bold text-gray-900 mb-2">
-        <%= gettext("app_auth.authorize_title") %> <%= @app_name %>
+        {gettext("app_auth.authorize_title")} {@app_name}
       </h1>
 
       <%= if @app_url do %>
@@ -25,24 +25,24 @@
             rel="noopener noreferrer"
             class="text-blue-600 hover:text-blue-800 underline"
           >
-            <%= @app_url %>
+            {@app_url}
           </a>
         </p>
       <% end %>
 
       <p class="text-xs text-gray-500 mt-2">
-        <%= gettext("app_auth.used_by") %> <%= @user_display %>
+        {gettext("app_auth.used_by")} {@user_display}
       </p>
     </div>
 
     <div class="border-t border-gray-200 pt-6 mb-6">
       <h2 class="text-lg font-semibold text-gray-900 mb-3">
-        <%= gettext("app_auth.requesting_permission") %>
+        {gettext("app_auth.requesting_permission")}
       </h2>
 
       <%= if Enum.empty?(@scopes) do %>
         <p class="text-gray-600 text-sm italic">
-          <%= gettext("app_auth.no_specific_permissions") %>
+          {gettext("app_auth.no_specific_permissions")}
         </p>
       <% else %>
         <ul class="space-y-2">
@@ -63,8 +63,8 @@
                 </path>
               </svg>
               <div class="flex-1">
-                <span class="text-gray-700 font-medium"><%= label %></span>
-                <span class="text-gray-500 text-xs block"><%= scope %></span>
+                <span class="text-gray-700 font-medium">{label}</span>
+                <span class="text-gray-500 text-xs block">{scope}</span>
               </div>
             </li>
           <% end %>
@@ -89,9 +89,9 @@
           </path>
         </svg>
         <div class="text-sm text-blue-800">
-          <p class="font-medium mb-1"><%= gettext("app_auth.important") %></p>
+          <p class="font-medium mb-1">{gettext("app_auth.important")}</p>
           <p>
-            <%= gettext("app_auth.authorize_warning") %>
+            {gettext("app_auth.authorize_warning")}
           </p>
         </div>
       </div>
@@ -105,14 +105,14 @@
           type="submit"
           class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          <%= gettext("app_auth.authorize_title") %> <%= @app_name %>
+          {gettext("app_auth.authorize_title")} {@app_name}
         </button>
 
         <a
           href="/"
           class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md text-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
         >
-          <%= gettext("common.cancel") %>
+          {gettext("common.cancel")}
         </a>
       </div>
     </.form>

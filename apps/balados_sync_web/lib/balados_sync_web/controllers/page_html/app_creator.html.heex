@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= gettext("app_creator.title") %></title>
+    <title>{gettext("app_creator.title")}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js">
     </script>
     <style>
@@ -208,39 +208,39 @@
   </head>
   <body>
     <div class="container">
-      <h1><%= gettext("app_creator.title") %></h1>
+      <h1>{gettext("app_creator.title")}</h1>
       <p class="description">
-        <%= gettext("app_creator.description") %>
+        {gettext("app_creator.description")}
       </p>
 
       <div class="info-box">
-        <p><strong><%= gettext("app_creator.how_it_works") %></strong></p>
-        <p><%= gettext("app_creator.step_1") %></p>
-        <p><%= gettext("app_creator.step_2") %></p>
-        <p><%= gettext("app_creator.step_3") %></p>
-        <p><%= gettext("app_creator.step_4") %></p>
-        <p><%= gettext("app_creator.step_5") %></p>
+        <p><strong>{gettext("app_creator.how_it_works")}</strong></p>
+        <p>{gettext("app_creator.step_1")}</p>
+        <p>{gettext("app_creator.step_2")}</p>
+        <p>{gettext("app_creator.step_3")}</p>
+        <p>{gettext("app_creator.step_4")}</p>
+        <p>{gettext("app_creator.step_5")}</p>
       </div>
 
       <div id="alert" class="alert"></div>
 
       <form id="appForm">
         <div class="form-group">
-          <label for="app_id" class="required"><%= gettext("app_creator.app_id_label") %></label>
+          <label for="app_id" class="required">{gettext("app_creator.app_id_label")}</label>
           <input type="text" id="app_id" name="app_id" placeholder="com.example.myapp" required />
           <div class="help-text">
-            <%= gettext("app_creator.app_id_hint") %>
+            {gettext("app_creator.app_id_hint")}
           </div>
         </div>
 
         <div class="form-group">
-          <label for="name" class="required"><%= gettext("app_creator.app_name_label") %></label>
+          <label for="name" class="required">{gettext("app_creator.app_name_label")}</label>
           <input type="text" id="name" name="name" placeholder="My Awesome App" required />
-          <div class="help-text"><%= gettext("app_creator.app_name_hint") %></div>
+          <div class="help-text">{gettext("app_creator.app_name_hint")}</div>
         </div>
 
         <div class="form-group">
-          <label for="image"><%= gettext("app_creator.app_image_label") %></label>
+          <label for="image">{gettext("app_creator.app_image_label")}</label>
           <input
             type="text"
             id="image"
@@ -248,25 +248,25 @@
             placeholder="https://example.com/app-icon.png"
           />
           <div class="help-text">
-            <%= gettext("app_creator.app_image_hint") %>
+            {gettext("app_creator.app_image_hint")}
           </div>
         </div>
 
         <div class="form-group">
-          <label for="url"><%= gettext("app_creator.app_url_label") %></label>
+          <label for="url">{gettext("app_creator.app_url_label")}</label>
           <input type="text" id="url" name="url" placeholder="https://example.com" />
-          <div class="help-text"><%= gettext("app_creator.app_url_hint") %></div>
+          <div class="help-text">{gettext("app_creator.app_url_hint")}</div>
         </div>
 
         <div class="form-group">
-          <label><%= gettext("app_creator.scopes_label") %></label>
+          <label>{gettext("app_creator.scopes_label")}</label>
           <div class="help-text" style="margin-bottom: 10px;">
-            <%= gettext("app_creator.scopes_hint") %>
+            {gettext("app_creator.scopes_hint")}
             <button type="button" id="selectAllScopes" class="btn-link" style="margin-left: 10px;">
-              <%= gettext("app_creator.select_all") %>
+              {gettext("app_creator.select_all")}
             </button>
             <button type="button" id="selectNone" class="btn-link" style="margin-left: 5px;">
-              <%= gettext("app_creator.select_none") %>
+              {gettext("app_creator.select_none")}
             </button>
           </div>
           <div class="scopes-grid" id="scopesGrid">
@@ -276,7 +276,7 @@
 
         <div class="form-group">
           <label for="public_key" class="required">
-            <%= gettext("app_creator.public_key_label") %>
+            {gettext("app_creator.public_key_label")}
           </label>
           <textarea
             id="public_key"
@@ -286,13 +286,13 @@
             required
           ></textarea>
           <div class="help-text">
-            <%= gettext("app_creator.public_key_hint") %>
+            {gettext("app_creator.public_key_hint")}
           </div>
         </div>
 
         <div class="form-group">
           <label for="private_key" class="required">
-            <%= gettext("app_creator.private_key_label") %>
+            {gettext("app_creator.private_key_label")}
           </label>
           <textarea
             id="private_key"
@@ -301,35 +301,35 @@
             placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"
             required
           ></textarea>
-          <div class="help-text"><%= gettext("app_creator.private_key_hint") %></div>
+          <div class="help-text">{gettext("app_creator.private_key_hint")}</div>
         </div>
 
         <div class="button-group">
           <button type="button" id="generateKeysBtn" class="btn-secondary">
-            <%= gettext("app_creator.generate_key_pair") %>
+            {gettext("app_creator.generate_key_pair")}
           </button>
           <button type="button" id="generateTokenBtn" class="btn-primary">
-            <%= gettext("app_creator.generate_token") %>
+            {gettext("app_creator.generate_token")}
           </button>
         </div>
       </form>
 
       <div id="outputSection" class="output-section" style="display: none;">
-        <div class="output-label"><%= gettext("app_creator.generated_token") %></div>
+        <div class="output-label">{gettext("app_creator.generated_token")}</div>
         <textarea id="tokenOutput" class="textarea-small" readonly></textarea>
 
         <div class="button-group">
           <button type="button" id="copyBtn" class="btn-success">
-            <%= gettext("app_creator.copy_to_clipboard") %>
+            {gettext("app_creator.copy_to_clipboard")}
           </button>
         </div>
 
         <div class="output-label" style="margin-top: 20px;">
-          <%= gettext("app_creator.auth_url_example") %>
+          {gettext("app_creator.auth_url_example")}
         </div>
         <div class="url-example" id="authUrlExample"></div>
         <div class="help-text" style="margin-top: 10px;">
-          <%= gettext("app_creator.auth_url_hint") %>
+          {gettext("app_creator.auth_url_hint")}
         </div>
       </div>
     </div>

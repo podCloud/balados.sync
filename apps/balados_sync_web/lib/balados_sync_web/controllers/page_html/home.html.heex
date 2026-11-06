@@ -16,7 +16,7 @@
         Balados Sync
       </h1>
       <p class="mt-6 text-lg leading-8 text-zinc-600">
-        <%= gettext("home.hero.description") %>
+        {gettext("home.hero.description")}
       </p>
       <div class="mt-10 flex items-center justify-center gap-x-6">
         <%= if @current_user do %>
@@ -24,20 +24,20 @@
             navigate={~p"/dashboard"}
             class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            <%= gettext("home.cta.go_to_dashboard") %>
+            {gettext("home.cta.go_to_dashboard")}
           </.link>
         <% else %>
           <.link
             navigate={~p"/users/register"}
             class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            <%= gettext("home.cta.create_account") %>
+            {gettext("home.cta.create_account")}
           </.link>
           <.link
             navigate={~p"/users/log_in"}
             class="text-sm font-semibold leading-6 text-zinc-900"
           >
-            <%= gettext("home.cta.log_in") %> <span aria-hidden="true">→</span>
+            {gettext("home.cta.log_in")} <span aria-hidden="true">→</span>
           </.link>
         <% end %>
       </div>
@@ -59,13 +59,13 @@
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
     <div class="mx-auto max-w-2xl lg:text-center">
       <h2 class="text-base font-semibold leading-7 text-indigo-600">
-        <%= gettext("home.features.subtitle") %>
+        {gettext("home.features.subtitle")}
       </h2>
       <p class="mt-2 text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
-        <%= gettext("home.features.title") %>
+        {gettext("home.features.title")}
       </p>
       <p class="mt-6 text-lg leading-8 text-zinc-600">
-        <%= gettext("home.features.description") %>
+        {gettext("home.features.description")}
       </p>
     </div>
     <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
@@ -88,10 +88,10 @@
                 />
               </svg>
             </div>
-            <%= gettext("home.feature.api.title") %>
+            {gettext("home.feature.api.title")}
           </dt>
           <dd class="mt-2 text-base leading-7 text-zinc-600">
-            <%= gettext("home.feature.api.description") %>
+            {gettext("home.feature.api.description")}
           </dd>
         </div>
         <div class="relative pl-16">
@@ -112,10 +112,10 @@
                 />
               </svg>
             </div>
-            <%= gettext("home.feature.security.title") %>
+            {gettext("home.feature.security.title")}
           </dt>
           <dd class="mt-2 text-base leading-7 text-zinc-600">
-            <%= gettext("home.feature.security.description") %>
+            {gettext("home.feature.security.description")}
           </dd>
         </div>
         <div class="relative pl-16">
@@ -141,10 +141,10 @@
                 />
               </svg>
             </div>
-            <%= gettext("home.feature.privacy.title") %>
+            {gettext("home.feature.privacy.title")}
           </dt>
           <dd class="mt-2 text-base leading-7 text-zinc-600">
-            <%= gettext("home.feature.privacy.description") %>
+            {gettext("home.feature.privacy.description")}
           </dd>
         </div>
         <div class="relative pl-16">
@@ -165,10 +165,10 @@
                 />
               </svg>
             </div>
-            <%= gettext("home.feature.stats.title") %>
+            {gettext("home.feature.stats.title")}
           </dt>
           <dd class="mt-2 text-base leading-7 text-zinc-600">
-            <%= gettext("home.feature.stats.description") %>
+            {gettext("home.feature.stats.description")}
           </dd>
         </div>
       </dl>

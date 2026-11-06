@@ -1,8 +1,8 @@
 <div class="px-4 py-10 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-2xl">
     <.header>
-      <%= gettext("subscriptions.add_title") %>
-      <:subtitle><%= gettext("subscriptions.add_subtitle") %></:subtitle>
+      {gettext("subscriptions.add_title")}
+      <:subtitle>{gettext("subscriptions.add_subtitle")}</:subtitle>
     </.header>
 
     <div class="mt-10 bg-white shadow rounded-lg p-6">
@@ -10,7 +10,7 @@
         <div class="space-y-4">
           <div>
             <label for="feed_url" class="block text-sm font-medium text-zinc-900">
-              <%= gettext("subscriptions.feed_url_label") %>
+              {gettext("subscriptions.feed_url_label")}
             </label>
             <input
               type="url"
@@ -24,9 +24,9 @@
 
           <%= if @preview do %>
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 class="font-semibold text-blue-900"><%= @preview.title %></h3>
-              <p class="text-sm text-blue-700 mt-1">by <%= @preview.author %></p>
-              <p class="text-sm text-blue-600 mt-2"><%= @preview.description %></p>
+              <h3 class="font-semibold text-blue-900">{@preview.title}</h3>
+              <p class="text-sm text-blue-700 mt-1">by {@preview.author}</p>
+              <p class="text-sm text-blue-600 mt-2">{@preview.description}</p>
             </div>
           <% end %>
 
@@ -35,13 +35,13 @@
               type="submit"
               class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
             >
-              <%= gettext("subscriptions.subscribe") %>
+              {gettext("subscriptions.subscribe")}
             </button>
             <.link
               navigate={~p"/subscriptions"}
               class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
             >
-              <%= gettext("common.cancel") %>
+              {gettext("common.cancel")}
             </.link>
           </div>
         </div>

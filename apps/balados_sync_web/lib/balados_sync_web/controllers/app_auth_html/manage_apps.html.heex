@@ -1,10 +1,10 @@
 <div class="mx-auto max-w-4xl py-12 px-4">
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-gray-900 mb-2">
-      <%= gettext("app_auth.authorized_apps_title") %>
+      {gettext("app_auth.authorized_apps_title")}
     </h1>
     <p class="text-gray-600">
-      <%= gettext("app_auth.authorized_apps_subtitle") %>
+      {gettext("app_auth.authorized_apps_subtitle")}
     </p>
   </div>
 
@@ -14,10 +14,10 @@
         <span class="text-4xl text-gray-400">🔐</span>
       </div>
       <h2 class="text-xl font-semibold text-gray-900 mb-2">
-        <%= gettext("app_auth.no_authorized_apps") %>
+        {gettext("app_auth.no_authorized_apps")}
       </h2>
       <p class="text-gray-600">
-        <%= gettext("app_auth.no_authorized_description") %>
+        {gettext("app_auth.no_authorized_description")}
       </p>
     </div>
   <% else %>
@@ -44,7 +44,7 @@
               <div class="flex items-start justify-between mb-2">
                 <div>
                   <h3 class="text-lg font-semibold text-gray-900">
-                    <%= app.app_name %>
+                    {app.app_name}
                   </h3>
                   <%= if app.app_url do %>
                     <a
@@ -53,7 +53,7 @@
                       rel="noopener noreferrer"
                       class="text-sm text-blue-600 hover:text-blue-800 underline"
                     >
-                      <%= app.app_url %>
+                      {app.app_url}
                     </a>
                   <% end %>
                 </div>
@@ -63,18 +63,18 @@
                   class="flex-shrink-0 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                   data-confirm={gettext("app_auth.revoke_confirm")}
                 >
-                  <%= gettext("app_auth.revoke_access") %>
+                  {gettext("app_auth.revoke_access")}
                 </button>
               </div>
 
               <p class="text-xs text-gray-500 mb-3">
-                <%= gettext("app_auth.used_by") %> <%= app.user_display %> • App ID: <%= app.app_id %>
+                {gettext("app_auth.used_by")} {app.user_display} • App ID: {app.app_id}
               </p>
               <!-- Scopes -->
               <%= if not Enum.empty?(app.scopes_with_labels) do %>
                 <div class="mb-3">
                   <h4 class="text-sm font-medium text-gray-700 mb-2">
-                    <%= gettext("app_auth.granted_permissions") %>
+                    {gettext("app_auth.granted_permissions")}
                   </h4>
                   <div class="flex flex-wrap gap-2">
                     <%= for %{scope: scope, label: label} <- app.scopes_with_labels do %>
@@ -82,7 +82,7 @@
                         class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
                         title={scope}
                       >
-                        <%= label %>
+                        {label}
                       </span>
                     <% end %>
                   </div>
@@ -91,11 +91,11 @@
               <!-- Timestamps -->
               <div class="text-xs text-gray-500">
                 <span>
-                  <%= gettext("app_auth.authorized_on") %> <%= format_datetime(app.inserted_at) %>
+                  {gettext("app_auth.authorized_on")} {format_datetime(app.inserted_at)}
                 </span>
                 <%= if app.last_used_at do %>
                   <span class="ml-3">
-                    <%= gettext("app_auth.last_used_on") %> <%= format_datetime(app.last_used_at) %>
+                    {gettext("app_auth.last_used_on")} {format_datetime(app.last_used_at)}
                   </span>
                 <% end %>
               </div>

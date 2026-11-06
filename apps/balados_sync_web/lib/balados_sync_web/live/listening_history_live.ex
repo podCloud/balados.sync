@@ -101,14 +101,14 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
         <div class="flex items-center justify-between mb-6">
           <div>
             <h1 class="text-2xl font-bold text-zinc-900">
-              <%= gettext("listening_history.title") %>
+              {gettext("listening_history.title")}
             </h1>
             <p class="text-sm text-zinc-500 mt-1">
-              <%= ngettext(
+              {ngettext(
                 "listening_history.count.one",
                 "listening_history.count.other",
                 @total
-              ) %>
+              )}
             </p>
           </div>
           <div class="flex gap-2">
@@ -116,19 +116,19 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
               href={export_url("csv", @filter_feed, @filter_period, @filter_status)}
               class="rounded-lg bg-zinc-100 px-3 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-200"
             >
-              <%= gettext("listening_history.export_csv") %>
+              {gettext("listening_history.export_csv")}
             </.link>
             <.link
               href={export_url("json", @filter_feed, @filter_period, @filter_status)}
               class="rounded-lg bg-zinc-100 px-3 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-200"
             >
-              <%= gettext("listening_history.export_json") %>
+              {gettext("listening_history.export_json")}
             </.link>
           </div>
         </div>
         <!-- Stats Panel -->
         <h2 class="text-sm font-medium text-zinc-500 mb-2">
-          <%= gettext("listening_history.stats.all_time_label") %>
+          {gettext("listening_history.stats.all_time_label")}
         </h2>
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <div class="bg-white rounded-lg shadow p-4 text-center">
@@ -136,27 +136,27 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
               <%= if @loading_stats do %>
                 <span class="text-zinc-300">...</span>
               <% else %>
-                <%= format_duration(@stats.total_time) %>
+                {format_duration(@stats.total_time)}
               <% end %>
             </div>
             <div class="text-xs text-zinc-500 mt-1">
-              <%= gettext("listening_history.stats.total_time") %>
+              {gettext("listening_history.stats.total_time")}
             </div>
           </div>
           <div class="bg-white rounded-lg shadow p-4 text-center">
             <div class="text-2xl font-bold text-zinc-900">
-              <%= if @loading_stats, do: "...", else: @stats.total_episodes %>
+              {if @loading_stats, do: "...", else: @stats.total_episodes}
             </div>
             <div class="text-xs text-zinc-500 mt-1">
-              <%= gettext("listening_history.stats.episodes") %>
+              {gettext("listening_history.stats.episodes")}
             </div>
           </div>
           <div class="bg-white rounded-lg shadow p-4 text-center">
             <div class="text-2xl font-bold text-zinc-900">
-              <%= if @loading_stats, do: "...", else: @stats.completed_count %>
+              {if @loading_stats, do: "...", else: @stats.completed_count}
             </div>
             <div class="text-xs text-zinc-500 mt-1">
-              <%= gettext("listening_history.stats.completed") %>
+              {gettext("listening_history.stats.completed")}
             </div>
           </div>
           <div class="bg-white rounded-lg shadow p-4 text-center">
@@ -164,16 +164,16 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
               <%= if @loading_stats do %>
                 <span class="text-zinc-300">...</span>
               <% else %>
-                <%= @stats.streak_days %>
+                {@stats.streak_days}
               <% end %>
             </div>
             <div class="text-xs text-zinc-500 mt-1">
-              <%= gettext("listening_history.stats.streak") %>
+              {gettext("listening_history.stats.streak")}
             </div>
           </div>
           <div class="bg-white rounded-lg shadow p-4 col-span-2 md:col-span-1">
             <div class="text-xs text-zinc-500 mb-2">
-              <%= gettext("listening_history.stats.top_podcasts") %>
+              {gettext("listening_history.stats.top_podcasts")}
             </div>
             <%= if @loading_stats do %>
               <div class="text-zinc-300 text-sm">...</div>
@@ -184,8 +184,8 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
                 <ul class="space-y-1">
                   <%= for {title, count} <- @stats.top_podcasts do %>
                     <li class="text-sm text-zinc-700 truncate" title={title}>
-                      <span class="font-medium"><%= count %></span>
-                      <span class="text-zinc-500"><%= title %></span>
+                      <span class="font-medium">{count}</span>
+                      <span class="text-zinc-500">{title}</span>
                     </li>
                   <% end %>
                 </ul>
@@ -194,9 +194,14 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
           </div>
         </div>
         <!-- Filters -->
-        <form phx-change="filter" class="flex flex-wrap gap-3 mb-6">
+        <form
+          id="history-filters"
+          phx-change="filter"
+          phx-auto-recover="ignore"
+          class="flex flex-wrap gap-3 mb-6"
+        >
           <label for="filter-feed" class="sr-only">
-            <%= gettext("listening_history.filter.podcast_label") %>
+            {gettext("listening_history.filter.podcast_label")}
           </label>
           <select
             id="filter-feed"
@@ -204,19 +209,19 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
             class="rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           >
             <%= if @loading_feed_titles do %>
-              <option value=""><%= gettext("listening_history.filter.loading_podcasts") %></option>
+              <option value="">{gettext("listening_history.filter.loading_podcasts")}</option>
             <% else %>
-              <option value=""><%= gettext("listening_history.filter.all_podcasts") %></option>
+              <option value="">{gettext("listening_history.filter.all_podcasts")}</option>
               <%= for {feed_id, title} <- @feed_titles do %>
                 <option value={feed_id} selected={@filter_feed == feed_id}>
-                  <%= title %>
+                  {title}
                 </option>
               <% end %>
             <% end %>
           </select>
 
           <label for="filter-period" class="sr-only">
-            <%= gettext("listening_history.filter.period_label") %>
+            {gettext("listening_history.filter.period_label")}
           </label>
           <select
             id="filter-period"
@@ -224,21 +229,21 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
             class="rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           >
             <option value="" selected={@filter_period == ""}>
-              <%= gettext("listening_history.filter.all_time") %>
+              {gettext("listening_history.filter.all_time")}
             </option>
             <option value="week" selected={@filter_period == "week"}>
-              <%= gettext("listening_history.filter.this_week") %>
+              {gettext("listening_history.filter.this_week")}
             </option>
             <option value="month" selected={@filter_period == "month"}>
-              <%= gettext("listening_history.filter.this_month") %>
+              {gettext("listening_history.filter.this_month")}
             </option>
             <option value="year" selected={@filter_period == "year"}>
-              <%= gettext("listening_history.filter.this_year") %>
+              {gettext("listening_history.filter.this_year")}
             </option>
           </select>
 
           <label for="filter-status" class="sr-only">
-            <%= gettext("listening_history.filter.status_label") %>
+            {gettext("listening_history.filter.status_label")}
           </label>
           <select
             id="filter-status"
@@ -246,23 +251,23 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
             class="rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           >
             <option value="" selected={@filter_status == ""}>
-              <%= gettext("listening_history.filter.all_status") %>
+              {gettext("listening_history.filter.all_status")}
             </option>
             <option value="completed" selected={@filter_status == "completed"}>
-              <%= gettext("listening_history.filter.completed") %>
+              {gettext("listening_history.filter.completed")}
             </option>
             <option value="in_progress" selected={@filter_status == "in_progress"}>
-              <%= gettext("listening_history.filter.in_progress") %>
+              {gettext("listening_history.filter.in_progress")}
             </option>
             <option value="not_started" selected={@filter_status == "not_started"}>
-              <%= gettext("listening_history.filter.not_started") %>
+              {gettext("listening_history.filter.not_started")}
             </option>
           </select>
         </form>
         <!-- Episode List -->
         <%= if Enum.empty?(@entries) do %>
           <div class="text-center py-12">
-            <p class="text-zinc-600"><%= gettext("listening_history.empty") %></p>
+            <p class="text-zinc-600">{gettext("listening_history.empty")}</p>
           </div>
         <% else %>
           <div class="space-y-3">
@@ -288,10 +293,10 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
                 <!-- Info -->
                 <div class="flex-1 min-w-0">
                   <h3 class="font-medium text-zinc-900 truncate">
-                    <%= entry.rss_item_title || gettext("listening_history.unknown_episode") %>
+                    {entry.rss_item_title || gettext("listening_history.unknown_episode")}
                   </h3>
                   <p class="text-sm text-zinc-500 truncate">
-                    <%= entry.rss_feed_title || gettext("listening_history.unknown_podcast") %>
+                    {entry.rss_feed_title || gettext("listening_history.unknown_podcast")}
                   </p>
                   <!-- Progress bar -->
                   <div class="mt-2 flex items-center gap-2">
@@ -305,17 +310,17 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
                       </div>
                     <% end %>
                     <span class="text-xs text-zinc-500 whitespace-nowrap">
-                      <%= format_position(entry) %>
+                      {format_position(entry)}
                     </span>
                   </div>
                 </div>
                 <!-- Status & Time -->
                 <div class="flex-shrink-0 text-right">
                   <span class={status_badge_class(entry)}>
-                    <%= status_label(entry) %>
+                    {status_label(entry)}
                   </span>
                   <p class="text-xs text-zinc-400 mt-1">
-                    <%= format_time_ago(entry.updated_at) %>
+                    {format_time_ago(entry.updated_at)}
                   </p>
                 </div>
               </div>
@@ -332,21 +337,21 @@ defmodule BaladosSyncWeb.ListeningHistoryLive do
                   patch={page_url(@page - 1, @filter_feed, @filter_period, @filter_status)}
                   class="rounded-lg bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200"
                 >
-                  <%= gettext("listening_history.pagination.previous") %>
+                  {gettext("listening_history.pagination.previous")}
                 </.link>
               <% end %>
               <span class="px-4 py-2 text-sm text-zinc-500">
-                <%= gettext("listening_history.pagination.page_info",
+                {gettext("listening_history.pagination.page_info",
                   page: @page,
                   total: @total_pages
-                ) %>
+                )}
               </span>
               <%= if @page < @total_pages do %>
                 <.link
                   patch={page_url(@page + 1, @filter_feed, @filter_period, @filter_status)}
                   class="rounded-lg bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200"
                 >
-                  <%= gettext("listening_history.pagination.next") %>
+                  {gettext("listening_history.pagination.next")}
                 </.link>
               <% end %>
             </nav>

@@ -3,10 +3,10 @@
 <div class="px-4 py-10 sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32" data-page="privacy-manager">
   <div class="mx-auto max-w-3xl">
     <h1 class="text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl">
-      <%= gettext("privacy.title") %>
+      {gettext("privacy.title")}
     </h1>
     <p class="mt-3 text-lg text-zinc-600">
-      <%= gettext("privacy.description") %>
+      {gettext("privacy.description")}
     </p>
 
     <div class="mt-12 space-y-8">
@@ -31,21 +31,21 @@
               />
             </svg>
             <h2 class="text-2xl font-bold text-blue-900">
-              <%= gettext("common.public") %>
+              {gettext("common.public")}
               <span class="text-base font-normal text-blue-700 ml-2 count-badge">
-                (<%= length(Map.get(@grouped, :public, [])) %>)
+                ({length(Map.get(@grouped, :public, []))})
               </span>
             </h2>
           </div>
           <p class="mt-2 text-sm text-blue-700">
-            <%= gettext("privacy.public_description") %>
+            {gettext("privacy.public_description")}
           </p>
         </div>
 
         <div class="divide-y divide-zinc-200 podcasts-list">
           <%= if Enum.empty?(Map.get(@grouped, :public, [])) do %>
             <div class="px-4 py-8 sm:p-8 text-center text-zinc-500 empty-state">
-              <p><%= gettext("privacy.no_public") %></p>
+              <p>{gettext("privacy.no_public")}</p>
             </div>
           <% else %>
             <%= for podcast <- Map.get(@grouped, :public, []) do %>
@@ -73,7 +73,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                       <h3 class="font-semibold text-zinc-900 text-lg truncate podcast-title">
-                        <%= podcast.title %>
+                        {podcast.title}
                       </h3>
                     </div>
                   </a>
@@ -106,25 +106,25 @@
                       <option value="private">Private</option>
                     </select>
                     <button class="change-btn rounded-md bg-blue-600 px-4 py-2 text-white text-sm font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                      <%= gettext("common.change") %>
+                      {gettext("common.change")}
                     </button>
                     <button class="cancel-btn text-sm text-zinc-600 hover:text-zinc-900">
-                      <%= gettext("common.cancel") %>
+                      {gettext("common.cancel")}
                     </button>
                   </div>
                   <!-- Delete Privacy Section -->
                   <div class="border-t border-orange-200 pt-3">
                     <button class="delete-privacy-btn text-sm text-orange-700 hover:text-orange-800 font-semibold transition">
-                      ✕ <%= gettext("privacy.delete_privacy") %>
+                      ✕ {gettext("privacy.delete_privacy")}
                     </button>
                     <p class="text-xs text-orange-600 mt-1">
-                      <%= gettext("privacy.delete_privacy_hint") %>
+                      {gettext("privacy.delete_privacy_hint")}
                     </p>
                   </div>
                   <!-- Unsubscribe Section -->
                   <div class="border-t border-red-200 pt-3">
                     <button class="unsubscribe-btn text-sm text-red-600 hover:text-red-700 font-semibold">
-                      <%= gettext("common.remove") %>
+                      {gettext("common.remove")}
                     </button>
                   </div>
                 </div>
@@ -153,21 +153,21 @@
               />
             </svg>
             <h2 class="text-2xl font-bold text-purple-900">
-              <%= gettext("common.anonymous") %>
+              {gettext("common.anonymous")}
               <span class="text-base font-normal text-purple-700 ml-2 count-badge">
-                (<%= length(Map.get(@grouped, :anonymous, [])) %>)
+                ({length(Map.get(@grouped, :anonymous, []))})
               </span>
             </h2>
           </div>
           <p class="mt-2 text-sm text-purple-700">
-            <%= gettext("privacy.anonymous_description") %>
+            {gettext("privacy.anonymous_description")}
           </p>
         </div>
 
         <div class="divide-y divide-zinc-200 podcasts-list">
           <%= if Enum.empty?(Map.get(@grouped, :anonymous, [])) do %>
             <div class="px-4 py-8 sm:p-8 text-center text-zinc-500 empty-state">
-              <p><%= gettext("privacy.no_anonymous") %></p>
+              <p>{gettext("privacy.no_anonymous")}</p>
             </div>
           <% else %>
             <%= for podcast <- Map.get(@grouped, :anonymous, []) do %>
@@ -195,7 +195,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                       <h3 class="font-semibold text-zinc-900 text-lg truncate podcast-title">
-                        <%= podcast.title %>
+                        {podcast.title}
                       </h3>
                     </div>
                   </a>
@@ -228,25 +228,25 @@
                       <option value="private">Private</option>
                     </select>
                     <button class="change-btn rounded-md bg-purple-600 px-4 py-2 text-white text-sm font-semibold hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-                      <%= gettext("common.change") %>
+                      {gettext("common.change")}
                     </button>
                     <button class="cancel-btn text-sm text-zinc-600 hover:text-zinc-900">
-                      <%= gettext("common.cancel") %>
+                      {gettext("common.cancel")}
                     </button>
                   </div>
                   <!-- Delete Privacy Section -->
                   <div class="border-t border-orange-200 pt-3">
                     <button class="delete-privacy-btn text-sm text-orange-700 hover:text-orange-800 font-semibold transition">
-                      ✕ <%= gettext("privacy.delete_privacy") %>
+                      ✕ {gettext("privacy.delete_privacy")}
                     </button>
                     <p class="text-xs text-orange-600 mt-1">
-                      <%= gettext("privacy.delete_privacy_hint") %>
+                      {gettext("privacy.delete_privacy_hint")}
                     </p>
                   </div>
                   <!-- Unsubscribe Section -->
                   <div class="border-t border-red-200 pt-3">
                     <button class="unsubscribe-btn text-sm text-red-600 hover:text-red-700 font-semibold">
-                      <%= gettext("common.remove") %>
+                      {gettext("common.remove")}
                     </button>
                   </div>
                 </div>
@@ -275,21 +275,21 @@
               />
             </svg>
             <h2 class="text-2xl font-bold text-red-900">
-              <%= gettext("common.private") %>
+              {gettext("common.private")}
               <span class="text-base font-normal text-red-700 ml-2 count-badge">
-                (<%= length(Map.get(@grouped, :private, [])) %>)
+                ({length(Map.get(@grouped, :private, []))})
               </span>
             </h2>
           </div>
           <p class="mt-2 text-sm text-red-700">
-            <%= gettext("privacy.private_description") %>
+            {gettext("privacy.private_description")}
           </p>
         </div>
 
         <div class="divide-y divide-zinc-200 podcasts-list">
           <%= if Enum.empty?(Map.get(@grouped, :private, [])) do %>
             <div class="px-4 py-8 sm:p-8 text-center text-zinc-500 empty-state">
-              <p><%= gettext("privacy.no_private") %></p>
+              <p>{gettext("privacy.no_private")}</p>
             </div>
           <% else %>
             <%= for podcast <- Map.get(@grouped, :private, []) do %>
@@ -317,7 +317,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                       <h3 class="font-semibold text-zinc-900 text-lg truncate podcast-title">
-                        <%= podcast.title %>
+                        {podcast.title}
                       </h3>
                     </div>
                   </a>
@@ -350,25 +350,25 @@
                       <option value="private">Private</option>
                     </select>
                     <button class="change-btn rounded-md bg-red-600 px-4 py-2 text-white text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                      <%= gettext("common.change") %>
+                      {gettext("common.change")}
                     </button>
                     <button class="cancel-btn text-sm text-zinc-600 hover:text-zinc-900">
-                      <%= gettext("common.cancel") %>
+                      {gettext("common.cancel")}
                     </button>
                   </div>
                   <!-- Delete Privacy Section -->
                   <div class="border-t border-orange-200 pt-3">
                     <button class="delete-privacy-btn text-sm text-orange-700 hover:text-orange-800 font-semibold transition">
-                      ✕ <%= gettext("privacy.delete_privacy") %>
+                      ✕ {gettext("privacy.delete_privacy")}
                     </button>
                     <p class="text-xs text-orange-600 mt-1">
-                      <%= gettext("privacy.delete_privacy_hint") %>
+                      {gettext("privacy.delete_privacy_hint")}
                     </p>
                   </div>
                   <!-- Unsubscribe Section -->
                   <div class="border-t border-red-200 pt-3">
                     <button class="unsubscribe-btn text-sm text-red-600 hover:text-red-700 font-semibold">
-                      <%= gettext("common.remove") %>
+                      {gettext("common.remove")}
                     </button>
                   </div>
                 </div>
@@ -380,25 +380,25 @@
     </div>
     <!-- Summary -->
     <div class="mt-12 bg-zinc-50 shadow-sm ring-1 ring-zinc-200 sm:rounded-xl p-8">
-      <h3 class="text-lg font-semibold text-zinc-900 mb-4"><%= gettext("privacy.summary") %></h3>
+      <h3 class="text-lg font-semibold text-zinc-900 mb-4">{gettext("privacy.summary")}</h3>
       <div class="grid grid-cols-3 gap-4">
         <div class="text-center">
           <p class="text-3xl font-bold text-blue-600 summary-count" data-privacy="public">
-            <%= length(Map.get(@grouped, :public, [])) %>
+            {length(Map.get(@grouped, :public, []))}
           </p>
-          <p class="text-sm text-zinc-600 mt-1"><%= gettext("common.public") %></p>
+          <p class="text-sm text-zinc-600 mt-1">{gettext("common.public")}</p>
         </div>
         <div class="text-center">
           <p class="text-3xl font-bold text-purple-600 summary-count" data-privacy="anonymous">
-            <%= length(Map.get(@grouped, :anonymous, [])) %>
+            {length(Map.get(@grouped, :anonymous, []))}
           </p>
-          <p class="text-sm text-zinc-600 mt-1"><%= gettext("common.anonymous") %></p>
+          <p class="text-sm text-zinc-600 mt-1">{gettext("common.anonymous")}</p>
         </div>
         <div class="text-center">
           <p class="text-3xl font-bold text-red-600 summary-count" data-privacy="private">
-            <%= length(Map.get(@grouped, :private, [])) %>
+            {length(Map.get(@grouped, :private, []))}
           </p>
-          <p class="text-sm text-zinc-600 mt-1"><%= gettext("common.private") %></p>
+          <p class="text-sm text-zinc-600 mt-1">{gettext("common.private")}</p>
         </div>
       </div>
     </div>
@@ -433,28 +433,28 @@
         </svg>
       </div>
       <h2 id="privacy-warning-title" class="text-xl font-bold text-zinc-900">
-        <%= gettext("privacy.modal.title") %>
+        {gettext("privacy.modal.title")}
       </h2>
     </div>
     <!-- Message -->
     <div id="privacy-warning-desc" class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
       <p class="text-zinc-800 font-medium mb-3">
-        <%= gettext("privacy.modal.changing_to") %>
+        {gettext("privacy.modal.changing_to")}
         <span id="privacy-warning-level" class="font-bold text-amber-700">Anonymous</span>
-        <%= gettext("privacy.modal.will") %>
+        {gettext("privacy.modal.will")}
       </p>
       <ul class="text-sm text-zinc-700 space-y-2 ml-4">
         <li class="flex items-start gap-2">
           <span class="text-red-600 font-bold">✕</span>
-          <span><%= gettext("privacy.modal.hide_activity") %></span>
+          <span>{gettext("privacy.modal.hide_activity")}</span>
         </li>
         <li class="flex items-start gap-2">
           <span class="text-red-600 font-bold">✕</span>
-          <span><%= gettext("privacy.modal.remove_trending") %></span>
+          <span>{gettext("privacy.modal.remove_trending")}</span>
         </li>
         <li class="flex items-start gap-2" id="privacy-warning-stats">
           <span class="text-green-600 font-bold">✓</span>
-          <span><%= gettext("privacy.modal.still_contribute") %></span>
+          <span>{gettext("privacy.modal.still_contribute")}</span>
         </li>
       </ul>
     </div>
@@ -462,7 +462,7 @@
     <label class="flex items-center gap-3 mb-6 cursor-pointer hover:bg-gray-50 p-2 rounded">
       <input type="checkbox" id="privacy-warning-confirm" class="w-4 h-4 text-blue-600 rounded" />
       <span class="text-sm text-zinc-700">
-        <%= gettext("privacy.modal.confirm_label") %>
+        {gettext("privacy.modal.confirm_label")}
       </span>
     </label>
     <!-- Buttons -->
@@ -471,14 +471,14 @@
         id="privacy-warning-cancel-btn"
         class="flex-1 px-4 py-2 text-zinc-700 border border-zinc-300 rounded-lg hover:bg-zinc-50 font-medium transition"
       >
-        <%= gettext("common.cancel") %>
+        {gettext("common.cancel")}
       </button>
       <button
         id="privacy-warning-confirm-btn"
         class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition"
         disabled
       >
-        <%= gettext("privacy.modal.confirm_button") %>
+        {gettext("privacy.modal.confirm_button")}
       </button>
     </div>
   </div>
