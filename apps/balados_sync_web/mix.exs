@@ -65,7 +65,7 @@ defmodule BaladosSyncWeb.MixProject do
       {:httpoison, "~> 2.2"},
       {:cachex, "~> 3.6"},
       {:sweet_xml, "~> 0.7"},
-      {:hammer, "~> 6.1"}
+      {:hammer, "~> 7.0"}
     ]
   end
 
