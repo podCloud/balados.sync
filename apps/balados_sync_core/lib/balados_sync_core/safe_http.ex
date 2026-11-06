@@ -36,8 +36,12 @@ defmodule BaladosSyncCore.SafeHttp do
           | {:http_error, pos_integer()}
           | {:network_error, term()}
 
-  @spec get(String.t(), keyword()) :: {:ok, binary()} | {:error, error()}
-  def get(url, opts \\ []) when is_binary(url), do: do_get(url, opts, 0)
+  @spec get(term(), keyword()) :: {:ok, binary()} | {:error, error()}
+  def get(url, opts \\ [])
+  def get(url, opts) when is_binary(url), do: do_get(url, opts, 0)
+
+  # Same outcome UrlValidator gave callers for a nil feed URL before SafeHttp.
+  def get(_url, _opts), do: {:error, :url_blocked}
 
   defp do_get(url, opts, hops) do
     case UrlValidator.validate_rss_url(url) do
@@ -122,7 +126,9 @@ defmodule BaladosSyncCore.SafeHttp do
   logged, and an IPv6 zone id (`[fe80::1%25eth0]`) shows as the host `URI`
   parses it into (`fe80`).
   """
-  @spec loggable(String.t()) :: String.t()
+  @spec loggable(term()) :: String.t()
+  def loggable(url) when not is_binary(url), do: "<invalid url>"
+
   def loggable(url) do
     case URI.parse(url) do
       %URI{host: host} when host in [nil, ""] ->

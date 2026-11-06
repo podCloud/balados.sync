@@ -188,6 +188,11 @@ defmodule BaladosSyncCore.SafeHttpTest do
              )
   end
 
+  test "a non-string URL is blocked instead of raising" do
+    assert {:error, :url_blocked} = SafeHttp.get(nil)
+    assert {:error, :url_blocked} = SafeHttp.get(123, [])
+  end
+
   describe "loggable/1" do
     test "removes user:pass@ credentials" do
       assert SafeHttp.loggable("https://alice:s3cret@feeds.example.com/rss") ==
@@ -210,6 +215,10 @@ defmodule BaladosSyncCore.SafeHttpTest do
       assert SafeHttp.loggable("https://alice:pw@:80/x") == "<url without host>"
       assert SafeHttp.loggable("https://alice:pw@/x") == "<url without host>"
       assert SafeHttp.loggable("https:alice:pw@host/x") == "<url without host>"
+    end
+
+    test "returns a placeholder for a non-string value" do
+      assert SafeHttp.loggable(nil) == "<invalid url>"
     end
 
     test "keeps a plain URL unchanged" do
