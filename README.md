@@ -139,7 +139,7 @@ export PORT=4000
 # Exige une distribution Erlang en noms longs, sinon DNSCluster se contente
 # d'un avertissement : RELEASE_DISTRIBUTION=name et
 # RELEASE_NODE=balados_sync@<ip-ou-fqdn> dans une release, `elixir --name` hors
-# release (vide ou absent = pas de cluster)
+# release (vide, blanc ou absent = pas de cluster ; espaces autour rognés)
 export DNS_CLUSTER_QUERY="balados-sync.internal"
 ```
 
