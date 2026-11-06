@@ -17,11 +17,11 @@ defmodule BaladosSyncCore.RssCache do
 
     case get(cache_key) do
       {:ok, cached_xml} ->
-        Logger.debug("RSS cache HIT: #{feed_url}")
+        Logger.debug("RSS cache HIT: #{SafeHttp.loggable(feed_url)}")
         {:ok, cached_xml}
 
       :miss ->
-        Logger.debug("RSS cache MISS: #{feed_url}")
+        Logger.debug("RSS cache MISS: #{SafeHttp.loggable(feed_url)}")
 
         case fetch_from_url(feed_url) do
           {:ok, xml} ->
@@ -75,11 +75,11 @@ defmodule BaladosSyncCore.RssCache do
 
     case get(cache_key) do
       {:ok, cached_metadata} ->
-        Logger.debug("Metadata cache HIT: #{feed_url}")
+        Logger.debug("Metadata cache HIT: #{SafeHttp.loggable(feed_url)}")
         {:ok, cached_metadata}
 
       :miss ->
-        Logger.debug("Metadata cache MISS: #{feed_url}")
+        Logger.debug("Metadata cache MISS: #{SafeHttp.loggable(feed_url)}")
 
         case fetch_and_parse_feed(feed_url) do
           {:ok, {metadata, _episodes}} ->
@@ -99,11 +99,11 @@ defmodule BaladosSyncCore.RssCache do
         {:ok, body}
 
       {:error, :url_blocked} ->
-        Logger.warning("RSS fetch blocked by URL validation for #{url}")
+        Logger.warning("RSS fetch blocked by URL validation for #{SafeHttp.loggable(url)}")
         {:error, :url_blocked}
 
       {:error, {:http_error, status}} ->
-        Logger.error("RSS fetch failed with status #{status}: #{url}")
+        Logger.error("RSS fetch failed with status #{status}: #{SafeHttp.loggable(url)}")
         {:error, :fetch_failed}
 
       {:error, reason} ->

@@ -173,4 +173,21 @@ defmodule BaladosSyncCore.SafeHttpTest do
     assert {:ok, "ok"} =
              get("https://feeds.example.org/feed", headers: [{"cache-control", "no-cache"}])
   end
+
+  describe "loggable/1" do
+    test "removes user:pass@ credentials" do
+      assert SafeHttp.loggable("https://alice:s3cret@feeds.example.com/rss") ==
+               "https://feeds.example.com/rss"
+    end
+
+    test "drops the query string and fragment, where private-feed tokens live" do
+      assert SafeHttp.loggable("https://feeds.example.com/rss?token=abc&u=1#x") ==
+               "https://feeds.example.com/rss"
+    end
+
+    test "keeps a plain URL unchanged" do
+      assert SafeHttp.loggable("https://feeds.example.com/rss") ==
+               "https://feeds.example.com/rss"
+    end
+  end
 end

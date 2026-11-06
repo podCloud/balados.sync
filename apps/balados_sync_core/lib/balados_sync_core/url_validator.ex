@@ -20,6 +20,9 @@ defmodule BaladosSyncCore.UrlValidator do
     `*.internal`, `*.local`, cloud metadata names (case-insensitive, trailing
     dot ignored)
 
+  The unassigned `fe00::/9` range is not listed: it is not routable on the
+  internet, so a connection to it fails anyway.
+
   Host names are **not resolved**: a name whose DNS (or `/etc/hosts`) points
   to a blocked address passes this check (issue #297). Callers fetching
   third-party URLs should go through `BaladosSyncCore.SafeHttp`, which also

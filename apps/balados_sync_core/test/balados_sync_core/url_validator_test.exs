@@ -189,6 +189,8 @@ defmodule BaladosSyncCore.UrlValidatorTest do
           "http://[ff02::1]/",
           "http://[ff05::1]/",
           "http://[fec0::1]/",
+          "http://[fed0::1]/",
+          "http://[feff::1]/",
           "http://[::ffff:0:127.0.0.1]/",
           "http://[64:ff9b:1::7f00:1]/"
         ] do

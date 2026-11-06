@@ -106,12 +106,15 @@ defmodule BaladosSyncCore.SafeHttp do
   defp handle_response({:error, exception}, _url, _opts, _hops),
     do: {:error, {:network_error, exception}}
 
-  @doc "URL safe to log: any `user:pass@` part is removed."
+  @doc """
+  URL safe to log: the `user:pass@` part, the query string and the fragment
+  are removed (private feeds carry their access token in either).
+  """
   @spec loggable(String.t()) :: String.t()
   def loggable(url) do
-    case URI.parse(url) do
-      %URI{userinfo: nil} -> url
-      uri -> URI.to_string(%{uri | userinfo: nil})
-    end
+    url
+    |> URI.parse()
+    |> Map.merge(%{userinfo: nil, query: nil, fragment: nil})
+    |> URI.to_string()
   end
 end
