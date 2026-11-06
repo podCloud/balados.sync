@@ -168,7 +168,7 @@ Le projet nécessite les dépendances suivantes (déjà dans mix.exs) :
 {:joken_jwks, "~> 1.6"}
 
 # RSS Proxy & Aggregation
-{:httpoison, "~> 2.2"}
+{:req, "~> 0.7.5"}
 {:cachex, "~> 4.0"}
 {:sweet_xml, "~> 0.7"}
 
@@ -390,7 +390,7 @@ Accept: application/xml
 - `Cache-Control: private, max-age=300`
 - `Content-Type: application/xml`
 
-**Erreurs :** `400` identifiant invalide ou URL refusée (SSRF), `502` flux injoignable, `404` épisode absent.
+**Erreurs :** `400` identifiant invalide ou URL refusée (SSRF ; chaque redirection est revalidée, 5 au plus), `502` flux injoignable, `404` épisode absent.
 
 **Cache :**
 - 500 entrées max (éviction des entrées les moins récemment écrites, vérifiée toutes les 3 s : le cache peut dépasser brièvement 500 entrées)

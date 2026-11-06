@@ -8,6 +8,7 @@ defmodule BaladosSyncWeb.PlaylistEnricher do
 
   require Logger
   alias BaladosSyncCore.RssCache
+  alias BaladosSyncCore.SafeHttp
 
   @feed_timeout 5_000
   @max_concurrency 5
@@ -94,7 +95,7 @@ defmodule BaladosSyncWeb.PlaylistEnricher do
         {feed_url, episodes_map}
 
       {:error, reason} ->
-        Logger.warning("Failed to fetch feed #{feed_url}: #{inspect(reason)}")
+        Logger.warning("Failed to fetch feed #{SafeHttp.loggable(feed_url)}: #{inspect(reason)}")
         {feed_url, %{}}
     end
   end

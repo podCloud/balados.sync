@@ -154,6 +154,64 @@ defmodule BaladosSyncCore.UrlValidatorTest do
     end
   end
 
+  describe "validate_rss_url/1 against SSRF bypasses (#292 review)" do
+    for url <- [
+          # unspecified addresses reach the local host on most stacks
+          "http://0.0.0.0/",
+          "http://0/",
+          "http://0.1.2.3/",
+          "http://[::]/",
+          # IPv4-mapped / IPv4-compatible IPv6 forms of blocked IPv4
+          "http://[::ffff:127.0.0.1]/",
+          "http://[::ffff:7f00:1]/",
+          "http://[::ffff:169.254.169.254]/latest/",
+          "http://[::ffff:a9fe:a9fe]/",
+          "http://[::ffff:10.0.0.1]/",
+          "http://[::127.0.0.1]/",
+          # NAT64 and 6to4 embeddings of blocked IPv4
+          "http://[64:ff9b::7f00:1]/",
+          "http://[2002:7f00:1::]/",
+          "http://[2002:a9fe:a9fe::]/",
+          # special-use IPv4 ranges
+          "http://100.64.0.1/",
+          "http://198.18.0.1/",
+          "http://192.0.0.1/",
+          "http://240.0.0.1/",
+          "http://255.255.255.255/",
+          # localhost name variants resolved locally (/etc/hosts, RFC 6761)
+          "http://localhost./",
+          "http://LOCALHOST/",
+          "http://foo.localhost/",
+          "http://localhost.localdomain/",
+          "http://metadata.google.internal./",
+          "http://printer.local./",
+          # round 2: IPv6 multicast beyond ff00::, site-local, SIIT, local NAT64
+          "http://[ff02::1]/",
+          "http://[ff05::1]/",
+          "http://[fec0::1]/",
+          "http://[fed0::1]/",
+          "http://[feff::1]/",
+          "http://[fe00::1]/",
+          "http://[fe7f::1]/",
+          "http://[::ffff:0:127.0.0.1]/",
+          "http://[64:ff9b:1::7f00:1]/"
+        ] do
+      test "rejects #{url}" do
+        assert {:error, _reason} = UrlValidator.validate_rss_url(unquote(url))
+      end
+    end
+
+    test "still accepts public addresses and their IPv6 forms" do
+      assert :ok = UrlValidator.validate_rss_url("http://93.184.215.14/feed")
+      assert :ok = UrlValidator.validate_rss_url("http://[::ffff:93.184.215.14]/feed")
+
+      assert :ok =
+               UrlValidator.validate_rss_url("http://[2606:2800:21f:cb07:6820:80da:af6b:8b2c]/")
+
+      assert :ok = UrlValidator.validate_rss_url("https://feeds.example.org./feed")
+    end
+  end
+
   describe "validate_rss_url!/1" do
     test "returns URL when valid" do
       url = "https://example.com/feed.xml"

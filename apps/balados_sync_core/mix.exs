@@ -45,7 +45,8 @@ defmodule BaladosSyncCore.MixProject do
       {:phoenix_pubsub, "~> 2.1"},
       {:swoosh, "~> 1.5"},
       {:finch, "~> 0.13"},
-      {:httpoison, "~> 2.0"},
+      {:req, "~> 0.7.5"},
+      {:plug, "~> 1.16", only: :test},
       {:cachex, "~> 4.0"},
       {:sweet_xml, "~> 0.7"},
       # Property-based testing
