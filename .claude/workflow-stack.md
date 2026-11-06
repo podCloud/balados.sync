@@ -13,7 +13,7 @@
 - 5 bounded contexts (Subscription, PlayTracking, Playlist, Collection, Like).
 - Repos Ecto : SystemRepo / ProjectionsRepo / EventStore.
 - Auth : `BaladosSyncWeb.Plugs.JWTAuth` (`scopes` / `scopes_any`, 401 sans token, 403 scope insuffisant) ; tests avec `JwtTestHelper.authenticate_conn/3`.
-- Rate limit : `BaladosSyncWeb.Plugs.RateLimiter` (Hammer 6) ; en test, purger avec `Hammer.delete_buckets/1`.
+- Rate limit : `BaladosSyncWeb.Plugs.RateLimiter` sur `BaladosSyncWeb.RateLimit` (Hammer 7, table ETS globale, `{:deny, retry_after_ms}`) ; en test, `BaladosSyncWeb.RateLimit.reset/0` seulement dans un module `async: false`, sinon un `user_id` distinct par test.
 - Cache RSS : Cachex `:rss_feed_cache`, 5 min ; en test, `on_exit` avec `Cachex.del`.
 - Référence : docs/technical/CQRS_PATTERNS.md, docs/technical/AUTH_SYSTEM.md.
 - Branches : `feature/issue-<n>-<slug>`. Worktrees dans `.worktrees/` (gitignoré). Auteur : Claude <noreply@anthropic.com>.

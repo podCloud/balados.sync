@@ -11,15 +11,17 @@ defmodule BaladosSyncWeb.Application do
   def start(_type, _args) do
     children = [
       BaladosSyncWeb.Telemetry,
-      # Start a worker by calling: BaladosSyncWeb.Worker.start_link(arg)
-      # {BaladosSyncWeb.Worker, arg},
-      # Start to serve requests, typically the last entry
-      BaladosSyncWeb.Endpoint,
       # RSS feed cache: 5-minute expiration set per entry (RssCache.put/2),
       # bounded to 500 entries by Cachex 4's scheduled least-recently-written
-      # eviction (the Cachex 3 `limit:` option no longer exists)
+      # eviction, checked every 3 s (Cachex 3's `limit:` checked on each write
+      # and no longer exists)
       {Cachex,
-       name: :rss_feed_cache, hooks: [hook(module: Cachex.Limit.Scheduled, args: {500, [], []})]}
+       name: :rss_feed_cache, hooks: [hook(module: Cachex.Limit.Scheduled, args: {500, [], []})]},
+      # Rate limiter buckets (Hammer 7, ETS table named after the module);
+      # must be up before the endpoint accepts its first rate-limited request
+      BaladosSyncWeb.RateLimit,
+      # Start to serve requests, typically the last entry
+      BaladosSyncWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

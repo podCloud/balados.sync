@@ -32,7 +32,9 @@ defmodule BaladosSyncWeb.AuthController do
   alias BaladosSyncWeb.Plugs.RateLimiter
   import BaladosSyncWeb.ErrorHelpers, only: [unauthorized: 2]
 
-  # Rate limit refresh operations: 100 requests per hour per user
+  # Rate limit refresh operations: 100 requests per hour per user (shared
+  # across the user's devices). Genuinely enforced since Hammer 7: the old
+  # global expiry_ms: 60_000 pruned this hourly bucket after a minute idle.
   plug RateLimiter,
     limit: 100,
     window_ms: 3_600_000,

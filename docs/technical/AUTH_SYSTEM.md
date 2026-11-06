@@ -660,9 +660,15 @@ config :balados_sync_web, BaladosSyncWeb.Endpoint,
 ```
 
 #### 2. Rate Limiting
+Le plug réutilisable `BaladosSyncWeb.Plugs.RateLimiter` (Hammer 7, fenêtre
+fixe en ETS via `BaladosSyncWeb.RateLimit`) renvoie 429 avec un `Retry-After`
+égal au temps restant dans la fenêtre :
 ```elixir
-# Limiter les tentatives d'autorisation
-plug :rate_limit, max_requests: 10, interval: :timer.minutes(1)
+plug BaladosSyncWeb.Plugs.RateLimiter,
+  limit: 10,
+  window_ms: :timer.minutes(1),
+  key: :ip,
+  namespace: "authorize"
 ```
 
 #### 3. Monitoring
