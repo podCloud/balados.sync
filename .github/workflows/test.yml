@@ -58,7 +58,6 @@ jobs:
           path: |
             deps
             _build
-            ~/.cache/elixir_make
           key: mix-${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-${{ hashFiles('mix.lock') }}
           restore-keys: |
             mix-${{ runner.os }}-${{ steps.beam.outputs.otp-version }}-${{ steps.beam.outputs.elixir-version }}-
@@ -88,5 +87,4 @@ jobs:
           path: |
             deps
             _build
-            ~/.cache/elixir_make
           key: ${{ steps.cache.outputs.cache-primary-key }}

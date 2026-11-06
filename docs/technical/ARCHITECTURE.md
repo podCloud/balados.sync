@@ -626,8 +626,8 @@ Données de **configuration** ou **administratives** ne nécessitant pas d'histo
   - HEEx interpole `{...}` dans le texte : une accolade littérale (ex. format d'URL affiché) exige `phx-no-curly-interpolation` sur l'élément
   - un `{expr}` seul sur sa ligne garde l'indentation qui le précède (`<%= %>` la supprimait) : sans effet tant que l'élément n'a pas de `white-space: pre*` (`<pre>`, `whitespace-pre-line`)
   - plus de `phx-feedback-for` : `CoreComponents.input/1` masque les erreurs tant que `Phoenix.Component.used_input?/1` est faux
-  - tout `<form phx-change>` porte un `id` ; si l'URL porte déjà l'état (filtres paginés), ajouter `phx-auto-recover="ignore"` pour que la restauration après reconnexion ne rejoue pas l'événement
-  - `put_secure_browser_headers` envoie par défaut `content-security-policy: base-uri 'self'; frame-ancestors 'self'` et plus `x-frame-options` : les pages ne s'affichent pas dans une iframe d'une autre origine (un lecteur intégrable aurait besoin de son propre pipeline)
+  - tout `<form phx-change>` porte un `id` ; si l'URL porte déjà l'état (filtres paginés), ajouter `phx-auto-recover="ignore"` pour que la restauration après reconnexion ne rejoue pas l'événement (contrepartie : un choix fait pendant la coupure est perdu, la page revient à l'état de l'URL)
+  - `put_secure_browser_headers` envoie par défaut `content-security-policy: base-uri 'self'; frame-ancestors 'self';` et plus `x-frame-options` : les pages ne s'affichent pas dans une iframe d'une autre origine (un lecteur intégrable aurait besoin de son propre pipeline)
   - layouts implicites conservés (`layouts:` dans `use Phoenix.Controller`, `layout:` dans `use Phoenix.LiveView`) ; `core_components.ex` garde le style Tailwind 3 maison plutôt que celui du générateur 1.8
 - **Commanded** : CQRS/ES framework
 - **EventStore** : Event persistence (PostgreSQL)
