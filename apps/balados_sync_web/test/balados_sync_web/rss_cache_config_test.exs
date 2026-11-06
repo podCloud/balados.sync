@@ -7,14 +7,17 @@ defmodule BaladosSyncWeb.RssCacheConfigTest do
 
   use ExUnit.Case, async: false
 
-  require Cachex.Spec
   import Cachex.Spec
 
   @cache :rss_feed_cache
   @five_minutes :timer.minutes(5)
 
   setup do
-    on_exit(fn -> Cachex.clear(@cache) end)
+    on_exit(fn ->
+      Cachex.del(@cache, {:test, :web})
+      Cachex.del(@cache, {:test, :core})
+    end)
+
     :ok
   end
 

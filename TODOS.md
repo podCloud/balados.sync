@@ -143,6 +143,7 @@ Format: `- [ ] Description - [#N](url) - STATUS`
 
 Format: `- [x] Description - [#N](url)`
 
+- [x] Cachex 4 upgrade (expire:, scheduled 500-entry bound) - [#288](https://github.com/podCloud/balados.sync/issues/288) - PR #291
 - [x] Minor dependency updates within current constraints - [#281](https://github.com/podCloud/balados.sync/issues/281) - PR #283 (e2e failures pre-existing: #282)
 - [x] CI: test suite on every PR, Elixir 1.20.1 / OTP 28 pinned - [#273](https://github.com/podCloud/balados.sync/issues/273) - PR #275 (follow-ups #274, #276, #277, #278, #279)
 - [x] E2E UI testing with Wallaby - [#197](https://github.com/podCloud/balados.sync/issues/197) - PR #198
