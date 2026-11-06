@@ -149,11 +149,11 @@ defmodule BaladosSyncWeb.PodcastOwnership do
         {:ok, body}
 
       {:error, :url_blocked} ->
-        Logger.warning("Feed fetch blocked by URL validation for #{feed_url}")
+        Logger.warning("Feed fetch blocked by URL validation for #{SafeHttp.loggable(feed_url)}")
         {:error, :url_blocked}
 
       {:error, {:http_error, status}} ->
-        Logger.error("Feed fetch failed with status #{status}: #{feed_url}")
+        Logger.error("Feed fetch failed with status #{status}: #{SafeHttp.loggable(feed_url)}")
         {:error, {:http_error, status}}
 
       {:error, {:network_error, reason}} ->
@@ -161,7 +161,7 @@ defmodule BaladosSyncWeb.PodcastOwnership do
         {:error, {:network_error, reason}}
 
       {:error, :too_many_redirects} ->
-        Logger.error("Feed fetch: too many redirects for #{feed_url}")
+        Logger.error("Feed fetch: too many redirects for #{SafeHttp.loggable(feed_url)}")
         {:error, {:network_error, :too_many_redirects}}
     end
   end

@@ -135,7 +135,16 @@ defmodule BaladosSyncCore.SafeHttpTest do
       raise RuntimeError, "Finch was unable to provide a connection within the timeout"
     end)
 
-    assert {:error, {:network_error, %RuntimeError{}}} = get("https://feeds.example.org/feed")
+    assert {:error, {:network_error, %RuntimeError{message: "Finch was unable" <> _}}} =
+             get("https://feeds.example.org/feed")
+  end
+
+  test "any other RuntimeError is not swallowed" do
+    stub(fn _conn -> raise RuntimeError, "a programming error" end)
+
+    assert_raise RuntimeError, "a programming error", fn ->
+      get("https://feeds.example.org/feed")
+    end
   end
 
   test "passes the body through untouched and identifies Balados" do

@@ -139,6 +139,8 @@ defmodule BaladosSyncCore.UrlValidator do
   # IPv4 address embedded in an IPv6 one, or nil
   # ::ffff:a.b.c.d (IPv4-mapped)
   defp embedded_ipv4({0, 0, 0, 0, 0, 0xFFFF, hi, lo}), do: v4(hi, lo)
+  # ::ffff:0:a.b.c.d (SIIT, RFC 6145)
+  defp embedded_ipv4({0, 0, 0, 0, 0xFFFF, 0, hi, lo}), do: v4(hi, lo)
   # ::a.b.c.d (deprecated IPv4-compatible); :: and ::1 are handled as IPv6
   defp embedded_ipv4({0, 0, 0, 0, 0, 0, hi, lo}) when hi != 0 or lo > 1, do: v4(hi, lo)
   # 64:ff9b::a.b.c.d (NAT64 well-known prefix)
@@ -195,6 +197,12 @@ defmodule BaladosSyncCore.UrlValidator do
   defp is_reserved?({198, second, _, _}) when second in [18, 19], do: true
   # 240.0.0.0/4 (reserved) including 255.255.255.255 (broadcast)
   defp is_reserved?({first, _, _, _}) when first >= 240, do: true
+  # fec0::/10 (deprecated IPv6 site-local)
+  defp is_reserved?({first, _, _, _, _, _, _, _}) when first >= 0xFEC0 and first <= 0xFEFF,
+    do: true
+
+  # 64:ff9b:1::/48 (RFC 8215 local-use NAT64, prefix length not decodable)
+  defp is_reserved?({0x64, 0xFF9B, 1, _, _, _, _, _}), do: true
   defp is_reserved?(_), do: false
 
   # IPv4 loopback: 127.0.0.0/8
@@ -227,7 +235,7 @@ defmodule BaladosSyncCore.UrlValidator do
   # IPv4 multicast: 224.0.0.0/4
   defp is_multicast?({first, _, _, _}) when first >= 224 and first <= 239, do: true
   # IPv6 multicast: ff00::/8
-  defp is_multicast?({0xFF00, _, _, _, _, _, _, _}), do: true
+  defp is_multicast?({first, _, _, _, _, _, _, _}) when first >= 0xFF00, do: true
   defp is_multicast?(_), do: false
 
   # Format IP for logging

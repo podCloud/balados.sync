@@ -69,7 +69,10 @@ defmodule BaladosSyncCore.SafeHttp do
     # Finch raises (instead of returning) when no pooled connection frees up
     # within its pool timeout; hackney used to return {:error, :checkout_timeout}.
     # Keep the tuple contract so callers degrade to :fetch_failed, not a 500.
-    e in RuntimeError -> {:error, e}
+    e in RuntimeError ->
+      if String.starts_with?(e.message, "Finch was unable to provide a connection"),
+        do: {:error, e},
+        else: reraise(e, __STACKTRACE__)
   end
 
   defp user_agent do
@@ -103,8 +106,9 @@ defmodule BaladosSyncCore.SafeHttp do
   defp handle_response({:error, exception}, _url, _opts, _hops),
     do: {:error, {:network_error, exception}}
 
-  # Never log credentials a URL or a redirect target may carry (user:pass@host)
-  defp loggable(url) do
+  @doc "URL safe to log: any `user:pass@` part is removed."
+  @spec loggable(String.t()) :: String.t()
+  def loggable(url) do
     case URI.parse(url) do
       %URI{userinfo: nil} -> url
       uri -> URI.to_string(%{uri | userinfo: nil})

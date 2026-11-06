@@ -184,7 +184,13 @@ defmodule BaladosSyncCore.UrlValidatorTest do
           "http://foo.localhost/",
           "http://localhost.localdomain/",
           "http://metadata.google.internal./",
-          "http://printer.local./"
+          "http://printer.local./",
+          # round 2: IPv6 multicast beyond ff00::, site-local, SIIT, local NAT64
+          "http://[ff02::1]/",
+          "http://[ff05::1]/",
+          "http://[fec0::1]/",
+          "http://[::ffff:0:127.0.0.1]/",
+          "http://[64:ff9b:1::7f00:1]/"
         ] do
       test "rejects #{url}" do
         assert {:error, _reason} = UrlValidator.validate_rss_url(unquote(url))
