@@ -631,7 +631,7 @@ Données de **configuration** ou **administratives** ne nécessitant pas d'histo
 ### Libraries Importantes
 - **Joken** : JWT encoding/decoding (RS256)
 - **SweetXml** : XML parsing (RSS feeds)
-- **Timex** : Date/time manipulation
+- **Calendar / DateTime** natifs : dates RFC 1123 des flux via `BaladosSyncWeb.Rfc1123` (Timex retiré, #285)
 - **Req** : HTTP client
 
 ### Dev Tools
